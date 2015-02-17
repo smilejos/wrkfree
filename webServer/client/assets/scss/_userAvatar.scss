@@ -1,0 +1,25 @@
+/**
+ * define the size of user avatar
+ */
+.UserAvatar {
+    width: 40px;
+    height: 40px;
+}
+
+/**
+ * all user avatar img become rwd
+ */
+.UserAvatar img {
+    width: auto;
+    height : auto;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+/**
+ * all useravatar with circle tag will be
+ * shapped as circle
+ */
+.UserAvatar .circle {
+    border-radius: 150px;
+}
