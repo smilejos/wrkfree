@@ -3,6 +3,14 @@ var React = require('react');
 var app = require('../shared/app');
 var dehydratedState = window.App; // Sent from the server
 
+/**
+ * initialize the pomelo
+ */
+window.protobuf = require('pomelo-protobuf');
+window.EventEmitter = require('eventemitter2');
+window.Protocol = require('./lib/pomeloProtocol');
+window.pomelo = require('./lib/pomeloClient');
+
 window.React = React; // For chrome dev tool support
 
 var Router = require('react-router');
