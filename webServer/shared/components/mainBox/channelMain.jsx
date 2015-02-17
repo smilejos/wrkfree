@@ -3,7 +3,7 @@ var React = require('react');
 var ChannelMain = React.createClass({
     render: function() {
         return (
-            <div className="ChannelMain ">
+            <div className="mainBox ChannelMain ">
                     Main Box
             </div>
         );

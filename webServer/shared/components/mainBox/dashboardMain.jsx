@@ -3,7 +3,7 @@ var React = require('react');
 var DashboardMain = React.createClass({
     render: function() {
         return (
-            <div className="DashboardMain ">
+            <div className="mainBox DashboardMain ">
                     Main Box
             </div>
         );

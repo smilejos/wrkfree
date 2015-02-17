@@ -3,7 +3,7 @@ var React = require('react');
 var ChannelInfo = React.createClass({
     render: function() {
         return (
-            <div className="ChannelInfo">
+            <div className="infoBox ChannelInfo">
                     info_box
             </div>
         );

@@ -3,7 +3,7 @@ var React = require('react');
 var DashboardInfo = React.createClass({
     render: function() {
         return (
-            <div className="DashboardInfo">
+            <div className="infoBox DashboardInfo">
                     info_box
             </div>
         );
