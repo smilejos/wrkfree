@@ -45,7 +45,7 @@ webpackConfig = {
     stats: {
         colors: true
     },
-    watch: true,
+    watch: (env === 'dev'),
     keepalive: true
 };
 
