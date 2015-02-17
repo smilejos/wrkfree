@@ -2,6 +2,8 @@ var gulp = require('gulp');
 var webpack = require('gulp-webpack');
 var livereload = require('gulp-livereload');
 var nodemon = require('gulp-nodemon');
+var compass = require('gulp-compass');
+var minifyCSS = require('gulp-minify-css');
 
 /**
  * check the runtime environment
@@ -57,14 +59,31 @@ var nodemonConfig = {
     ]
 };
 
+/**
+ * Gulp Task
+ * @Author: Jos Tung
+ * @Description: auto build sass file to css
+ */
+gulp.task('compass', function() {
+    gulp.src(paths.sass)
+        .pipe(compass({
+          css: 'build/assets/css',
+          sass: 'client/assets/scss',
+          image: 'client/assets/images'
+        }))
+        .pipe(minifyCSS({
+                noAdvanced: false,
+                keepBreaks: true,
+                cache: true // this add-on is gulp only
+            }))
+        .pipe(gulp.dest(paths.destCSS));
+});
 
 gulp.task('build', function() {
     return gulp.src(paths.main)
         .pipe(webpack(webpackConfig))
         .pipe(gulp.dest(paths.destDir));
 });
-
-
 
 gulp.task('nodemon', function() {
     return nodemon(nodemonConfig)
@@ -79,7 +98,8 @@ gulp.task('nodemon', function() {
 gulp.task('livereload', function() {  
     livereload.listen();  
     var server = livereload();
-    gulp.watch(watchConfig, function(){
+    // client files changed will also trigger compass
+    gulp.watch(watchConfig, ['compass'], function(){
         setTimeout(function(){
             gulp.src('./build/bundle.js').pipe(livereload());
         }, 500)
@@ -87,10 +107,10 @@ gulp.task('livereload', function() {
 }); 
 
 /**
- * 
+ * regular tasks
  */
-gulp.task('prod', ['build']);
+gulp.task('prod', ['build', 'compass']);
 
-gulp.task('dev', ['build', 'nodemon', 'livereload']);
+gulp.task('dev', ['build', 'compass', 'nodemon', 'livereload']);
 
 gulp.task('default', [env]);

@@ -13,6 +13,8 @@
     "eventemitter2": "^0.4.14",
     "express": "^4.9.0",
     "fluxible": "^0.2.0",
+    "gulp-compass": "^2.0.3",
+    "gulp-minify-css": "^0.4.5",
     "node-jsx": "^0.12.4",
     "react": "^0.12.0",
     "react-router": "^0.12.0",
