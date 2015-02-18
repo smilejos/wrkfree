@@ -1,3 +1,4 @@
+var SharedUtils = require('../../../sharedUtils/utils');
 var RouteInstance = (typeof window !== 'undefined') 
     ? require('../../client/routeEntry')
     : require('../../server/routeEntry')
@@ -9,16 +10,6 @@ var RoutesHandler = {
 
 function isHandlerExist(path) {
     return !!RoutesHandler[path];
-}
-
-// https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
-function getArgs(rawArguments){
-    var args = new Array(rawArguments.length);
-    for(var i = 0; i < args.length; ++i) {
-                //i is always valid index in the rawArguments object
-        args[i] = rawArguments[i];
-    }
-    return args;
 }
 
 module.exports = {
@@ -33,7 +24,7 @@ module.exports = {
                     if (!isHandlerExist) {
                         return callback(new Error('no match handler'));
                     }
-                    var args = getArgs(arguments);
+                    var args = SharedUtils.getArgs(arguments);
                     var path = args.shift();
                     return RoutesHandler[path].apply(this, args);
                 },

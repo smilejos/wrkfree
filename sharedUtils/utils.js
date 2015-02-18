@@ -24,6 +24,24 @@ module.exports = {
         }, 0);
     },
 
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: getting the arguments array without leaking it
+     *
+     * @param {Object}      rawArguments, the arguments object in function
+     * 
+     * https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
+     */
+    getArgs: function(rawArguments){
+        var args = new Array(rawArguments.length);
+        for(var i = 0; i < args.length; ++i) {
+                    //i is always valid index in the rawArguments object
+            args[i] = rawArguments[i];
+        }
+        return args;
+    },
+
     isBoolean: function(object) {
         return (typeof object === 'boolean');
     },
