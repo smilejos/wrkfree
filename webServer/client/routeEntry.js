@@ -1,13 +1,23 @@
+var Promise = require('bluebird');
 
-
-exports.getDashboard = function(routeInfo, callback){
-    console.log('[routesHandler]  client Routes get dashboard', routeInfo);
-    setTimeout(function(){
-        callback();
-    }, 100);
+exports.setResource = function(resource){
+    console.log('set resource on client');    
 }
 
+exports.getDashboardAsync = function(routeInfo){
+    return Promise.try(function(){
+        // do something
+        return {
+            result: 'done'
+        };
+    });
+}
 
-exports.getChannel = function(routeInfo, callback){
-    console.log('[routesHandler]  client Routes get channel');
+exports.getChannelAsync = function(routeInfo){
+    return Promise.try(function(){
+        // do something
+        return {
+            result: 'done'
+        };
+    });
 }
