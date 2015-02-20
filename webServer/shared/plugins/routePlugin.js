@@ -1,43 +1,44 @@
+var SharedUtils = require('../../../sharedUtils/utils');
 var RouteInstance = (typeof window !== 'undefined') 
     ? require('../../client/routeEntry')
     : require('../../server/routeEntry')
 
+/**
+ * RoutesHandler
+ */
 var RoutesHandler = {
-    '/dashboard': RouteInstance.getDashboard,
-    '/channel': RouteInstance.getChannel
+    '/': RouteInstance.getDashboardAsync,
+    '/dashboard': RouteInstance.getDashboardAsync,
+    '/channel': RouteInstance.getChannelAsync
 };
 
 function isHandlerExist(path) {
     return !!RoutesHandler[path];
 }
 
-// https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
-function getArgs(rawArguments){
-    var args = new Array(rawArguments.length);
-    for(var i = 0; i < args.length; ++i) {
-                //i is always valid index in the rawArguments object
-        args[i] = rawArguments[i];
-    }
-    return args;
-}
+/**
+ * for saving recently routing resource
+ */
+var routeResource = null;
 
 module.exports = {
     name: 'routePlugin',
-
     plugContext: function (options) {
         return {
             plugActionContext: function plugActionContext(actionContext) {
                 var routeInfo = {};
 
-                actionContext.getRouteResource = function() {                    
-                    if (!isHandlerExist) {
-                        return callback(new Error('no match handler'));
+                actionContext.getRouteResourceAsync = function(params) {
+                    if (!isHandlerExist(params.path)) {
+                        throw new Error('no match handler');
                     }
-                    var args = getArgs(arguments);
-                    var path = args.shift();
-                    return RoutesHandler[path].apply(this, args);
+                    var handler = RoutesHandler[params.path];
+                    return handler(params).then(function(data){
+                        // update the route resource
+                        routeResource = data;
+                        return data;
+                    });
                 },
-
                 actionContext.setRouteInfo = function(info){
                     routeInfo = info;
                 },
@@ -49,12 +50,14 @@ module.exports = {
         }
     },
 
-    // Allows dehydration of application plugin settings
-    dehydrate: function () { 
-        return {}; 
+    // extract the latest routing resource and send to remote side
+    dehydrate: function () {
+        return routeResource;
     },
 
-    // Allows rehydration of application plugin settings
-    rehydrate: function (state) {
+    // update the routing resource from remote side
+    rehydrate: function (resource) {
+        routeResource = resource;
+        return RouteInstance.setResource(resource);
     }
 };
