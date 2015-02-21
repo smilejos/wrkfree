@@ -15,6 +15,14 @@ var HtmlComponent = React.createFactory(require('../shared/components/Html.jsx')
 var navigateAction = require('../shared/navigateAction');
 var Router = require('react-router');
 
+/**
+ * setup custom plugin
+ */
+var storePlugin = app.getPlugin('storePlugin');
+storePlugin.envSetup({
+    lokijs: require('lokijs')
+});
+
 
 server.use(express.static(__dirname + '/../build'));
 
