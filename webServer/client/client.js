@@ -4,6 +4,14 @@ var app = require('../shared/app');
 var dehydratedState = window.App; // Sent from the server
 
 /**
+ * setup custom plugin
+ */
+var storePlugin = app.getPlugin('storePlugin');
+storePlugin.envSetup({
+    lokijs: window.loki
+});
+
+/**
  * initialize the pomelo
  */
 window.protobuf = require('pomelo-protobuf');
