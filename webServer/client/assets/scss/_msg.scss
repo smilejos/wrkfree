@@ -1,0 +1,146 @@
+$shadow_radius: 6px;
+$nose_size: 12px;
+$shadow: 0 1px $shadow_radius #B2B2B2;
+$border:  1px solid #bbb;
+
+/************************************************
+ *
+ *            Message Box
+ *
+ ************************************************/
+
+.MsgBoxHeader {
+    background-color: #3F3F3F;
+    font-family: monospace;
+    font-size:18px;
+    font-weight: bolder;
+
+    padding-top:5px; 
+    padding-left:30px; 
+    padding-right:30px; 
+    padding-bottom:5px; 
+
+    border-color:#FFFFFF;
+    border-width:1px;
+
+    margin-top:0px; 
+    margin-left:0px; 
+    margin-right:auto;
+    margin-bottom:0px;
+    color: #FFFFFF;
+}
+
+.MsgBox {
+    background-color: #EEEEEE;
+    box-sizing: border-box;
+    margin-left: 10px;
+}
+
+.MsgList {
+    height: 240px;
+    overflow: scroll;
+}
+
+/************************************************
+ *
+ *            InputArea
+ *
+ ************************************************/
+
+.InputArea {
+    overflow: hidden;
+}
+
+.InputBox {
+    background-color: #DDDDDD;
+    border-radius: 5px;
+    border-color:#FFFFFF;
+    border-width: 1px;
+    margin-left: 10px;
+}
+
+.msgSubmitButton {
+    background-color: #598EB2;
+    margin-left: 10px;
+    color: #FFFFFF;
+}
+
+/************************************************
+ *
+ *            message style
+ *
+ ************************************************/
+
+.MsgContent {
+    color: #5E807F;
+}
+ 
+.MsgTime {
+    color: #CECECE;
+    font-size: 12px;
+}
+
+.bubble {
+    background-color: #F2F2F2;
+    border-radius:    5px;
+    border:           $border;
+    box-shadow:       $shadow;
+    display:          block;
+    padding:          10px 18px;
+    margin:           1em ($shadow_radius + $nose_size);
+    margin-top:       0px;
+    position:         relative;
+    vertical-align:   top;
+}
+
+.tail {
+    position: absolute;
+    height:  ($shadow_radius + $nose_size);
+    width:   ($shadow_radius + $nose_size);
+    overflow: hidden;
+
+    &:before {
+        border:            $border;
+        background-color:  #F2F2F2;
+        box-shadow:        $shadow;
+        content:           "\00a0";
+
+        display:           block;
+        position:          absolute;
+        top:               0px;
+        height:            $nose_size;
+        width:             $nose_size;
+    }
+}
+
+.bubble.left {
+    text-align: left;
+
+    .tail {
+        top:      $nose_size;
+        left:   -($shadow_radius + $nose_size);
+
+        &:before {
+            left:              $nose_size;
+            -webkit-transform: skewX( -45deg );
+            -moz-transform:    skewX( -45deg );
+            -o-transform:      skewX( -45deg );
+        }
+    }
+}
+
+.bubble.right {
+    text-align: right;
+    
+    .tail {
+        top:      $nose_size;
+        right:   -($shadow_radius + $nose_size);
+
+        &:before {
+            right:              $nose_size;
+            -webkit-transform: skewX( 45deg );
+            -moz-transform:    skewX( 45deg );
+            -o-transform:      skewX( 45deg );
+        }
+    }
+}
