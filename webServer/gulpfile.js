@@ -17,8 +17,10 @@ var paths = {
     main: './client/client.js',
     css: './client/assets/css/*.css',
     sass: './client/assets/scss/*.scss',
+    lib: './client/lib/*',
     destDir: './build',
-    destCSS: './build/assets/css'
+    destCSS: './build/assets/css',
+    destLib: './build/libs'
 };
 
 var watchConfig = [
@@ -80,6 +82,7 @@ gulp.task('compass', function() {
 });
 
 gulp.task('build', function() {
+    gulp.src(paths.lib).pipe(gulp.dest(paths.destLib));
     return gulp.src(paths.main)
         .pipe(webpack(webpackConfig))
         .pipe(gulp.dest(paths.destDir));
