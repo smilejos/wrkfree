@@ -1,14 +1,16 @@
+'use strict';
 var ObjectAssign = require('object-assign');
 
 module.exports = function(actionContext, payload, done) {
     var routeInfo = actionContext.getRouteInfo();
-    var urlInfo = getUrlInfo(payload);
+    var urlInfo = _getUrlInfo(payload);
     var args = ObjectAssign(routeInfo, urlInfo);
 
-    actionContext.getRouteResourceAsync(args).then(function(data) {
+    actionContext.getRouteResourceAsync(args).then(function() {
         actionContext.dispatch('CHANGE_ROUTE', payload);
-        done();
-    });
+    }).catch(function(err){
+        return console.log('[navigateAction]', err);
+    }).nodeify(done);
 };
 
 /**
@@ -17,12 +19,14 @@ module.exports = function(actionContext, payload, done) {
  *
  * @param {Object}      routerState, the react-router state
  */
-function getUrlInfo(routerState) {
+function _getUrlInfo(routerState) {
+    if (routerState.routes.length === 0) {
+        return {};
+    }
     var info = routerState.params;
-    var routesIndex = routerState.routes.length - 1;
-    // check the info has url params or not
-    (Object.keys(info).length === 0) 
-        ? info.path = routerState.routes[routesIndex].path
-        : info.path = routerState.routes[routesIndex - 1].path
+    var lastIndex = routerState.routes.length - 1;
+    // to get the real url index
+    var pathIndex = (Object.keys(info).length === 0 ? lastIndex : lastIndex-1);
+    info.path = routerState.routes[pathIndex].path;
     return info;
 }

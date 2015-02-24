@@ -2,6 +2,7 @@ var SharedUtils = require('../../../sharedUtils/utils');
 var RouteInstance = (typeof window !== 'undefined') 
     ? require('../../client/routeEntry')
     : require('../../server/routeEntry')
+var Promise = require('bluebird');
 
 /**
  * RoutesHandler
@@ -29,14 +30,12 @@ module.exports = {
                 var routeInfo = {};
 
                 actionContext.getRouteResourceAsync = function(params) {
-                    if (!isHandlerExist(params.path)) {
-                        throw new Error('no match handler');
-                    }
-                    var handler = RoutesHandler[params.path];
-                    return handler(params).then(function(data){
-                        // update the route resource
-                        routeResource = data;
-                        return data;
+                    return Promise.try(function(){
+                        if (!isHandlerExist(params.path)) {
+                            throw new Error('[getRouteResourceAsync] no matched handler');
+                        }
+                        var handler = RoutesHandler[params.path];
+                        return handler(params);
                     });
                 },
                 actionContext.setRouteInfo = function(info){
@@ -58,6 +57,5 @@ module.exports = {
     // update the routing resource from remote side
     rehydrate: function (resource) {
         routeResource = resource;
-        return RouteInstance.setResource(resource);
     }
 };
