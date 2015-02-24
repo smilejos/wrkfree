@@ -30,6 +30,14 @@ var ChannelInfoStore = CreateStore({
             console.log('[getChannelAsync]', err);
             return {};
         });
+    },
+
+    dehydrate: function() {
+        return Channels;
+    },
+
+    rehydrate: function(serializedData) {
+        Channels = serializedData;
     }
 });
 
