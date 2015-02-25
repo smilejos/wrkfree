@@ -11,11 +11,12 @@ var Dashboard = require('./Dashboard.jsx');
 //      <RouteHandler /> in the 'MainApp.jsx'
 var routes = (
     <Route handler={MainApp} >
+        <DefaultRoute handler={Dashboard}/>
         <Route name="channel" >
             <Route name=":channelId" handler={Channel}/>
             <DefaultRoute handler={Error} />
         </Route>
-        <DefaultRoute name="dashboard" handler={Dashboard}/>
+        <Route name="dashboard" handler={Dashboard}/>
     </Route>
 );
 
