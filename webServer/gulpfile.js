@@ -17,9 +17,11 @@ var paths = {
     main: './client/client.js',
     css: './client/assets/css/*.css',
     sass: './client/assets/scss/*.scss',
+    imgs: './client/assets/imgs/*',
     lib: './client/lib/*',
     destDir: './build',
     destCSS: './build/assets/css',
+    destImg: './build/assets/imgs',
     destLib: './build/libs'
 };
 
@@ -82,7 +84,6 @@ gulp.task('compass', function() {
 });
 
 gulp.task('build', function() {
-    gulp.src(paths.lib).pipe(gulp.dest(paths.destLib));
     return gulp.src(paths.main)
         .pipe(webpack(webpackConfig))
         .pipe(gulp.dest(paths.destDir));
@@ -96,24 +97,29 @@ gulp.task('nodemon', function() {
             }, 500);
         }); 
 }); 
-
   
 gulp.task('livereload', function() {  
     livereload.listen();  
     var server = livereload();
     // client files changed will also trigger compass
-    gulp.watch(watchConfig, ['compass'], function(){
+    gulp.watch(watchConfig, ['compass', 'copy'], function(){
         setTimeout(function(){
             gulp.src('./build/bundle.js').pipe(livereload());
         }, 500)
     });
-}); 
+});
+
+gulp.task('copy', function(){
+    gulp.src('./*.html').pipe(gulp.dest(paths.destDir));
+    gulp.src(paths.imgs).pipe(gulp.dest(paths.destImg));
+    gulp.src(paths.lib).pipe(gulp.dest(paths.destLib));
+});
 
 /**
  * regular tasks
  */
-gulp.task('prod', ['build', 'compass']);
+gulp.task('prod', ['build', 'compass', 'copy']);
 
-gulp.task('dev', ['build', 'compass', 'nodemon', 'livereload']);
+gulp.task('dev', ['build', 'compass', 'copy', 'nodemon', 'livereload']);
 
 gulp.task('default', [env]);
