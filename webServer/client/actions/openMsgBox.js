@@ -3,6 +3,8 @@ var PrivateBoxesStore = require('../../shared/stores/privateBoxesStore');
 var UserInfoStore = require('../../shared/stores/userInfoStore');
 var MsgService = require('../services/msgService');
 var SharedUtils = require('../../../sharedUtils/utils');
+// TODO: remove it later
+var Promise = require('bluebird');
 
 /**
  * @Public API
@@ -35,8 +37,9 @@ module.exports = function(actionContext, channelId, callback) {
  */
 function _fetchMsgsAsync(actionContext, chId) {
     var userStore = actionContext.getStore(UserInfoStore);
-    return MsgService.getPrevMsgs(chId)
-        .map(function(rawMsg) {
+    // return MsgService.getPrevMsgs(chId).map(function(rawMsg) {
+    // TODO: should be replaced by above line
+    return Promise.map(Data[chId], function(rawMsg){
             return userStore.getUserAsync(rawMsg.sender).then(function(info) {
                 rawMsg.avatar = info.avatar;
                 // no private channel created for "self" and "self", so the "channelId" will be null
@@ -62,3 +65,44 @@ function _dispatchEvent(actionContext, chId, msgs) {
     channelMsgs.msgs = msgs;
     return actionContext.dispatch('UPDATE_PRIVATE_MSGBOX', channelMsgs);
 }
+
+// TODO: should be removed
+var Data = {
+    '5e2e717e84acd6518bbcd43570742d3f': [{
+                sender: 'bamoo456@gmail.com',
+                channelId: '5e2e717e84acd6518bbcd43570742d3f',
+                contents: 'Hi this is the 1st test msg, how do u feel ? is that good ?',
+                timestamp: new Date('January 1, 2015  09:20:00').getTime()
+            },
+            {
+                sender: 'bamoo789@gmail.com',
+                channelId: '5e2e717e84acd6518bbcd43570742d3f',
+                contents: 'i am the 2nd one',
+                timestamp: new Date('January 2, 2015  10:05:00').getTime()
+            },
+            {
+                sender: 'bamoo789@gmail.com',
+                channelId: '5e2e717e84acd6518bbcd43570742d3f',
+                contents: 'i am the 3rd one',
+                timestamp: new Date('January 3, 2015  20:30:00').getTime()
+            }],
+
+    '5e2e717e84acd6518bbcd43570742d3c': [{
+                sender: 'bamoo456@gmail.com',
+                channelId: '5e2e717e84acd6518bbcd43570742d3c',
+                contents: 'im another channel 1st',
+                timestamp: new Date('January 1, 2015  09:20:00').getTime()
+            },
+            {
+                sender: 'bamoo789@gmail.com',
+                channelId: '5e2e717e84acd6518bbcd43570742d3c',
+                contents: 'i am the 2nd one',
+                timestamp: new Date('January 2, 2015  10:05:00').getTime()
+            },
+            {
+                sender: 'bamoo789@gmail.com',
+                channelId: '5e2e717e84acd6518bbcd43570742d3c',
+                contents: 'i am the 3rd one',
+                timestamp: new Date('January 3, 2015  20:30:00').getTime()
+            }]
+};
