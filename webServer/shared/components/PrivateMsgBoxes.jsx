@@ -9,6 +9,7 @@ var PrivateBox = React.createClass({
         return (
             <div className="PrivNode pure-u-6-24">
                 < MsgBox 
+                    key={this.props.channelId+'MsgBox'}
                     msgs={this.props.msgs} 
                     header={this.props.header} 
                     channelId = {this.props.channelId} />
@@ -41,7 +42,8 @@ module.exports = React.createClass({
     render: function(){
         var msgBoxes = Object.keys(this.state);
         var msgBoxInfo = msgBoxes.map(function(channelId){
-            return <PrivateBox 
+            return <PrivateBox
+                    key={channelId+'PrivateBox'} 
                     header={this.state[channelId].header}
                     msgs={this.state[channelId].msgs}
                     channelId={channelId}
