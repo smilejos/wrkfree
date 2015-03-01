@@ -8,9 +8,9 @@ var Promise = require('bluebird');
  * RoutesHandler
  */
 var RoutesHandler = {
-    '/': RouteInstance.getDashboardAsync,
-    '/dashboard': RouteInstance.getDashboardAsync,
-    '/channel': RouteInstance.getChannelAsync
+    '/app/': RouteInstance.getDashboardAsync,
+    '/app/dashboard': RouteInstance.getDashboardAsync,
+    '/app/channel': RouteInstance.getChannelAsync
 };
 
 function isHandlerExist(path) {
