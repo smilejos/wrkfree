@@ -20,5 +20,8 @@ app.plug(storePlugin);
  * register stores
  */
 app.registerStore(require('./stores/MainAppStore'));
- 
+app.registerStore(require('./stores/channelInfoStore'));
+app.registerStore(require('./stores/userInfoStore'));
+app.registerStore(require('./stores/privateBoxesStore'));
+
 module.exports = app;

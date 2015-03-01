@@ -8,6 +8,9 @@ var Promise = require('bluebird');
 var Channels = {
     '5e2e717e84acd6518bbcd43570742d3f': {
         msgHeader: 'To Jos'
+    },
+    '5e2e717e84acd6518bbcd43570742d3c': {
+        msgHeader: 'To George'
     }
 };
 

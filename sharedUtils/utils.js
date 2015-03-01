@@ -72,6 +72,13 @@ module.exports = {
         return (object instanceof Array);
     },
 
+    isEmptyArray: function(object) {
+        if (!this.isArray(object)) {
+            throw new Error('[isEmptyArray] object is not an array');
+        }
+        return (object.length === 0);
+    },
+
     isNumber: function (object) {
         return (typeof object === 'number');
     },

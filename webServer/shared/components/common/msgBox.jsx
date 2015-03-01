@@ -53,6 +53,7 @@ var MsgList = React.createClass({
         var msgs = this.props.msgList;
         var msgItems = msgs.map(function(item){
             return <Msg 
+                key={item.timestamp}
                 avatar={item.avatar} 
                 content={item.contents} 
                 timestamp={item.timestamp} 
