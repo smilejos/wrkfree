@@ -10,7 +10,7 @@ var Dashboard = require('./Dashboard.jsx');
 // e.g. route="/chanel/ch-id" will use the 'Channel.jsx' to replace the 
 //      <RouteHandler /> in the 'MainApp.jsx'
 var routes = (
-    <Route handler={MainApp} >
+    <Route name="app" handler={MainApp} >
         <DefaultRoute handler={Dashboard}/>
         <Route name="channel" >
             <Route name=":channelId" handler={Channel}/>
