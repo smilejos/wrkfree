@@ -36,6 +36,7 @@ module.exports = React.createClass({
                 <script dangerouslySetInnerHTML={{__html: this.props.state}}></script>
                 <script src={this.props.host + 'libs/lokijs.min.js'}> </script>
                 <script src={this.props.host + 'bundle.js'}> </script>
+                <script type="text/javascript" src="https://localhost:35729/livereload.js"></script>
             </body>
           </html>
         );

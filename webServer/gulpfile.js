@@ -1,9 +1,9 @@
 var gulp = require('gulp');
 var webpack = require('gulp-webpack');
-var livereload = require('gulp-livereload');
 var nodemon = require('gulp-nodemon');
 var compass = require('gulp-compass');
 var minifyCSS = require('gulp-minify-css');
+var connect = require('gulp-connect');
 
 /**
  * check the runtime environment
@@ -25,7 +25,7 @@ var paths = {
     css: './client/assets/css/*.css',
     sass: './client/assets/scss/*.scss',
     imgs: './client/assets/imgs/*',
-    lib: './client/lib/*',
+    lib: './client/libs/*',
     destDir: './build/protected',
     destCSS: './build/protected/assets/css',
     destImg: './build/protected/assets/imgs',
@@ -42,7 +42,7 @@ var entryPaths = {
     css: './WebEntry/assets/css/*.css',
     sass: './WebEntry/assets/scss/*.scss',
     imgs: './WebEntry/assets/imgs/*',
-    lib: './WebEntry/lib/*',
+    lib: './WebEntry/js/libs/*',
     destDir: './build/public',
     destCSS: './build/public/assets/css',
     destImg: './build/public/assets/imgs',
@@ -151,8 +151,11 @@ gulp.task('nodemon', function() {
  * @Description: task for controlling livereload
  */
 gulp.task('livereload', function() {
-    livereload.listen();
-    var server = livereload();
+    connect.server({
+        root: paths.destDir,
+        https: true,
+        livereload: true
+    });
     // client files changed will also trigger compass
     gulp.watch(watchConfig, ['compass', 'copy', 'reloadNow'])
 });
@@ -164,8 +167,8 @@ gulp.task('livereload', function() {
  */
 gulp.task('reloadNow', function() {
     setTimeout(function() {
-        gulp.src(entryPaths.destDir + '/*.html').pipe(livereload());
-    }, 500);
+        gulp.src(entryPaths.destDir + '/*.html').pipe(connect.reload());
+    }, 1000);
 });
 
 /**
@@ -177,6 +180,8 @@ gulp.task('copy', function() {
     // for web entry files
     gulp.src(entryPaths.html).pipe(gulp.dest(entryPaths.destDir));
     gulp.src(entryPaths.imgs).pipe(gulp.dest(entryPaths.destImg));
+    gulp.src(entryPaths.lib).pipe(gulp.dest(entryPaths.destLib));
+
     // for web app files
     gulp.src(paths.imgs).pipe(gulp.dest(paths.destImg));
     gulp.src(paths.lib).pipe(gulp.dest(paths.destLib));
