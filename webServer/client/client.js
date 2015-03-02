@@ -16,8 +16,8 @@ storePlugin.envSetup({
  */
 window.protobuf = require('pomelo-protobuf');
 window.EventEmitter = require('eventemitter2');
-window.Protocol = require('./lib/pomeloProtocol');
-window.pomelo = require('./lib/pomeloClient');
+window.Protocol = require('./libs/pomeloProtocol');
+window.pomelo = require('./libs/pomeloClient');
 
 window.React = React; // For chrome dev tool support
 
