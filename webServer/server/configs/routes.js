@@ -22,6 +22,10 @@ module.exports = function (server) {
         res.redirect('/app/dashboard');
     });
 
+    ExpressRouter.get('/app/signup', ReactRoute, function(req, res){
+        res.end();
+    });
+
     ExpressRouter.get('/app/dashboard', ReactRoute, function(req, res){
         res.end();
     });
