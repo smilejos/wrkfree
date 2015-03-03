@@ -8,7 +8,9 @@ var MongooseCache = require('mongoose-cache-manager');
 /**
  * storage services that has been implemented
  */
-var Services = [];
+ var Services = [
+     'UserService'
+ ];
 
 /************************************************
  *
