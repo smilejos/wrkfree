@@ -1,7 +1,7 @@
 var Promise = require('bluebird');
 
 module.exports = {
-    execCallback: function () {
+    execCallback: function() {
         var err = arguments[0];
         var fn = arguments[arguments.length - 1];
         if (!this.isFunction(fn)) {
@@ -19,9 +19,40 @@ module.exports = {
         for (var i = 0; i < arguments.length - 1; ++i) {
             args.push(arguments[i]);
         }
-        return setTimeout(function(){
+        return setTimeout(function() {
             fn.apply(this, args);
         }, 0);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: get the log prefix, for debug purpose
+     *
+     * @param {String}      fileName, the filename of caller
+     * @param {String}      funcName, the function name of caller
+     */
+    getLogPrefix: function(fileName, funcName) {
+        if (this.isString(fileName) && this.isString(funcName)) {
+            return '[' + fileName + '-' + funcName + ']';
+        }
+        return null;
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: print the error log message
+     *
+     * @param {String}      fileName, the filename of caller
+     * @param {String}      funcName, the function name of caller
+     * @param {Error}       error, the error instance
+     */
+    printError: function(fileName, funcName, error) {
+        var logPrefix = this.getLogPrefix(fileName, funcName);
+        if (error instanceof Error) {
+            console.log(logPrefix, error);
+        }
     },
 
     /**
@@ -30,13 +61,13 @@ module.exports = {
      * @Description: getting the arguments array without leaking it
      *
      * @param {Object}      rawArguments, the arguments object in function
-     * 
+     *
      * https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
      */
-    getArgs: function(rawArguments){
+    getArgs: function(rawArguments) {
         var args = new Array(rawArguments.length);
-        for(var i = 0; i < args.length; ++i) {
-                    //i is always valid index in the rawArguments object
+        for (var i = 0; i < args.length; ++i) {
+            //i is always valid index in the rawArguments object
             args[i] = rawArguments[i];
         }
         return args;
@@ -63,8 +94,7 @@ module.exports = {
      */
     isValidTime: function(object) {
         // define 2015/1/1 to be an time threshold
-        var timeString = 'January 1, 2015  00:00:00';
-        var timeMinimum = new Date(timeString).getTime();
+        var timeMinimum = Date.parse('January 1, 2015  00:00:00');
         return (typeof object === 'number' && object > timeMinimum);
     },
 
@@ -79,11 +109,11 @@ module.exports = {
         return (object.length === 0);
     },
 
-    isNumber: function (object) {
+    isNumber: function(object) {
         return (typeof object === 'number');
     },
 
-    isError: function (object) {
+    isError: function(object) {
         return (object instanceof Error);
     },
 
@@ -95,7 +125,7 @@ module.exports = {
         return !regx.test(string);
     },
 
-    isEmail: function (email) {
+    isEmail: function(email) {
         if (!this.isString(email)) {
             return false;
         }
@@ -103,7 +133,7 @@ module.exports = {
         return re.test(email);
     },
 
-    isChannelId: function (channelId) {
+    isChannelId: function(channelId) {
         if (!this.isString(channelId)) {
             return false;
         }
@@ -133,8 +163,8 @@ module.exports = {
     },
     // an promisify version of args check
     // return the input arg while this arg pass the check
-    argsCheckAsync: Promise.method(function(arg, chkType){
-        switch(chkType) {
+    argsCheckAsync: Promise.method(function(arg, chkType) {
+        switch (chkType) {
             case 'uid':
                 if (this.isEmail(arg)) {
                     return arg;
