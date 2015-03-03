@@ -1,9 +1,9 @@
+'use strict';
 var Mongoose = require('mongoose');
 var Promise = require('bluebird');
 var Redis = require('redis');
 var Fs = require('fs');
 var MongooseCache = require('mongoose-cache-manager');
-var SharedUtils = require('../sharedUtils/utils');
 
 /**
  * storage services that has been implemented
@@ -64,8 +64,8 @@ function _mongooseInit(configs) {
                     keepAlive: 1
                 }
             }
-        }
-        Mongoose.connect(configs.db, options)
+        };
+        Mongoose.connect(configs.db, options);
     };
     connect();
     // reconnect Error handler
