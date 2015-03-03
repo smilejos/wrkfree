@@ -1,26 +1,57 @@
 var gulp = require('gulp');
 var webpack = require('gulp-webpack');
-var livereload = require('gulp-livereload');
 var nodemon = require('gulp-nodemon');
 var compass = require('gulp-compass');
 var minifyCSS = require('gulp-minify-css');
+var connect = require('gulp-connect');
 
 /**
  * check the runtime environment
  */
 var env = process.env.NODE_ENV || 'dev';
 
+/************************************************
+ *
+ *          Environment Configuration
+ *
+ ************************************************/
+
 /**
- * path
+ * paths for the web app client build
+ * NOTE: web app client served as an single page application
  */
 var paths = {
     main: './client/client.js',
     css: './client/assets/css/*.css',
     sass: './client/assets/scss/*.scss',
-    destDir: './build',
-    destCSS: './build/assets/css'
+    imgs: './client/assets/imgs/*',
+    lib: './client/libs/*',
+    destDir: './build/protected',
+    destCSS: './build/protected/assets/css',
+    destImg: './build/protected/assets/imgs',
+    destLib: './build/protected/libs'
 };
 
+/**
+ * paths for the web entry client build
+ * NOTE: web entry served as an static entry page
+ */
+var entryPaths = {
+    main: './WebEntry/entry.js',
+    html: './WebEntry/*.html',
+    css: './WebEntry/assets/css/*.css',
+    sass: './WebEntry/assets/scss/*.scss',
+    imgs: './WebEntry/assets/imgs/*',
+    lib: './WebEntry/js/libs/*',
+    destDir: './build/public',
+    destCSS: './build/public/assets/css',
+    destImg: './build/public/assets/imgs',
+    destLib: './build/public/libs'
+};
+
+/**
+ * configs for gulp to monitor working folder
+ */
 var watchConfig = [
     './**/*',
     '!./node_modules/**/*',
@@ -30,17 +61,21 @@ var watchConfig = [
     '!./shared/**/*'
 ];
 
+/**
+ * webpack configs for building environment
+ */
 webpackConfig = {
     resolve: {
         extensions: ['', '.js', '.jsx']
     },
     output: {
-      filename: 'bundle.js'
+        filename: 'bundle.js'
     },
     module: {
-        loaders: [
-            { test: /\.jsx$/, loader: 'jsx-loader' }
-        ]
+        loaders: [{
+            test: /\.jsx$/,
+            loader: 'jsx-loader'
+        }]
     },
     stats: {
         colors: true
@@ -49,15 +84,25 @@ webpackConfig = {
     keepalive: true
 };
 
+/**
+ * nodemon configs,
+ * monitor when should reload the web server
+ */
 var nodemonConfig = {
     script: './server/server.js',
     ext: 'js jsx',
     // "ignore" deoesn't work, use "watch" instead
-    watch: [ 
+    watch: [
         'server/*',
         'shared/*'
     ]
 };
+
+/************************************************
+ *
+ *          Gulp Tasks
+ *
+ ************************************************/
 
 /**
  * Gulp Task
@@ -67,50 +112,89 @@ var nodemonConfig = {
 gulp.task('compass', function() {
     gulp.src(paths.sass)
         .pipe(compass({
-          css: 'build/assets/css',
-          sass: 'client/assets/scss',
-          image: 'client/assets/images'
+            css: paths.destCSS,
+            sass: 'client/assets/scss',
+            image: 'client/assets/images'
         }))
         .pipe(minifyCSS({
-                noAdvanced: false,
-                keepBreaks: true,
-                cache: true // this add-on is gulp only
-            }))
+            noAdvanced: false,
+            keepBreaks: true,
+            cache: true // this add-on is gulp only
+        }))
         .pipe(gulp.dest(paths.destCSS));
 });
 
+/**
+ * Gulp Task
+ * @Author: George_Chen
+ * @Description: use webpack to build web client app
+ */
 gulp.task('build', function() {
     return gulp.src(paths.main)
         .pipe(webpack(webpackConfig))
         .pipe(gulp.dest(paths.destDir));
 });
 
+/**
+ * Gulp Task
+ * @Author: George_Chen
+ * @Description: task for starting nodemon
+ */
 gulp.task('nodemon', function() {
     return nodemon(nodemonConfig)
-        .on('restart', function() {
-            setTimeout(function(){
-                gulp.src('./build/bundle.js').pipe(livereload());
-            }, 500);
-        }); 
-}); 
-
-  
-gulp.task('livereload', function() {  
-    livereload.listen();  
-    var server = livereload();
-    // client files changed will also trigger compass
-    gulp.watch(watchConfig, ['compass'], function(){
-        setTimeout(function(){
-            gulp.src('./build/bundle.js').pipe(livereload());
-        }, 500)
-    });
-}); 
+        .on('restart', ['reloadNow']);
+});
 
 /**
- * regular tasks
+ * Gulp Task
+ * @Author: George_Chen
+ * @Description: task for controlling livereload
  */
-gulp.task('prod', ['build', 'compass']);
+gulp.task('livereload', function() {
+    connect.server({
+        root: paths.destDir,
+        https: true,
+        livereload: true
+    });
+    // client files changed will also trigger compass
+    gulp.watch(watchConfig, ['compass', 'copy', 'reloadNow'])
+});
 
-gulp.task('dev', ['build', 'compass', 'nodemon', 'livereload']);
+/**
+ * Gulp Task
+ * @Author: George_Chen
+ * @Description: reload task, trigger the livereload immedidately
+ */
+gulp.task('reloadNow', function() {
+    setTimeout(function() {
+        gulp.src(entryPaths.destDir + '/*.html').pipe(connect.reload());
+    }, 1000);
+});
+
+/**
+ * Gulp Task
+ * @Author: George_Chen
+ * @Description: copy files to build folder
+ */
+gulp.task('copy', function() {
+    // for web entry files
+    gulp.src(entryPaths.html).pipe(gulp.dest(entryPaths.destDir));
+    gulp.src(entryPaths.imgs).pipe(gulp.dest(entryPaths.destImg));
+    gulp.src(entryPaths.lib).pipe(gulp.dest(entryPaths.destLib));
+
+    // for web app files
+    gulp.src(paths.imgs).pipe(gulp.dest(paths.destImg));
+    gulp.src(paths.lib).pipe(gulp.dest(paths.destLib));
+});
+
+/************************************************
+ *
+ *          Regular Tasks
+ *
+ ************************************************/
+
+gulp.task('prod', ['build', 'compass', 'copy']);
+
+gulp.task('dev', ['build', 'compass', 'copy', 'nodemon', 'livereload']);
 
 gulp.task('default', [env]);

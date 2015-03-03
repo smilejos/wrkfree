@@ -16,8 +16,8 @@ storePlugin.envSetup({
  */
 window.protobuf = require('pomelo-protobuf');
 window.EventEmitter = require('eventemitter2');
-window.Protocol = require('./lib/pomeloProtocol');
-window.pomelo = require('./lib/pomeloClient');
+window.Protocol = require('./libs/pomeloProtocol');
+window.pomelo = require('./libs/pomeloClient');
 
 window.React = React; // For chrome dev tool support
 
@@ -47,5 +47,15 @@ app.rehydrate(dehydratedState, function (err, context) {
                 React.render(React.createFactory(Handler)(), mountNode);
             });
         });
+        // TODO: below should be removed
+        var openMsgBoxAction = require('./actions/openMsgBox');
+        // open the first msg box
+        setTimeout(function(){
+            context.executeAction(openMsgBoxAction, '5e2e717e84acd6518bbcd43570742d3f');
+        }, 1000);
+        // open the second msg box
+        setTimeout(function(){
+            context.executeAction(openMsgBoxAction, '5e2e717e84acd6518bbcd43570742d3c');
+        }, 3000);
     });
 });
