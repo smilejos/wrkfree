@@ -5,6 +5,7 @@ var MainApp = require('./MainApp.jsx');
 var Error = require('./Error.jsx');
 var Channel = require('./Channel.jsx');
 var Dashboard = require('./Dashboard.jsx');
+var SignUp = require('./SignUp.jsx');
 
 // route are nested as url display,
 // e.g. route="/chanel/ch-id" will use the 'Channel.jsx' to replace the 
@@ -17,6 +18,7 @@ var routes = (
             <DefaultRoute handler={Error} />
         </Route>
         <Route name="dashboard" handler={Dashboard}/>
+        <Route name="signup" handler={SignUp}/>
     </Route>
 );
 
