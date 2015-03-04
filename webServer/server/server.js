@@ -18,14 +18,16 @@ storePlugin.envSetup({
     lokijs: require('lokijs')
 });
 
+
+var StorageDir = '../../storageService/';
+var StorageManager = require(StorageDir + 'storageManager')(require(StorageDir + 'configs'));
+
 /**
  * Configurations
  */
 require('./configs/passport')();
 require('./configs/express')(server);
-require('./configs/routes')(server);
-
-// server.use(express.static(__dirname + '/../build'));
+require('./configs/routes')(server, StorageManager);
 
 server.listen(port);
 console.log('Listening on port ' + port);

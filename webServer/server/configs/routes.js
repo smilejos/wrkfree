@@ -1,18 +1,40 @@
 var ExpressRouter = require('express').Router();
 var Passport = require('passport');
-var ReactRoute = require('./middlewares/reactRoute');
+var SharedUtils = require('../../../sharedUtils/utils');
 
-module.exports = function (server) {
+
+
+
+module.exports = function (server, StorageManager) {
+    var userEntry = require('./middlewares/userEntry')(StorageManager);
+    var reactRoute = require('./middlewares/reactRoute');
+    
     server.use(ExpressRouter);
 
     ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook'));
     ExpressRouter.get('/auth/facebook/callback', Passport.authenticate('facebook', {
-        successRedirect: '/success',
+        successRedirect: '/auth/success',
         failureRedirect: '/error'
     }));
 
-    ExpressRouter.get('/success', function(req, res){
-        res.end('Hello world')
+    /**
+     * handle the facebook login success flow
+     */
+    ExpressRouter.get('/auth/success', userEntry.enter, function(req, res){
+        if (!SharedUtils.isString(req.nextRoute)) {
+            res.redirect('/error');
+        }
+        res.redirect(req.nextRoute);
+    });
+
+    /**
+     * handle the user signup flow
+     */
+    ExpressRouter.get('/app/signup', function(req, res){
+        req.routeInfo = {
+            userInfo: req.cookies.user
+        };
+        return reactRoute(req, res);
     });
 
     /**
@@ -22,16 +44,14 @@ module.exports = function (server) {
         res.redirect('/app/dashboard');
     });
 
-    ExpressRouter.get('/app/signup', ReactRoute, function(req, res){
-        res.end();
+    ExpressRouter.get('/app/dashboard', function(req, res){
+        req.routeInfo = {};        
+        return reactRoute(req, res);
     });
 
-    ExpressRouter.get('/app/dashboard', ReactRoute, function(req, res){
-        res.end();
-    });
-
-    ExpressRouter.get('/app/channel/:channelId', ReactRoute, function(req, res){
-        res.end();
+    ExpressRouter.get('/app/channel/:channelId', function(req, res){
+        req.routeInfo = {};        
+        return reactRoute(req, res);
     });
 
     /**
