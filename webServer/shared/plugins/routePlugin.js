@@ -10,7 +10,8 @@ var Promise = require('bluebird');
 var RoutesHandler = {
     '/app/': RouteInstance.getDashboardAsync,
     '/app/dashboard': RouteInstance.getDashboardAsync,
-    '/app/channel': RouteInstance.getChannelAsync
+    '/app/channel': RouteInstance.getChannelAsync,
+    '/app/signup': RouteInstance.getSignUpAsync
 };
 
 function isHandlerExist(path) {
@@ -32,10 +33,10 @@ module.exports = {
                 actionContext.getRouteResourceAsync = function(params) {
                     return Promise.try(function(){
                         if (!isHandlerExist(params.path)) {
-                            throw new Error('[getRouteResourceAsync] no matched handler');
+                            throw new Error('[getRouteResourceAsync] no matched handler', params.path);
                         }
                         var handler = RoutesHandler[params.path];
-                        return handler(params);
+                        return handler(actionContext, params);
                     });
                 },
                 actionContext.setRouteInfo = function(info){
