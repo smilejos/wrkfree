@@ -7,8 +7,8 @@ var SharedUtils = require('../../../sharedUtils/utils');
 
 module.exports = function (server, StorageManager) {
     var userEntry = require('./middlewares/userEntry')(StorageManager);
-    var reactRoute = require('./middlewares/reactRoute');
-    
+    var reactRoute = require('./reactRoute');
+
     server.use(ExpressRouter);
 
     ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook'));
