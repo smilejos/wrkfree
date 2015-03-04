@@ -6,15 +6,18 @@ var MainAppStore = createStore({
     handlers: {
         'CHANGE_ROUTE': 'handleNavigate'
     },
-    initialize: function (dispatcher) {
+    initialize: function () {
         this.currentRoute = null;
     },
     handleNavigate: function (route) {
         if (this.currentRoute && route.path === this.currentRoute.path) {
             return;
         }
-        this.currentRoute = route;
-        this.emitChange();
+        var self = this;
+        this.dispatcher.waitFor(['SignUpStore'], function(){
+            self.currentRoute = route;
+            self.emitChange();
+        });
     },
     getState: function () {
         return {
