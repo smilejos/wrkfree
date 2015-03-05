@@ -13,17 +13,18 @@ module.exports = function (server, StorageManager) {
 
     ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook'));
     ExpressRouter.get('/auth/facebook/callback', Passport.authenticate('facebook', {
-        successRedirect: '/auth/success',
+        successRedirect: '/auth/success/facebook',
         failureRedirect: '/error'
     }));
 
     /**
      * handle the facebook login success flow
      */
-    ExpressRouter.get('/auth/success', userEntry.enter, function(req, res){
+    ExpressRouter.get('/auth/success/:provider', userEntry.enter, function(req, res){
         if (!SharedUtils.isString(req.nextRoute)) {
             res.redirect('/error');
         }
+        req.session.passport.provider = req.params.provider;
         res.redirect(req.nextRoute);
     });
 

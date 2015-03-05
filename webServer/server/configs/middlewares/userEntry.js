@@ -21,11 +21,11 @@ var UserEntry = {};
  * @Description: middleware for handling the successful oauth login 
  */
 UserEntry.enter = function(req, res, next) {
-    if (!UserStorage) {
+    if (!UserStorage || !req.params.provider) {
         return next();
     }
     var userInfo = req.session.passport.user;
-    return UserStorage.oAuthLoginAsync(userInfo.id, 'facebook')
+    return UserStorage.oAuthLoginAsync(userInfo.id, req.params.provider)
         .then(function(basicInfo) {
             // pass to signup or user's dashboard
             req.nextRoute = (!basicInfo ? '/app/signup' : '/app/dashboard');
