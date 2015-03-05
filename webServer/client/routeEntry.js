@@ -1,5 +1,6 @@
 var Promise = require('bluebird');
 var SignUpStore = require('../shared/stores/SignUpStore');
+var SharedUtils = require('../../sharedUtils/utils');
 
 exports.setResource = function(resource){
     console.log('set resource on client');    
@@ -35,8 +36,16 @@ exports.getChannelAsync = function(actionContext, routeInfo){
  */
 exports.getSignUpAsync = function(actionContext, params) {
     return Promise.try(function(){
-        return actionContext.getStore(SignUpStore).getState();
+        var signUpResource = actionContext.getStore(SignUpStore).getState();
+        if (!signUpResource) {
+            throw new Error('Singup Store should not be empty');
+        }
+        return {
+            signUpInfo: signUpResource.originInfo
+        };
     }).catch(function(err){
-        return {};
+        SharedUtils.printError('client-routeEntry', 'getSignUpAsync', err);
+        // should not allowed 'CHANGE_ROUTE', so simply throw an error
+        throw err;
     });
 };

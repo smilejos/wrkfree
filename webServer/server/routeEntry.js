@@ -1,4 +1,5 @@
 var Promise = require('bluebird');
+var SharedUtils = require('../../sharedUtils/utils');
 
 exports.setResource = function(resource){
     console.log('set resource on server');        
@@ -38,6 +39,7 @@ exports.getSignUpAsync = function(actionContext, routeInfo) {
             signUpInfo: JSON.parse(routeInfo.userInfo)
         };
     }).catch(function(err){
+        SharedUtils.printError('server-routeEntry', 'getSignUpAsync', err);
         return {};
     });
 };

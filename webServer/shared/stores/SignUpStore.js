@@ -8,17 +8,16 @@ var SignUpStore = createStore({
     handlers: {
         'CHANGE_ROUTE': 'handleNavigate'
     },
-    initialize: function() {
-        PreFilledInfo = {};
-    },
+
     handleNavigate: function(route) {
-        if (route.path === '/app/signup') {
+        if (route.path === '/app/signup' && !PreFilledInfo) {
             var signUpInfo = route.resource.signUpInfo;
             PreFilledInfo = {
                 email: signUpInfo.email || '',
                 lastName: signUpInfo.name.familyName || '',
                 firstName: signUpInfo.name.givenName || '',
                 gender: signUpInfo.gender || 'male',
+                originInfo: signUpInfo
             };
         }
         this.emitChange();

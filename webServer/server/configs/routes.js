@@ -32,7 +32,7 @@ module.exports = function (server, StorageManager) {
      */
     ExpressRouter.get('/app/signup', function(req, res){
         req.routeInfo = {
-            userInfo: req.cookies.user
+            userInfo: req.cookies.user || {}
         };
         return reactRoute(req, res);
     });
