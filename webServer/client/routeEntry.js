@@ -1,10 +1,11 @@
 var Promise = require('bluebird');
+var SignUpStore = require('../shared/stores/SignUpStore');
 
 exports.setResource = function(resource){
     console.log('set resource on client');    
 }
 
-exports.getDashboardAsync = function(routeInfo){
+exports.getDashboardAsync = function(actionContext, routeInfo){
     return Promise.try(function(){
         // do something
         return {
@@ -13,7 +14,7 @@ exports.getDashboardAsync = function(routeInfo){
     });
 }
 
-exports.getChannelAsync = function(routeInfo){
+exports.getChannelAsync = function(actionContext, routeInfo){
     return Promise.try(function(){
         // do something
         return {
@@ -21,3 +22,21 @@ exports.getChannelAsync = function(routeInfo){
         };
     });
 }
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: getting the resoure for signup page
+ *
+ * @param {Object}      actionContext, fluxible actionContext
+ * @param {Object}      params, params are object combined with routeInfo and urlInfo
+ * NOTE: routeInfo is stored at routePlugin.js
+ *       urlInfo is extract from react-router
+ */
+exports.getSignUpAsync = function(actionContext, params) {
+    return Promise.try(function(){
+        return actionContext.getStore(SignUpStore).getState();
+    }).catch(function(err){
+        return {};
+    });
+};
