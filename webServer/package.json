@@ -28,7 +28,8 @@
     "pomelo-protobuf": "^0.4.0",
     "react": "^0.12.0",
     "react-router": "^0.12.0",
-    "serialize-javascript": "^1.0.0"
+    "serialize-javascript": "^1.0.0",
+    "superagent": "^0.21.0"
   },
   "devDependencies": {
     "debug": "^2.0.0",

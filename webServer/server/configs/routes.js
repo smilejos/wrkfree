@@ -29,13 +29,25 @@ module.exports = function (server, StorageManager) {
     });
 
     /**
-     * handle the user signup flow
+     * rendering user signup page
      */
     ExpressRouter.get('/app/signup', function(req, res){
         req.routeInfo = {
             userInfo: req.cookies.user || {}
         };
         return reactRoute(req, res);
+    });
+
+    /**
+     * handling the submission of user signup
+     */
+    ExpressRouter.post('/app/signup', userEntry.create, function(req, res){
+        var result = {
+            error: req.error,
+            route: req.nextRoute
+        };
+        res.json(result);
+        res.end('');
     });
 
     /**

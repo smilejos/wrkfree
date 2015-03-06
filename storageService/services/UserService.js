@@ -24,10 +24,14 @@ var RedisClient = Redis.createClient(
  * @param {Object} userInfo, user information object
  */
 exports.addUserAsync = function(userInfo) {
-    return UserDao.isUserExistAsync(userInfo.email)
-        .then(function(exist) {
-            return (exist ? false : UserDao.addNewUserAsync(userInfo));
-        });
+    return Promise.try(function() {
+        return UserDao.isUserExistAsync(userInfo.email);
+    }).then(function(exist) {
+        return (exist ? new Error('user is exist') : UserDao.addNewUserAsync(userInfo));
+    }).catch(function(err) {
+        SharedUtils.printError('UserService', 'addUserAsync', err);
+        throw err;
+    });
 };
 
 /**
@@ -96,10 +100,10 @@ exports.getSessAuthAsync = function(user, sid) {
     return Promise.join(
         SharedUtils.argsCheckAsync(user, 'uid'),
         SharedUtils.argsCheckAsync(sid, 'string'),
-        function(){
+        function() {
             var sessKey = 'sess:' + sid;
             return RedisClient.getAsync(sessKey);
-        }).then(function(result){
+        }).then(function(result) {
             return (user === JSON.parse(result).passport.user.email);
         }).catch(function(err) {
             SharedUtils.printError('UserService', 'getSessAuthAsync', err);
