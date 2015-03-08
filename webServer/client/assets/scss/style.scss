@@ -1,17 +1,10 @@
 @import "compass/reset";
 @import "compass/css3";
+@import "./definition";
 @import "./layout";
 @import "./userAvatar";
 @import "./msg";
 
-$color: red;
-
-.page {
-    background-color: $color
-}
-.box{
-    @include border-radius(5px);
-}
 
 /**
  * define the div of 1vs1 msg node

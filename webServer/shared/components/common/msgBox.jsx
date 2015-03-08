@@ -11,7 +11,6 @@ var MsgBox = React.createClass({
             <div className="MsgBox">
                 <MsgBoxHeader header={this.props.header}/>
                 <MsgList msgList={this.props.msgs}/>
-                <hr/>
                 <InputArea />
             </div>
         );
