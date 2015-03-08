@@ -6,42 +6,44 @@
     padding: 0px;
 }
 
-.menuBox {
+.baseBox {
     position: fixed;
-    height: 50px;
-    width: 100%;
+    z-index: 1;
+}
+
+.menuBox {
+    @extend .baseBox;
     background-color: $color-main;
     border-bottom: 1px rgba(0,0,0,.2);
     box-shadow: 0 2px 2px 2px rgba(0,0,0,.2);
-    z-index: 1;
+    height: 50px;
+    width: 100%;
 }
 
 .mainBox {
-    position: fixed;
+    @extend .baseBox;
     background-color: $color-background_1;
-    left: 0px;
     top: 50px;
-    bottom: 0px;
     right: 250px;
-    z-index: 1;
+    bottom: 0px;
+    left: 0px;
 }
 
 .infoBox {
-    position: fixed;
+    @extend .baseBox;
     background-color: $color-background_2;
     width: 250px;
     top: 50px;
-    bottom: 0px;
     right: 0px;
-    z-index: 1;
+    bottom: 0px;
 }
 
-.PrivBox {
+.privBox {
     position: fixed;
+    z-index: 2;
     float: right;
     height: 300px;
     left: 0px;
     bottom: 0px;
     right: 250px;
-    z-index: 2;
 }

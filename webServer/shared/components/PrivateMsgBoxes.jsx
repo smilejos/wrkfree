@@ -50,7 +50,7 @@ module.exports = React.createClass({
                 />
         },this);
         return (
-            <div className="PrivBox">
+            <div className="privBox">
                 {msgBoxInfo}
             </div>
         );
