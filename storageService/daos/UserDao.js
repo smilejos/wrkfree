@@ -147,13 +147,13 @@ exports.addNewUserAsync = function(userInfo) {
             if (userInfo.gender !== 'male' && userInfo.gender !== 'female') {
                 throw new Error('user gender is not in correct format');
             }
-            if (!SharedUtils.isString(userInfo.facebook) && !SharedUtils.isString(userInfo.google)) {
-                throw new Error('oAuth provider is not exist');
+            if (userInfo.oAuthProvider !== 'facebook' && userInfo.oAuthProvider !== 'google') {
+                throw new Error ('oAtuh provider is invalid');
             }
-            userInfo.avatarProvider = (!!userInfo.facebook ? 'facebook' : 'google');
+            userInfo.avatarProvider = userInfo.oAuthProvider;
             userInfo.nickName = userInfo.firstName + userInfo.lastName;
             var newUser = new UserModel(userInfo);
-            // free the cache collections
+            // make mongoose cache outdated
             UserModel.find()._touchCollectionCheck(true);
             return newUser.saveAsync();
         }).catch(function(err) {

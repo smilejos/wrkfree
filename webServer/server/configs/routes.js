@@ -13,28 +13,41 @@ module.exports = function (server, StorageManager) {
 
     ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook'));
     ExpressRouter.get('/auth/facebook/callback', Passport.authenticate('facebook', {
-        successRedirect: '/auth/success',
+        successRedirect: '/auth/success/facebook',
         failureRedirect: '/error'
     }));
 
     /**
      * handle the facebook login success flow
      */
-    ExpressRouter.get('/auth/success', userEntry.enter, function(req, res){
+    ExpressRouter.get('/auth/success/:provider', userEntry.enter, function(req, res){
         if (!SharedUtils.isString(req.nextRoute)) {
             res.redirect('/error');
         }
+        req.session.passport.provider = req.params.provider;
         res.redirect(req.nextRoute);
     });
 
     /**
-     * handle the user signup flow
+     * rendering user signup page
      */
     ExpressRouter.get('/app/signup', function(req, res){
         req.routeInfo = {
-            userInfo: req.cookies.user
+            userInfo: req.cookies.user || {}
         };
         return reactRoute(req, res);
+    });
+
+    /**
+     * handling the submission of user signup
+     */
+    ExpressRouter.post('/app/signup', userEntry.create, function(req, res){
+        var result = {
+            error: req.error,
+            route: req.nextRoute
+        };
+        res.json(result);
+        res.end('');
     });
 
     /**
