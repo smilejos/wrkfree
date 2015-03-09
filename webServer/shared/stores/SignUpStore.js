@@ -14,8 +14,8 @@ var SignUpStore = createStore({
             var signUpInfo = route.resource.signUpInfo;
             PreFilledInfo = {
                 email: signUpInfo.email || '',
-                lastName: signUpInfo.name.familyName || '',
-                firstName: signUpInfo.name.givenName || '',
+                familyName: signUpInfo.familyName || '',
+                givenName: signUpInfo.givenName || '',
                 gender: signUpInfo.gender || 'male',
                 originInfo: signUpInfo
             };

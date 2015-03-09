@@ -40,9 +40,9 @@ exports.findByUidAsync = function(uid) {
  * @param {Array}          uids, group of uids
  */
 exports.findByGroupAsync = function(uids) {
-    return Promise.map(uids, function(user){
+    return Promise.map(uids, function(user) {
         return SharedUtils.argsCheckAsync(user, 'uid');
-    }).then(function(userGroup){
+    }).then(function(userGroup) {
         var condition = {
             email: {
                 $in: userGroup
@@ -140,18 +140,18 @@ exports.findByOAuthAsync = function(oAuthId, provider) {
 exports.addNewUserAsync = function(userInfo) {
     return Promise.join(
         SharedUtils.argsCheckAsync(userInfo.email, 'uid'),
-        SharedUtils.argsCheckAsync(userInfo.lastName, 'string'),
-        SharedUtils.argsCheckAsync(userInfo.firstName, 'string'),
-        SharedUtils.argsCheckAsync(userInfo.locale, 'string'),
+        SharedUtils.argsCheckAsync(userInfo.familyName, 'string'),
+        SharedUtils.argsCheckAsync(userInfo.givenName, 'string'),
         function() {
             if (userInfo.gender !== 'male' && userInfo.gender !== 'female') {
                 throw new Error('user gender is not in correct format');
             }
-            if (userInfo.oAuthProvider !== 'facebook' && userInfo.oAuthProvider !== 'google') {
-                throw new Error ('oAtuh provider is invalid');
+            // null "locale" value will be take care by the default value 
+            if (!!userInfo.locale && !SharedUtils.isString(userInfo.locale)) {
+                throw new Error('user locale should only be string');
             }
-            userInfo.avatarProvider = userInfo.oAuthProvider;
-            userInfo.nickName = userInfo.firstName + userInfo.lastName;
+            // TODO: avatar should be checked
+            userInfo.nickName = userInfo.givenName + userInfo.familyName;
             var newUser = new UserModel(userInfo);
             // make mongoose cache outdated
             UserModel.find()._touchCollectionCheck(true);

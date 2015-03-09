@@ -21,11 +21,11 @@ var UserEntry = {};
  * @Description: middleware for handling the successful oauth login
  */
 UserEntry.enter = function(req, res, next) {
-    if (!UserStorage || !req.params.provider) {
+    if (!UserStorage) {
         return next();
     }
     var userInfo = req.session.passport.user;
-    return UserStorage.oAuthLoginAsync(userInfo.id, req.params.provider)
+    return UserStorage.oAuthLoginAsync(userInfo.id, userInfo.provider)
         .then(function(basicInfo) {
             // pass to signup or user's dashboard
             req.nextRoute = (!basicInfo ? '/app/signup' : '/app/dashboard');
@@ -33,7 +33,6 @@ UserEntry.enter = function(req, res, next) {
                 userInfo.email = basicInfo.email;
                 userInfo.name = basicInfo.nickName;
             }
-            res.cookie('user', JSON.stringify(userInfo));
             return next();
         }).catch(function(err) {
             SharedUtils.printError('UserEntry', 'enter', err);
@@ -52,9 +51,9 @@ UserEntry.create = function(req, res, next) {
             throw new Error('UserStorage is not initialized');
         }
         var signUpInfo = JSON.parse(req.body.signUpInfo);
-        var provider = req.session.passport.provider;
+        var provider = req.session.passport.user.provider;
         signUpInfo.locale = req.session.passport.user.locale;
-        signUpInfo.oAuthProvider = provider;
+        signUpInfo.avatar = req.session.passport.user.avatar;
         signUpInfo[provider] = req.session.passport.user.id;
         return UserStorage.addUserAsync(signUpInfo);
     }).then(function(result) {

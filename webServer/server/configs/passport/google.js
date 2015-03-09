@@ -1,6 +1,6 @@
 'use strict';
-var FacebookStrategy = require('passport-facebook').Strategy;
-var OAuthConfigs = require('./params').getOAuth('facebook');
+var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+var OAuthConfigs = require('./params').getOAuth('google');
 
 /************************************************
  *
@@ -8,7 +8,7 @@ var OAuthConfigs = require('./params').getOAuth('facebook');
  *
  ************************************************/
 
-module.exports = new FacebookStrategy({
+module.exports = new GoogleStrategy({
     clientID: OAuthConfigs.clientID,
     clientSecret: OAuthConfigs.clientSecret,
     callbackURL: OAuthConfigs.callbackURL
@@ -19,9 +19,9 @@ module.exports = new FacebookStrategy({
         familyName: profile.name.familyName,
         givenName: profile.name.givenName,
         gender: profile.gender,
-        avatar: 'https://graph.facebook.com/' + profile.id + '/picture',
-        email: (profile.emails ? profile.emails[0].value : false) || profile.email || profile._json.email || '',
-        locale: (profile._json ? profile._json.locale : false) || ''
+        avatar: profile.photos[0].value || '',
+        email: (profile.emails ? profile.emails[0].value : false) || '',
+        locale: (profile._json.language === 'en' ? 'en_US' : profile._json.language)
     };
     done(null, userInfo);
 });

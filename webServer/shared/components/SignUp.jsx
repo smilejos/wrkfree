@@ -106,15 +106,16 @@ module.exports = React.createClass({
      */
     _onSubmit: function(e){
         e.preventDefault();
+        var self = this;
         return new Promise(function(resolve){
             var submitJson = {
-                signUpInfo: JSON.stringify(this.state)
+                signUpInfo: JSON.stringify(self.state)
             };
             request.post('/app/signup')
                 .send(submitJson)
                 .set('Content-Type', 'application/json')
                 .end(resolve);
-        }).bind(this).then(function(res){
+        }).then(function(res){
             if (!res.ok) {
                 throw new Error(res.text);
             }
@@ -150,7 +151,7 @@ module.exports = React.createClass({
         return (
             <div className="SignUp">
                 <form className="pure-form" onSubmit={this._onSubmit}>
-                    <NormalFields fields={['email', 'firstName', 'lastName']} defaultValues={this.state} handleChange={this._onInputChange}/>
+                    <NormalFields fields={['email', 'givenName', 'familyName']} defaultValues={this.state} handleChange={this._onInputChange}/>
                     <SelectField values={['male', 'female']} defaultValue={this.state.gender} handleChange={this._onInputChange} name={"gender"}/>
                     <button type="submit" className="pure-button pure-button-primary pure-input-1-3">Sign up</button>
                 </form>

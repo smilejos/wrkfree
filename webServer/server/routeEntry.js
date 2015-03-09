@@ -36,7 +36,7 @@ exports.getChannelAsync = function(actionContext, routeInfo){
 exports.getSignUpAsync = function(actionContext, routeInfo) {
     return Promise.try(function(){
         return {
-            signUpInfo: JSON.parse(routeInfo.userInfo)
+            signUpInfo: routeInfo.userInfo
         };
     }).catch(function(err){
         SharedUtils.printError('server-routeEntry', 'getSignUpAsync', err);
