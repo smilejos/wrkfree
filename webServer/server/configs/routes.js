@@ -24,7 +24,7 @@ module.exports = function(server, StorageManager) {
      * handle the google oauth routes
      */
     ExpressRouter.get('/auth/google', Passport.authenticate('google', {
-        scope: providerParams.get('google').scope
+        scope: providerParams.getParams('google').scope
     }));
     ExpressRouter.get('/auth/google/callback', Passport.authenticate('google', {
         successRedirect: '/auth/success/google',
