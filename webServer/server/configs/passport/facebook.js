@@ -27,5 +27,15 @@ module.exports = new FacebookStrategy({
     clientSecret: Config[Env].clientSecret,
     callbackURL: Config[Env].callbackURL
 }, function(accessToken, refreshToken, profile, done) {
-    done(null, profile);
+    var userInfo = {
+        provider: profile.provider,
+        id: profile.id,
+        familyName: profile.name.familyName,
+        givenName: profile.name.givenName,
+        gender: profile.gender,
+        avatar: 'https://graph.facebook.com/'+ profile.id +'/picture',
+        email: (profile.emails ? profile.emails[0].value : false) || profile.email || profile._json.email || '',
+        locale: (profile._json ? profile._json.locale : false) || ''
+    };
+    done(null, userInfo);
 });
