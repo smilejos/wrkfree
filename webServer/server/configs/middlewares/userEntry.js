@@ -50,7 +50,7 @@ UserEntry.create = function(req, res, next) {
         if (!UserStorage) {
             throw new Error('UserStorage is not initialized');
         }
-        var signUpInfo = JSON.parse(req.body.signUpInfo);
+        var signUpInfo = req.body;
         var provider = req.session.passport.user.provider;
         signUpInfo.locale = req.session.passport.user.locale;
         signUpInfo.avatar = req.session.passport.user.avatar;
