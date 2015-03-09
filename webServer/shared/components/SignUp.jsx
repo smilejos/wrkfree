@@ -1,9 +1,8 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible').Mixin;
+var NavigationMixin = require('react-router').Navigation;
 var SignUpStore = require('../stores/SignUpStore');
-var request = require('superagent');
-var Navigation = require('react-router').Navigation;
-var SharedUtils = require('../../../sharedUtils/utils');
+var SignUpAction = require('../../client/actions/userSignUp');
 
 /**
  * @Author: George_Chen
@@ -86,7 +85,7 @@ module.exports = React.createClass({
     /**
      * after mixin, mainApp can have this.getStore()
      */
-    mixins: [FluxibleMixin, Navigation],
+    mixins: [FluxibleMixin, NavigationMixin],
 
     // when SignUpStore call "this.emitChange()",
     statics: {
@@ -106,23 +105,9 @@ module.exports = React.createClass({
      */
     _onSubmit: function(e){
         e.preventDefault();
-        var self = this;
-        return new Promise(function(resolve){
-            var submitJson = {
-                signUpInfo: JSON.stringify(self.state)
-            };
-            request.post('/app/signup')
-                .send(submitJson)
-                .set('Content-Type', 'application/json')
-                .end(resolve);
-        }).then(function(res){
-            if (!res.ok) {
-                throw new Error(res.text);
-            }
-            self.transitionTo(res.body.route);
-            // build pomelo socket and trigger an new navigation action ?
-        }).catch(function(err){
-            SharedUtils.printError('SignUp', '_onSubmit', err);
+        return this.executeAction(SignUpAction, {
+            transitionHandler: this.transitionTo,
+            signUpInfo: JSON.stringify(this.state)
         });
     },
 
