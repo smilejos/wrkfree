@@ -3,45 +3,7 @@ var FluxibleMixin = require('fluxible').Mixin;
 var NavigationMixin = require('react-router').Navigation;
 var SignUpStore = require('../stores/SignUpStore');
 var SignUpAction = require('../../client/actions/userSignUp');
-
-/**
- * @Author: George_Chen
- * @Description: An group of input fields
- * 
- * @param {Array}      this.props.fields, an array of fields title
- */
-var NormalFields = React.createClass({
-    /**
-     * @Author: George_Chen
-     * @Description: to handle the event change from current field
-     * 
-     * @param {Object}      event, react event object
-     */
-    _handleChange: function(event){
-        this.props.handleChange(event.target.name, event.target.value);
-    },
-
-    render: function(){
-        var fields = this.props.fields || [];
-        var defaultValues = this.props.defaultValues;
-        var formElements = fields.map(function(fieldInfo){
-            var inputType = (fieldInfo === 'email' ? 'email' : 'text');
-            var inputInfo = 'Your ' + fieldInfo;
-            return (
-                <fieldset key={fieldInfo+'field'}>
-                    <input
-                        name={fieldInfo} 
-                        className="pure-input-1-3"
-                        type={inputType} 
-                        defaultValue={defaultValues[fieldInfo]}
-                        onChange={this._handleChange} 
-                        placeholder={inputInfo}/>
-                </fieldset>  
-            );
-        }, this);
-        return <div>{formElements}</div>
-    }
-});
+var TextInput = require('./common/textInput.jsx');
 
 /**
  * @Author: George_Chen
@@ -136,7 +98,9 @@ module.exports = React.createClass({
         return (
             <div className="SignUp">
                 <form className="pure-form" onSubmit={this._onSubmit}>
-                    <NormalFields fields={['email', 'givenName', 'familyName']} defaultValues={this.state} handleChange={this._onInputChange}/>
+                    <TextInput name={'email'} defaultValue={this.state.email} handleChange={this._onInputChange} type={'email'}/>
+                    <TextInput name={'givenName'} defaultValue={this.state.givenName} handleChange={this._onInputChange} type={'text'}/>
+                    <TextInput name={'familyName'} defaultValue={this.state.familyName} handleChange={this._onInputChange} type={'text'}/>
                     <SelectField values={['male', 'female']} defaultValue={this.state.gender} handleChange={this._onInputChange} name={"gender"}/>
                     <button type="submit" className="pure-button pure-button-primary pure-input-1-3">Sign up</button>
                 </form>
