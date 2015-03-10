@@ -70,6 +70,18 @@ module.exports = function(server, StorageManager) {
     });
 
     /**
+     * handling logout
+     */
+    ExpressRouter.get('/app/logout', function(req, res) {
+        req.session.destroy(function(err) {
+            if (err) {
+                SharedUtils.printError('routes', '/app/logout', err);
+            }
+            res.redirect('/');
+        });
+    });
+
+    /**
      * makes "/app/dashboard" as an default app route
      */
     ExpressRouter.get('/app', function(req, res) {
