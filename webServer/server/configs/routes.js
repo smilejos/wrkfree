@@ -70,7 +70,7 @@ module.exports = function(server, StorageManager) {
     });
 
     /**
-     * handling the user logout
+     * handling logout
      */
     ExpressRouter.get('/app/logout', function(req, res) {
         req.session.destroy(function(err) {
