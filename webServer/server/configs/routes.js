@@ -5,11 +5,17 @@ var SharedUtils = require('../../../sharedUtils/utils');
 
 
 module.exports = function(server, StorageManager) {
+    var auth = require('./middlewares/authorization');
     var userEntry = require('./middlewares/userEntry')(StorageManager);
     var reactRoute = require('./reactRoute');
     var providerParams = require('./passport/params');
 
     server.use(ExpressRouter);
+
+    /**
+     * ensure all routes start with '/app' will get authorized check
+     */
+    ExpressRouter.use('/app', auth.ensureAuthed);
 
     /**
      * handle the facebook oauth routes
