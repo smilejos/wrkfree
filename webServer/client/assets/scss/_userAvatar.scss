@@ -2,8 +2,12 @@
  * define the size of user avatar
  */
 .UserAvatar {
-    width: 40px;
-    height: 40px;
+    width: 39px;
+    height: 39px;
+
+    border-style: solid;;
+    border-color: #aaa;
+    border-width: 1px;
 }
 
 /**
