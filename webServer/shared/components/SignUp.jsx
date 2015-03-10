@@ -69,7 +69,7 @@ module.exports = React.createClass({
     render: function(){
         var genderOptions = ['male', 'female'];
         return (
-            <div className="SignUp">
+            <div className="SignUp mainBox">
                 <form className="pure-form" onSubmit={this._onSubmit}>
                     <TextInput name={'email'} defaultValue={this.state.email} handleChange={this._onInputChange} type={'email'}/>
                     <TextInput name={'givenName'} defaultValue={this.state.givenName} handleChange={this._onInputChange} type={'text'}/>
