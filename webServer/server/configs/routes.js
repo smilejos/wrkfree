@@ -99,6 +99,20 @@ module.exports = function(server, StorageManager) {
     });
 
     /**
+     * used to check specific "email" is available or not
+     * NOTE:
+     * status code = 200 is success response, means user email can be applied
+     * status code = 403 is an forbiden error, means user email has been occupied
+     */
+    ExpressRouter.get('/app/checkuser', userEntry.isUidAvailable, function(req, res) {
+        if (req.error) {
+            res.redirect(req.nextRoute);
+        }
+        var statusCode = (req.uidAvailable ? 200 : 406);
+        res.status(statusCode).end();
+    });
+
+    /**
      * for serving protected files,
      * ex: file request "https://localhost/app/build/bundle.js"
      *     will be replace as "https://localhost/protected/bundle.js"

@@ -69,6 +69,21 @@ exports.findUsersAsync = function(findString) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to check sepcific user is exist or not
+ *
+ * @param {String}      uid, user id
+ */
+exports.isUserExistAsync = function(uid) {
+    return UserDao.isUserExistAsync(uid)
+        .catch(function(err){
+            SharedUtils.printError('UserService', 'isUserExistAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to find out the information of specific user
  *
  * @param {String/Array}      user, an user id or an array of users
@@ -104,9 +119,9 @@ exports.getSessAuthAsync = function(user, sid) {
             var sessKey = 'sess:' + sid;
             return RedisClient.getAsync(sessKey);
         }).then(function(result) {
-            return (user === JSON.parse(result).passport.user.email);
-        }).catch(function(err) {
-            SharedUtils.printError('UserService', 'getSessAuthAsync', err);
-            return false;
-        });
+        return (user === JSON.parse(result).passport.user.email);
+    }).catch(function(err) {
+        SharedUtils.printError('UserService', 'getSessAuthAsync', err);
+        return false;
+    });
 };
