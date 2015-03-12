@@ -73,20 +73,42 @@ exports.selectOriginDoc = function() {
 
 /**
  * @Public API
+ * @Author: George_Chen
+ * @Description: to get a basic field selection object for mongoose query
+ */
+exports.checkDocumentSaveAsync = function (saveResult) {
+    return Promise.try(function(){
+        var doc = saveResult[0].toObject();
+        var saveStatus = saveResult[1];
+        if (!saveStatus) {
+            var err = new Error('mongoose save fail');
+            SharedUtils.printError('dbUtils', 'checkDocumentSaveAsync', err);
+            throw err;
+        }
+        return doc;
+    });
+};
+
+/**
+ * @Public API
  *
  * @Author: George_Chen
  * @Description: get the channel query condition
  *
  * @param {String} chId, channel's id
  */
-exports.getChannelCondAsync = Promise.method(function(chId) {
-    if (!SharedUtils.isChannelId(chId)) {
-        throw new Error('[getChannelCondAsync] channel id is invalid');
-    }
-    return {
-        channelId: chId
-    };
-});
+exports.getChannelCondAsync = function(chId){
+    return Promise.try(function(){
+        if (!SharedUtils.isChannelId(chId)) {
+            var err = new Error('channel id is invalid');
+            SharedUtils.printError('dbUtils', 'getChannelCondAsync', err);
+            throw err;
+        }
+        return {
+            channelId: chId
+        };
+    });
+};
 
 /**
  * Public API
@@ -98,28 +120,32 @@ exports.getChannelCondAsync = Promise.method(function(chId) {
  * @param {Object}      period, optional,  period object will include "start" and "end"
  *                             which specify an time duration
  */
-exports.getTimeCondAsync = Promise.method(function(conditon, field, period) {
-    if (!conditon) {
-        throw new Error('[applyTimeAsync] condition is broken');
-    }
-    if (!SharedUtils.isString(field)) {
+exports.getTimeCondAsync = function(conditon, field, period) {
+    return Promise.try(function(){
+        if (!conditon) {
+            var err = new Error('condition is broken');
+            SharedUtils.printError('dbUtils', 'getChannelCondAsync', err);
+            throw err;
+        }
+        if (!SharedUtils.isString(field)) {
+            return conditon;
+        }
+        if (!period || (!period.start && !period.end)) {
+            return conditon;
+        }
+        var startTime = _getValidTime(period.start, 'start');
+        var endTime = _getValidTime(period.end, 'end');
+        if (startTime > endTime) {
+            return conditon;
+        }
+        // apply time constraint to origin query condition
+        conditon[field] = {
+            $gt: startTime,
+            $lt: endTime
+        };
         return conditon;
-    }
-    if (!period || (!period.start && !period.end)) {
-        return conditon;
-    }
-    var startTime = _getValidTime(period.start, 'start');
-    var endTime = _getValidTime(period.end, 'end');
-    if (startTime > endTime) {
-        return conditon;
-    }
-    // apply time constraint to origin query condition
-    conditon[field] = {
-        $gt: startTime,
-        $lt: endTime
-    };
-    return conditon;
-});
+    });
+};
 
 /**
  * @Author: George_Chen
