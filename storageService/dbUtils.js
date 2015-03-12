@@ -73,9 +73,8 @@ exports.selectOriginDoc = function() {
 
 /**
  * @Public API
- *
  * @Author: George_Chen
- * @Description: to get an basic field selection object for mongoose query
+ * @Description: to get a basic field selection object for mongoose query
  */
 exports.checkDocumentSaveAsync = function (saveResult) {
     return Promise.try(function(){
