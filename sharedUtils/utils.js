@@ -133,6 +133,27 @@ module.exports = {
         return re.test(email);
     },
 
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: to check the user avatar url is valid or not
+     * NOTE: we only check avatar pattern match 'facebook' and 'google'
+     * 
+     * @param {String}      avatarUrl, avatar's url
+     */
+    isAvatarUrl: function(avatarUrl) {
+        if (!this.isString(avatarUrl)) {
+            return false;
+        }
+        var regex = {
+            // any string start with "https://graph.facebook.com" with be consider as valid
+            facebook: /^(https\:\/\/graph.facebook.com).*$/,
+            // any string start with "https://lh3.googleusercontent.com" with be consider as valid
+            google: /^(https\:\/\/lh3.googleusercontent.com).*$/
+        };
+        return (regex.facebook.test(avatarUrl) || regex.google.test(avatarUrl) );
+    },
+
     isChannelId: function(channelId) {
         if (!this.isString(channelId)) {
             return false;
