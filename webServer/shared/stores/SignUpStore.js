@@ -1,35 +1,34 @@
 'use strict';
 var createStore = require('fluxible/utils/createStore');
 
-/**
- * prefilled values for signup form
- */
-var PreFilledInfo = null;
-
-/**
- * used to record the field status of signup form
- */
-var StatusInfo = {
-    email: false,
-    familyName: false,
-    givenName: false
-};
-
 var SignUpStore = createStore({
     storeName: 'SignUpStore',
     handlers: {
         'CHANGE_ROUTE': 'handleNavigate'
     },
+    initialize: function() {        
+        // prefilled values for signup form
+        this.preFilledInfo = null;
+
+        // used to record the field status of signup form
+        this.statusInfo = {
+            email: false,
+            familyName: false,
+            givenName: false            
+        };
+    },
+    
     handleNavigate: function(route) {
-        if (route.path === '/app/signup' && !PreFilledInfo) {
+        if (route.path === '/app/signup' && !this.preFilledInfo) {
             var signUpInfo = route.resource.signUpInfo;
-            PreFilledInfo = {
+            this.preFilledInfo = {
                 email: signUpInfo.email || '',
                 familyName: signUpInfo.familyName || '',
                 givenName: signUpInfo.givenName || '',
                 gender: signUpInfo.gender || 'male',
                 originInfo: signUpInfo
             };
+            this.Filled = true;
         }
         this.emitChange();
     },
@@ -43,23 +42,23 @@ var SignUpStore = createStore({
      * @param {Boolean}     status, the valid status
      */
     updateValidStatus: function(field, status){
-        if (StatusInfo[field] === 'undefined') {
+        if (this.statusInfo[field] === 'undefined') {
             return;
         }
-        StatusInfo[field] = status;
+        this.statusInfo[field] = status;
         this.emitChange();
     },
     getState: function() {
         return {
-            info: PreFilledInfo,
-            status: StatusInfo
+            info: this.preFilledInfo,
+            status: this.statusInfo
         };
     },
     dehydrate: function() {
-        return PreFilledInfo;
+        return this.preFilledInfo;
     },
     rehydrate: function(info) {
-        PreFilledInfo = info;
+        this.preFilledInfo = info;
     }
 });
 
