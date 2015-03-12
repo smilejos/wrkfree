@@ -10,7 +10,7 @@ var Schema = Mongoose.Schema;
  *     NOTE: the "public" type of channel can be searched,
  *           the "private" type of channel can not be searched
  *           
- * rtc.authorization, means channel members can start rtc or not
+ * rtc.isAuthorized, means channel members can start rtc or not
  * drawing.boardNum, save how many draw board that are used
  * msg.sender, the latest msg sender's uid
  * msg.contents, the latest msg contents
@@ -19,9 +19,9 @@ var Schema = Mongoose.Schema;
  * 
  * TODO: future support
  * 
- * openStatus, means that channel will be shown on home page or not
+ * isOpen, means that channel will be shown on home page or not
  * organization, the name of organization that this channel belong to 
- * anonymousEnter: means channel support anonymous login or not
+ * isAnonymousLogin: means channel support anonymous login or not
  * anonymousPassword: an password for anonymous login user
  */
 
@@ -31,7 +31,7 @@ var ChannelSchema = new Schema({
     name:               {type : String, default : '', trim : true},
     type:               {type : String, default : '', trim : true},
     rtc:                {
-        authorization:  {type : Boolean, default : true, trim : true}
+        isAuthorized:   {type : Boolean, default : true, trim : true}
     },
     drawing:            {
         boardNum:       {type : Number, default : 1, trim : true}
@@ -41,9 +41,9 @@ var ChannelSchema = new Schema({
         contents:       {type : String, default : '', trim : true},
         timestamp:      {type : Date,   default : new Date(0) }
     },
-    openStatus:         {type : Boolean,default : false, trim : true},
+    isOpen:             {type : Boolean,default : false, trim : true},
     organization:       {type : String, default : '', trim : true},
-    anonymousEnter:     {type : Boolean, default : false, trim : true},
+    isAnonymousLogin:   {type : Boolean, default : false, trim : true},
     anonymousPassword:  {type : String, default : '', trim : true}
 });
 
