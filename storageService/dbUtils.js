@@ -82,7 +82,9 @@ exports.checkDocumentSaveAsync = function (saveResult) {
         var doc = saveResult[0].toObject();
         var saveStatus = saveResult[1];
         if (!saveStatus) {
-            throw new Error('mongoose save fail');
+            var err = new Error('mongoose save fail');
+            SharedUtils.printError('dbUtils', 'checkDocumentSaveAsync', err);
+            throw err;
         }
         return doc;
     });
