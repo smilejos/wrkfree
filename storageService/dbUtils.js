@@ -75,6 +75,23 @@ exports.selectOriginDoc = function() {
  * @Public API
  *
  * @Author: George_Chen
+ * @Description: to get an basic field selection object for mongoose query
+ */
+exports.checkDocumentSaveAsync = function (saveResult) {
+    return Promise.try(function(){
+        var doc = saveResult[0].toObject();
+        var saveStatus = saveResult[1];
+        if (!saveStatus) {
+            throw new Error('mongoose save fail');
+        }
+        return doc;
+    });
+};
+
+/**
+ * @Public API
+ *
+ * @Author: George_Chen
  * @Description: get the channel query condition
  *
  * @param {String} chId, channel's id
