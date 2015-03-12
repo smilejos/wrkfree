@@ -71,6 +71,30 @@ UserEntry.create = function(req, res, next) {
     });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: middleware for handling uid availability check
+ * NOTE: used on user signup
+ */
+UserEntry.isUidAvailable = function(req, res, next) {
+    return Promise.try(function() {
+        if (!UserStorage) {
+            throw new Error('UserStorage is not initialized');
+        }
+        return UserStorage.isUserExistAsync(req.query.email);
+    }).then(function(result) {
+        // user exist means not available
+        req.uidAvailable = !result;
+        return next();
+    }).catch(function(err) {
+        SharedUtils.printError('UserEntry', 'isUidAvailable', err);
+        req.error = new Error('Unexpected error').toString();
+        req.nextRoute = '/';
+        return next();
+    });
+};
+
 module.exports = function(storageManager) {
     UserStorage = storageManager.getService('User');
     return UserEntry;

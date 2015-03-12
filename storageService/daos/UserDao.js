@@ -74,7 +74,7 @@ exports.isUserExistAsync = function(uid) {
             return (count > 0);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', 'isUserExistAsync', err);
-            return false;
+            throw err;
         });
 };
 
