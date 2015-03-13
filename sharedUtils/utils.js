@@ -125,6 +125,33 @@ module.exports = {
         return !regx.test(string);
     },
 
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: to check user's nickName is valid or not
+     * NOTE: nickName support 'chinese' and 'english'
+     * 
+     * @param {String}      nickName, user's nickName
+     */
+    isNickName: function(nickName) {
+        if (!this.isString(nickName)) {
+            return false;
+        }
+        /**
+         * any nickName match follow policy:
+         * english name can have following format: 'georgechen', 'george chen', 'george-chen', 'george_chen'
+         * NOTE: name must start and end with "a-z, A-Z, 0-9"
+         *
+         * chinese name can have following format: '陳家駒'
+         * NOTE: name must start and end with "中文
+         *
+         * combination with english and chinese name format: 'george陳', '陳george'
+         * NOTE: with combination, the symbol "-", "_" and " " is not allowed
+         */
+        var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]+([a-zA-Z0-9](_|-|\s)[a-zA-Z0-9])*[a-zA-Z0-9\u4e00-\u9fa5]+$/;
+        return regx.test(nickName);
+    },
+
     isEmail: function(email) {
         if (!this.isString(email)) {
             return false;
@@ -221,6 +248,11 @@ module.exports = {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] channel name check error');
+            case 'nickName':
+                if (this.isNickName(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] nickName check error');
             default:
                 throw new Error('[argsCheckAsync] no support args type check');
         }
