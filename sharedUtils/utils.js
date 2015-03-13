@@ -248,6 +248,11 @@ module.exports = {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] channel name check error');
+            case 'nickName':
+                if (this.isNickName(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] nickName check error');
             default:
                 throw new Error('[argsCheckAsync] no support args type check');
         }
