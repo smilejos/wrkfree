@@ -149,7 +149,7 @@ module.exports = {
          * NOTE: with combination, the symbol "-", "_" and " " is not allowed
          */
         var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]+([a-zA-Z0-9](_|-|\s)[a-zA-Z0-9])*[a-zA-Z0-9\u4e00-\u9fa5]+$/;
-        return regx.test(string);
+        return regx.test(nickName);
     },
 
     isEmail: function(email) {
