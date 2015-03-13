@@ -7,7 +7,7 @@ var storePlugin = require('./plugins/storePlugin');
  * create an fluxible application
  */
 var app = new Fluxible({
-    appComponent: require('./components/Routes.jsx')
+    component: require('./components/Routes.jsx')
 });
 
 /**
