@@ -253,6 +253,11 @@ module.exports = {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] nickName check error');
+            case 'avatar':
+                if (this.isAvatarUrl(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] avatar check error');
             default:
                 throw new Error('[argsCheckAsync] no support args type check');
         }
