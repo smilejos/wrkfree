@@ -3,12 +3,7 @@ var SharedUtils = require('../../sharedUtils/utils');
 var Configs = require('../configs');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
-var Redis = require('redis');
-
-var RedisClient = Redis.createClient(
-    Configs.globalCacheEnv.port,
-    Configs.globalCacheEnv.host,
-    Configs.globalCacheEnv.options);
+var UserTemp = require('../tempStores/UserTemp');
 
 /************************************************
  *
@@ -75,7 +70,7 @@ exports.findUsersAsync = function(findString) {
  */
 exports.isUserExistAsync = function(uid) {
     return UserDao.isUserExistAsync(uid)
-        .catch(function(err){
+        .catch(function(err) {
             SharedUtils.printError('UserService', 'isUserExistAsync', err);
             throw err;
         });
@@ -106,22 +101,17 @@ exports.getUserAsync = function(user) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: check websocket owner got authorized or not
+ * @Description: check user already got auth or not based on web session
  *
  * @param  {String}           uid, user's id
  * @param  {String}           sid, user's web session id
  */
-exports.getSessAuthAsync = function(user, sid) {
-    return Promise.join(
-        SharedUtils.argsCheckAsync(user, 'uid'),
-        SharedUtils.argsCheckAsync(sid, 'string'),
-        function() {
-            var sessKey = 'sess:' + sid;
-            return RedisClient.getAsync(sessKey);
-        }).then(function(result) {
-        return (user === JSON.parse(result).passport.user.email);
-    }).catch(function(err) {
-        SharedUtils.printError('UserService', 'getSessAuthAsync', err);
-        return false;
-    });
+exports.isUserSessionAuthAsync = function(user, sid) {
+    return UserTemp.getWebSessionAsync(user, sid)
+        .then(function(rawInfo) {
+            return (user === JSON.parse(rawInfo).passport.user.email);
+        }).catch(function(err) {
+            SharedUtils.printError('UserService', 'getSessAuthAsync', err);
+            return false;
+        });
 };
