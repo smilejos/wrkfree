@@ -26,7 +26,7 @@ var PrivateBoxesStore = CreateStore({
         this.dbName = 'PrivateBoxesDB';
         // the private msgBoxes that currently open
         this.Boxes = [];
-        this.db = this.getContext().getStoreHelper(this.dbName);
+        this.db = this.getContext().getLokiDb(this.dbName);
         // db collection used to store all private msgs
         var collection = this.db.addCollection(this.dbName);
         collection.ensureIndex('channelId');

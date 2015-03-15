@@ -1,3 +1,4 @@
+'use strict';
 var Lokijs = null;
 
 /**
@@ -25,21 +26,20 @@ exports.envSetup = function(options) {
  * @Author: George_Chen
  * @Description: to get the storeHelper or collection
  *         NOTE: store owner can get the storeHelper for handling data storage issues
- * @param {options}      Object, refer to fluxible document
  */
-exports.plugContext = function(options) {
-    var storeHelpers = {};
+exports.plugContext = function() {
+    var lokiDbs = {};
     return {
         /**
          * for getting storeHelper(collection)
          */
         plugStoreContext: function plugStoreContext(storeContext) {
-            storeContext.getStoreHelper = function(helperName) {
-                if (!storeHelpers[helperName]) {
-                    storeHelpers[helperName] = new Lokijs(helperName);
+            storeContext.getLokiDb = function(dbName) {
+                if (!lokiDbs[dbName]) {
+                    lokiDbs[dbName] = new Lokijs(dbName);
                 }
-                return storeHelpers[helperName];
-            }
+                return lokiDbs[dbName];
+            };
         }
     };
 };
