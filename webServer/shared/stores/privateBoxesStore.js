@@ -5,16 +5,6 @@ var StoreUtils = require('./utils');
 var Promise = require('bluebird');
 
 /**
- * the private msgBoxes that currently open
- */
-var Boxes = [];
-
-/**
- * the messages source of each msgBoxes
- */
-var MessageSource = null;
-
-/**
  * the document schema of message source
  */
 var MessageSchema = {
@@ -33,8 +23,13 @@ var PrivateBoxesStore = CreateStore({
     },
 
     initialize: function() {
-        MessageSource = this.getContext().getStoreHelper(this.storeName);
-        MessageSource.ensureIndex('channelId');
+        this.dbName = 'PrivateBoxesDB';
+        // the private msgBoxes that currently open
+        this.Boxes = [];
+        this.db = this.getContext().getStoreHelper(this.dbName);
+        // db collection used to store all private msgs
+        var collection = this.db.addCollection(this.dbName);
+        collection.ensureIndex('channelId');
     },
 
     /**
@@ -46,12 +41,13 @@ var PrivateBoxesStore = CreateStore({
      * @param {Array}       msgPayload.msgs, an msg array with full-infomation
      */
     onUpdateMsgBox: function(msgPayload) {
-        if (Boxes.indexOf(msgPayload.channelId) === -1) {
-            Boxes.push(msgPayload.channelId);
+        if (this.Boxes.indexOf(msgPayload.channelId) === -1) {
+            this.Boxes.push(msgPayload.channelId);
         }
+        var collection = this.db.getCollection(this.dbName);
         return Promise.map(msgPayload.msgs, function(msgDoc) {
             return StoreUtils.validDocAsync(msgDoc, MessageSchema).then(function(doc) {
-                return MessageSource.insert(doc);
+                return collection.insert(doc);
             });
         }).bind(this).then(function() {
             return this.emitChange();
@@ -68,10 +64,11 @@ var PrivateBoxesStore = CreateStore({
      * @param {String}      chId, an valid channel's id
      */
     getLocalMsgsAsync: function(chId) {
-        return Promise.try(function(){
-            var messageView = MessageSource.getDynamicView(chId);
+        var collection = this.db.getCollection(this.dbName);
+        return Promise.try(function() {
+            var messageView = collection.getDynamicView(chId);
             if (!messageView) {
-                messageView = MessageSource.addDynamicView(chId);
+                messageView = collection.addDynamicView(chId);
                 var condition = {};
                 condition.channelId = chId;
                 messageView.applyFind(condition);
@@ -90,11 +87,12 @@ var PrivateBoxesStore = CreateStore({
      */
     getStateAsync: function() {
         var channelStore = this.dispatcher.getStore(ChannelInfoStore);
+        var collection = this.db.getCollection(this.dbName);
         var state = {};
-        return Promise.map(Boxes, function(channelId) {
+        return Promise.map(this.Boxes, function(channelId) {
             return channelStore.getChannelAsync(channelId).then(function(info) {
                 if (Object.keys(info).length > 0) {
-                    var msgView = MessageSource.getDynamicView(channelId);
+                    var msgView = collection.getDynamicView(channelId);
                     state[channelId] = {
                         header: info.msgHeader,
                         msgs: msgView.applySimpleSort('timestamp').data()

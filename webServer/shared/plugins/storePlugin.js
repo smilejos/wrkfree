@@ -1,6 +1,4 @@
 var Lokijs = null;
-var DB = null;
-var DBName = 'Stores';
 
 /**
  * plugin Name
@@ -20,9 +18,6 @@ exports.envSetup = function(options) {
         return console.log('[storePlugin] no lokijs instance available');
     }
     Lokijs = options.lokijs;
-    if (!DB) {
-        DB = new Lokijs(DBName);
-    }
 };
 
 /**
@@ -33,37 +28,18 @@ exports.envSetup = function(options) {
  * @param {options}      Object, refer to fluxible document
  */
 exports.plugContext = function(options) {
+    var storeHelpers = {};
     return {
         /**
          * for getting storeHelper(collection)
          */
         plugStoreContext: function plugStoreContext(storeContext) {
             storeContext.getStoreHelper = function(helperName) {
-                return DB.getCollection(helperName) || DB.addCollection(helperName);
+                if (!storeHelpers[helperName]) {
+                    storeHelpers[helperName] = new Lokijs(helperName);
+                }
+                return storeHelpers[helperName];
             }
         }
-    }
-};
-
-/**
- * @Public API
- * @Author: George_Chen
- * @Description: dehydrate mechanism will be called by fluxible framework
- */
-exports.dehydrate = function() {
-    return DB.toJson();
-};
-
-/**
- * @Public API
- * @Author: George_Chen
- * @Description: rehydrate mechanism will be called by fluxible framework
- *
- * @param {String}      serializedDB, the stringify DB returned by "dehydrate"
- */
-exports.rehydrate = function(serializedDB) {
-    if (!DB) {
-        DB = new Lokijs();
-    }
-    DB.loadJSON(serializedDB);
+    };
 };
