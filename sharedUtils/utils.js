@@ -125,6 +125,10 @@ module.exports = {
         return !regx.test(string);
     },
 
+    isChannelType: function(object) {
+        return (object === 'public' || object === 'private');
+    },
+
     /**
      * @Public API
      * @Author: George_Chen
@@ -189,15 +193,22 @@ module.exports = {
         return re.test(channelId);
     },
 
-    isChannelName: function(channelName) {
-        if (this.isString(channelName)) {
-            if (channelName.search('#') !== -1) {
-                return this._isPublicChannel(channelName);
-            } else if (channelName.search('&') !== -1) {
-                return this._isPrivateChannel(channelName);
-            }
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: to check the full channel name based on channel type
+     * 
+     * @param {String}      name, channel's full name
+     * @param {String}      type, channel's type
+     */
+    isChannelName: function(name, type) {
+        if (!this.isString(name)) {
+            return false;
         }
-        return false;
+        if (!this.isChannelType(type)){
+            return false;
+        }
+        return (type==='public' ? this._isPublicChannel(name) : this._isPrivateChannel(name));
     },
 
     _isPublicChannel: function(publicName) {
@@ -211,7 +222,7 @@ module.exports = {
     },
     // an promisify version of args check
     // return the input arg while this arg pass the check
-    argsCheckAsync: Promise.method(function(arg, chkType) {
+    argsCheckAsync: Promise.method(function(arg, chkType, option) {
         switch (chkType) {
             case 'uid':
                 if (this.isEmail(arg)) {
@@ -244,7 +255,7 @@ module.exports = {
                 }
                 throw new Error('[argsCheckAsync] channelId check error');
             case 'channelName':
-                if (this.isChannelName(arg)) {
+                if (this.isChannelName(arg, option)) {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] channel name check error');
@@ -258,6 +269,11 @@ module.exports = {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] avatar check error');
+            case 'channelType':
+                if (this.isChannelType(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] channel type check error');
             default:
                 throw new Error('[argsCheckAsync] no support args type check');
         }
