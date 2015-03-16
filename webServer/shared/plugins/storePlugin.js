@@ -1,6 +1,5 @@
+'use strict';
 var Lokijs = null;
-var DB = null;
-var DBName = 'Stores';
 
 /**
  * plugin Name
@@ -20,9 +19,6 @@ exports.envSetup = function(options) {
         return console.log('[storePlugin] no lokijs instance available');
     }
     Lokijs = options.lokijs;
-    if (!DB) {
-        DB = new Lokijs(DBName);
-    }
 };
 
 /**
@@ -30,40 +26,20 @@ exports.envSetup = function(options) {
  * @Author: George_Chen
  * @Description: to get the storeHelper or collection
  *         NOTE: store owner can get the storeHelper for handling data storage issues
- * @param {options}      Object, refer to fluxible document
  */
-exports.plugContext = function(options) {
+exports.plugContext = function() {
+    var lokiDbs = {};
     return {
         /**
          * for getting storeHelper(collection)
          */
         plugStoreContext: function plugStoreContext(storeContext) {
-            storeContext.getStoreHelper = function(helperName) {
-                return DB.getCollection(helperName) || DB.addCollection(helperName);
-            }
+            storeContext.getLokiDb = function(dbName) {
+                if (!lokiDbs[dbName]) {
+                    lokiDbs[dbName] = new Lokijs(dbName);
+                }
+                return lokiDbs[dbName];
+            };
         }
-    }
-};
-
-/**
- * @Public API
- * @Author: George_Chen
- * @Description: dehydrate mechanism will be called by fluxible framework
- */
-exports.dehydrate = function() {
-    return DB.toJson();
-};
-
-/**
- * @Public API
- * @Author: George_Chen
- * @Description: rehydrate mechanism will be called by fluxible framework
- *
- * @param {String}      serializedDB, the stringify DB returned by "dehydrate"
- */
-exports.rehydrate = function(serializedDB) {
-    if (!DB) {
-        DB = new Lokijs();
-    }
-    DB.loadJSON(serializedDB);
+    };
 };
