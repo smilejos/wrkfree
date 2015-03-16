@@ -78,7 +78,7 @@ exports.selectOriginDoc = function() {
  *
  * @param {object}           saveResult, the mongoose save result
  */
-exports.checkDocumentSaveAsync = function(saveResult) {
+exports.checkDocumentSaveStatusAsync = function(saveResult) {
     return Promise.try(function() {
         var doc = saveResult[0].toObject();
         var saveStatus = saveResult[1];
@@ -98,7 +98,7 @@ exports.checkDocumentSaveAsync = function(saveResult) {
  *
  * @param {object}           countNumber, the mongoose document count numbers
  */
-exports.checkDocumentExistAsync = function(countNumber) {
+exports.checkDocumentExistStatusAsync = function(countNumber) {
     return Promise.try(function() {
         if (countNumber > 1) {
             throw new Error('mongoose document numbers abnormal');
@@ -114,7 +114,7 @@ exports.checkDocumentExistAsync = function(countNumber) {
  *
  * @param {object}           updateResult, the mongoose update result
  */
-exports.checkDocumentUpdateAsync = function(updateResult) {
+exports.checkDocumentUpdateStatusAsync = function(updateResult) {
     return Promise.try(function() {
         if (updateResult === 0) {
             throw new Error('mongoose update fail');
@@ -130,7 +130,7 @@ exports.checkDocumentUpdateAsync = function(updateResult) {
  *
  * @param {object}           removeResult, the mongoose doc remove result
  */
-exports.checkDocumentRemoveAsync = function(removeResult) {
+exports.checkDocumentRemoveStatusAsync = function(removeResult) {
     return Promise.try(function() {
         if (!removeResult[0]) {
             throw new Error('mongoose remove fail');
