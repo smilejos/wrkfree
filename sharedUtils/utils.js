@@ -274,6 +274,11 @@ module.exports = {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] channel type check error');
+            case 'boolean':
+                if (this.isBoolean(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] boolean value check error');
             default:
                 throw new Error('[argsCheckAsync] no support args type check');
         }
