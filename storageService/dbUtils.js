@@ -19,6 +19,12 @@ var SortMethod = {
     ascending: -1
 };
 
+/************************************************
+ *
+ *           Public APIs
+ *
+ ************************************************/
+
 /**
  * @Public API
  *
@@ -51,10 +57,7 @@ exports.getSort = function(field, method) {
  * @param {Boolean} flag, the select flag
  */
 exports.select = function(flag) {
-    if (flag) {
-        return DocumentField.select;
-    }
-    return DocumentField.nonSelect;
+    return (flag ? DocumentField.select : DocumentField.nonSelect);
 };
 
 /**
@@ -211,8 +214,5 @@ function _getValidTime(timestamp, mode) {
         start: TimeMinimum,
         end: Date.now()
     };
-    if (!SharedUtils.isValidTime(timestamp)) {
-        return defaultTimeValue[mode];
-    }
-    return timestamp;
+    return (!SharedUtils.isValidTime(timestamp) ? defaultTimeValue[mode] : timestamp);
 }
