@@ -205,7 +205,7 @@ module.exports = {
         if (!this.isString(name)) {
             return false;
         }
-        if (!this.isChannelType(type)){
+        if (!this.isValidChannelType(type)){
             return false;
         }
         return (type==='public' ? this._isPublicChannel(name) : this._isPrivateChannel(name));
@@ -270,7 +270,7 @@ module.exports = {
                 }
                 throw new Error('[argsCheckAsync] avatar check error');
             case 'channelType':
-                if (this.isChannelType(arg)) {
+                if (this.isValidChannelType(arg)) {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] channel type check error');
