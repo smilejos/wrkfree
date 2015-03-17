@@ -34,7 +34,7 @@ exports.getSort = function(field, method) {
         console.log('[getSort] field is invalid');
         return sortObject;
     }
-    if (method !== 'topDown' && method !== 'bottomUp') {
+    if (Object.keys(SortMethod).indexOf(method) === -1) {
         console.log('[getSort] method is not support');
         return sortObject;
     }
