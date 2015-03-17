@@ -89,7 +89,10 @@ module.exports = function(server, StorageManager) {
     });
 
     ExpressRouter.get('/app/dashboard', function(req, res) {
-        req.routeInfo = {};
+        req.routeInfo = {
+            user: req.session.passport.user,
+            storageManager: StorageManager
+        };
         return reactRoute(req, res);
     });
 
