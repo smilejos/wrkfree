@@ -97,7 +97,11 @@ module.exports = function(server, StorageManager) {
     });
 
     ExpressRouter.get('/app/channel/:channelId', function(req, res) {
-        req.routeInfo = {};
+        req.routeInfo = {
+            user: req.session.passport.user,
+            channelId: req.params.channelId,
+            storageManager: StorageManager
+        };
         return reactRoute(req, res);
     });
 

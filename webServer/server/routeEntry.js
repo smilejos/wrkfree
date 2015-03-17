@@ -27,14 +27,28 @@ exports.getDashboardAsync = function(actionContext, routeInfo){
     });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: getting the resource for route '/channel'
+ *
+ * @param {Object}      actionContext, fluxible actionContext
+ * @param {Object}      routeInfo, route infomation for channel route
+ */
 exports.getChannelAsync = function(actionContext, routeInfo){
-    return Promise.try(function(){
-        // do something
-        return {
-            result: 'done'
-        };
+    var user = routeInfo.user;
+    var channelId = routeInfo.channelId;
+    var friendStorage = routeInfo.storageManager.getService('Friend');
+
+    return Promise.props({
+        FriendStore: friendStorage.getFriendListAsync(user.email, user.email)
+    }).then(function(resource){
+        return _storesPolyfill(actionContext, resource);
+    }).catch(function(err){
+        SharedUtils.printError('server-routeEntry', 'getChannelAsync', err);
+        return {};
     });
-}
+};
 
 /**
  * Public API
