@@ -125,7 +125,7 @@ module.exports = {
         return !regx.test(string);
     },
 
-    isChannelType: function(object) {
+    isValidChannelType: function(object) {
         return (object === 'public' || object === 'private');
     },
 
