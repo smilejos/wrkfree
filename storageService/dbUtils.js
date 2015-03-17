@@ -74,10 +74,12 @@ exports.selectOriginDoc = function() {
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: to get a basic field selection object for mongoose query
+ * @Description: used to check mongoose save result
+ *
+ * @param {object}           saveResult, the mongoose save result
  */
-exports.checkDocumentSaveAsync = function (saveResult) {
-    return Promise.try(function(){
+exports.checkDocumentSaveStatusAsync = function(saveResult) {
+    return Promise.try(function() {
         var doc = saveResult[0].toObject();
         var saveStatus = saveResult[1];
         if (!saveStatus) {
@@ -91,14 +93,62 @@ exports.checkDocumentSaveAsync = function (saveResult) {
 
 /**
  * @Public API
+ * @Author: George_Chen
+ * @Description: used to check mongoose exist query result.
+ *
+ * @param {object}           countNumber, the mongoose document count numbers
+ */
+exports.checkDocumentExistStatusAsync = function(countNumber) {
+    return Promise.try(function() {
+        if (countNumber > 1) {
+            throw new Error('mongoose document numbers abnormal');
+        }
+        return (countNumber > 0);
+    });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: used to check mongoose field update result
+ *
+ * @param {object}           updateResult, the mongoose update result
+ */
+exports.checkDocumentUpdateStatusAsync = function(updateResult) {
+    return Promise.try(function() {
+        if (updateResult === 0) {
+            throw new Error('mongoose update fail');
+        }
+        return (updateResult === 1);
+    });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: used to check mongoose doc remove result
+ *
+ * @param {object}           removeResult, the mongoose doc remove result
+ */
+exports.checkDocumentRemoveStatusAsync = function(removeResult) {
+    return Promise.try(function() {
+        if (!removeResult[0]) {
+            throw new Error('mongoose remove fail');
+        }
+        return (removeResult[0] > 0);
+    });
+};
+
+/**
+ * @Public API
  *
  * @Author: George_Chen
  * @Description: get the channel query condition
  *
  * @param {String} chId, channel's id
  */
-exports.getChannelCondAsync = function(chId){
-    return Promise.try(function(){
+exports.getChannelCondAsync = function(chId) {
+    return Promise.try(function() {
         if (!SharedUtils.isChannelId(chId)) {
             var err = new Error('channel id is invalid');
             SharedUtils.printError('dbUtils', 'getChannelCondAsync', err);
@@ -121,7 +171,7 @@ exports.getChannelCondAsync = function(chId){
  *                             which specify an time duration
  */
 exports.getTimeCondAsync = function(conditon, field, period) {
-    return Promise.try(function(){
+    return Promise.try(function() {
         if (!conditon) {
             var err = new Error('condition is broken');
             SharedUtils.printError('dbUtils', 'getChannelCondAsync', err);
