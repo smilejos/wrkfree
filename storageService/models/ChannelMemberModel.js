@@ -8,7 +8,7 @@ var Schema = Mongoose.Schema;
  * channelType, the type of the channel
  * channelName, the fullname of the channel, ex: 'bamoo456@gmail.com#test'
  * isSubscribed, the subscribed status on this channel
- * isHost, an flag to represent member is host or not
+ * isHost, a flag to represent member is host or not
  * isRtc, means that member turn on/off the rtc on this channel
  * lastUseBoard, the last draw board that member used
  * visitCounts, ths counts about how many times that member has visited
