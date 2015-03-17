@@ -19,6 +19,12 @@ var SortMethod = {
     ascending: -1
 };
 
+/************************************************
+ *
+ *           Public APIs
+ *
+ ************************************************/
+
 /**
  * @Public API
  *
@@ -34,7 +40,7 @@ exports.getSort = function(field, method) {
         console.log('[getSort] field is invalid');
         return sortObject;
     }
-    if (method !== 'topDown' && method !== 'bottomUp') {
+    if (Object.keys(SortMethod).indexOf(method) === -1) {
         console.log('[getSort] method is not support');
         return sortObject;
     }
@@ -51,10 +57,7 @@ exports.getSort = function(field, method) {
  * @param {Boolean} flag, the select flag
  */
 exports.select = function(flag) {
-    if (flag) {
-        return DocumentField.select;
-    }
-    return DocumentField.nonSelect;
+    return (flag ? DocumentField.select : DocumentField.nonSelect);
 };
 
 /**
@@ -132,8 +135,11 @@ exports.checkDocumentUpdateStatusAsync = function(updateResult) {
  */
 exports.checkDocumentRemoveStatusAsync = function(removeResult) {
     return Promise.try(function() {
-        if (!removeResult[0]) {
-            throw new Error('mongoose remove fail');
+        if (!removeResult[1].ok) {
+            throw new Error('exception on mongodb remove');
+        }
+        if (removeResult[0] === 0) {
+            console.log('mongoose remove nothing');
         }
         return (removeResult[0] > 0);
     });
@@ -208,8 +214,5 @@ function _getValidTime(timestamp, mode) {
         start: TimeMinimum,
         end: Date.now()
     };
-    if (!SharedUtils.isValidTime(timestamp)) {
-        return defaultTimeValue[mode];
-    }
-    return timestamp;
+    return (!SharedUtils.isValidTime(timestamp) ? defaultTimeValue[mode] : timestamp);
 }
