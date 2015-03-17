@@ -8,6 +8,7 @@ var Schema = Mongoose.Schema;
  * channelType, the type of the channel
  * channelName, the fullname of the channel, ex: 'bamoo456@gmail.com#test'
  * isSubscribed, the subscribed status on this channel
+ * isHost, a flag to represent member is host or not
  * isRtc, means that member turn on/off the rtc on this channel
  * lastUseBoard, the last draw board that member used
  * visitCounts, ths counts about how many times that member has visited
@@ -21,6 +22,7 @@ var ChannelMember = new Schema({
     channelType:       {type : String, default : '', trim : true},
     channelName:       {type : String, default : '', trim : true},
     isSubscribed:      {type : Boolean,default : false, trim : true},
+    isHost:            {type : Boolean,default : false, trim : true},
     isRtc:             {type : Boolean,default : true, trim : true},
     lastUseBoard:      {type : Number, default : 0, trim : true},
     visitCounts:       {type : Number, default : 0, trim : true},
@@ -30,4 +32,4 @@ var ChannelMember = new Schema({
 
 ChannelMember.set('autoIndex', false);
 
-Mongoose.model('MemberStatus', ChannelMember);
+Mongoose.model('ChannelMember', ChannelMember);
