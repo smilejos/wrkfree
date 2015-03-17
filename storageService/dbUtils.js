@@ -132,8 +132,11 @@ exports.checkDocumentUpdateStatusAsync = function(updateResult) {
  */
 exports.checkDocumentRemoveStatusAsync = function(removeResult) {
     return Promise.try(function() {
-        if (!removeResult[0]) {
-            throw new Error('mongoose remove fail');
+        if (!removeResult[1].ok) {
+            throw new Error('exception on mongodb remove');
+        }
+        if (removeResult[0] === 0) {
+            console.log('mongoose remove nothing');
         }
         return (removeResult[0] > 0);
     });
