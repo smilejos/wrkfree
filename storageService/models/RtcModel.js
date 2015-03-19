@@ -10,7 +10,7 @@ var Schema = Mongoose.Schema;
 
 var RtcSchema = new Schema({
     channelId:          {type : String, default : '', trim : true, index: true},
-    isAuth:             {type : Boolean,default : true}
+    isAuth:             {type : Boolean, default : true}
 });
 
 RtcSchema.set('autoIndex', false);
