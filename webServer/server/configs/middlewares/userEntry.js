@@ -31,7 +31,7 @@ UserEntry.enter = function(req, res, next) {
             req.nextRoute = (!basicInfo ? '/app/signup' : '/app/dashboard');
             if (basicInfo) {
                 userInfo.email = basicInfo.email;
-                userInfo.name = basicInfo.nickName;
+                userInfo.name = basicInfo.name;
             }
             return next();
         }).catch(function(err) {
