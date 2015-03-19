@@ -77,6 +77,9 @@ webpackConfig = {
             loader: 'jsx-loader'
         }]
     },
+    node: {
+      fs: "empty"
+    },
     stats: {
         colors: true
     },

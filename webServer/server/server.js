@@ -10,15 +10,6 @@ require('node-jsx').install({
 // require the fluxible app
 var App = require('../shared/app');
 
-/**
- * App Env setup on server
- */
-var storePlugin = App.getPlugin('storePlugin');
-storePlugin.envSetup({
-    lokijs: require('lokijs')
-});
-
-
 var StorageDir = '../../storageService/';
 var StorageManager = require(StorageDir + 'storageManager')(require(StorageDir + 'configs'));
 
