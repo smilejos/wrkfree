@@ -20,7 +20,9 @@ module.exports = function(server, StorageManager) {
     /**
      * handle the facebook oauth routes
      */
-    ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook'));
+    ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook', {
+        scope: providerParams.getParams('facebook').scope
+    }));
     ExpressRouter.get('/auth/facebook/callback', Passport.authenticate('facebook', {
         successRedirect: '/auth/success/facebook',
         failureRedirect: '/error'

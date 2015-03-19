@@ -10,7 +10,9 @@ var Params = {
         ]
     },
     facebook: {
-        // TODO:
+        scope: [
+            'email'
+        ]
     }
 };
 
