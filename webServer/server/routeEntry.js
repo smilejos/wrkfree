@@ -14,11 +14,16 @@ exports.setResource = function(resource){
  * @param {Object}      routeInfo, route infomation for dashboard route
  */
 exports.getDashboardAsync = function(actionContext, routeInfo){
-    var user = routeInfo.user;
     var friendStorage = routeInfo.storageManager.getService('Friend');
-
+    // temp test data for header store
+    var headerState = {
+        user: routeInfo.user,
+        hasUnreadMsgs: false,
+        hasNotification: false
+    };
     return Promise.props({
-        FriendStore: friendStorage.getFriendListAsync(user.email, user.email)
+        FriendStore: friendStorage.getFriendListAsync(routeInfo.user.email, routeInfo.user.email),
+        HeaderStore: headerState
     }).then(function(resource){
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err){
@@ -36,12 +41,18 @@ exports.getDashboardAsync = function(actionContext, routeInfo){
  * @param {Object}      routeInfo, route infomation for channel route
  */
 exports.getChannelAsync = function(actionContext, routeInfo){
-    var user = routeInfo.user;
     var channelId = routeInfo.channelId;
     var friendStorage = routeInfo.storageManager.getService('Friend');
+    // temp test data for header store
+    var headerState = {
+        user: routeInfo.user,
+        hasUnreadMsgs: false,
+        hasNotification: false
+    };
 
     return Promise.props({
-        FriendStore: friendStorage.getFriendListAsync(user.email, user.email)
+        FriendStore: friendStorage.getFriendListAsync(routeInfo.user.email, routeInfo.user.email),
+        HeaderStore: headerState
     }).then(function(resource){
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err){
