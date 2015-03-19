@@ -77,6 +77,11 @@ webpackConfig = {
             loader: 'jsx-loader'
         }]
     },
+    node: {
+        // make "fs" module as empty object "{}" 
+        // since lokijs will require('fs') on browser environment
+        fs: "empty"
+    },
     stats: {
         colors: true
     },

@@ -1,25 +1,10 @@
 'use strict';
-var Lokijs = null;
+var Lokijs = require('lokijs');
 
 /**
  * plugin Name
  */
 exports.name = 'storePlugin';
-
-/**
- * @Public API
- * @Author: George_Chen
- * @Description: setup the environment dependency, lokijs module
- *
- * @param {options}      Object,
- *                       options.lokijs, the lokijs module
- */
-exports.envSetup = function(options) {
-    if (!options.lokijs) {
-        return console.log('[storePlugin] no lokijs instance available');
-    }
-    Lokijs = options.lokijs;
-};
 
 /**
  * @Public API
