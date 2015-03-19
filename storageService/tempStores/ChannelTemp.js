@@ -3,8 +3,8 @@ var Promise = require('bluebird');
 var Redis = require('redis');
 var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
-var GLOBAL_OnlineUserKey = 'SYSTEM:onlineusers';
-var GLOBAL_Key_Expiration = 100;
+var GLOBAL_ONLINE_USER_KEY = 'SYSTEM:onlineusers';
+var GLOBAL_KEY_EXPIRE_TIME_IN_SECONDS = 100;
 
 /**
  * Channel temp is currently kept at global cache
@@ -101,7 +101,7 @@ exports.getOnlineMembersAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'channelId')
         .then(function(validChannelId) {
             var redisKey = _getMemberKey(validChannelId);
-            return RedisClient.sinterAsync(redisKey, GLOBAL_OnlineUserKey);
+            return RedisClient.sinterAsync(redisKey, GLOBAL_ONLINE_USER_KEY);
         }).catch(function(err) {
             SharedUtils.printError('ChannelTemp', 'getOnlineMembersAsync', err);
             return [];
@@ -134,7 +134,7 @@ function _getMemberKey(channelId) {
 function _importMembers(members, redisKey) {
     return RedisClient.multi()
         .sadd(redisKey, members)
-        .expire(redisKey, GLOBAL_Key_Expiration)
+        .expire(redisKey, GLOBAL_KEY_EXPIRE_TIME_IN_SECONDS)
         .execAsync();
 }
 
@@ -145,5 +145,5 @@ function _importMembers(members, redisKey) {
  * @param {String}      redisKey, member temp storage key
  */
 function _ttlMemberList(redisKey) {
-    return RedisClient.expireAsync(redisKey, GLOBAL_Key_Expiration);
+    return RedisClient.expireAsync(redisKey, GLOBAL_KEY_EXPIRE_TIME_IN_SECONDS);
 }
