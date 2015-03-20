@@ -223,9 +223,6 @@ exports.getOnlineMembersAsync = function(channelId) {
  ************************************************/
 
 /**
- * TODO: should we re-cache memberList when 'result.listExist' is null
- *       or simply pospone 'ttl' of memberList
- *
  * @Author: George_Chen
  * @Description: to check asker is currently a member or not
  *
@@ -236,9 +233,10 @@ function _isMemberAuthAsync(asker, channelId) {
     return ChannelTemp.isMemberAsync(asker, channelId)
         .then(function(result) {
             if (!result || !result.listExist) {
+                exports.getMembersAsync(channelId);     // re-cache memberList to tempStore
                 return ChannelMemberDao.isExistAsync(asker, channelId);
             }
-            return result.memberExist;
+            return !!result.memberExist;
         });
 }
 
