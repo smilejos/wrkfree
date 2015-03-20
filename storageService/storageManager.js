@@ -10,7 +10,8 @@ var MongooseCache = require('mongoose-cache-manager');
  */
  var Services = [
      'UserService',
-     'FriendService'
+     'FriendService',
+     'ChannelService'
  ];
 
 /************************************************
