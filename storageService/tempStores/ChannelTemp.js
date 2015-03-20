@@ -80,7 +80,7 @@ exports.isMemberAsync = function(member, channelId) {
         function(memberUid, validChannelId) {
             var redisKey = _getMemberKey(validChannelId);
             return Promise.props({
-                listExist: RedisClient.existsAsync(redisKey),
+                listExist: _ttlMemberList(redisKey),
                 memberExist: RedisClient.sismemberAsync(redisKey, memberUid)
             });
         }).catch(function(err) {
