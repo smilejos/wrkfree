@@ -61,7 +61,7 @@ exports.addNewFriendAsync = function(asker, friendEmail, friendName, friendAvata
         FriendModel.find()._touchCollectionCheck(true);
         return friendSchema.saveAsync();
     }).then(function(result) {
-        return DbUtil.checkDocumentSaveAsync(result);
+        return DbUtil.checkDocumentSaveStatusAsync(result);
     }).catch(function(err) {
         SharedUtils.printError('FriendDao', 'addNewFriendAsync', err);
         return null;
