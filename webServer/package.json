@@ -21,6 +21,8 @@
     "gulp-webpack": "^1.2.0",
     "jsx-loader": "^0.12.2",
     "lokijs": "^1.1.15",
+    "material-ui": "^0.7.1",
+    "material-ui-sass": "^0.7.1",
     "node-jsx": "^0.12.4",
     "object-assign": "^2.0.0",
     "passport": "^0.2.1",
@@ -29,6 +31,7 @@
     "pomelo-protobuf": "^0.4.0",
     "react": "^0.12.2",
     "react-router": "^0.12.0",
+    "react-tap-event-plugin": "^0.1.4",
     "serialize-javascript": "^1.0.0",
     "superagent": "^0.21.0"
   },

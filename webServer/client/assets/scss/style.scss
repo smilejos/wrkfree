@@ -1,6 +1,23 @@
+/**
+ * import material-ui-sess definition style file
+ */
+@import "../../../node_modules/material-ui-sass/material-ui/scaffolding";
+
 @import "compass/reset";
 @import "compass/css3";
 @import "./definition";
+
+/**
+ * override material-ui style definition,
+ * NOTE: this is recommended way for using customized style 
+ */
+$toolbar-background-color: $color-main;
+
+/**
+ * import material-ui-sess component style file
+ */
+@import "../../../node_modules/material-ui-sass/material-ui/components";
+
 @import "./layout";
 @import "./userAvatar";
 @import "./msg";
