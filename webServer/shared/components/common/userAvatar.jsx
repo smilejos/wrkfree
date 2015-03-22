@@ -5,8 +5,8 @@ var React = require('react');
   * @Description: User Avatar of React Component
   *
   * @param {String}      this.props.avatar, the user's avatar url
-  * @param {String}      this.props.isCircle, assgin the circle or square avatar 
-  * @param {Boolean}     this.props.style, inline style of UserAvatar div
+  * @param {Boolean}     this.props.isCircle, assgin the avatar is circle or not
+  * @param {Object}      this.props.style, inline style of UserAvatar div
   */
 var UserAvatar = React.createClass({
     render: function(){
