@@ -29,6 +29,8 @@ module.exports = React.createClass({
                 <title>{this.props.title}</title>
                 <meta name="viewport" content="width=device-width, user-scalable=no" />
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/pure/0.5.0/pure-min.css" />
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontawesome/4.3.0/css/font-awesome.min.css"/>
+                <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,500" />
                 <link rel="stylesheet" href={this.props.host + 'assets/css/style.css'} />
             </head>
             <body>
