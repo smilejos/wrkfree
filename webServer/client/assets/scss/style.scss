@@ -11,7 +11,7 @@
  * override material-ui style definition,
  * NOTE: this is recommended way for using customized style 
  */
-$toolbar-background-color: $color-main;
+@import "./overrideMaterialUi";
 
 /**
  * import material-ui-sess component style file

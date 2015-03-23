@@ -28,6 +28,8 @@
     box-shadow: 0 2px 2px 2px rgba(0,0,0,.2);
     height: 50px;
     width: 100%;
+    color: #FFF;
+    z-index: 5;
 }
 
 /**
@@ -35,7 +37,7 @@
  */
 .mainBox {
     @extend .baseBox;
-    background-color: $color-background_1;
+    background-color: $color-background_2;
     top: 50px;
     right: 250px;
     bottom: 0px;
