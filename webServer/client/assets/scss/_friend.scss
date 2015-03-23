@@ -1,0 +1,55 @@
+/**
+ * define the size of frined
+ */ 
+.Friend {
+ 	position: relative;
+ 	padding: 2px;
+ 	border-bottom: 1px;
+ 	border-bottom-style: solid;;
+ 	border-bottom-color: #eee;
+
+ 	.showContent {
+ 		height: 40px;
+ 	}
+
+	.displayName {
+		font-family: 'Roboto', sans-serif;
+	    color: #000;
+	    font-size: 16px;
+	    line-height: 20px;
+	}
+
+	.lastMessage {
+		font-family: 'Roboto', sans-serif;
+	    color: #888;
+	    font-size: 14px;
+	    line-height: 20px;
+	}
+
+	/**
+	 * define the base style of online / offline light
+	 */
+	.baseLightState {
+	    position: absolute;
+	 	right: 1px;
+	 	top: 12px;
+	 	border-radius: 10px;
+	 	height: 10px;
+	 	width: 10px;
+	}
+
+	.onlineState {
+		@extend .baseLightState;
+	 	background-color: green;
+	}
+
+	.offlineState {
+	 	@extend .baseLightState;
+	 	background-color: #bbb;
+	}
+}
+
+.Friend:hover {
+ 	background-color: #eee;
+}
+
