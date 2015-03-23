@@ -21,11 +21,11 @@ var UserAvatar = require('./common/userAvatar.jsx');
  * @Author: George_Chen
  * @Description: container component of application header
  *
- * state.user.email, login user's email
- * state.user.avatar, login user's avatar
- * state.user.name, login user's name
- * state.isMsgRead, login user has unread msg or not
- * state.hasNotification, login user has notification or not
+ * @param {String}        this.state.user.email, login user's email
+ * @param {String}        this.state.user.avatar, login user's avatar
+ * @param {String}        this.state.user.name, login user's name
+ * @param {Boolean}       this.state.isMsgRead, login user has unread msg or not
+ * @param {Boolean}       this.state.hasNotification, login user has notification or not
  */
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
