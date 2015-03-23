@@ -15,7 +15,7 @@ var UserAvatar = React.createClass({
             circle: this.props.isCircle
         };
         return (
-            <div className="UserAvatar" style={this.props.style} >
+            <div className="UserAvatar" onClick={this.props.onAvatarClick} style={this.props.style} >
                 <img className={classSet(imgSet)} src={this.props.avatar}/>
             </div>
         );
