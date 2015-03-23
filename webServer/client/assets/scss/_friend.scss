@@ -1,5 +1,5 @@
 /**
- * define the size of frined
+ * friend style
  */ 
 .Friend {
  	position: relative;
@@ -8,24 +8,35 @@
  	border-bottom-style: solid;;
  	border-bottom-color: #eee;
 
- 	.showContent {
+ 	/**
+	 * style of friend infomation
+	 * only define height to control information size
+	 */ 
+ 	.infoContent {
  		height: 40px;
- 	}
+ 		overflow: hidden;
 
-	.displayName {
+ 		/**
+		 * style of friend's name
+		 */ 
+ 		.displayName {
 		font-family: 'Roboto', sans-serif;
 	    color: #000;
 	    font-size: 16px;
 	    line-height: 20px;
-	}
+		}
 
-	.lastMessage {
-		font-family: 'Roboto', sans-serif;
-	    color: #888;
-	    font-size: 14px;
-	    line-height: 20px;
-	}
-
+		/**
+		 * style of last message
+		 */ 
+		.lastMessage {
+			font-family: 'Roboto', sans-serif;
+		    color: #888;
+		    font-size: 14px;
+		    line-height: 20px;
+		}
+ 	}
+	
 	/**
 	 * define the base style of online / offline light
 	 */
@@ -38,11 +49,17 @@
 	 	width: 10px;
 	}
 
+	/**
+	 * style of online light
+	 */
 	.onlineState {
 		@extend .baseLightState;
 	 	background-color: green;
 	}
 
+	/**
+	 * style of offline light
+	 */
 	.offlineState {
 	 	@extend .baseLightState;
 	 	background-color: #bbb;
