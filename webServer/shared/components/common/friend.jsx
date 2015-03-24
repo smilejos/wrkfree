@@ -14,17 +14,17 @@ var UserAvatar = require('./userAvatar.jsx');
 var Friend = React.createClass({
     render: function(){
         var info = this.props.info;
-        var stateColor = info.isOnline ? "onlineState" : "offlineState";
+        var stateColor = (info.isOnline ? "onlineState" : "offlineState");
         return (
             <div className="Friend">
-            	<div className="pure-u-5-24">
-            		<UserAvatar avatar={info.avatar}/>
-        		</div>
+                <div className="pure-u-5-24">
+                    <UserAvatar avatar={info.avatar}/>
+                </div>
                 <div className="pure-u-18-24 showContent">
-                	<div className="displayName">{info.nickName}</div>
-                	<div className="lastMessage">Hello world.</div>
-            	</div>
-            	<span className= {stateColor}></span>
+                    <div className="displayName">{info.nickName}</div>
+                    <div className="lastMessage">Hello world.</div>
+                </div>
+                <span className= {stateColor}></span>
             </div>
         );
     }
