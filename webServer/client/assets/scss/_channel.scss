@@ -11,11 +11,17 @@ $channel-grid-field-height: 45px;
 }
 
 /**
+ * the base width of channel grid item
+ */
+.baseChannelGridWidth {
+    width: $channel-grid-width;
+}
+
+/**
  * the base field of channel grid card
  */
 .baseChannelGridField {
-    @extend .baseFonts;
-    width: $channel-grid-width;
+    @extend .baseFonts, .baseChannelGridWidth;
     height: $channel-grid-field-height;
 }
 
@@ -23,8 +29,7 @@ $channel-grid-field-height: 45px;
  * the channel grid card
  */
 .ChannelGridItem {
-    @extend .baseFonts;
-    width: $channel-grid-width;
+    @extend .baseFonts, .baseChannelGridWidth;
     height: $channel-grid-height;
     margin-top:15px;
     border-color: $grey-300;
@@ -55,7 +60,7 @@ $channel-grid-field-height: 45px;
  * the container style of channel drawing snapshot
  */
 .ChannelSnapshot {
-    width: $channel-grid-width;
+    @extend .baseChannelGridWidth;
     height: 167px;
     background-color: #FFF;
 }
