@@ -23,7 +23,7 @@ var IconButton = Mui.IconButton;
 module.exports = React.createClass({
     render: function(){
         var isRtcOn = !!this.props.isRtcOn;
-        var rtcIconStyle = 'fa fa-youtube-play redTag';
+        var rtcIconStyle = 'fa fa-youtube-play red';
         return (
             <div className="ChannelSummary" >
                 <Paper zDepth={0}>
