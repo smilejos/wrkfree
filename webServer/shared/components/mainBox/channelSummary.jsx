@@ -22,6 +22,7 @@ var IconButton = Mui.IconButton;
  */
 module.exports = React.createClass({
     render: function(){
+        // ensure isRtcOn only return 'true' or 'false'
         var isRtcOn = !!this.props.isRtcOn;
         var rtcIconStyle = 'fa fa-youtube-play red';
         return (
