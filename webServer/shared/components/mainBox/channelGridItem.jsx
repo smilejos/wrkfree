@@ -69,7 +69,7 @@ module.exports = React.createClass({
     render: function(){
         var info = this.props;
         return (
-            <div className="ChannelCard" onClick={this._onClick}>
+            <div className="ChannelGridItem" onClick={this._onClick}>
                 <Paper zDepth={this.state.zDepth} rounded={false}
                     onMouseOver={this._onMouseOver} onMouseOut={this._onMouseOut}>
                     <ChannelSummary 
