@@ -15,7 +15,7 @@ var IconButton = Mui.IconButton;
  * @param {Function}    this.props.handleChange, for handling textInput change
  * @param {String}      this.props.value, the default value of textInput
  * @param {String}      this.props.field, the identifier of this textInput
- * @param {Boolean}     this.props.status.isVlaid, the input value valid status
+ * @param {Boolean}     this.props.status.isValid, the input value valid status
  * @param {String}      this.props.status.err, the error message need to be render if
  *                                             status.isValid is 'false' 
  */
