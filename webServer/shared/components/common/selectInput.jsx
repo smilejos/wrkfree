@@ -1,15 +1,26 @@
 var React = require('react');
+var SharedUtils = require('../../../../sharedUtils/utils');
+
+/**
+ * material UI compoents
+ */
+var Mui = require('material-ui');
+var RadioButtonGroup = Mui.RadioButtonGroup;
+var RadioButton = Mui.RadioButton;
 
  /**
   * @Author: George_Chen
-  * @Description: An simple drop-down selection input tag
+  * @Description: An simple selective checkbox
   *
-  * @param {Function}    this.props.handleChange, for handling textInput change
-  * @param {String}      this.props.defaultValue, the default value of textInput
-  * @param {Array}       this.props.options, option valus of this select tag
-  * @param {String}      this.props.name, an identifier for parent component to use
+  * @param {Function}    this.props.handleChange, for handling selectInput change
+  * @param {String}      this.props.value, the default value of selectInput
+  * @param {String}      this.props.field, the identifier of this selectInput
+  * @param {String}      this.props.options, the select options of this selectInput
+  * @param {Boolean}     this.props.status.isValid, the input value valid status
+  * @param {String}      this.props.status.err, the error message need to be render if
+  *                                             status.isValid is 'false' 
   */
-var SelectInput = React.createClass({
+module.exports = React.createClass({
     /**
      * @Author: George_Chen
      * @Description: to handle the event change from current field
@@ -17,23 +28,31 @@ var SelectInput = React.createClass({
      * @param {Object}      event, react event object
      */
     _handleChange: function(event) {
-        this.props.handleChange(this.props.name, event.target.value);
+        if (SharedUtils.isFunction(this.props.handleChange)) {
+            this.props.handleChange(this.props.field, value);
+        }
     },
 
     render: function(){
         var optionValues = this.props.options || [];
-        var defaultValue = this.props.defaultValue || 'male';
-        var selectOptions = optionValues.map(function(value){
-            return <option key={this.props.name+value}>{value}</option>
+        var defaultValue = this.props.value || optionValues[0];
+        var selectOptions = optionValues.map(function(optionValue){
+            return (
+                <RadioButton
+                    key={this.props.field+optionValue}
+                    value={optionValue}
+                    label={optionValue} />                    
+            );
         }, this);
         return (
-            <div className="SelectInput pure-u-md-1-3">
-                <select className="pure-input-1-3" defaultValue={defaultValue} onChange={this._handleChange}>
+            <div className="pure-u">
+                <RadioButtonGroup 
+                    name={this.props.field}
+                    defaultSelected={defaultValue}
+                    onChange = {this._handleChange}>
                     {selectOptions}
-                </select>
+                </RadioButtonGroup> 
             </div>
         );
     }
 });
-
-module.exports = SelectInput;
