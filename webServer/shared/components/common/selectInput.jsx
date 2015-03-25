@@ -16,7 +16,7 @@ var RadioButton = Mui.RadioButton;
   * @param {String}      this.props.value, the default value of selectInput
   * @param {String}      this.props.field, the identifier of this selectInput
   * @param {String}      this.props.options, the select options of this selectInput
-  * @param {Boolean}     this.props.status.isVlaid, the input value valid status
+  * @param {Boolean}     this.props.status.isValid, the input value valid status
   * @param {String}      this.props.status.err, the error message need to be render if
   *                                             status.isValid is 'false' 
   */
