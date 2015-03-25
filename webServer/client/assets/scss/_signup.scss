@@ -1,0 +1,31 @@
+$signup-form-width: 650px;
+$signup-form-height: 650px;
+$signup-form-cover-height: 290px;
+
+.baseSignupFormWidth {
+    width: $signup-form-width;
+}
+
+/**
+ * the basic signup form layout
+ */
+.SignupForm {
+    @extend .baseSignupFormWidth;
+    height: $signup-form-height;
+    margin-top: 30px;
+}
+
+/**
+ * the signup slogan text style
+ */
+.SignupSlogan {
+    font-size: 30px;
+}
+
+/**
+ * the cover picture signup form
+ */
+.SignupFormCover {
+    @extend .baseSignupFormWidth;
+    height: $signup-form-cover-height;
+}
