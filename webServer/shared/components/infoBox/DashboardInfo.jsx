@@ -5,7 +5,6 @@ var DashboardInfo = React.createClass({
     render: function() {
         return (
             <div className="infoBox DashboardInfo">
-                    info_box
                 <FriendList />
             </div>
         );
