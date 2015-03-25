@@ -18,6 +18,17 @@
     position: fixed;
     z-index: 1;
 }
+
+/**
+ * define the style of html main body box
+ */
+.bodyBox {
+    @extend .baseBox;
+    top: 50px;
+    left: 380px;
+    bottom: 0px;
+}
+
 /**
  * define the style of menu box 
  */
@@ -69,3 +80,4 @@
     bottom: 0px;
     right: 250px;
 }
+
