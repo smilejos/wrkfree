@@ -6,7 +6,8 @@ var SignUpStore = createStore({
     handlers: {
         'CHANGE_ROUTE': 'handleNavigate'
     },
-    initialize: function() {        
+    
+    initialize: function() {
         // prefilled values for signup form
         this.preFilledInfo = null;
 
@@ -14,10 +15,11 @@ var SignUpStore = createStore({
         this.statusInfo = {
             email: false,
             familyName: false,
-            givenName: false            
+            givenName: false,
+            gender: false,
         };
     },
-    
+
     handleNavigate: function(route) {
         if (route.path === '/app/signup' && !this.preFilledInfo) {
             var signUpInfo = route.resource.signUpInfo;
@@ -39,15 +41,18 @@ var SignUpStore = createStore({
      * @Description: used to runtime update the validated status of each field
      *
      * @param {String}      field, filed name of signup form
+     * @param {String}      value, field value of signup form
      * @param {Boolean}     status, the valid status
      */
-    updateValidStatus: function(field, status){
-        if (this.statusInfo[field] === 'undefined') {
+    updateStore: function(field, value, status) {
+        if (this.preFilledInfo[field] === 'undefined') {
             return;
         }
+        this.preFilledInfo[field] = value;
         this.statusInfo[field] = status;
         this.emitChange();
     },
+
     getState: function() {
         return {
             info: this.preFilledInfo,
