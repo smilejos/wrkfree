@@ -1,15 +1,25 @@
 var React = require('react');
+var SharedUtils = require('../../../../sharedUtils/utils');
+
+/**
+ * material UI compoents
+ */
+var Mui = require('material-ui');
+var TextField = Mui.TextField;
+var IconButton = Mui.IconButton;
 
 /**
  * @Author: George_Chen
  * @Description: an form text input component
  *
  * @param {Function}    this.props.handleChange, for handling textInput change
- * @param {String}      this.props.defaultValue, the default value of textInput
- * @param {String}      this.props.type, the type of textInput 
- * @param {String}      this.props.name, an identifier for parent component to use
+ * @param {String}      this.props.value, the default value of textInput
+ * @param {String}      this.props.field, the identifier of this textInput
+ * @param {Boolean}     this.props.status.isVlaid, the input value valid status
+ * @param {String}      this.props.status.err, the error message need to be render if
+ *                                             status.isValid is 'false' 
  */
-var TextInput = React.createClass({
+module.exports = React.createClass({
     /**
      * @Author: George_Chen
      * @Description: to handle the event change from current textInput value
@@ -17,25 +27,25 @@ var TextInput = React.createClass({
      * @param {Object}      event, react event object
      */
     _handleChange: function(event){
-        this.props.handleChange(this.props.name, event.target.value);
+        if (SharedUtils.isFunction(this.props.handleChange)) {
+            var field = this.props.field;
+            var value = this.refs[field].getValue();
+            this.props.handleChange(field, value);
+        }
     },
 
-    render: function(){
-        var defaultValue = this.props.defaultValue || '';
-        var inputType = this.props.type || 'text';
-        var hintInfo = 'Your ' + this.props.name;
+    render: function() {
         return (
-            <fieldset>
-                <input
-                    name={this.props.name} 
-                    className="TextInput pure-input-1-3"
-                    type={inputType} 
-                    defaultValue={defaultValue}
-                    onChange={this._handleChange} 
-                    placeholder={hintInfo}/>
-            </fieldset>  
+            <div><IconButton iconClassName={this.props.iconClass} />          
+                <TextField
+                    defaultValue={this.props.value}
+                    ref={this.props.field}
+                    onChange={this._handleChange}
+                    hintText={this.props.field}
+                    errorText={this.props.status.err}
+                    floatingLabelText={'Your '+this.props.field} />
+                {this.props.status.isValid ? <span className="green">√</span> : ''}
+            </div>
         );
     }
 });
-
-module.exports = TextInput;
