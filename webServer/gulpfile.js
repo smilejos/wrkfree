@@ -53,12 +53,8 @@ var entryPaths = {
  * configs for gulp to monitor working folder
  */
 var watchConfig = [
-    './**/*',
-    '!./node_modules/**/*',
-    '!./build/**/*',
-    '!./gulpfile.js',
-    '!./server/**/*',
-    '!./shared/**/*'
+    './client/**/*',
+    './WebEntry/**/*'
 ];
 
 /**
