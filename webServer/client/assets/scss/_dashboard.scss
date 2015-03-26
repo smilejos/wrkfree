@@ -1,0 +1,17 @@
+$base-dashboard-content-width: 960px;
+$base-dashboard-content-left: 150px;
+
+/**
+ * the content layout on dashboard
+ */
+.DashboardContentLayout {
+    width: $base-dashboard-content-width;
+    margin-left: $base-dashboard-content-left;
+}
+
+/**
+ * the style of grid layout
+ */
+.GridLayout {
+    overflow: scroll;
+}
