@@ -44,7 +44,7 @@ module.exports = React.createClass({
                     hintText={this.props.field}
                     errorText={this.props.status.err}
                     floatingLabelText={'Your '+this.props.field} />
-                {this.props.status.isValid ? <span className="green">√</span> : ''}
+                {this.props.status.isValid ? <span className="color-green">√</span> : ''}
             </div>
         );
     }
