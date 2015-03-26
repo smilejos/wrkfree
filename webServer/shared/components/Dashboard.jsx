@@ -1,6 +1,6 @@
 var React = require('react');
-var MainBox = require('./mainBox/dashboardMain.jsx');
-var InfoBox = require('./infoBox/dashboardInfo.jsx');
+var MainBox = require('./mainBox/DashboardMain.jsx');
+var InfoBox = require('./infoBox/DashboardInfo.jsx');
 
  
 module.exports = React.createClass({
