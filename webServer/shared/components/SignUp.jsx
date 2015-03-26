@@ -13,6 +13,13 @@ var TextInput = require('./common/textInput.jsx');
 var SelectInput = require('./common/selectInput.jsx');
 
 /**
+ * material ui components
+ */
+var Mui = require('material-ui');
+var Paper = Mui.Paper;
+var RaisedButton = Mui.RaisedButton;
+
+/**
  * @Author: George_Chen
  * @Description: An signup form which include basic info
  *               need to be filled
@@ -51,15 +58,17 @@ module.exports = React.createClass({
      * @param {String}      field, the input field name
      * @param {String}      value, the input value
      */
-    _onInputChange: function(field, value){
-        this.state.info[field] = value;
+    _handleChange: function(field, value){
         this.executeAction(VertifySignUp, {
             type: field,
             fieldValue: value
         });
     },
 
-    // handler for handling the change of SignUpStore
+    /**
+     * @Author: George_Chen
+     * @Description: handler for the change of SignUpStore
+     */
     onStoreChange: function(){
         var state = this.getStore(SignUpStore).getState();
         this.setState(state);
@@ -78,19 +87,62 @@ module.exports = React.createClass({
         });
         return state;
     },
-    
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to check signup form are filled with valid status
+     */
+    _isSignupComplete: function(){
+        var fields = Object.keys(this.state.status);
+        for (var i=0; i<=fields.length-1; ++i) {
+            if (!this.state.status[fields[i]].isValid) {
+                return false;
+            }
+        }
+        return true;
+    },
+
     render: function(){
-        var genderOptions = ['male', 'female'];
         var defaultInfo = this.state.info;
+        var isCompleted = this._isSignupComplete();
         return (
-            <div className="SignUp mainBox">
-                <form className="pure-form" onSubmit={this._onSubmit}>
-                    <TextInput name={'email'} defaultValue={defaultInfo.email} handleChange={this._onInputChange} type={'email'}/>
-                    <TextInput name={'givenName'} defaultValue={defaultInfo.givenName} handleChange={this._onInputChange} type={'text'}/>
-                    <TextInput name={'familyName'} defaultValue={defaultInfo.familyName} handleChange={this._onInputChange} type={'text'}/>
-                    <SelectInput name={'gender'} options={genderOptions} defaultValue={defaultInfo.gender} handleChange={this._onInputChange} />
-                    <button type="submit" className="pure-button pure-button-primary pure-input-1-3">Sign up</button>
-                </form>
+            <div className="bodyBox pure-u-1 Center" >
+                <div className="SignupForm">
+                    <Paper zDepth={1} >
+                        <img src="/assets/imgs/sampleSignup.jpg" className="SignupFormCover" />
+                        <div className="SignupSlogan" >{"Let's work here"}</div>
+                        <TextInput
+                            iconClass="fa fa-envelope-o"
+                            status={this.state.status.email}
+                            handleChange={this._handleChange}
+                            value={defaultInfo.email}
+                            field={'email'} />
+                        <TextInput
+                            iconClass="fa fa-child"
+                            status={this.state.status.givenName}
+                            handleChange={this._handleChange}
+                            value={defaultInfo.givenName}
+                            field={'givenName'} />
+                        <TextInput
+                            iconClass="fa fa-home"
+                            status={this.state.status.familyName}
+                            handleChange={this._handleChange}
+                            value={defaultInfo.familyName}
+                            field={'familyName'} />
+                        <SelectInput 
+                            options={['male', 'female']}
+                            handleChange={this._handleChange}
+                            value={defaultInfo.gender}
+                            field={'gender'} />
+                        <div><RaisedButton 
+                                label="Sign Up Now" 
+                                secondary={isCompleted}  
+                                disabled={!isCompleted}
+                                onClick={this._onSubmit} 
+                                style={{'width':'240px'}} />
+                        </div>
+                    </Paper>
+                </div>
             </div>
         );
     }
