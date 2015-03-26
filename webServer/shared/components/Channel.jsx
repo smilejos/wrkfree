@@ -1,6 +1,6 @@
 var React = require('react');
-var MainBox = require('./mainBox/channelMain.jsx');
-var InfoBox = require('./infoBox/channelInfo.jsx');
+var MainBox = require('./mainBox/ChannelMain.jsx');
+var InfoBox = require('./infoBox/ChannelInfo.jsx');
 
 module.exports = React.createClass({
     render: function(){
