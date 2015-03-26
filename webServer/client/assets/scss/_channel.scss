@@ -31,7 +31,6 @@ $channel-grid-field-height: 45px;
 .ChannelGridItem {
     @extend .baseFonts, .baseChannelGridWidth;
     height: $channel-grid-height;
-    margin-top:15px;
     border-color: $grey-300;
     border-style: solid;
     border-width: 1px;
