@@ -1,0 +1,108 @@
+/************************************************
+ *
+ *     used to override material ui components
+ *
+ ************************************************/
+$left-nav-menu-height: 600px;
+
+/**
+  * check "_left-nav.scss" for original version
+ */
+.mui-left-nav {
+    .mui-left-nav-menu {
+        /**
+         * @Author: George_Chen
+         * @Description: remove this line for overflow
+         */
+        // height: 100%;
+        position: fixed;
+        width: $left-nav-width;
+        background-color: $left-nav-color;
+        z-index: 10;
+        left: 0px;
+
+        /**
+         * @Author: George_Chen
+         * @Description: modify it to fit our app header
+         */
+        top: $app-header-height;
+        @include ease-out();
+
+        .mui-menu {
+            /**
+             * @Author: George_Chen
+             * @Description: add overflow and height control on left menu
+             */
+            height: $left-nav-menu-height;
+            overflow-x: hidden;
+            overflow-y: auto;
+
+            .mui-menu-item {
+                height: $desktop-left-nav-menu-item-height;
+                line-height: $desktop-left-nav-menu-item-height;
+            }
+            a.mui-menu-item {
+                display: block;
+                text-decoration: none;
+                color: $body-text-color;
+            }
+        }
+    }
+    &.mui-closed {
+        .mui-left-nav-menu {
+            transform: translate3d((-1 * $left-nav-width) - 10px, 0, 0);
+        }
+    }
+}
+
+
+/**
+  * check "_dialog-window.scss" for original version
+ */
+.mui-dialog-window {
+    position: fixed;
+    z-index: 10;
+    top: 0px;
+    left: -10000px;
+    width: 100%;
+    /**
+     * @Author: George_Chen
+     * @Description: remove this line for customized height
+     * NOTE: after setup className on <Dialog />, we can control its height
+     */
+    // height: 100%;
+    transition: left 0ms $ease-out-function 450ms;
+
+    .mui-dialog-window-contents {
+        @include ease-out();
+        position: relative;
+        width: 75%;
+        max-width: ($desktop-keyline-increment * 12);
+        margin: 0 auto;
+        z-index: 10;
+        background: $canvas-color;
+        opacity: 0;
+    }
+
+    .mui-dialog-window-actions {
+        padding: 8px;
+        margin-bottom: 8px;
+        width: 100%;
+        text-align: right;
+
+        .mui-dialog-window-action {
+            margin-right: 8px;
+        }
+    }
+
+    &.mui-is-shown {
+        left: 0px;
+        transition: left 0ms $ease-out-function 0ms;
+
+        .mui-dialog-window-contents {
+            opacity: 1;
+            top: 0px;
+            transform: translate3d(0, $desktop-keyline-increment, 0);
+        }
+    }
+}
