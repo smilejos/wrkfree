@@ -1,6 +1,26 @@
 var Promise = require('bluebird');
 
 module.exports = {
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: the array map function implmented by for-loop
+     *         NOTE: provide better performance
+     *
+     * @param {Array}       array, the array will be applied to map
+     * @param {Function}    fn, the mapper function
+     * @return              newArray, return an array after processed by mapper
+     */
+    fastArrayMap: function(array, fn) {
+        var nweArray = [];
+        if (this.isArray(array) || this.isFunction(fn)) {
+            for (var i=0;i<array.length;++i) {
+                nweArray[i] = fn(array[i], i, array);
+            }
+        }
+        return nweArray;
+    },
+
     execCallback: function() {
         var err = arguments[0];
         var fn = arguments[arguments.length - 1];
