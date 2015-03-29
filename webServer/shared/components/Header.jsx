@@ -4,6 +4,11 @@ var HeaderStore = require('../stores/HeaderStore');
 var Mui = require('material-ui');
 
 /**
+ * actions
+ */
+var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+
+/**
  * material UI compoents
  */
 var Toolbar = Mui.Toolbar;
@@ -49,8 +54,7 @@ module.exports = React.createClass({
      * @Description: handle "menu" icon tap mechanism
      */
     _onMenuIconButtonTouchTap: function() {
-        // this.refs.leftNav.toggle();
-        // <AppLeftNav ref="leftNav" />
+        this.executeAction(ToggleChannelNav, {});
     },
 
     /**
@@ -88,8 +92,7 @@ module.exports = React.createClass({
         return (
             <div className="Header menuBox">
                 <Toolbar>
-                    <IconButton iconClassName="fa fa-bars" tooltip="Menu" touch={true} onClick={this._onMenuIconButtonTouchTap} />
-                    <IconButton iconClassName="fa fa-plus" tooltip="Create Channel" touch={true} />
+                    <IconButton iconClassName="fa fa-bars" tooltip="Your Channels" touch={true} onClick={this._onMenuIconButtonTouchTap} />
                     <IconButton iconClassName="fa fa-search" tooltip="Search Channel" touch={true} onClick={this._onSearchIconClick} />
                     <TextField 
                         hintText="search channels ...." 
@@ -104,7 +107,7 @@ module.exports = React.createClass({
                                 />
                             <FontIcon className="fa fa-bell"/>
                             <FontIcon className="fa fa-inbox"/>
-                            <span className="Mui-toolbar-separator">&nbsp;</span>
+                            <span className="mui-toolbar-separator">&nbsp;</span>
                         </div>
                     </ToolbarGroup>
                 </Toolbar>
