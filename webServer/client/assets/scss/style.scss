@@ -27,6 +27,12 @@
 @import "./dashboard";
 
 /**
+ * override material-ui components
+ * NOTE: customize material ui components for fit our app
+ */
+@import "./overrideMaterialUiLayout";
+
+/**
  * define the div of 1vs1 msg node
  */
 .PrivateNode {
