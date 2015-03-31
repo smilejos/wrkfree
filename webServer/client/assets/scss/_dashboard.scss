@@ -1,5 +1,5 @@
 $base-dashboard-content-width: 960px;
-$base-dashboard-content-left: 150px;
+$base-dashboard-content-left: 200px;
 
 /**
  * the content layout on dashboard
@@ -7,6 +7,13 @@ $base-dashboard-content-left: 150px;
 .DashboardContentLayout {
     width: $base-dashboard-content-width;
     margin-left: $base-dashboard-content-left;
+}
+
+/**
+ * the style of toolbar on dashboard
+ */
+.DashboardToolBar {
+    margin-right: 15px;
 }
 
 /**
