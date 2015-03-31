@@ -43,11 +43,11 @@ module.exports = React.createClass({
                     <ChannelGridItem 
                         channelId={item.channelId}    
                         channelName={item.channelName}
-                        hostName={item.hostName}
-                        hostAvatar={item.hostAvatar}
+                        hostName={item.hostInfo.nickName}
+                        hostAvatar={item.hostInfo.avatar}
                         snapshotUrl={item.snapshotUrl}
                         memberList={item.memberList}
-                        time={item.LastVisitTime}
+                        time={item.visitTime}
                         isRtcOn={item.isRtcOn} />
                 </div>
             );

@@ -15,7 +15,7 @@ module.exports = React.createClass({
     render: function(){
         var list = this.props.members.map(function(info){
             return (
-                <li className="MemberAvatar" key={info.uid+'memberAvatar'}>
+                <li className="MemberAvatar" key={info.email+'memberAvatar'}>
                     <UserAvatar isCircle={true} avatar={info.avatar}/>
                 </li>
             );
