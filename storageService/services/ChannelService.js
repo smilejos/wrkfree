@@ -1,6 +1,7 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
+var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
 var ChannelMemberDao = require('../daos/ChannelMemberDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
@@ -122,14 +123,16 @@ exports.addNewMemberAsync = function(host, member, channelId) {
  */
 exports.getAuthChannelsAsync = function(member) {
     return ChannelMemberDao.findByUidAsync(member, 'public')
+        .bind(this)
         .map(function(memberDoc) {
             return Promise.props({
                 channelId: memberDoc.channelId,
                 channelName: memberDoc.channelName,
                 isSubscribed: memberDoc.isSubscribed,
-                membersInfo: ChannelMemberDao.findByChannelAsync(memberDoc.channelId),
+                members: this.getMembersAsync(memberDoc.channelId),
                 snapshot: null,
                 rtcStatus: null,
+                visitTime: memberDoc.lastVisitTime
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService', 'getAuthChannelsAsync', err);
@@ -190,7 +193,10 @@ exports.getMembersAsync = function(channelId) {
             return members;
         }).then(function(memberList) {
             ChannelTemp.importMemberListAsync(memberList, channelId);
-            return memberList;
+            return Promise.props({
+                info: UserDao.findByGroupAsync(memberList),
+                onlineList: ChannelTemp.getOnlineMembersAsync(channelId)
+            });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService', 'getMembersAsync', err);
             return [];
@@ -201,7 +207,8 @@ exports.getMembersAsync = function(channelId) {
  * Public API
  * @Author: George_Chen
  * @Description: to get online channel member list
- * NOTE: use getMembersAsync to ensure memberlist is on the tempStore
+ * NOTE: getMembersAsync will keep an copy of memberlist on temp store, then
+ *     we can use this store to figure out online members
  *
  * @param {String}          channelId, channel id
  */
@@ -233,7 +240,7 @@ function _isMemberAuthAsync(asker, channelId) {
     return ChannelTemp.isMemberAsync(asker, channelId)
         .then(function(result) {
             if (!result || !result.listExist) {
-                exports.getMembersAsync(channelId);     // re-cache memberList to tempStore
+                exports.getMembersAsync(channelId); // re-cache memberList to tempStore
                 return ChannelMemberDao.isExistAsync(asker, channelId);
             }
             return !!result.memberExist;

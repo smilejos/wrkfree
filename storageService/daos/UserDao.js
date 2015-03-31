@@ -48,7 +48,12 @@ exports.findByGroupAsync = function(uids) {
                 $in: userGroup
             }
         };
-        var selectField = DbUtil.selectOriginDoc();
+        var selectField = {
+            nickName: DbUtil.select(true),
+            email: DbUtil.select(true),
+            avatar: DbUtil.select(true),
+            _id: DbUtil.select(false)
+        };
         return UserModel.find(condition, selectField).lean().execAsync();
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'findByGroupAsync', err);
