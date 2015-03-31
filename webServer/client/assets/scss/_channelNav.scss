@@ -12,6 +12,7 @@ $channel-nav-item-content-width: 208px;
  * the base layout of channel navigation bar
  */
 .baseChannelNavHeader {
+	height: 150px;
     width: $channel-nav-item-width;
     padding-left: $channel-nav-item-padding;
     line-height: $channel-nav-item-height;

@@ -89,5 +89,7 @@ $app-infoBox-width: 250px;
     @extend .baseBox;
     background-color: $color-background_2;
     top: $app-header-height;
+    bottom: 0px;
+    width: 0px;
     z-index: 3;
 }
