@@ -4,6 +4,7 @@ var nodemon = require('gulp-nodemon');
 var compass = require('gulp-compass');
 var minifyCSS = require('gulp-minify-css');
 var connect = require('gulp-connect');
+var net = require('net');
 
 /**
  * check the runtime environment
@@ -142,8 +143,14 @@ gulp.task('build', function() {
  * @Description: task for starting nodemon
  */
 gulp.task('nodemon', function() {
-    return nodemon(nodemonConfig)
-        .on('restart', ['reloadNow']);
+    var devPort = 9999;
+    // used to monitor web server has started or not
+    net.createServer()
+        .listen(devPort)
+        .on('connection', function(){
+            gulp.src(paths.main).pipe(connect.reload());
+        });
+    return nodemon(nodemonConfig);
 });
 
 /**
@@ -167,9 +174,7 @@ gulp.task('livereload', function() {
  * @Description: reload task, trigger the livereload immedidately
  */
 gulp.task('reloadNow', function() {
-    setTimeout(function() {
-        gulp.src(entryPaths.destDir + '/*.html').pipe(connect.reload());
-    }, 1000);
+    gulp.src(paths.main).pipe(connect.reload());
 });
 
 /**
