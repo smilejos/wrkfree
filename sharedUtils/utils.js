@@ -313,18 +313,15 @@ exports.isChannelId = function(channelId) {
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: used to check the id is an valid mongodb _id or not
+ * @Description: used to check the id format is an valid mongodb _id or not
  *  NOTE: only strings with 24 char length 
  *          and constituted by "number" and "lower case letters"
  * 
- * @param {String}      id, document _id
+ * @param {String/ObjectId}      id, document _id
  */
 exports.isDbId = function(id) {
-    if (!this.isString(id)) {
-        return false;
-    }
     var re = /^[0-9a-z]{24}$/;
-    return re.test(id);
+    return re.test(id.toString());
 };
 
 /**
