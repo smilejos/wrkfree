@@ -42,7 +42,7 @@ module.exports = createStore({
             var host;
             // extract host info from members
             for (var i=0;i<item.members.info.length; ++i) {
-                if (item.members.info[i].email === hostUid) {
+                if (item.members.info[i]._id.equals(hostUid)) {
                     host = item.members.info.splice(i, 1)[0];
                     break;
                 }

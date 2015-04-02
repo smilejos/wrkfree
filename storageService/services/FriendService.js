@@ -23,7 +23,6 @@ var FriendTemp = require('../tempStores/FriendTemp');
 exports.getFriendListAsync = function(candidate, asker) {
     return FriendDao.getFriendsAsync(candidate, asker)
         .then(function(friends) {
-            console.log('friends', friends);
             return FriendTemp.getOnlineFriendsAsync(friends)
                 .then(function(onlineFriends) {
                     return Promise.map(friends, function(doc) {
