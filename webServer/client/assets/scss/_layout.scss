@@ -1,3 +1,10 @@
+$app-header-height: 50px;
+$app-infoBox-width: 250px;
+
+/**
+ * application container
+ * we have to cut the overflow area to avoid scroll bar.
+ */
 .container {
     position: absolute;
     width: 100%;
@@ -6,21 +13,81 @@
     padding: 0px;
 }
 
-.menuBox {
-    position: relative;
-    height: 50px;
-    background-color: #27AE61;
-    border-bottom: 1px rgba(0,0,0,.2);
-    box-shadow: 0 2px 2px 2px rgba(0,0,0,.2);
+/**
+ * define the base style of box
+ */
+.baseBox {
+    position: fixed;
     z-index: 1;
 }
 
-.mainBox {
-    background-color: #eee;
-    height: 100%;
+/**
+ * define the style of html main body box
+ */
+.bodyBox {
+    @extend .baseBox;
+    top: $app-header-height;
+    left: 380px;
+    bottom: 0px;
 }
 
+/**
+ * define the style of menu box 
+ */
+.menuBox {
+    @extend .baseBox;
+    background-color: $color-main;
+    border-bottom: 1px rgba(0, 0, 0, .2);
+    box-shadow: 0 2px 2px 2px rgba(0, 0, 0, .2);
+    height: $app-header-height;
+    width: 100%;
+    color: #FFF;
+    z-index: 5;
+}
+
+/**
+ * define the style of main box 
+ */
+.mainBox {
+    @extend .baseBox;
+    background-color: $color-background_2;
+    top: $app-header-height;
+    right: $app-infoBox-width;
+    bottom: 0px;
+    left: 0px;
+}
+
+/**
+ * define the style of info box 
+ */
 .infoBox {
-    background-color: black;
-    height: 100%;
+    @extend .baseBox;
+    background-color: $color-background_2;
+    width: $app-infoBox-width;
+    top: $app-header-height;
+    right: 0px;
+    bottom: 0px;
+}
+
+/**
+ * define the style of priv box 
+ */
+.privBox {
+    position: fixed;
+    z-index: 2;
+    float: right;
+    height: 300px;
+    left: 0px;
+    bottom: 0px;
+    right: $app-infoBox-width;
+}
+
+/**
+ * define the style of left nav box
+ */
+.leftNavBox {
+    @extend .baseBox;
+    background-color: $color-background_2;
+    top: $app-header-height;
+    z-index: 3;
 }

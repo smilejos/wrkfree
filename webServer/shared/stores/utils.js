@@ -13,7 +13,8 @@ var Validator = {
     Array: SharedUtils.isArray,
     Email: SharedUtils.isEmail,
     ChannelId: SharedUtils.isChannelId,
-    ChannelName: SharedUtils.isChannelName
+    ChannelName: SharedUtils.isChannelName,
+    Boolean: SharedUtils.isBoolean
 };
 
 /**
@@ -32,7 +33,7 @@ exports.validDocAsync = function(doc, schema) {
         if (!Validator[propType]) {
             throw new Error('[validDocAsync] not support prop type');
         }
-        if (!Validator[propType](doc[prop])) {
+        if (!Validator[propType].call(SharedUtils, doc[prop])) {
             throw new Error('[validDocAsync] doc props is invalid');
         }
         return (result[prop] = doc[prop]);

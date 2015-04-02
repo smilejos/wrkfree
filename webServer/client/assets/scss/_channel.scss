@@ -1,0 +1,109 @@
+$channel-grid-width: 300px;
+$channel-grid-height: 348px;
+$channel-grid-field-height: 45px;
+
+/**
+ * the base fonts style
+ */
+.baseFonts {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14;
+}
+
+/**
+ * the base width of channel grid item
+ */
+.baseChannelGridWidth {
+    width: $channel-grid-width;
+}
+
+/**
+ * the base field of channel grid card
+ */
+.baseChannelGridField {
+    @extend .baseFonts, .baseChannelGridWidth;
+    height: $channel-grid-field-height;
+}
+
+/**
+ * the channel grid card
+ */
+.ChannelGridItem {
+    @extend .baseFonts, .baseChannelGridWidth;
+    height: $channel-grid-height;
+    border-color: $grey-300;
+    border-style: solid;
+    border-width: 1px;
+    background-color: $grey-100;
+}
+
+/**
+ * the style of channel summary field
+ */
+.ChannelSummary {
+    @extend .baseChannelGridField;
+    background-color:$grey-300;    
+    color: $grey-500;
+    line-height: 20px;
+}
+
+/**
+ * the container style of channel host info field
+ */
+.ChannelHostInfo {
+    @extend .baseChannelGridField;
+    color: $grey-700;
+}
+
+/**
+ * the container style of channel drawing snapshot
+ */
+.ChannelSnapshot {
+    @extend .baseChannelGridWidth;
+    height: 167px;
+    background-color: #FFF;
+}
+
+/**
+ * the container style of channel members
+ */
+.ChannelMembers {
+    @extend .baseChannelGridField;
+    overflow: hidden;
+}
+
+/**
+ * the img style of channel drawing snapshot
+ */
+.ChannelSnapshotImg {
+    width: auto;
+    height : auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/**
+ * the style of channel name which belong to channel summary field
+ */
+.ChannelTitle {
+    @extend .baseFonts;
+    font-weight: 900;
+    color: $grey-600;
+}
+
+/**
+ * the style of channel member avatar
+ */
+.MemberAvatar {
+    padding-top: 5px;
+    padding-left: 5px;
+}
+
+/**
+ * the style of timestamp that user latest visited
+ */
+.ChannelTimestamp {
+    @extend .baseFonts;
+    font-size: 12px;
+    color: $grey-600;
+}

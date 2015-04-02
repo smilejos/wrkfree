@@ -1,13 +1,17 @@
+var React = require('react');
 var FluxibleMixin = require('fluxible').Mixin;
 var RouteHandler = require('react-router').RouteHandler;
 var RouterState = require('react-router').State;
 var MainAppStore = require('../stores/MainAppStore');
-var React = require('react');
+
+/**
+ * child components
+ */
 var Header = require('./Header.jsx');
 var PrivateMsgBoxes = require('./PrivateMsgBoxes.jsx');
+var ChannelNav = require('./ChannelNav.jsx');
 
-var MainApp = React.createClass({
-
+module.exports = React.createClass({
     /**
      * after mixin, mainApp can have this.getStore()
      */
@@ -36,11 +40,10 @@ var MainApp = React.createClass({
         return (
             <div>
                 <Header />
+                <ChannelNav />
                 <RouteHandler appInfo={this.state}/>
                 <PrivateMsgBoxes />
             </div>
         );
     }
 });
-
-module.exports = MainApp;

@@ -1,17 +1,117 @@
 var React = require('react');
-var Link = require('react-router').Link;
-var StateMixin = require('react-router').State;
- 
-module.exports = React.createClass({
-    mixins: [StateMixin],
-    render: function() {
+var FluxibleMixin = require('fluxible').Mixin;
+var HeaderStore = require('../stores/HeaderStore');
+var Mui = require('material-ui');
 
-        // currently assign two button for easy navigating, should be removed later
+/**
+ * actions
+ */
+var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+
+/**
+ * material UI compoents
+ */
+var Toolbar = Mui.Toolbar;
+var ToolbarGroup = Mui.ToolbarGroup;
+var FontIcon = Mui.FontIcon;
+var IconButton = Mui.IconButton;
+var TextField = Mui.TextField;
+
+/**
+ * child components
+ */
+var UserAvatar = require('./common/userAvatar.jsx');
+
+/**
+ * @Author: George_Chen
+ * @Description: container component of application header
+ *
+ * @param {String}        this.state.user.email, login user's email
+ * @param {String}        this.state.user.avatar, login user's avatar
+ * @param {String}        this.state.user.name, login user's name
+ * @param {Boolean}       this.state.isMsgRead, login user has unread msg or not
+ * @param {Boolean}       this.state.hasNotification, login user has notification or not
+ */
+module.exports = React.createClass({
+    mixins: [FluxibleMixin],
+    statics: {
+        storeListeners: {
+            'onStoreChange': [HeaderStore]
+        }
+    },
+
+    getInitialState: function() {
+        return this.getStore(HeaderStore).getState();
+    },
+
+    onStoreChange: function() {
+        var state = this.getStore(HeaderStore).getState();
+        this.setState(state);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: handle "menu" icon tap mechanism
+     */
+    _onMenuIconButtonTouchTap: function() {
+        this.executeAction(ToggleChannelNav, {});
+    },
+
+    /**
+     * TODO: show out the user settings pop-out
+     * @Author: George_Chen
+     * @Description: handle the user avatar click mechanism
+     */
+    _onAvatarClick: function() {
+        location.assign('https://localhost/app/logout');
+    },
+
+    /**
+     * TODO: impl search actions
+     * @Author: George_Chen
+     * @Description: handle the search channels mechanism
+     */
+    _onSearchKeyDown: function(e) {
+        var value = this.refs.search.getValue();
+        if (e.keyCode === 13) {
+            // search new channels on server
+        }
+        // filter current channels on mainbox
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: focus on search field after click search icon
+     */
+    _onSearchIconClick: function() {
+        this.refs.search.clearValue();
+        this.refs.search.focus();
+    },
+
+    render: function() {
         return (
-            <ul className="menuBox pure-menu-horizontal pure-menu">
-                <li className={this.isActive('/app/dashboard') ? 'pure-menu-selected' : ''}><Link to='/app/dashboard'>Dashboard</Link></li>
-                <li className={this.isActive('/app/channel/ch123') ? 'pure-menu-selected' : ''}><Link to='/app/channel/ch123'>Channel</Link></li>
-            </ul>
+            <div className="Header menuBox">
+                <Toolbar>
+                    <IconButton iconClassName="fa fa-bars" tooltip="Your Channels" touch={true} onClick={this._onMenuIconButtonTouchTap} />
+                    <IconButton iconClassName="fa fa-search" tooltip="Search Channel" touch={true} onClick={this._onSearchIconClick} />
+                    <TextField 
+                        hintText="search channels ...." 
+                        ref="search"
+                        onKeyDown={this._onSearchKeyDown} />
+                    <ToolbarGroup key={0} float="right">
+                        <div className="pure-g" >
+                            <UserAvatar avatar={this.state.userInfo.avatar} 
+                                isCircle={true} 
+                                style={{'marginTop':'5px'}} 
+                                onAvatarClick={this._onAvatarClick}
+                                />
+                            <FontIcon className="fa fa-bell"/>
+                            <FontIcon className="fa fa-inbox"/>
+                            <span className="mui-toolbar-separator">&nbsp;</span>
+                        </div>
+                    </ToolbarGroup>
+                </Toolbar>
+            </div>
         );
     }
 });

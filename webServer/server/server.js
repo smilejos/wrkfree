@@ -1,6 +1,7 @@
 var express = require('express');
 var server = express();
 var port = process.env.PORT || 3000;
+var Env = process.env.NODE_ENV || 'development';
 
 // needed when we get the ".jsx" files
 require('node-jsx').install({
@@ -10,22 +11,22 @@ require('node-jsx').install({
 // require the fluxible app
 var App = require('../shared/app');
 
-/**
- * App Env setup on server
- */
-var storePlugin = App.getPlugin('storePlugin');
-storePlugin.envSetup({
-    lokijs: require('lokijs')
-});
+var StorageDir = '../../storageService/';
+var StorageManager = require(StorageDir + 'storageManager')(require(StorageDir + 'configs'));
 
 /**
  * Configurations
  */
 require('./configs/passport')();
 require('./configs/express')(server);
-require('./configs/routes')(server);
-
-// server.use(express.static(__dirname + '/../build'));
+require('./configs/routes')(server, StorageManager);
 
 server.listen(port);
-console.log('Listening on port ' + port);
+
+/**
+ * send an signal to gulp dev server to trigger livereload
+ */
+if (Env === 'development') {
+    var devPort = 9999;
+    require('net').connect(devPort);
+}

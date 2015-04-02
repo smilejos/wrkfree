@@ -1,0 +1,54 @@
+/************************************************
+ *
+ *            App defintion main color 
+ *
+ ************************************************/
+
+$color-main: #27A;
+$color-background_1: #ffffff;
+$color-background_2: #eeeeee;
+$color-boxHead: #2D2D2D;
+$color-boxBody: #5E807F;
+
+
+/**
+ * common color style
+ */
+
+.color-red {
+    color: $red-500;
+}
+
+.color-green {
+    color: $green-500;
+}
+
+.color-blue {
+    color: $blue-500;
+}
+
+.color-yellow {
+    color: $yellow-500;
+}
+
+/************************************************
+ *
+ *            App position defintion
+ *
+ ************************************************/
+
+/**
+ * common text align style
+ */
+
+.Left {
+    text-align: left;
+}
+
+.Right {
+    text-align: right;
+}
+
+.Center {
+    text-align: center;
+}

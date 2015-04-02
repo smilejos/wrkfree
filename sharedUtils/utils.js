@@ -1,7 +1,27 @@
 var Promise = require('bluebird');
 
 module.exports = {
-    execCallback: function () {
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: the array map function implmented by for-loop
+     *         NOTE: provide better performance
+     *
+     * @param {Array}       array, the array will be applied to map
+     * @param {Function}    fn, the mapper function
+     * @return              newArray, return an array after processed by mapper
+     */
+    fastArrayMap: function(array, fn) {
+        var nweArray = [];
+        if (this.isArray(array) || this.isFunction(fn)) {
+            for (var i=0;i<array.length;++i) {
+                nweArray[i] = fn(array[i], i, array);
+            }
+        }
+        return nweArray;
+    },
+
+    execCallback: function() {
         var err = arguments[0];
         var fn = arguments[arguments.length - 1];
         if (!this.isFunction(fn)) {
@@ -19,9 +39,40 @@ module.exports = {
         for (var i = 0; i < arguments.length - 1; ++i) {
             args.push(arguments[i]);
         }
-        return setTimeout(function(){
+        return setTimeout(function() {
             fn.apply(this, args);
         }, 0);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: get the log prefix, for debug purpose
+     *
+     * @param {String}      fileName, the filename of caller
+     * @param {String}      funcName, the function name of caller
+     */
+    getLogPrefix: function(fileName, funcName) {
+        if (this.isString(fileName) && this.isString(funcName)) {
+            return '[' + fileName + '-' + funcName + ']';
+        }
+        return null;
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: print the error log message
+     *
+     * @param {String}      fileName, the filename of caller
+     * @param {String}      funcName, the function name of caller
+     * @param {Error}       error, the error instance
+     */
+    printError: function(fileName, funcName, error) {
+        var logPrefix = this.getLogPrefix(fileName, funcName);
+        if (error instanceof Error) {
+            console.log(logPrefix, error);
+        }
     },
 
     /**
@@ -30,13 +81,13 @@ module.exports = {
      * @Description: getting the arguments array without leaking it
      *
      * @param {Object}      rawArguments, the arguments object in function
-     * 
+     *
      * https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#3-managing-arguments
      */
-    getArgs: function(rawArguments){
+    getArgs: function(rawArguments) {
         var args = new Array(rawArguments.length);
-        for(var i = 0; i < args.length; ++i) {
-                    //i is always valid index in the rawArguments object
+        for (var i = 0; i < args.length; ++i) {
+            //i is always valid index in the rawArguments object
             args[i] = rawArguments[i];
         }
         return args;
@@ -63,8 +114,7 @@ module.exports = {
      */
     isValidTime: function(object) {
         // define 2015/1/1 to be an time threshold
-        var timeString = 'January 1, 2015  00:00:00';
-        var timeMinimum = new Date(timeString).getTime();
+        var timeMinimum = Date.parse('January 1, 2015  00:00:00');
         return (typeof object === 'number' && object > timeMinimum);
     },
 
@@ -79,11 +129,11 @@ module.exports = {
         return (object.length === 0);
     },
 
-    isNumber: function (object) {
+    isNumber: function(object) {
         return (typeof object === 'number');
     },
 
-    isError: function (object) {
+    isError: function(object) {
         return (object instanceof Error);
     },
 
@@ -95,7 +145,38 @@ module.exports = {
         return !regx.test(string);
     },
 
-    isEmail: function (email) {
+    isValidChannelType: function(object) {
+        return (object === 'public' || object === 'private');
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: to check user's nickName is valid or not
+     * NOTE: nickName support 'chinese' and 'english'
+     * 
+     * @param {String}      nickName, user's nickName
+     */
+    isNickName: function(nickName) {
+        if (!this.isString(nickName)) {
+            return false;
+        }
+        /**
+         * any nickName match follow policy:
+         * english name can have following format: 'georgechen', 'george chen', 'george-chen', 'george_chen'
+         * NOTE: name must start and end with "a-z, A-Z, 0-9"
+         *
+         * chinese name can have following format: '陳家駒'
+         * NOTE: name must start and end with "中文
+         *
+         * combination with english and chinese name format: 'george陳', '陳george'
+         * NOTE: with combination, the symbol "-", "_" and " " is not allowed
+         */
+        var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]+([a-zA-Z0-9](_|-|\s)[a-zA-Z0-9])*[a-zA-Z0-9\u4e00-\u9fa5]+$/;
+        return regx.test(nickName);
+    },
+
+    isEmail: function(email) {
         if (!this.isString(email)) {
             return false;
         }
@@ -103,7 +184,28 @@ module.exports = {
         return re.test(email);
     },
 
-    isChannelId: function (channelId) {
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: to check the user avatar url is valid or not
+     * NOTE: we only check avatar pattern match 'facebook' and 'google'
+     * 
+     * @param {String}      avatarUrl, avatar's url
+     */
+    isAvatarUrl: function(avatarUrl) {
+        if (!this.isString(avatarUrl)) {
+            return false;
+        }
+        var regex = {
+            // any string start with "https://graph.facebook.com" with be consider as valid
+            facebook: /^(https\:\/\/graph.facebook.com).*$/,
+            // any string start with "https://lh3.googleusercontent.com" with be consider as valid
+            google: /^(https\:\/\/lh3.googleusercontent.com).*$/
+        };
+        return (regex.facebook.test(avatarUrl) || regex.google.test(avatarUrl) );
+    },
+
+    isChannelId: function(channelId) {
         if (!this.isString(channelId)) {
             return false;
         }
@@ -111,15 +213,22 @@ module.exports = {
         return re.test(channelId);
     },
 
-    isChannelName: function(channelName) {
-        if (this.isString(channelName)) {
-            if (channelName.search('#') !== -1) {
-                return this._isPublicChannel(channelName);
-            } else if (channelName.search('&') !== -1) {
-                return this._isPrivateChannel(channelName);
-            }
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: to check the full channel name based on channel type
+     * 
+     * @param {String}      name, channel's full name
+     * @param {String}      type, channel's type
+     */
+    isChannelName: function(name, type) {
+        if (!this.isString(name)) {
+            return false;
         }
-        return false;
+        if (!this.isValidChannelType(type)){
+            return false;
+        }
+        return (type==='public' ? this._isPublicChannel(name) : this._isPrivateChannel(name));
     },
 
     _isPublicChannel: function(publicName) {
@@ -133,8 +242,8 @@ module.exports = {
     },
     // an promisify version of args check
     // return the input arg while this arg pass the check
-    argsCheckAsync: Promise.method(function(arg, chkType){
-        switch(chkType) {
+    argsCheckAsync: Promise.method(function(arg, chkType, option) {
+        switch (chkType) {
             case 'uid':
                 if (this.isEmail(arg)) {
                     return arg;
@@ -166,10 +275,30 @@ module.exports = {
                 }
                 throw new Error('[argsCheckAsync] channelId check error');
             case 'channelName':
-                if (this.isChannelName(arg)) {
+                if (this.isChannelName(arg, option)) {
                     return arg;
                 }
                 throw new Error('[argsCheckAsync] channel name check error');
+            case 'nickName':
+                if (this.isNickName(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] nickName check error');
+            case 'avatar':
+                if (this.isAvatarUrl(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] avatar check error');
+            case 'channelType':
+                if (this.isValidChannelType(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] channel type check error');
+            case 'boolean':
+                if (this.isBoolean(arg)) {
+                    return arg;
+                }
+                throw new Error('[argsCheckAsync] boolean value check error');
             default:
                 throw new Error('[argsCheckAsync] no support args type check');
         }

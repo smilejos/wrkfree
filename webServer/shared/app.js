@@ -7,7 +7,7 @@ var storePlugin = require('./plugins/storePlugin');
  * create an fluxible application
  */
 var app = new Fluxible({
-    appComponent: require('./components/Routes.jsx')
+    component: require('./components/Routes.jsx')
 });
 
 /**
@@ -20,8 +20,13 @@ app.plug(storePlugin);
  * register stores
  */
 app.registerStore(require('./stores/MainAppStore'));
+app.registerStore(require('./stores/HeaderStore'));
+app.registerStore(require('./stores/SignUpStore'));
+app.registerStore(require('./stores/ChannelNavStore'));
+app.registerStore(require('./stores/DashboardStore'));
 app.registerStore(require('./stores/channelInfoStore'));
 app.registerStore(require('./stores/userInfoStore'));
 app.registerStore(require('./stores/privateBoxesStore'));
+app.registerStore(require('./stores/friendStore'));
 
 module.exports = app;

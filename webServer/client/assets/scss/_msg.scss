@@ -34,9 +34,16 @@ $border:  1px solid #bbb;
     background-color: #EEEEEE;
     box-sizing: border-box;
     margin-left: 10px;
+
+    
 }
 
 .MsgList {
+    border-style: solid;;
+    border-color: #bbb;
+    border-width: 1px;
+    border-bottom: none;
+
     height: 240px;
     overflow: scroll;
 }
@@ -49,13 +56,14 @@ $border:  1px solid #bbb;
 
 .InputArea {
     overflow: hidden;
+    border-style: solid;;
+    border-color: #bbb;
+    border-width: 1px;
+    border-top: none;    
 }
 
 .InputBox {
     background-color: #DDDDDD;
-    border-radius: 5px;
-    border-color:#FFFFFF;
-    border-width: 1px;
     margin-left: 10px;
 }
 

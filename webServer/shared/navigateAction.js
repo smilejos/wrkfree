@@ -6,7 +6,8 @@ module.exports = function(actionContext, payload, done) {
     var urlInfo = _getUrlInfo(payload);
     var args = ObjectAssign(routeInfo, urlInfo);
 
-    actionContext.getRouteResourceAsync(args).then(function() {
+    actionContext.getRouteResourceAsync(args).then(function(resource) {
+        payload.resource = resource;
         actionContext.dispatch('CHANGE_ROUTE', payload);
     }).catch(function(err){
         return console.log('[navigateAction]', err);
