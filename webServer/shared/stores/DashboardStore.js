@@ -39,20 +39,23 @@ module.exports = createStore({
             var channelNameInfo = item.channelName.split('#');
             var hostUid = channelNameInfo[0];
             var partialChannelName = channelNameInfo[1];
-            var host;
-            // extract host info from members
-            for (var i=0;i<item.members.info.length; ++i) {
-                if (item.members.info[i]._id.equals(hostUid)) {
-                    host = item.members.info.splice(i, 1)[0];
-                    break;
+            var hostIndex = 0;
+            var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
+                if (info._id.equals(hostUid)) {
+                    hostIndex = index;
                 }
-            }
+                return {
+                    uid: info._id,
+                    nickName: info.nickName,
+                    avatar: info.avatar
+                };
+            });
             // return channel item object
             return {
                 channelId: item.channelId,
                 channelName: partialChannelName,
-                hostInfo: host,
-                memberList: item.members.info,
+                hostInfo: members.splice(hostIndex, 1)[0],
+                memberList: members,
                 snapshotUrl: Snapshots[index] || SnapshotError,
                 isSubscribed: item.isSubscribed,
                 isRtcOn: item.rtcStatus,
