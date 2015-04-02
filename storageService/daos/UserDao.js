@@ -11,23 +11,44 @@ var UserModel = Mongoose.model('User');
  *
  ************************************************/
 
+ /**
+  * Public API
+  * @Author: George_Chen
+  * @Description: find the user by his uid
+  *
+  * @param {String/ObjectId}          id, user's uid
+  */
+ exports.findByIdAsync = function(id) {
+     return SharedUtils.argsCheckAsync(id, '_id')
+         .then(function(uid) {
+             var condition = {
+                 _id: uid
+             };
+             var selectField = DbUtil.selectOriginDoc();
+             return UserModel.findOne(condition, selectField).lean().execAsync();
+         }).catch(function(err) {
+             SharedUtils.printError('UserDao', 'findByIdAsync', err);
+             return null;
+         });
+ };
+
 /**
  * Public API
  * @Author: George_Chen
- * @Description: find the user by uid (email)
+ * @Description: find user by his email
  *
- * @param {String}          uid, user's uid
+ * @param {String}          email, user's email
  */
-exports.findByUidAsync = function(uid) {
-    return SharedUtils.argsCheckAsync(uid, 'uid')
+exports.findByEmailAsync = function(email) {
+    return SharedUtils.argsCheckAsync(email, 'uid')
         .then(function(validUid) {
             var condition = {
                 email: validUid
             };
-            var selectField = DbUtil.selectOriginDoc();
+            var selectField = {};
             return UserModel.findOne(condition, selectField).lean().execAsync();
         }).catch(function(err) {
-            SharedUtils.printError('UserDao', 'findByUidAsync', err);
+            SharedUtils.printError('UserDao', 'findByEmailAsync', err);
             return null;
         });
 };
@@ -41,18 +62,16 @@ exports.findByUidAsync = function(uid) {
  */
 exports.findByGroupAsync = function(uids) {
     return Promise.map(uids, function(user) {
-        return SharedUtils.argsCheckAsync(user, 'uid');
+        return SharedUtils.argsCheckAsync(user, '_id');
     }).then(function(userGroup) {
         var condition = {
-            email: {
+            _id: {
                 $in: userGroup
             }
         };
         var selectField = {
             nickName: DbUtil.select(true),
-            email: DbUtil.select(true),
-            avatar: DbUtil.select(true),
-            _id: DbUtil.select(false)
+            avatar: DbUtil.select(true)
         };
         return UserModel.find(condition, selectField).lean().execAsync();
     }).catch(function(err) {
@@ -68,7 +87,7 @@ exports.findByGroupAsync = function(uids) {
  *
  * @param {String} uid, user's uid
  */
-exports.isUserExistAsync = function(uid) {
+exports.isEmailUsedAsync = function(uid) {
     return SharedUtils.argsCheckAsync(uid, 'uid')
         .then(function() {
             var condition = {
@@ -78,7 +97,7 @@ exports.isUserExistAsync = function(uid) {
         }).then(function(count) {
             return (count > 0);
         }).catch(function(err) {
-            SharedUtils.printError('UserDao', 'isUserExistAsync', err);
+            SharedUtils.printError('UserDao', 'isEmailUsedAsync', err);
             throw err;
         });
 };

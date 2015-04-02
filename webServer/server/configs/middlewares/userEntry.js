@@ -79,12 +79,12 @@ UserEntry.create = function(req, res, next) {
  * @Description: middleware for handling uid availability check
  * NOTE: used on user signup
  */
-UserEntry.isUidAvailable = function(req, res, next) {
+UserEntry.isEmailAvailable = function(req, res, next) {
     return Promise.try(function() {
         if (!UserStorage) {
             throw new Error('UserStorage is not initialized');
         }
-        return UserStorage.isUserExistAsync(req.query.email);
+        return UserStorage.isEmailUsedAsync(req.query.email);
     }).then(function(result) {
         // user exist means not available
         req.uidAvailable = !result;

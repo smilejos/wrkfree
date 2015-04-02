@@ -42,7 +42,7 @@ var Users = [
 ];
 
 return Users.map(function(userInfo){
-    UserDao.isUserExistAsync(userInfo.email)
+    UserDao.isEmailUsedAsync(userInfo.email)
         .then(function(exist){
             if (!exist) {
                 return UserDao.addNewUserAsync(userInfo);
