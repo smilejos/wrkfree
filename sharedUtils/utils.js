@@ -352,7 +352,7 @@ exports.isChannelName = function(name, type) {
  */
 function _isPublicChannel(publicName) {
     var name = publicName.split('#');
-    return (exports.isEmail(name[0]) && exports.isNormalChar(name[1]));
+    return (exports.isDbId(name[0]) && exports.isNormalChar(name[1]));
 }
 
 /**
@@ -366,7 +366,7 @@ function _isPublicChannel(publicName) {
 function _isPrivateChannel(privateName) {
     var name = privateName.split('&');
     for (var i = 0; i < name.length; ++i) {
-        if (!exports.isEmail(name[i])) {
+        if (!exports.isDbId(name[i])) {
             return false;
         }
     }
