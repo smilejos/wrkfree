@@ -23,7 +23,7 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
         hasNotification: false
     };
     return Promise.props({
-        FriendStore: friendStorage.getFriendListAsync(routeInfo.user.email, routeInfo.user.email),
+        FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
         HeaderStore: headerState,
         DashboardStore: _getChannelStreams(routeInfo.user.email, routeInfo.storageManager)
     }).then(function(resource) {
