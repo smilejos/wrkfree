@@ -313,6 +313,23 @@ exports.isChannelId = function(channelId) {
 /**
  * @Public API
  * @Author: George_Chen
+ * @Description: used to check the id is an valid mongodb _id or not
+ *  NOTE: only strings with 24 char length 
+ *          and constituted by "number" and "lower case letters"
+ * 
+ * @param {String}      id, document _id
+ */
+exports.isDbId = function(id) {
+    if (!this.isString(id)) {
+        return false;
+    }
+    var re = /^[0-9a-z]{24}$/;
+    return re.test(id);
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
  * @Description: to check the full channel name based on channel type
  * 
  * @param {String}      name, channel's full name
@@ -395,6 +412,12 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('uid check error');
+            case '_id': {
+                if (exports.isDbId(arg)) {
+                    return arg;
+                }
+                throw new Error('_id check error');
+            }
             case 'string':
                 if (exports.isString(arg)) {
                     return arg;
