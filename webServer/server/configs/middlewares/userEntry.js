@@ -31,7 +31,8 @@ UserEntry.enter = function(req, res, next) {
             req.nextRoute = (!basicInfo ? '/app/signup' : '/app/dashboard');
             if (basicInfo) {
                 userInfo.email = basicInfo.email;
-                userInfo.name = basicInfo.name;
+                userInfo.uid = basicInfo._id;
+                userInfo.name = basicInfo.nickName;
             }
             return next();
         }).catch(function(err) {
@@ -57,6 +58,7 @@ UserEntry.create = function(req, res, next) {
         signUpInfo[provider] = req.session.passport.user.id;
         return UserStorage.addUserAsync(signUpInfo);
     }).then(function(result) {
+        req.session.passport.user.uid = result._id;
         if (SharedUtils.isError(result)) {
             req.error = result.toString();
         } else {

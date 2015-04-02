@@ -126,7 +126,9 @@ exports.findByOAuthAsync = function(oAuthId, provider) {
             throw new Error('oauth provider is not support now');
         }
         var condition = {};
-        var selectField = DbUtil.selectOriginDoc();
+        var selectField = {};
+        selectField.email = DbUtil.select(true);
+        selectField.nickName = DbUtil.select(true);
         condition[provider] = oAuthId;
         return UserModel.findOne(condition, selectField).lean().execAsync();
     }).catch(function(err) {
@@ -161,6 +163,8 @@ exports.addNewUserAsync = function(userInfo) {
             // make mongoose cache outdated
             UserModel.find()._touchCollectionCheck(true);
             return newUser.saveAsync();
+        }).then(function(result){
+            return DbUtil.checkDocumentSaveStatusAsync(result);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', 'addNewUserAsync', err);
             return null;

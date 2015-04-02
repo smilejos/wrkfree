@@ -43,10 +43,7 @@ exports.oAuthLoginAsync = function(clientId, provider) {
             if (!userInfo) {
                 return null;
             }
-            return {
-                email: userInfo.email,
-                name: userInfo.nickName
-            };
+            return userInfo;
         });
 };
 
