@@ -1,38 +1,27 @@
 'use strict';
-require('../storageService/StorageManager')(require('../storageService/configs'));
-var FriendDao = require('../storageService/daos/FriendDao');
+var StorageManager = require('../storageService/StorageManager')(require('../storageService/configs'));
+var FriendStorage = StorageManager.getService('Friend');
+var UserDao = require('../storageService/daos/UserDao');
+var Promise = require('../sharedUtils/node_modules/bluebird');
+
+var Mongoose = require('../storageService/node_modules/mongoose');
+var UserModel = Mongoose.model('User');
 
 /**
- * your login uid
+ * for developer, please change to your oauth login 'email'
  */
-var User = 'bamoo456@gmail.com';
+var Developer = 'bamoo456@gmail.com';
 
 /**
- * test datas for friends
+ * use current user collection as friends to create friendlist
  */
-var Friends = [
-    {
-        uid: 'bamoo789@gmail.com',
-        name: 'ChiaChuChen',
-        avatar: 'https://graph.facebook.com/chiachu.chen.18/picture'
-    },
-    {
-        uid: 'normanwei@gmail.com',
-        name: 'Normanywei',
-        avatar: 'https://graph.facebook.com/Normanywei/picture'
-    },
-    {
-        uid: 'smilejos@gmail.com',
-        name: 'JosTung',
-        avatar: 'https://graph.facebook.com/JosTung/picture'
-    }
-];
-
-return Friends.map(function(item){
-    FriendDao.isFriendExistAsync(item.uid, User)
-        .then(function(exist){
-            if (!exist) {
-                return FriendDao.addNewFriendAsync(User, item.uid, item.name, item.avatar);
-            }
-        });
+return Promise.props({
+    ownerInfo: UserDao.findByEmailAsync(Developer),
+    users: UserModel.find({}).lean().execAsync()
+}).then(function(data){
+    return Promise.map(data.users, function(userInfo){
+        if (!data.ownerInfo._id.equals(userInfo._id)) {
+            return FriendStorage.addFriendshipAsync(data.ownerInfo._id, userInfo._id);
+        }
+    });
 });
