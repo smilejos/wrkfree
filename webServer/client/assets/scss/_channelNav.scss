@@ -7,16 +7,13 @@ $channel-nav-item-height: 48px;
 $channel-nav-item-padding: 24px;
 $channel-nav-item-content-width: 208px;
 
-
 /**
  * the base layout of channel navigation bar
  */
 .baseChannelNavHeader {
+    position: absolute;
     width: $channel-nav-item-width;
-    padding-left: $channel-nav-item-padding;
-    line-height: $channel-nav-item-height;
 }
-
 
 /**
  * the container style of channel navigation bar
@@ -29,6 +26,9 @@ $channel-nav-item-content-width: 208px;
  * the haader style of channel navigation bar
  */
 .ChannelNavHeader {
+    height: 150px;
+    padding-left: $channel-nav-item-padding;
+    line-height: $channel-nav-item-height;
     @extend .baseChannelNavHeader;
 }
 
