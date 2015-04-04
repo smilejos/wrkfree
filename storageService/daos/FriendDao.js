@@ -104,7 +104,7 @@ exports.delFriendAsync = function(candidate, asker) {
         SharedUtils.argsCheckAsync(candidate, '_id'),
         SharedUtils.argsCheckAsync(asker, '_id'),
         function(candidateUid, askerUid) {
-            var condition = _getFriendConition(as_id_idkerUid, candidateUid);
+            var condition = _getFriendConition(askerUid, candidateUid);
             return FriendModel.remove(condition).execAsync();
         }).then(function(result) {
             return (result > 0);
@@ -125,8 +125,8 @@ exports.delFriendAsync = function(candidate, asker) {
  */
 exports.updateAvatarAsync = function(candidate, asker, avatarUrl) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(candidate, '_id_id'),
-        SharedUtils.argsCheckAsync(asker, '_id_id'),
+        SharedUtils.argsCheckAsync(candidate, '_id'),
+        SharedUtils.argsCheckAsync(asker, '_id'),
         SharedUtils.argsCheckAsync(avatarUrl, 'avatar'),
         function(candidateUid, askerUid, validAvatar) {
             return _update(candidateUid, askerUid, {
