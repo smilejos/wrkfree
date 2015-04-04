@@ -5,10 +5,10 @@
  ************************************************/
 
 $left-nav-menu-height: 100%;
+
 /**
   * check "_left-nav.scss" for original version
  */
-
 .mui-left-nav {
     .mui-left-nav-menu {
 
@@ -59,22 +59,22 @@ $left-nav-menu-height: 100%;
         }
     }
 }
+
 /**
   * check "_dialog-window.scss" for original version
  */
-
 .mui-dialog-window {
     position: fixed;
     z-index: 10;
     top: 0px;
     left: -10000px;
     width: 100%;
+
     /**
      * @Author: George_Chen
      * @Description: remove this line for customized height
      * NOTE: after setup className on <Dialog />, we can control its height
      */
-    
     // height: 100%;
     transition: left 0ms $ease-out-function 450ms;
     .mui-dialog-window-contents {
