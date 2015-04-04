@@ -11,6 +11,7 @@
     ```
 
 3. goto the "webServer/client/" and using gulp to start the webServer
+   > NOTE: make sure ```Redis``` and ```MongoDB``` are up and running
     ```
     cd webServer/client
     gulp
