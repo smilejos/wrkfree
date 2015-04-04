@@ -3,35 +3,44 @@
  *     used to override material ui components
  *
  ************************************************/
-$left-nav-menu-height: 100%;
 
+$left-nav-menu-height: 100%;
 /**
   * check "_left-nav.scss" for original version
  */
+
 .mui-left-nav {
     .mui-left-nav-menu {
+
         /**
-         * @Author: George_Chen
-         * @Description: remove this line for overflow
+         * @Author: Jos Tung
+         * @Description: overwrite some properties to meet up wrkfree layout from original material-ui css.
          */
-        // height: 100%;
         position: relative;
         background-color: $left-nav-color;
         z-index: 10;
         left: 0px;
-        
         @include ease-out();
-
         .mui-menu {
+
+            /**
+             * @Author: Jos Tung
+             * @Description: Due to we have "create channel div" on the top
+             *               Thus, we have to custom "channel list" layout with fixed height to control the scrollbar
+             */
             position: absolute;
             top: 150px;
             bottom: 0px;
             overflow-y: auto;
             overflow-x: hidden;
 
-            .mui-paper-container
-            {
-                height: 100%;    
+            /**
+             * @Author: Jos Tung
+             * @Description: mui-paper container is real div to include items (left setting bar)
+             *               Thus, we can set height:100% to fit the original parents height.
+             */
+            .mui-paper-container {
+                height: 100%;
             }
             .mui-menu-item {
                 height: $desktop-left-nav-menu-item-height;
@@ -50,11 +59,10 @@ $left-nav-menu-height: 100%;
         }
     }
 }
-
-
 /**
   * check "_dialog-window.scss" for original version
  */
+
 .mui-dialog-window {
     position: fixed;
     z-index: 10;
@@ -66,9 +74,9 @@ $left-nav-menu-height: 100%;
      * @Description: remove this line for customized height
      * NOTE: after setup className on <Dialog />, we can control its height
      */
+    
     // height: 100%;
     transition: left 0ms $ease-out-function 450ms;
-
     .mui-dialog-window-contents {
         @include ease-out();
         position: relative;
@@ -79,22 +87,18 @@ $left-nav-menu-height: 100%;
         background: $canvas-color;
         opacity: 0;
     }
-
     .mui-dialog-window-actions {
         padding: 8px;
         margin-bottom: 8px;
         width: 100%;
         text-align: right;
-
         .mui-dialog-window-action {
             margin-right: 8px;
         }
     }
-
     &.mui-is-shown {
         left: 0px;
         transition: left 0ms $ease-out-function 0ms;
-
         .mui-dialog-window-contents {
             opacity: 1;
             top: 0px;

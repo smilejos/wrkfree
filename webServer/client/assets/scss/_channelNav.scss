@@ -2,40 +2,40 @@
  * these definition is used to match the layout defined
  * in "left-nav.scss" of material-ui
  */
+
 $channel-nav-item-width: 256px;
 $channel-nav-item-height: 48px;
 $channel-nav-item-padding: 24px;
 $channel-nav-item-content-width: 208px;
-
-
 /**
  * the base layout of channel navigation bar
  */
+
 .baseChannelNavHeader {
-	height: 150px;
+    position: absolute;
     width: $channel-nav-item-width;
-    padding-left: $channel-nav-item-padding;
-    line-height: $channel-nav-item-height;
 }
-
-
 /**
  * the container style of channel navigation bar
  */
+
 .ChannelNav {
     color: $color-main;
 }
-
 /**
  * the haader style of channel navigation bar
  */
+
 .ChannelNavHeader {
+    height: 150px;
+    padding-left: $channel-nav-item-padding;
+    line-height: $channel-nav-item-height;
     @extend .baseChannelNavHeader;
 }
-
 /**
  * the content style of channel navigation bar
  */
+
 .ChannelNavHeaderContent {
     width: $channel-nav-item-content-width;
     overflow: auto;
