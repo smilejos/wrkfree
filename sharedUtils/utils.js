@@ -310,6 +310,15 @@ exports.isChannelId = function(channelId) {
     return re.test(channelId);
 };
 
+/**
+ * Because "isChannelId" function currently check channelId is a
+ * valid md5 hash string or not. Also, we need a md5 check function to 
+ * vertify uid is md5 hash; as a result, a temporarily workaround is to create
+ * a function "isMd5Hex", and assign "isChannelId" to "isMd5Hex".
+ * 
+ * TODO:
+ * we need a PR later to depreciate "isChannelId", and only keep "isMd5Hex" 
+ */
 exports.isMd5Hex = exports.isChannelId;
 
 /**
