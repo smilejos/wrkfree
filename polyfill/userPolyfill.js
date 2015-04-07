@@ -73,7 +73,7 @@ var Users = [
         givenName: 'Jun',
         avatar: 'https://graph.facebook.com/yajun.yang/picture',
         gender: 'male',
-        facebook: 'yajun.yang',
+        facebook: 'yajunyang',
         locale: 'en_US'
     },
     {
@@ -82,7 +82,7 @@ var Users = [
         givenName: 'Eric',
         avatar: 'https://graph.facebook.com/eric.hung.779/picture',
         gender: 'male',
-        facebook: 'eric.hung.779',
+        facebook: 'erichung779',
         locale: 'en_US'
     },
     {
