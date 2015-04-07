@@ -28,7 +28,7 @@ var RedisClient = Redis.createClient(
  */
 exports.getOnlineFriendsAsync = function(friends) {
     return Promise.map(friends, function(doc) {
-        return (SharedUtils.isEmail(doc.uid) ? doc.uid : '');
+        return (SharedUtils.isDbId(doc.uid) ? doc.uid : '');
     }).then(function(friendUids) {
         var tempKey = Date.now().toString(); // use timestamp as an unique tempKey
         return RedisClient

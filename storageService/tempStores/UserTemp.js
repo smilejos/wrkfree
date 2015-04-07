@@ -22,7 +22,7 @@ var RedisClient = Redis.createClient(
  * @param  {String}           candidate, candidate user id
  */
 exports.isUserOnlineAsync = function(candidate) {
-    return SharedUtils.argsCheckAsync(candidate, 'uid')
+    return SharedUtils.argsCheckAsync(candidate, '_id')
         .then(function(candidateUid) {
             return RedisClient.sismemberAsync(candidateUid, GLOBAL_OnlineUserKey);
         }).catch(function(err) {
@@ -41,7 +41,7 @@ exports.isUserOnlineAsync = function(candidate) {
  */
 exports.getWebSessionAsync = function(user, webSid) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(user, 'uid'),
+        SharedUtils.argsCheckAsync(user, '_id'),
         SharedUtils.argsCheckAsync(webSid, 'string'),
         function(userUid, validSession) {
             return RedisClient.getAsync(GLOBAL_SessionPrefix + validSession);

@@ -113,7 +113,7 @@ module.exports = function(server, StorageManager) {
      * status code = 200 is success response, means user email can be applied
      * status code = 403 is an forbiden error, means user email has been occupied
      */
-    ExpressRouter.get('/app/checkuser', userEntry.isUidAvailable, function(req, res) {
+    ExpressRouter.get('/app/checkuser', userEntry.isEmailAvailable, function(req, res) {
         if (req.error) {
             res.redirect(req.nextRoute);
         }

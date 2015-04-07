@@ -53,8 +53,8 @@ exports.addFriendshipAsync = function(user1, user2) {
             }
             return UserDao.findByGroupAsync([user1, user2]);
         }).map(function(userInfo) {
-            var asker = (userInfo.email === user1 ? user2 : user1);
-            return FriendDao.addNewFriendAsync(asker, userInfo.email, userInfo.nickName, userInfo.avatar);
+            var asker = (userInfo._id.equals(user1) ? user2 : user1);
+            return FriendDao.addNewFriendAsync(asker, userInfo._id, userInfo.nickName, userInfo.avatar);
         }).map(function(friendInfo) {
             return UserTemp.isUserOnlineAsync(friendInfo.uid)
                 .then(function(status) {

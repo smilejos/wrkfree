@@ -8,6 +8,7 @@ var Promise = require('bluebird');
  *
  */
 var Validator = {
+    ObjectId: SharedUtils.isDbId,
     String: SharedUtils.isString,
     Number: SharedUtils.isNumber,
     Array: SharedUtils.isArray,

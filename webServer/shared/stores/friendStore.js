@@ -8,7 +8,7 @@ var StoreUtils = require('./utils');
  */
 var FriendSchema = {
     nickName:           {type : 'String', default : ''},
-    uid:                {type : 'Email', default : ''},
+    uid:                {type : 'ObjectId', default : ''},
     avatar:             {type : 'String', default : ''},
     group:              {type : 'String', default : ''},
     isOnline:           {type : 'Boolean', default : ''}

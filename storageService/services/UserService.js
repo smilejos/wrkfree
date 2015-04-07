@@ -20,7 +20,7 @@ var UserTemp = require('../tempStores/UserTemp');
  */
 exports.addUserAsync = function(userInfo) {
     return Promise.try(function() {
-        return UserDao.isUserExistAsync(userInfo.email);
+        return UserDao.isEmailUsedAsync(userInfo.email);
     }).then(function(exist) {
         return (exist ? new Error('user is exist') : UserDao.addNewUserAsync(userInfo));
     }).catch(function(err) {
@@ -43,10 +43,7 @@ exports.oAuthLoginAsync = function(clientId, provider) {
             if (!userInfo) {
                 return null;
             }
-            return {
-                email: userInfo.email,
-                name: userInfo.nickName
-            };
+            return userInfo;
         });
 };
 
@@ -68,10 +65,10 @@ exports.findUsersAsync = function(findString) {
  *
  * @param {String}      uid, user id
  */
-exports.isUserExistAsync = function(uid) {
-    return UserDao.isUserExistAsync(uid)
+exports.isEmailUsedAsync = function(uid) {
+    return UserDao.isEmailUsedAsync(uid)
         .catch(function(err) {
-            SharedUtils.printError('UserService', 'isUserExistAsync', err);
+            SharedUtils.printError('UserService', 'isEmailUsedAsync', err);
             throw err;
         });
 };
@@ -88,10 +85,7 @@ exports.getUserAsync = function(user) {
         if (SharedUtils.isArray(user)) {
             return UserDao.findByGroupAsync(user);
         }
-        if (SharedUtils.isEmail(user)) {
-            return UserDao.findByUidAsync(user);
-        }
-        throw new Error('not an valid user');
+        return UserDao.findByIdAsync(user);
     }).catch(function(err) {
         SharedUtils.printError('UserService', 'getUserAsync', err);
         return null;
