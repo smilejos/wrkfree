@@ -40,7 +40,7 @@ var UserModel = Mongoose.model('User');
  * @param {String}          email, user's email
  */
 exports.findByEmailAsync = function(email) {
-    return SharedUtils.argsCheckAsync(email, 'uid')
+    return SharedUtils.argsCheckAsync(email, 'email')
         .then(function(validUid) {
             var condition = {
                 email: validUid
@@ -88,7 +88,7 @@ exports.findByGroupAsync = function(uids) {
  * @param {String} uid, user's uid
  */
 exports.isEmailUsedAsync = function(uid) {
-    return SharedUtils.argsCheckAsync(uid, 'uid')
+    return SharedUtils.argsCheckAsync(uid, 'email')
         .then(function() {
             var condition = {
                 email: uid
@@ -165,7 +165,7 @@ exports.findByOAuthAsync = function(oAuthId, provider) {
  */
 exports.addNewUserAsync = function(userInfo) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(userInfo.email, 'uid'),
+        SharedUtils.argsCheckAsync(userInfo.email, 'email'),
         SharedUtils.argsCheckAsync(userInfo.familyName, 'string'),
         SharedUtils.argsCheckAsync(userInfo.givenName, 'string'),
         function() {

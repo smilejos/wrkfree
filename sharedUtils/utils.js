@@ -404,17 +404,16 @@ function _getLogPrefix(fileName, funcName) {
 exports.argsCheckAsync = function(arg, chkType, option) {
     return Promise.try(function() {
         switch (chkType) {
-            case 'uid':
+            case 'email':
                 if (exports.isEmail(arg)) {
                     return arg;
                 }
-                throw new Error('uid check error');
-            case '_id': {
+                throw new Error('email check error');
+            case '_id':
                 if (exports.isDbId(arg)) {
                     return arg;
                 }
                 throw new Error('_id check error');
-            }
             case 'string':
                 if (exports.isString(arg)) {
                     return arg;
