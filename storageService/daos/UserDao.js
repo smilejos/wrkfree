@@ -20,7 +20,7 @@ var CryptoUtils = require('../../sharedUtils/cryptoUtils');
  * @param {String/ObjectId}          id, user's uid
  */
 exports.findByIdAsync = function(id) {
-    return SharedUtils.argsCheckAsync(id, '_id')
+    return SharedUtils.argsCheckAsync(id, 'md5')
         .then(function(uid) {
             var condition = {
                 _id: uid
@@ -63,7 +63,7 @@ exports.findByEmailAsync = function(email) {
  */
 exports.findByGroupAsync = function(uids) {
     return Promise.map(uids, function(user) {
-        return SharedUtils.argsCheckAsync(user, '_id');
+        return SharedUtils.argsCheckAsync(user, 'md5');
     }).then(function(userGroup) {
         var condition = {
             _id: {

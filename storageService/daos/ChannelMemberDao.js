@@ -25,7 +25,7 @@ var ObjectAssign = require('object-assign');
  */
 exports.addMemberAsync = function(member, channelId, type, name, isChannelHost) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, '_id'),
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
         channelId: SharedUtils.argsCheckAsync(channelId, 'channelId'),
         channelName: SharedUtils.argsCheckAsync(name, 'channelName', type),
         channelType: type,
@@ -57,7 +57,7 @@ exports.addMemberAsync = function(member, channelId, type, name, isChannelHost) 
  */
 exports.delMemberAsync = function(member, channelId) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, '_id'),
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
         channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
     }).then(function(condition) {
         return _remove(condition);
@@ -98,7 +98,7 @@ exports.delChannelAsync = function(channelId) {
  */
 exports.findByUidAsync = function(member, type) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, '_id')
+        member: SharedUtils.argsCheckAsync(member, 'md5')
     }).then(function(condition) {
         if (SharedUtils.isValidChannelType(type)) {
             condition.channelType = type;
@@ -119,7 +119,7 @@ exports.findByUidAsync = function(member, type) {
  */
 exports.findByHostUidAsync = function(host) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(host, '_id'),
+        member: SharedUtils.argsCheckAsync(host, 'md5'),
         channelType: 'public',
         isHost: true
     }).then(function(condition) {
@@ -158,7 +158,7 @@ exports.findByChannelAsync = function(channelId) {
  */
 exports.findMemberAsync = function(member, channelId) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, '_id'),
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
         channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
     }).then(function(condition) {
         return _find(true, condition);
@@ -354,7 +354,7 @@ exports.updateSubscribedAsync = function(member, channelId, status) {
  */
 function _isExist(member, channelId, extraFields) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, '_id'),
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
         channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
     }).then(function(condition) {
         var queryCondition = ObjectAssign(condition, extraFields);
@@ -374,7 +374,7 @@ function _isExist(member, channelId, extraFields) {
  */
 function _update(member, channelId, info) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, '_id'),
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
         channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
     }).then(function(condition) {
         return Model.update(condition, info).execAsync();

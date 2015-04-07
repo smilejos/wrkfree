@@ -310,6 +310,8 @@ exports.isChannelId = function(channelId) {
     return re.test(channelId);
 };
 
+exports.isMd5Hex = exports.isChannelId;
+
 /**
  * @Public API
  * @Author: George_Chen
@@ -352,7 +354,7 @@ exports.isChannelName = function(name, type) {
  */
 function _isPublicChannel(publicName) {
     var name = publicName.split('#');
-    return (exports.isDbId(name[0]) && exports.isNormalChar(name[1]));
+    return (exports.isMd5Hex(name[0]) && exports.isNormalChar(name[1]));
 }
 
 /**
@@ -366,7 +368,7 @@ function _isPublicChannel(publicName) {
 function _isPrivateChannel(privateName) {
     var name = privateName.split('&');
     for (var i = 0; i < name.length; ++i) {
-        if (!exports.isDbId(name[i])) {
+        if (!exports.isMd5Hex(name[i])) {
             return false;
         }
     }
@@ -404,6 +406,11 @@ function _getLogPrefix(fileName, funcName) {
 exports.argsCheckAsync = function(arg, chkType, option) {
     return Promise.try(function() {
         switch (chkType) {
+            case 'md5':
+                if (exports.isMd5Hex(arg)) {
+                    return arg;
+                }
+                throw new Error('md5 check error');
             case 'email':
                 if (exports.isEmail(arg)) {
                     return arg;

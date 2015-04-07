@@ -13,7 +13,7 @@ var Snapshots = [
     'https://goo.gl/YqzlWS',
     'https://goo.gl/0DxoSH',
     'https://goo.gl/VXPGaZ',
-    'http://goo.gl/00t6Mh'
+    'https://goo.gl/00t6Mh'
 ];
 
 
