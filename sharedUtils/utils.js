@@ -311,6 +311,17 @@ exports.isChannelId = function(channelId) {
 };
 
 /**
+ * Because "isChannelId" function currently check channelId is a
+ * valid md5 hash string or not. Also, we need a md5 check function to 
+ * vertify uid is md5 hash; as a result, a temporarily workaround is to create
+ * a function "isMd5Hex", and assign "isChannelId" to "isMd5Hex".
+ * 
+ * TODO:
+ * we need a PR later to depreciate "isChannelId", and only keep "isMd5Hex" 
+ */
+exports.isMd5Hex = exports.isChannelId;
+
+/**
  * @Public API
  * @Author: George_Chen
  * @Description: used to check the id format is an valid mongodb _id or not
@@ -352,7 +363,7 @@ exports.isChannelName = function(name, type) {
  */
 function _isPublicChannel(publicName) {
     var name = publicName.split('#');
-    return (exports.isDbId(name[0]) && exports.isNormalChar(name[1]));
+    return (exports.isMd5Hex(name[0]) && exports.isNormalChar(name[1]));
 }
 
 /**
@@ -366,7 +377,7 @@ function _isPublicChannel(publicName) {
 function _isPrivateChannel(privateName) {
     var name = privateName.split('&');
     for (var i = 0; i < name.length; ++i) {
-        if (!exports.isDbId(name[i])) {
+        if (!exports.isMd5Hex(name[i])) {
             return false;
         }
     }
@@ -404,17 +415,21 @@ function _getLogPrefix(fileName, funcName) {
 exports.argsCheckAsync = function(arg, chkType, option) {
     return Promise.try(function() {
         switch (chkType) {
-            case 'uid':
+            case 'md5':
+                if (exports.isMd5Hex(arg)) {
+                    return arg;
+                }
+                throw new Error('md5 check error');
+            case 'email':
                 if (exports.isEmail(arg)) {
                     return arg;
                 }
-                throw new Error('uid check error');
-            case '_id': {
+                throw new Error('email check error');
+            case '_id':
                 if (exports.isDbId(arg)) {
                     return arg;
                 }
                 throw new Error('_id check error');
-            }
             case 'string':
                 if (exports.isString(arg)) {
                     return arg;

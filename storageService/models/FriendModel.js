@@ -11,8 +11,8 @@ var Schema = Mongoose.Schema;
  */
 
 var FriendSchmea = new Schema({
-    friendOwner:    {type : Schema.Types.ObjectId, index: true},
-    uid:            {type : Schema.Types.ObjectId},
+    friendOwner:    {type : String, default : '', trim : true, index: true},
+    uid:            {type : String, default : '', trim : true},
     nickName:       {type : String, default : '', trim : true},
     avatar:         {type : String, default : '', trim : true},
     group:          {type : String, default : '', trim : true}

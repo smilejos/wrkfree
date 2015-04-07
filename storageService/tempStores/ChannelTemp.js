@@ -50,7 +50,7 @@ exports.getMemberListAsync = function(channelId) {
 exports.importMemberListAsync = function(members, channelId) {
     return Promise.join(
         Promise.map(members, function(memberUid) {
-            return SharedUtils.argsCheckAsync(memberUid, '_id');
+            return SharedUtils.argsCheckAsync(memberUid, 'md5');
         }),
         SharedUtils.argsCheckAsync(channelId, 'channelId'),
         function(membersUid, validChannelId) {
@@ -75,7 +75,7 @@ exports.importMemberListAsync = function(members, channelId) {
  */
 exports.isMemberAsync = function(member, channelId) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(member, '_id'),
+        SharedUtils.argsCheckAsync(member, 'md5'),
         SharedUtils.argsCheckAsync(channelId, 'channelId'),
         function(memberUid, validChannelId) {
             var redisKey = _getMemberKey(validChannelId);

@@ -20,7 +20,7 @@ return Promise.props({
     users: UserModel.find({}).lean().execAsync()
 }).then(function(data){
     return Promise.map(data.users, function(userInfo){
-        if (!data.ownerInfo._id.equals(userInfo._id)) {
+        if (data.ownerInfo._id !== userInfo._id) {
             return FriendStorage.addFriendshipAsync(data.ownerInfo._id, userInfo._id);
         }
     });

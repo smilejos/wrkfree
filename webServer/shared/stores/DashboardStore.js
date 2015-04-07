@@ -13,7 +13,7 @@ var Snapshots = [
     'https://goo.gl/YqzlWS',
     'https://goo.gl/0DxoSH',
     'https://goo.gl/VXPGaZ',
-    'http://goo.gl/00t6Mh'
+    'https://goo.gl/00t6Mh'
 ];
 
 
@@ -41,7 +41,7 @@ module.exports = createStore({
             var partialChannelName = channelNameInfo[1];
             var hostIndex = 0;
             var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
-                if (info._id.equals(hostUid)) {
+                if (info._id === hostUid) {
                     hostIndex = index;
                 }
                 return {

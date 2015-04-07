@@ -58,7 +58,7 @@ return Promise.props({
     users: UserModel.find({}).lean().execAsync()
 }).then(function(data){
     return Promise.filter(data.users, function(userInfo){
-        return (!data.developer._id.equals(userInfo._id));
+        return (data.developer._id !== userInfo._id);
     }).map(function(member){
         return member._id;
     }).then(function(uids){
