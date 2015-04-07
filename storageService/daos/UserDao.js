@@ -6,6 +6,11 @@ var DbUtil = require('../dbUtils');
 var UserModel = Mongoose.model('User');
 var CryptoUtils = require('../../sharedUtils/cryptoUtils');
 
+/**
+ * currently oauth providers
+ */
+var OauthProviders = ['facebook', 'google'];
+
 /************************************************
  *
  *           Public APIs
@@ -142,7 +147,7 @@ exports.findByNameAsync = function(queryString) {
  */
 exports.findByOAuthAsync = function(oAuthId, provider) {
     return Promise.try(function() {
-        if (!_checkOAuthProvider(provider)) {
+        if (OauthProviders.indexOf(provider) === -1) {
             throw new Error('oauth provider is not support now');
         }
         var condition = {};
@@ -197,23 +202,3 @@ exports.addNewUserAsync = function(userInfo) {
         return null;
     });
 };
-
-/************************************************
- *
- *          internal functions
- *
- ************************************************/
-
-/**
- * @Author: George_Chen
- * @Description: simply check the oauth provider is support or not
- */
-function _checkOAuthProvider(provider) {
-    switch (provider) {
-        case 'google':
-        case 'facebook':
-            return true;
-        default:
-            return false;
-    }
-}
