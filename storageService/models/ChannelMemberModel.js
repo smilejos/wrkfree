@@ -18,7 +18,7 @@ var Schema = Mongoose.Schema;
 
 var ChannelMember = new Schema({
     channelId:         {type : String, default : '', trim : true, index: true},
-    member:            {type : Schema.Types.ObjectId, default : null, index: true},
+    member:            {type : String, default : '', trim : true, index: true},
     channelType:       {type : String, default : '', trim : true},
     channelName:       {type : String, default : '', trim : true},
     isSubscribed:      {type : Boolean,default : false, trim : true},
