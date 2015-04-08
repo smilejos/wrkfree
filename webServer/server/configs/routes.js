@@ -28,7 +28,7 @@ module.exports = function(server, StorageManager) {
     ExpressRouter.get('/auth/facebook/callback', function(req, res, next) {
         req.provider = 'facebook';
         next();
-    }, userEntry.oauthLogin);
+    }, userEntry.oAuthLogin);
 
     /**
      * handle the google oauth routes
@@ -39,7 +39,7 @@ module.exports = function(server, StorageManager) {
     ExpressRouter.get('/auth/google/callback', function(req, res, next) {
         req.provider = 'google';
         next();
-    }, userEntry.oauthLogin);
+    }, userEntry.oAuthLogin);
 
     /**
      * rendering user signup page
