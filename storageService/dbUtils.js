@@ -154,7 +154,7 @@ exports.checkDocumentRemoveStatusAsync = function(removeResult) {
  */
 exports.getChannelCondAsync = function(chId) {
     return Promise.try(function() {
-        if (!SharedUtils.isChannelId(chId)) {
+        if (!SharedUtils.isMd5Hex(chId)) {
             var err = new Error('channel id is invalid');
             SharedUtils.printError('dbUtils', 'getChannelCondAsync', err);
             throw err;

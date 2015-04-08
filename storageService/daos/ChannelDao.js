@@ -23,7 +23,7 @@ var ObjectAssign = require('object-assign');
  */
 exports.newChannelAsync = function(channelId, channelName, channelType) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         name: SharedUtils.argsCheckAsync(channelName, 'channelName', channelType),
         type: channelType
     }).then(function(doc) {
@@ -100,7 +100,7 @@ exports.anonymousLoginAsync = function(channelId, password) {
  */
 exports.findByChanelAsync = function(channelId) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         return _find(true, condition);
     }).catch(function(err) {
@@ -118,7 +118,7 @@ exports.findByChanelAsync = function(channelId) {
  */
 exports.findByChanelsAsync = function(channelIds) {
     return Promise.map(channelIds, function(channelId) {
-        if (!SharedUtils.isChannelId(channelId)) {
+        if (!SharedUtils.isMd5Hex(channelId)) {
             throw new Error('channel id is invalid');
         }
         return channelId;
@@ -165,7 +165,7 @@ exports.searchByNameAsync = function(name) {
  */
 exports.delChannelAsync = function(channelId) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         type: 'public'
     }).then(function(condition) {
         // make mongoose cache outdated
@@ -194,7 +194,7 @@ exports.delChannelAsync = function(channelId) {
  */
 function _isExist(channelId, extraFields) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         var queryCondition = ObjectAssign(condition, extraFields);
         return Model.countAsync(queryCondition);
