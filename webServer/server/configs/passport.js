@@ -37,7 +37,7 @@ module.exports = function(StorageManager) {
      * @param {Function}    done, callback function filled by passport.js
      */
     Passport.deserializeUser(function(user, done) {
-        // if user doesn't have uid, then we should not try get info from db
+        // if user doesn't have uid, then we should not try to get info from db
         if (!SharedUtils.isString(user.uid)) {
             return done(error, user);
         }

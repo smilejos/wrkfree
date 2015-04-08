@@ -22,7 +22,7 @@ var UserEntry = {};
  * @Description: middleware for handling oauth login
  *     NOTE: triggered when user try oauth login each time
  */
-UserEntry.oauthLogin = function(req, res, next) {
+UserEntry.oAuthLogin = function(req, res, next) {
     return Passport.authenticate(req.provider, function(err, user) {
         return UserStorage.oAuthLoginAsync(user.id, req.provider)
             .then(function(info) {
