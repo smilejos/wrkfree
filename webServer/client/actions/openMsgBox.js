@@ -17,7 +17,7 @@ var Promise = require('bluebird');
  */
 module.exports = function(actionContext, channelId, callback) {
     var msgStore = actionContext.getStore(PrivateBoxesStore);
-    return SharedUtils.argsCheckAsync(channelId, 'channelId')
+    return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(chId) {
             return msgStore.getLocalMsgsAsync(chId).then(function(localMsgs) {
                 if (SharedUtils.isEmptyArray(localMsgs)) {

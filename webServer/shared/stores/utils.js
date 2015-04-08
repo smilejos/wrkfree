@@ -12,7 +12,7 @@ var Validator = {
     Number: SharedUtils.isNumber,
     Array: SharedUtils.isArray,
     Email: SharedUtils.isEmail,
-    ChannelId: SharedUtils.isChannelId,
+    ChannelId: SharedUtils.isMd5Hex,
     ChannelName: SharedUtils.isChannelName,
     Boolean: SharedUtils.isBoolean
 };

@@ -29,7 +29,7 @@ var RedisClient = Redis.createClient(
  * @param {String}      channelId, channel's id
  */
 exports.getMemberListAsync = function(channelId) {
-    return SharedUtils.argsCheckAsync(channelId, 'channelId')
+    return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(validChannelId) {
             var redisKey = _getMemberKey(validChannelId);
             return RedisClient.smembersAsync(redisKey);
@@ -52,7 +52,7 @@ exports.importMemberListAsync = function(members, channelId) {
         Promise.map(members, function(memberUid) {
             return SharedUtils.argsCheckAsync(memberUid, 'md5');
         }),
-        SharedUtils.argsCheckAsync(channelId, 'channelId'),
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
         function(membersUid, validChannelId) {
             var redisKey = _getMemberKey(validChannelId);
             return RedisClient.existsAsync(redisKey)
@@ -76,7 +76,7 @@ exports.importMemberListAsync = function(members, channelId) {
 exports.isMemberAsync = function(member, channelId) {
     return Promise.join(
         SharedUtils.argsCheckAsync(member, 'md5'),
-        SharedUtils.argsCheckAsync(channelId, 'channelId'),
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
         function(memberUid, validChannelId) {
             var redisKey = _getMemberKey(validChannelId);
             return Promise.props({
@@ -98,7 +98,7 @@ exports.isMemberAsync = function(member, channelId) {
  * @param {String}      channelId, channel's id
  */
 exports.getOnlineMembersAsync = function(channelId) {
-    return SharedUtils.argsCheckAsync(channelId, 'channelId')
+    return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(validChannelId) {
             var redisKey = _getMemberKey(validChannelId);
             return RedisClient.sinterAsync(redisKey, GLOBAL_ONLINE_USER_KEY);

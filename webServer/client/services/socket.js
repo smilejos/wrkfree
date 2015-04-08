@@ -120,7 +120,7 @@ function getRouteAsync(srvType, api) {
  */
 function paramCheckAsync(srvType, param) {
     return Promise.try(function() {
-        if (!SharedUtils.isChannelId(param.rid)) {
+        if (!SharedUtils.isMd5Hex(param.rid)) {
             if (srvType !== 'connector' && srvType !== 'globalMgr') {
                 throw new Error('[paramCheckAsync] param is broken');
             }
