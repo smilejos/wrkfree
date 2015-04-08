@@ -296,30 +296,17 @@ exports.isAvatarUrl = function(avatarUrl) {
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: to check channel id is valid or not
- * NOTE: the format of channel id is md5 hash, so any string with
- *     md5 hash style will be set to true
+ * @Description: to check string is valid md5 hex or not
  * 
- * @param {String}      channelId, channel's id
+ * @param {String}      string, hex string
  */
-exports.isChannelId = function(channelId) {
-    if (!this.isString(channelId)) {
+exports.isMd5Hex = function(string) {
+    if (!this.isString(string)) {
         return false;
     }
     var re = /^[0-9a-f]{32}$/;
-    return re.test(channelId);
+    return re.test(string);
 };
-
-/**
- * Because "isChannelId" function currently check channelId is a
- * valid md5 hash string or not. Also, we need a md5 check function to 
- * vertify uid is md5 hash; as a result, a temporarily workaround is to create
- * a function "isMd5Hex", and assign "isChannelId" to "isMd5Hex".
- * 
- * TODO:
- * we need a PR later to depreciate "isChannelId", and only keep "isMd5Hex" 
- */
-exports.isMd5Hex = exports.isChannelId;
 
 /**
  * @Public API
@@ -450,11 +437,6 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('alphabet check error');
-            case 'channelId':
-                if (exports.isChannelId(arg)) {
-                    return arg;
-                }
-                throw new Error('channelId check error');
             case 'channelName':
                 if (exports.isChannelName(arg, option)) {
                     return arg;
