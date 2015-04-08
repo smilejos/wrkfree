@@ -17,7 +17,7 @@ var StorageManager = require(StorageDir + 'storageManager')(require(StorageDir +
 /**
  * Configurations
  */
-require('./configs/passport')();
+require('./configs/passport')(StorageManager);
 require('./configs/express')(server);
 require('./configs/routes')(server, StorageManager);
 
