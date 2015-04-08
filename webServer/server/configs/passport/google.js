@@ -14,7 +14,6 @@ module.exports = new GoogleStrategy({
     callbackURL: OAuthConfigs.callbackURL
 }, function(accessToken, refreshToken, profile, done) {
     var userInfo = {
-        provider: profile.provider,
         id: profile.id,
         familyName: profile.name.familyName,
         givenName: profile.name.givenName,

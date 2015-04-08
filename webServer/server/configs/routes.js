@@ -1,3 +1,4 @@
+'use strict';
 var Passport = require('passport');
 var ExpressRouter = require('express').Router();
 var SharedUtils = require('../../../sharedUtils/utils');
@@ -23,10 +24,11 @@ module.exports = function(server, StorageManager) {
     ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook', {
         scope: providerParams.getParams('facebook').scope
     }));
-    ExpressRouter.get('/auth/facebook/callback', Passport.authenticate('facebook', {
-        successRedirect: '/auth/success/facebook',
-        failureRedirect: '/error'
-    }));
+
+    ExpressRouter.get('/auth/facebook/callback', function(req, res, next) {
+        req.provider = 'facebook';
+        next();
+    }, userEntry.oauthLogin);
 
     /**
      * handle the google oauth routes
@@ -34,27 +36,17 @@ module.exports = function(server, StorageManager) {
     ExpressRouter.get('/auth/google', Passport.authenticate('google', {
         scope: providerParams.getParams('google').scope
     }));
-    ExpressRouter.get('/auth/google/callback', Passport.authenticate('google', {
-        successRedirect: '/auth/success/google',
-        failureRedirect: '/error'
-    }));
-
-    /**
-     * handle the oauth login success flow
-     */
-    ExpressRouter.get('/auth/success/:provider', userEntry.enter, function(req, res) {
-        if (!SharedUtils.isString(req.nextRoute)) {
-            res.redirect('/error');
-        }
-        res.redirect(req.nextRoute);
-    });
+    ExpressRouter.get('/auth/google/callback', function(req, res, next) {
+        req.provider = 'google';
+        next();
+    }, userEntry.oauthLogin);
 
     /**
      * rendering user signup page
      */
     ExpressRouter.get('/app/signup', function(req, res) {
         req.routeInfo = {
-            userInfo: req.session.passport.user || {}
+            userInfo: req.user || {}
         };
         return reactRoute(req, res);
     });
@@ -79,6 +71,10 @@ module.exports = function(server, StorageManager) {
             if (err) {
                 SharedUtils.printError('routes', '/app/logout', err);
             }
+            // clear all cookies
+            SharedUtils.fastArrayMap(Object.keys(req.cookies), function(field) {
+                res.clearCookie(field);
+            });
             res.redirect('/');
         });
     });
@@ -92,7 +88,7 @@ module.exports = function(server, StorageManager) {
 
     ExpressRouter.get('/app/dashboard', function(req, res) {
         req.routeInfo = {
-            user: req.session.passport.user,
+            user: req.user,
             storageManager: StorageManager
         };
         return reactRoute(req, res);
@@ -100,7 +96,7 @@ module.exports = function(server, StorageManager) {
 
     ExpressRouter.get('/app/channel/:channelId', function(req, res) {
         req.routeInfo = {
-            user: req.session.passport.user,
+            user: req.user,
             channelId: req.params.channelId,
             storageManager: StorageManager
         };
