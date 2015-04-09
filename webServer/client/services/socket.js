@@ -1,6 +1,6 @@
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
-var Pomelo = window.pomelo;
+
 
 /**
  * generate the full route prefix for backend routing
