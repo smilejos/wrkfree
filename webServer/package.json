@@ -1,6 +1,6 @@
 {
-  "name": "wrkfree",
-  "version": "0.0.1",
+  "name": "wrkfree-web-server",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "gulp",
@@ -28,11 +28,11 @@
     "passport": "^0.2.1",
     "passport-facebook": "^1.0.3",
     "passport-google-oauth": "^0.2.0",
-    "pomelo-protobuf": "^0.4.0",
     "react": "^0.12.2",
     "react-grid-layout": "^0.8.0",
     "react-router": "^0.12.0",
     "react-tap-event-plugin": "^0.1.4",
+    "sc2-client": "^2.1.2",
     "serialize-javascript": "^1.0.0",
     "superagent": "^0.21.0"
   },
