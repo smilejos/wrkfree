@@ -33,7 +33,6 @@ Configs.development = {
         drawing: 2,
         rtc: 3
     },
-    cacheDbType: 'global',
     dbEngine: 'mongodb',
     cacheEngine: 'redis'
 };
@@ -47,7 +46,6 @@ Configs.production = {
         drawing: 2,
         rtc: 3
     },
-    cacheDbType: 'global',
     dbEngine: 'mongodb',
     cacheEngine: 'redis'
 };

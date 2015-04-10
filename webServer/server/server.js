@@ -12,14 +12,15 @@ require('node-jsx').install({
 var App = require('../shared/app');
 
 var StorageDir = '../../storageService/';
-var StorageManager = require(StorageDir + 'storageManager')(require(StorageDir + 'configs'));
+var StorageManager = require(StorageDir + 'storageManager');
+StorageManager.connectDb();
 
 /**
  * Configurations
  */
-require('./configs/passport')(StorageManager);
+require('./configs/passport')();
 require('./configs/express')(server);
-require('./configs/routes')(server, StorageManager);
+require('./configs/routes')(server);
 
 server.listen(port);
 
