@@ -8,8 +8,9 @@ var Passport = require('passport');
 var Facebook = require('./passport/facebook');
 var Google = require('./passport/google');
 var SharedUtils = require('../../../sharedUtils/utils');
+var StorageManager = require('../../../storageService/storageManager');
 
-module.exports = function(StorageManager) {
+module.exports = function() {
     var error = null;
     var UserStorage = StorageManager.getService('User');
 
