@@ -19,6 +19,12 @@ var app = require('../shared/app');
  */
 var navigateAction = require('../shared/navigateAction');
 
+
+/**
+ * initailize the connection manager
+ */
+require('./services/socketManager');
+
 /**
  * rehydrate datas from server
  */
