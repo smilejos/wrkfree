@@ -1,5 +1,4 @@
 'use strict';
-var Promise = require('bluebird');
 var Redis = require('redis');
 var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
@@ -44,6 +43,40 @@ exports.getWebSessionAsync = function(webSid) {
             return RedisClient.getAsync(GLOBAL_SessionPrefix + validSid);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'getWebSessionAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: set the user to online user list
+ *
+ * @param  {String}           uid, user's id
+ */
+exports.enterAsync = function(uid) {
+    return SharedUtils.argsCheckAsync(uid, 'md5')
+        .then(function(validUid) {
+            return RedisClient.saddAsync(GLOBAL_OnlineUserKey, validUid);
+        }).catch(function(err) {
+            SharedUtils.printError('UserTemp', 'enterAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: remove the user from online user list
+ *
+ * @param  {String}           uid, user's id
+ */
+exports.leaveAsync = function(uid) {
+    return SharedUtils.argsCheckAsync(uid, 'md5')
+        .then(function(validUid) {
+            return RedisClient.sremAsync(GLOBAL_OnlineUserKey, validUid);
+        }).catch(function(err) {
+            SharedUtils.printError('UserTemp', 'leaveAsync', err);
             throw err;
         });
 };
