@@ -1,5 +1,6 @@
 'use strict';
 var Redis = require('redis');
+var Promise = require('bluebird');
 var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
 var GLOBAL_OnlineUserKey = 'SYSTEM:onlineusers';
@@ -78,5 +79,65 @@ exports.leaveAsync = function(uid) {
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'leaveAsync', err);
             throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check user has socket binded or not
+ *
+ * @param  {String}           uid, user's id
+ */
+exports.isSocketExistAsync = function(uid) {
+    return SharedUtils.argsCheckAsync(uid, 'md5')
+        .then(function(validUid) {
+            var userSocketKey = 'user:' + validUid + ':sockets';
+            return RedisClient.existsAsync(userSocketKey);
+        }).catch(function(err) {
+            SharedUtils.printError('UserTemp', 'isSocketExistAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to bind another websocket
+ *
+ * @param  {String}           uid, user's id
+ * @param  {String}           socketId, websocket id
+ */
+exports.bindSocketAsync = function(uid, socketId) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(uid, 'md5'),
+        SharedUtils.argsCheckAsync(socketId, 'string'),
+        function(validUid, validSocketId) {
+            var userSocketKey = 'user:' + validUid + ':sockets';
+            return RedisClient.saddAsync(userSocketKey, validUid);
+        }).catch(function(err) {
+            SharedUtils.printError('UserTemp', 'bindSocketAsync', err);
+            return false;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to unbind another socket
+ *
+ * @param  {String}           uid, user's id
+ * @param  {String}           socketId, websocket id
+ */
+exports.unbindSocketAsync = function(uid, socketId) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(uid, 'md5'),
+        SharedUtils.argsCheckAsync(socketId, 'string'),
+        function(validUid, validSocketId) {
+            var userSocketKey = 'user:' + validUid + ':sockets';
+            return RedisClient.sremAsync(userSocketKey, validUid);
+        }).catch(function(err) {
+            SharedUtils.printError('UserTemp', 'unbindSocketAsync', err);
+            return false;
         });
 };
