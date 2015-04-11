@@ -36,15 +36,12 @@ exports.isUserOnlineAsync = function(candidate) {
  * @Author: George_Chen
  * @Description: get session infomation which store at redis cache
  *
- * @param  {String}           uid, user's id
  * @param  {String}           webSid, user's web session id
  */
-exports.getWebSessionAsync = function(user, webSid) {
-    return Promise.join(
-        SharedUtils.argsCheckAsync(user, 'md5'),
-        SharedUtils.argsCheckAsync(webSid, 'string'),
-        function(userUid, validSession) {
-            return RedisClient.getAsync(GLOBAL_SessionPrefix + validSession);
+exports.getWebSessionAsync = function(webSid) {
+    return SharedUtils.argsCheckAsync(webSid, 'string')
+        .then(function(validSid) {
+            return RedisClient.getAsync(GLOBAL_SessionPrefix + validSid);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'getWebSessionAsync', err);
             throw err;

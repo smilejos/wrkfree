@@ -101,9 +101,11 @@ exports.getUserAsync = function(user) {
  * @param  {String}           sid, user's web session id
  */
 exports.isUserSessionAuthAsync = function(user, sid) {
-    return UserTemp.getWebSessionAsync(user, sid)
-        .then(function(rawInfo) {
-            return (user === JSON.parse(rawInfo).passport.user.email);
+    return Promise.join(
+        SharedUtils.argsCheckAsync(user, 'md5'),
+        UserTemp.getWebSessionAsync(sid),
+        function(validUid, rawSession) {
+            return (validUid === JSON.parse(rawSession).passport.user.uid);
         }).catch(function(err) {
             SharedUtils.printError('UserService', 'getSessAuthAsync', err);
             return false;
