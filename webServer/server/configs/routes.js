@@ -2,10 +2,10 @@
 var Passport = require('passport');
 var ExpressRouter = require('express').Router();
 var SharedUtils = require('../../../sharedUtils/utils');
+var StorageManager = require('../../../storageService/storageManager');
 
 
-
-module.exports = function(server, StorageManager) {
+module.exports = function(server) {
     var auth = require('./middlewares/authorization');
     var userEntry = require('./middlewares/userEntry')(StorageManager);
     var reactRoute = require('./reactRoute');
