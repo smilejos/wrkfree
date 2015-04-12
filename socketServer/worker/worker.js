@@ -1,11 +1,12 @@
 'use strict';
 var StorageManager = require('../../storageService/storageManager');
+// intialize db resource before getService
+StorageManager.connectDb();
 
 module.exports.run = function(worker) {
     // Get a reference to our realtime SocketCluster server
     var scServer = worker.getSCServer();
-
-    StorageManager.connectDb();
+    var UserStorage = StorageManager.getService('User');
 
     /**
      * register middlewares
@@ -16,9 +17,21 @@ module.exports.run = function(worker) {
       In here we handle our incoming realtime connections and listen for events.
     */
     scServer.on('connection', function(socket) {
+        var token = socket.getAuthToken();
+        if (token) {
+            UserStorage.userEnterAsync(token, socket.id);
+        }
+
+        socket.on('auth', function(cookie){
+            var uid = Cookie.parse(cookie).uid;
+            // configure uid as token
+            socket.setAuthToken(uid);
+            return UserStorage.userEnterAsync(uid, socket.id);
+        });
 
         socket.on('disconnect', function() {
-            // do something
+            var token = socket.getAuthToken();
+            return UserStorage.userLeaveAsync(token, socket.id);
         });
     });
 };

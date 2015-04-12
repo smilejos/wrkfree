@@ -12,8 +12,19 @@ var Socket = SocketCluster.connect({
     port: 443
 });
 
-Socket.on('connect', function() {
-    // socket connect
+/**
+ * secure socket after it initialized
+ */
+Socket.on('ready', function(state) {
+    if (!state.isAuthenticated) {
+        Socket.emit('auth', document.cookie, function(err) {
+            // TODO:
+            // error handling on "auth"
+            if (err) {
+                console.log(err);
+            }
+        });
+    }
 });
 
 Socket.on('error', function() {
