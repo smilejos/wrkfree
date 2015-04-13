@@ -11,7 +11,7 @@ module.exports.run = function(worker) {
     /**
      * register middlewares
      */
-    _configHandshak(scServer);
+    _configHandshake(scServer);
 
     /*
       In here we handle our incoming realtime connections and listen for events.
@@ -42,7 +42,7 @@ module.exports.run = function(worker) {
  *
  * @param {Object}        server, the socket server instance
  */
-function _configHandshak(server) {
+function _configHandshake(server) {
     var middleware = require('./middlewares/handshake');
     var type = server.MIDDLEWARE_HANDSHAKE;
     server.addMiddleware(type, middleware.ensureWebLogin);
