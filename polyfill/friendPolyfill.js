@@ -1,5 +1,6 @@
 'use strict';
-var StorageManager = require('../storageService/StorageManager')(require('../storageService/configs'));
+var StorageManager = require('../storageService/StorageManager');
+StorageManager.connectDb();
 var FriendStorage = StorageManager.getService('Friend');
 var UserDao = require('../storageService/daos/UserDao');
 var Promise = require('../sharedUtils/node_modules/bluebird');

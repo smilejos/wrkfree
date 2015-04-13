@@ -1,6 +1,7 @@
 'use strict';
 var CryptoUtils = require('../sharedUtils/cryptoUtils');
-var StorageManager = require('../storageService/StorageManager')(require('../storageService/configs'));
+var StorageManager = require('../storageService/StorageManager');
+StorageManager.connectDb();
 var ChannelStorage = StorageManager.getService('Channel');
 var Promise = require('../sharedUtils/node_modules/bluebird');
 var Mongoose = require('../storageService/node_modules/mongoose');
