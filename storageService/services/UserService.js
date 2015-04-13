@@ -1,6 +1,5 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
-var Configs = require('../configs');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var UserTemp = require('../tempStores/UserTemp');
@@ -101,11 +100,51 @@ exports.getUserAsync = function(user) {
  * @param  {String}           sid, user's web session id
  */
 exports.isUserSessionAuthAsync = function(user, sid) {
-    return UserTemp.getWebSessionAsync(user, sid)
-        .then(function(rawInfo) {
-            return (user === JSON.parse(rawInfo).passport.user.email);
+    return Promise.join(
+        SharedUtils.argsCheckAsync(user, 'md5'),
+        UserTemp.getWebSessionAsync(sid),
+        function(validUid, rawSession) {
+            return (validUid === JSON.parse(rawSession).passport.user.uid);
         }).catch(function(err) {
-            SharedUtils.printError('UserService', 'getSessAuthAsync', err);
+        SharedUtils.printError('UserService', 'getSessAuthAsync', err);
+        return false;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: binding current socket and set to online status
+ *
+ * @param  {String}           uid, user's id
+ * @param  {String}           socketId, websocket id
+ */
+exports.userEnterAsync = function(uid, socketId) {
+    return Promise.all([
+        UserTemp.bindSocketAsync(uid, socketId),
+        UserTemp.enterAsync(uid),
+    ]).catch(function(err) {
+        SharedUtils.printError('UserService', 'userEnterAsync', err);
+        return false;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: unbinding current socket and check user should be offline or not
+ *
+ * @param  {String}           uid, user's id
+ * @param  {String}           socketId, websocket id
+ */
+exports.userLeaveAsync = function(uid, socketId) {
+    return UserTemp.unbindSocketAsync(uid, socketId)
+        .then(function() {
+            return UserTemp.isSocketExistAsync(uid);
+        }).then(function(socketExist) {
+            return (socketExist ? null : UserTemp.leaveAsync(uid));
+        }).catch(function(err) {
+            SharedUtils.printError('UserService', 'userLeaveAsync', err);
             return false;
         });
 };
