@@ -1,3 +1,24 @@
+/**
+ * NOTE: 
+ * based on socketCluster, all message, activities, notifications traveling
+ * through client and server are part of "CHANNEL SYSTEM".
+ * we must define our subscription rule to fit this.
+ * TYPE1: prefix with "user"
+ * e.g. subscribeReq = user:UID, means the specific mailbox of user, only user himself can
+ *     subscribe this channel.
+ *
+ * TYPE2: prefix with "channel"
+ * e.g. subscribeReq = channel:CHANNELID, means specific channel frequency, users that subscribe this
+ *     channel can get messages realtime.
+ *     
+ * TYPE3: prefix with "activity"
+ * e.g. subscribeReq = activity:UID, the users's activity channel, only target user's friend
+ *      can subscribe it. all target user's activities will broadcast there
+ *      
+ * TYPE4: prefix with "notification"
+ * e.g. subscribeReq = notification:CHANNELID, the channel's notifications broadcast channel, 
+ *     user can get specific channel's notification when he star a channel.
+ */
 'use strict';
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
