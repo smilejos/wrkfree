@@ -30,7 +30,7 @@ exports.addMemberAsync = function(member, channelId, type, name, isChannelHost) 
         channelName: SharedUtils.argsCheckAsync(name, 'channelName', type),
         channelType: type,
         isHost: SharedUtils.argsCheckAsync(isChannelHost, 'boolean'),
-        isSubscribed: isChannelHost,
+        isStarred: isChannelHost,
         visitCounts: (isChannelHost ? 1 : 0),
         lastVisitTime: (isChannelHost ? Date.now() : new Date(0))
     }).then(function(doc) {
@@ -192,11 +192,11 @@ exports.isExistAsync = function(member, channelId) {
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
  */
-exports.isSubscribedAsync = function(member, channelId) {
+exports.isStarredAsync = function(member, channelId) {
     return _isExist(member, channelId, {
-        isSubscribed: true
+        isStarred: true
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'isSubscribedAsync', err);
+        SharedUtils.printError('ChannelMemberDao', 'isStarredAsync', err);
         throw err;
     });
 };
@@ -330,7 +330,7 @@ exports.updateSubscribedAsync = function(member, channelId, status) {
     return SharedUtils.argsCheckAsync(status, 'boolean')
         .then(function(validStatus) {
             return _update(member, channelId, {
-                isSubscribed: validStatus
+                isStarred: validStatus
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelMemberDao', 'updateSubscribedAsync', err);

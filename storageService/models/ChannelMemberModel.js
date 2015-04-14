@@ -7,7 +7,7 @@ var Schema = Mongoose.Schema;
  * member, the uid of this member
  * channelType, the type of the channel
  * channelName, the fullname of the channel, ex: 'bamoo456@gmail.com#test'
- * isSubscribed, the subscribed status on this channel
+ * isStarred, the subscribed status on this channel
  * isHost, a flag to represent member is host or not
  * isRtc, means that member turn on/off the rtc on this channel
  * lastUseBoard, the last draw board that member used
@@ -21,7 +21,7 @@ var ChannelMember = new Schema({
     member:            {type : String, default : '', trim : true, index: true},
     channelType:       {type : String, default : '', trim : true},
     channelName:       {type : String, default : '', trim : true},
-    isSubscribed:      {type : Boolean,default : false, trim : true},
+    isStarred:         {type : Boolean,default : false, trim : true},
     isHost:            {type : Boolean,default : false, trim : true},
     isRtc:             {type : Boolean,default : true, trim : true},
     lastUseBoard:      {type : Number, default : 0, trim : true},

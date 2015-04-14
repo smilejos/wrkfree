@@ -128,7 +128,7 @@ exports.getAuthChannelsAsync = function(member) {
             return Promise.props({
                 channelId: memberDoc.channelId,
                 channelName: memberDoc.channelName,
-                isSubscribed: memberDoc.isSubscribed,
+                isStarred: memberDoc.isStarred,
                 members: this.getMembersAsync(memberDoc.channelId),
                 snapshot: null,
                 rtcStatus: null,
