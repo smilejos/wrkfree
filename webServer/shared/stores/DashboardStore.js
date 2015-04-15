@@ -57,7 +57,7 @@ module.exports = createStore({
                 hostInfo: members.splice(hostIndex, 1)[0],
                 memberList: members,
                 snapshotUrl: Snapshots[index] || SnapshotError,
-                isSubscribed: item.isSubscribed,
+                isStarred: item.isStarred,
                 isRtcOn: item.rtcStatus,
                 visitTime: item.visitTime
             };
