@@ -45,6 +45,10 @@ module.exports = function(server) {
      * rendering user signup page
      */
     ExpressRouter.get('/app/signup', function(req, res) {
+        if(!!req.cookies.uid) {
+            // TODO: error , login user should not access /app/signup 
+            return res.redirect('/app/dashboard');
+        }
         req.routeInfo = {
             userInfo: req.user || {}
         };
@@ -55,6 +59,10 @@ module.exports = function(server) {
      * handling the submission of user signup
      */
     ExpressRouter.post('/app/signup', userEntry.create, function(req, res) {
+        if(!!req.cookies.uid) {
+            // TODO: error , login user should not access /app/signup 
+            return res.redirect('/app/dashboard');
+        }
         var result = {
             error: req.error,
             route: req.nextRoute
