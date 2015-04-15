@@ -1,5 +1,6 @@
 'use strict';
-require('../storageService/StorageManager')(require('../storageService/configs'));
+var StorageManager = require('../storageService/StorageManager');
+StorageManager.connectDb();
 var UserDao = require('../storageService/daos/UserDao');
 
 var Users = [
