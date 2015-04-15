@@ -36,7 +36,7 @@ UserEntry.oAuthLogin = function(req, res, next) {
                         SharedUtils.printError('userEntry.js', 'oauthLogin', err);
                         return res.redirect('/app/logout');
                     }
-                    res.cookie('uid', info._id);
+                    res.cookie('uid', info.uid);
                     return res.redirect('/app/dashboard');
                 });
             });
@@ -65,9 +65,9 @@ UserEntry.create = function(req, res, next) {
         } else {
             // override current session content
             req.session.passport.user = {
-                uid: result._id
+                uid: result.uid
             };
-            res.cookie('uid', result._id);
+            res.cookie('uid', result.uid);
             // next route should be '/app/signup/done' to send basic notification
             req.nextRoute = '/app/dashboard';
         }

@@ -24,7 +24,7 @@ module.exports = function() {
      */
     Passport.serializeUser(function(userInfo, done) {
         return done(error, {
-            uid: userInfo._id
+            uid: userInfo.uid
         });
     });
 

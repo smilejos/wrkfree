@@ -22,7 +22,7 @@ var OauthProviders = ['facebook', 'google'];
  * @Author: George_Chen
  * @Description: find the user by his uid
  *
- * @param {String/ObjectId}          id, user's uid
+ * @param {String}          id, user's uid
  */
 exports.findByIdAsync = function(id) {
     return SharedUtils.argsCheckAsync(id, 'md5')
@@ -30,8 +30,10 @@ exports.findByIdAsync = function(id) {
             var condition = {
                 _id: uid
             };
-            var selectField = DbUtil.selectOriginDoc();
+            var selectField = _getBasicInfoFields();
             return UserModel.findOne(condition, selectField).lean().execAsync();
+        }).then(function(doc) {
+            return _transformUid(doc);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', 'findByIdAsync', err);
             return null;
@@ -51,8 +53,10 @@ exports.findByEmailAsync = function(email) {
             var condition = {
                 email: validUid
             };
-            var selectField = {};
+            var selectField = _getBasicInfoFields();
             return UserModel.findOne(condition, selectField).lean().execAsync();
+        }).then(function(doc) {
+            return _transformUid(doc);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', 'findByEmailAsync', err);
             return null;
@@ -75,11 +79,10 @@ exports.findByGroupAsync = function(uids) {
                 $in: userGroup
             }
         };
-        var selectField = {
-            nickName: DbUtil.select(true),
-            avatar: DbUtil.select(true)
-        };
+        var selectField = _getBasicInfoFields();
         return UserModel.find(condition, selectField).lean().execAsync();
+    }).map(function(info) {
+        return _transformUid(info);
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'findByGroupAsync', err);
         return [];
@@ -122,15 +125,10 @@ exports.findByNameAsync = function(queryString) {
             //         since they including <code>abc</code>. ggabcde ccabcffg abceedff
             var condition = {};
             condition.nickName = new RegExp(queryString + '.*', 'i');
-            var selectField = {
-                nickName: DbUtil.select(true),
-                email: DbUtil.select(true),
-                facebook: DbUtil.select(true),
-                google: DbUtil.select(true),
-                avatar: DbUtil.select(true),
-                _id: DbUtil.select(false)
-            };
+            var selectField = _getBasicInfoFields();
             return UserModel.find(condition, selectField).lean().execAsync();
+        }).map(function(info) {
+            return _transformUid(info);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', 'findByNameAsync', err);
             return [];
@@ -156,6 +154,8 @@ exports.findByOAuthAsync = function(oAuthId, provider) {
         selectField.nickName = DbUtil.select(true);
         condition[provider] = oAuthId;
         return UserModel.findOne(condition, selectField).lean().execAsync();
+    }).then(function(doc) {
+        return _transformUid(doc);
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'findByOAuthAsync', err);
         return null;
@@ -197,8 +197,40 @@ exports.addNewUserAsync = function(userInfo) {
         return newUser.saveAsync();
     }).then(function(result) {
         return DbUtil.checkDocumentSaveStatusAsync(result);
+    }).then(function(doc) {
+        return _transformUid(doc);
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'addNewUserAsync', err);
         return null;
     });
 };
+
+/************************************************
+ *
+ *           internal functions
+ *
+ ************************************************/
+
+ /**
+  * @Author: George_Chen
+  * @Description: transform field from _id to uid
+  *
+  * @param {Object}          doc, user document
+  */
+function _transformUid(doc) {
+    doc.uid = doc._id;
+    delete doc._id;
+    return doc;
+}
+
+ /**
+  * @Author: George_Chen
+  * @Description: get the basic infomation of user document
+  *         NOTE: currently we request only nickName and avatar
+  */
+function _getBasicInfoFields() {
+    return {
+        nickName: DbUtil.select(true),
+        avatar: DbUtil.select(true)
+    };
+}
