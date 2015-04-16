@@ -1,5 +1,6 @@
 'use strict';
 var Cookie = require('cookie');
+var Dispatcher = require('./dispatcher');
 var StorageManager = require('../../storageService/storageManager');
 // intialize db resource before getService
 StorageManager.connectDb();
@@ -29,6 +30,13 @@ module.exports.run = function(worker) {
             // configure uid as token
             socket.setAuthToken(uid);
             return UserStorage.userEnterAsync(uid, socket.id);
+        });
+
+        socket.on('req', function(data, res){
+            return Dispatcher(socket, data)
+                .then(function(result){
+                    return res(result.error, result.data);
+                });
         });
 
         socket.on('disconnect', function() {
