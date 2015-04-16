@@ -1,6 +1,9 @@
 'use strict';
 var Cookie = require('cookie');
+var Promise = require('bluebird');
 var Dispatcher = require('./dispatcher');
+var SharedUtils = require('../../sharedUtils/utils');
+var middlewareUtils = require('./middlewares/utils');
 var StorageManager = require('../../storageService/storageManager');
 // intialize db resource before getService
 StorageManager.connectDb();
@@ -25,16 +28,29 @@ module.exports.run = function(worker) {
             UserStorage.userEnterAsync(token, socket.id);
         }
 
-        socket.on('auth', function(cookie) {
-            var uid = Cookie.parse(cookie).uid;
-            // configure uid as token
-            socket.setAuthToken(uid);
-            return UserStorage.userEnterAsync(uid, socket.id);
+        socket.on('auth', function(cookieStr, callback) {
+            return Promise.try(function() {
+                var cookie = Cookie.parse(cookieStr);
+                return [
+                    cookie.uid,
+                    middlewareUtils.isCookieSessionAuthAsync(cookie)
+                ];
+            }).spread(function(uid, isAuth) {
+                if (isAuth) {
+                    // configure uid as token
+                    socket.setAuthToken(uid);
+                    return UserStorage.userEnterAsync(uid, socket.id);
+                }
+                throw new Error('cookie auth fail');
+            }).catch(function(err) {
+                SharedUtils.printError('worker.js', 'event-auth', err);
+                throw new Error('authentication fail').toString();
+            }).nodeify(callback);
         });
 
-        socket.on('req', function(data, res){
+        socket.on('req', function(data, res) {
             return Dispatcher(socket, data)
-                .then(function(result){
+                .then(function(result) {
                     return res(result.error, result.data);
                 });
         });
