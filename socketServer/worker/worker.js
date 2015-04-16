@@ -1,4 +1,5 @@
 'use strict';
+var Cookie = require('cookie');
 var StorageManager = require('../../storageService/storageManager');
 // intialize db resource before getService
 StorageManager.connectDb();
@@ -11,7 +12,8 @@ module.exports.run = function(worker) {
     /**
      * register middlewares
      */
-    _configHandshak(scServer);
+    _configHandshake(scServer);
+    _configSubscribe(scServer);
 
     /*
       In here we handle our incoming realtime connections and listen for events.
@@ -22,7 +24,7 @@ module.exports.run = function(worker) {
             UserStorage.userEnterAsync(token, socket.id);
         }
 
-        socket.on('auth', function(cookie){
+        socket.on('auth', function(cookie) {
             var uid = Cookie.parse(cookie).uid;
             // configure uid as token
             socket.setAuthToken(uid);
@@ -42,8 +44,20 @@ module.exports.run = function(worker) {
  *
  * @param {Object}        server, the socket server instance
  */
-function _configHandshak(server) {
+function _configHandshake(server) {
     var middleware = require('./middlewares/handshake');
     var type = server.MIDDLEWARE_HANDSHAKE;
     server.addMiddleware(type, middleware.ensureWebLogin);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to configure the handshake related middlewares
+ *
+ * @param {Object}        server, the socket server instance
+ */
+function _configSubscribe(server) {
+    var middleware = require('./middlewares/subscribe');
+    var type = server.MIDDLEWARE_SUBSCRIBE;
+    server.addMiddleware(type, middleware.ensureAuthed);
 }
