@@ -18,6 +18,7 @@ module.exports.run = function(worker) {
      */
     _configHandshake(scServer);
     _configSubscribe(scServer);
+    _configEmit(scServer);
 
     /*
       In here we handle our incoming realtime connections and listen for events.
@@ -76,7 +77,7 @@ function _configHandshake(server) {
 
 /**
  * @Author: George_Chen
- * @Description: to configure the handshake related middlewares
+ * @Description: to configure the subscribe related middlewares
  *
  * @param {Object}        server, the socket server instance
  */
@@ -84,4 +85,16 @@ function _configSubscribe(server) {
     var middleware = require('./middlewares/subscribe');
     var type = server.MIDDLEWARE_SUBSCRIBE;
     server.addMiddleware(type, middleware.ensureAuthed);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to configure the emit related middlewares
+ *
+ * @param {Object}        server, the socket server instance
+ */
+function _configEmit(server) {
+    var middleware = require('./middlewares/emit');
+    var type = server.MIDDLEWARE_EMIT;
+    server.addMiddleware(type, middleware.ensureLogin);
 }
