@@ -53,7 +53,7 @@ exports.getChannelAsync = function(actionContext, routeInfo) {
     };
 
     return Promise.props({
-        FriendStore: friendStorage.getFriendListAsync(routeInfo.user.email, routeInfo.user.email),
+        FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
         HeaderStore: headerState
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
