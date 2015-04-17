@@ -1,12 +1,13 @@
 'use strict';
 var Cookie = require('cookie');
 var Promise = require('bluebird');
+var StorageManager = require('../../storageService/storageManager');
+// intialize db resource before internal modules
+StorageManager.connectDb();
+
 var Dispatcher = require('./dispatcher');
 var SharedUtils = require('../../sharedUtils/utils');
 var middlewareUtils = require('./middlewares/utils');
-var StorageManager = require('../../storageService/storageManager');
-// intialize db resource before getService
-StorageManager.connectDb();
 
 module.exports.run = function(worker) {
     // Get a reference to our realtime SocketCluster server
