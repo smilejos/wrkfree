@@ -1,7 +1,7 @@
 'use strict';
 var Cookie = require('cookie');
 var SharedUtils = require('../../../sharedUtils/utils');
-var StorageManager = require('../../../storageService/storageManager');
+var middlewareUtils = require('./utils');
 
 /*
  * @Description: All handshake middlewares has two arguments
@@ -27,10 +27,7 @@ var StorageManager = require('../../../storageService/storageManager');
  */
 exports.ensureWebLogin = function(req, next) {
     var cookie = Cookie.parse(req.headers.cookie);
-    var sessKey = _getSessionStoreKey(cookie.sid);
-    var UserStorage = StorageManager.getService('User');
-
-    return UserStorage.isUserSessionAuthAsync(cookie.uid, sessKey)
+    return middlewareUtils.isCookieSessionAuthAsync(cookie)
         .then(function(isAuth) {
             return (isAuth ? next() : next('Authentication failure'));
         }).catch(function(err) {
@@ -38,15 +35,3 @@ exports.ensureWebLogin = function(req, next) {
             next('server error');
         });
 };
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: extract the seession store key from rawSid
- *
- * @param {String}        rawSid, the raw sid string 
- */
-function _getSessionStoreKey(rawSid) {
-    var value = rawSid.split(':')[1];
-    return value.split('.')[0];
-}
