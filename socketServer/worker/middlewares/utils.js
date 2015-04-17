@@ -2,13 +2,19 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
+var UserStorage = StorageManager.getService('User');
 
-
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: check user cookie is valid or not
+ *
+ * @param {Object}        cookie, the cookie json object
+ */
 exports.isCookieSessionAuthAsync = function(cookie) {
     return Promise.try(function() {
         var uid = cookie.uid;
         var sessKey = _getSessionStoreKey(cookie.sid);
-        var UserStorage = StorageManager.getService('User');
         return UserStorage.isUserSessionAuthAsync(uid, sessKey);
     }).catch(function(err) {
         SharedUtils.printError('middleware-utils.js', 'isCookieSessionAuthAsync', err);
