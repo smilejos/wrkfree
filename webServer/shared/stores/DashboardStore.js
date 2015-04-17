@@ -41,11 +41,11 @@ module.exports = createStore({
             var partialChannelName = channelNameInfo[1];
             var hostIndex = 0;
             var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
-                if (info._id === hostUid) {
+                if (info.uid === hostUid) {
                     hostIndex = index;
                 }
                 return {
-                    uid: info._id,
+                    uid: info.uid,
                     nickName: info.nickName,
                     avatar: info.avatar
                 };

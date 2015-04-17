@@ -38,7 +38,7 @@ function getRandom(maximum){
     return Math.floor(Math.random()* maximum);
 }
 
-function pcikMembers (defaultUid, uids) {
+function pickMembers (defaultUid, uids) {
     var uidsNum = uids.length;
     var memberNum = getRandom(uidsNum);
     var members = [defaultUid];
@@ -59,13 +59,13 @@ return Promise.props({
     users: UserModel.find({}).lean().execAsync()
 }).then(function(data){
     return Promise.filter(data.users, function(userInfo){
-        return (data.developer._id !== userInfo._id);
+        return (data.developer.uid !== userInfo._id);
     }).map(function(member){
-        return member._id;
+        return member.uid;
     }).then(function(uids){
         return Promise.map(channelList, function(channel){
             var host = uids[getRandom((uids.length))];
-            return buildChannelAsync(host, channel, pcikMembers(data.developer._id, uids));
+            return buildChannelAsync(host, channel, pickMembers(data.developer.uid, uids));
         });
     });
 });
