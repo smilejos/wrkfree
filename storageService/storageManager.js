@@ -22,7 +22,8 @@ var isDbConnected = false;
 var Services = [
     'UserService',
     'FriendService',
-    'ChannelService'
+    'ChannelService',
+    'MsgService'
 ];
 
 /************************************************
