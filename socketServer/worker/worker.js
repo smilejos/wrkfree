@@ -1,12 +1,13 @@
 'use strict';
 var Cookie = require('cookie');
 var Promise = require('bluebird');
+var StorageManager = require('../../storageService/storageManager');
+// intialize db resource before internal modules
+StorageManager.connectDb();
+
 var Dispatcher = require('./dispatcher');
 var SharedUtils = require('../../sharedUtils/utils');
 var middlewareUtils = require('./middlewares/utils');
-var StorageManager = require('../../storageService/storageManager');
-// intialize db resource before getService
-StorageManager.connectDb();
 
 module.exports.run = function(worker) {
     // Get a reference to our realtime SocketCluster server
@@ -54,6 +55,16 @@ module.exports.run = function(worker) {
                 .then(function(result) {
                     return res(result.error, result.data);
                 });
+        });
+
+        socket.on('subscribe', function(channel) {
+            var uid = socket.getAuthToken();
+            return UserStorage.setSubscriptionAsync(uid, channel);
+        });
+
+        socket.on('unsubscribe', function(channel) {
+            var uid = socket.getAuthToken();
+            return UserStorage.remSubscriptionAsync(uid, channel);
         });
 
         socket.on('disconnect', function() {
