@@ -190,7 +190,7 @@ exports.remSubscriptionAsync = function(uid, token) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to user subscription is valid or not
+ * @Description: to check user subscription is valid or not
  *
  * @param  {String}           uid, user's id
  * @param  {String}           token, token strinig

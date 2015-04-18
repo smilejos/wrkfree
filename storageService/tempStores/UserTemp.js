@@ -139,9 +139,9 @@ exports.unbindSocketAsync = function(uid, socketId) {
             var userSocketKey = 'user:' + validUid + ':sockets';
             return RedisClient.sremAsync(userSocketKey, validUid);
         }).catch(function(err) {
-        SharedUtils.printError('UserTemp', 'unbindSocketAsync', err);
-        return false;
-    });
+            SharedUtils.printError('UserTemp', 'unbindSocketAsync', err);
+            return false;
+        });
 };
 
 /**
@@ -158,7 +158,7 @@ exports.addTokenAsync = function(uid, tokenStr) {
         SharedUtils.argsCheckAsync(tokenStr, 'string'),
         function(validUid, valuidSubscription) {
             var userTokenKey = 'user:' + validUid + ':tokens';
-            return RedisClient.saddAsync(userTokenKey, tokenStr);
+            return RedisClient.saddAsync(userTokenKey, valuidSubscription);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'addTokenAsync', err);
             throw err;
@@ -179,7 +179,7 @@ exports.delTokenAsync = function(uid, tokenStr) {
         SharedUtils.argsCheckAsync(tokenStr, 'string'),
         function(validUid, valuidSubscription) {
             var userTokenKey = 'user:' + validUid + ':tokens';
-            return RedisClient.sremAsync(userTokenKey, tokenStr);
+            return RedisClient.sremAsync(userTokenKey, valuidSubscription);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'delTokenAsync', err);
             throw err;
@@ -200,7 +200,7 @@ exports.isTokenExistAsync = function(uid, tokenStr) {
         SharedUtils.argsCheckAsync(tokenStr, 'string'),
         function(validUid, valuidSubscription) {
             var userTokenKey = 'user:' + validUid + ':tokens';
-            return RedisClient.sismemberAsync(userTokenKey, tokenStr);
+            return RedisClient.sismemberAsync(userTokenKey, valuidSubscription);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'addTokenAsync', err);
             throw err;
