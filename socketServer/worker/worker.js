@@ -20,6 +20,7 @@ module.exports.run = function(worker) {
     _configHandshake(scServer);
     _configSubscribe(scServer);
     _configEmit(scServer);
+    _configPublish(scServer);
 
     /*
       In here we handle our incoming realtime connections and listen for events.
@@ -108,4 +109,18 @@ function _configEmit(server) {
     var middleware = require('./middlewares/emit');
     var type = server.MIDDLEWARE_EMIT;
     server.addMiddleware(type, middleware.ensureLogin);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to configure the publish related middlewares
+ *
+ * @param {Object}        server, the socket server instance
+ */
+function _configPublish(server) {
+    var middleware = require('./middlewares/publish');
+    var type = server.MIDDLEWARE_PUBLISH;
+    server.addMiddleware(type, middleware.ensureLogin);
+    server.addMiddleware(type, middleware.ensureSubscribed);
+    server.addMiddleware(type, middleware.preprocessing);
 }
