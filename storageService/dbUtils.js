@@ -15,8 +15,8 @@ var DocumentField = {
     select: 1
 };
 var SortMethod = {
-    descending: 1,
-    ascending: -1
+    ascending: 1,
+    descending: -1
 };
 
 /************************************************
