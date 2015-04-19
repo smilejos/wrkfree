@@ -69,6 +69,22 @@ exports.printError = function(fileName, funcName, error) {
 /**
  * @Public API
  * @Author: George_Chen
+ * @Description: for handling executed result of functions
+ *
+ * @param {Object}      result, the executed result
+ * @param {String}      failMsg, the error message if result is null
+ */
+exports.checkExecuteResult = function(result, failMsg) {
+    var errMsg = failMsg || 'operation fail';
+    if (result === null) {
+        throw new Error(failMsg);
+    }
+    return result;
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
  * @Description: getting the arguments array without leaking it
  *
  * @param {Object}      rawArguments, the arguments object in function
