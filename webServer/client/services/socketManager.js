@@ -90,6 +90,60 @@ exports.getSocket = function() {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to send the emit request to socket server
+ * 
+ * @param {Object}        packet, the request packet object
+ *        NOTE: packet should include properties below
+ *              packet.service, the name of service handler for this request
+ *              packet.api,     the API name of the target service handler
+ *              packet.params,  the parameters that service handler can handling
+ */
+exports.requestAsync = function(packet) {
+    return new Promise(function(resolver, rejecter) {
+        if (Socket.getState() !== 'open') {
+            throw new Error('server connection lost');
+        }
+        return Socket.emit('req', packet, function(err, data) {
+            return (err ? rejecter(err) : resolver(data));
+        });
+    }).catch(function(err) {
+        SharedUtils.printError('socketManager.js', 'requestAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to send the emit request to socket server
+ * NOTE: if userA send an publish request to channel, other users in the 
+ *       channel will use "packet.clientHandler" for handling this request
+ *       
+ * @param {String}        subscribedChannel, the socketCluster channel
+ * @param {Object}        packet, the request packet object
+ * NOTE: packet should include properties below
+ *     packet.service, the name of service handler for this request
+ *     packet.api,     the API name of the target service handler
+ *     packet.clientHandler, the API for handling this publish request on client side
+ *     packet.params,  the parameters that service handler can handling
+ */
+exports.publishAsync = function(subscribedChannel, packet) {
+    return new Promise(function(resolver, rejecter) {
+        if (Socket.getState() !== 'open') {
+            throw new Error('server connection lost');
+        }
+        return Socket.publish(subscribedChannel, packet, function(err) {
+            return (err ? rejecter(err) : resolver(true));
+        });
+    }).catch(function(err) {
+        SharedUtils.printError('socketManager.js', 'publishAsync', err);
+        return false;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to subscribe interested channel or user
  *
  * @param {String}        subscribeReq, the sbuscription requsest
@@ -141,14 +195,21 @@ exports.unSubscribeAsync = function(subscribeReq) {
  ************************************************/
 
 /**
- * TODO:
  * @Author: George_Chen
- * @Description: the evt watcher is used to handle all datas which come from 
+ * @Description: the evt watcher is used to handle all datas come from 
  *               current subscriptions
+ * NOTE: _evtWatcher will use the packet.clientHandler which included in packet
+ *      to handle the coming data
  *
  * @param {String}        subscribeReq, the sbuscription requsest
- * @param {Object}        data, json object come from subscription CHANNEL
+ * @param {Object}        packet, json object come from subscription CHANNEL
  */
-function _evtWatcher(subscribeReq, data) {
-    console.log('get channel data from', subscribeReq, data);
+function _evtWatcher(packet) {
+    return Promise.try(function() {
+        return require('./' + packet.service + 'Service');
+    }).then(function(service) {
+        return service[packet.clientHandler].call(service, packet.params);
+    }).catch(function(err) {
+        SharedUtils.printError('socketManager.js', '_evtWatcher', err);
+    });
 }
