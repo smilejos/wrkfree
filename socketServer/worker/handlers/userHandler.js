@@ -16,7 +16,7 @@ exports.getInfoAsync = function(socket, data) {
     var uid = socket.getAuthToken();
     return Promise.try(function() {
         if (SharedUtils.isMd5Hex(data.users)) {
-            return UserStorage.getUserAsync(data.users, uid);
+            return UserStorage.getUserAsync(data.users);
         }
         var list = SharedUtils.fastArrayMap(data.users, function(user) {
             if (SharedUtils.isMd5Hex(user)) {
