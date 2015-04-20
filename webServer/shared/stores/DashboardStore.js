@@ -23,6 +23,7 @@ module.exports = createStore({
     initialize: function() {
         this.layout = 'grid';
         this.channels = [];
+        this.isPolyFilled = null;
     },
 
     /**
@@ -62,6 +63,7 @@ module.exports = createStore({
                 visitTime: item.visitTime
             };
         }).bind(this).then(function(result) {
+            this.isPolyFilled = true;
             this.channels = result;
             this.emitChange();
         }).catch(function(err) {
@@ -84,5 +86,6 @@ module.exports = createStore({
     rehydrate: function(state) {
         this.layout = state.layout;
         this.channels = state.channels;
+        this.isPolyFilled = !!state;
     }
 });
