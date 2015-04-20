@@ -218,6 +218,9 @@ exports.addNewUserAsync = function(userInfo) {
   * @param {Object}          doc, user document
   */
 function _transformUid(doc) {
+    if (!doc) {
+        throw new Error('user document not exist');
+    }
     doc.uid = doc._id;
     delete doc._id;
     return doc;
