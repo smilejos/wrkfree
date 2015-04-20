@@ -44,11 +44,7 @@ module.exports = function(server) {
     /**
      * rendering user signup page
      */
-    ExpressRouter.get('/app/signup', function(req, res) {
-        if(!!req.cookies.uid) {
-            // TODO: error , login user should not access /app/signup 
-            return res.redirect('/app/dashboard');
-        }
+    ExpressRouter.get('/app/signup', userEntry.authToSignup, function(req, res) {
         req.routeInfo = {
             userInfo: req.user || {}
         };
@@ -58,15 +54,19 @@ module.exports = function(server) {
     /**
      * handling the submission of user signup
      */
-    ExpressRouter.post('/app/signup', userEntry.create, function(req, res) {
-        if(!!req.cookies.uid) {
-            // TODO: error , login user should not access /app/signup 
-            return res.redirect('/app/dashboard');
-        }
+    ExpressRouter.post('/app/signup', userEntry.authToSignup, userEntry.create, function(req, res) {
         var result = {
             error: req.error,
-            route: req.nextRoute
+            route: req.nextRoute,
+
         };
+        if (!req.error) {
+            result.user = {
+                uid: req.user.uid,
+                nickName: req.user.nickName,
+                avatar: req.user.avatar
+            };
+        }
         res.json(result);
         res.end('');
     });

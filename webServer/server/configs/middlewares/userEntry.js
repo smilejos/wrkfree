@@ -63,6 +63,7 @@ UserEntry.create = function(req, res, next) {
         if (SharedUtils.isError(result)) {
             req.error = result.toString();
         } else {
+            req.user = result;
             // override current session content
             req.session.passport.user = {
                 uid: result.uid
@@ -101,6 +102,18 @@ UserEntry.isEmailAvailable = function(req, res, next) {
         req.nextRoute = '/';
         return next();
     });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: ensure non-login user can access signup page
+ */
+UserEntry.authToSignup = function(req, res, next) {
+    if (!!req.cookies.uid) {
+        return res.redirect('/app/dashboard');
+    }
+    next();
 };
 
 module.exports = function(storageManager) {
