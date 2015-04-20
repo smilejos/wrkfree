@@ -61,7 +61,7 @@ return Promise.props({
     return Promise.filter(data.users, function(userInfo){
         return (data.developer.uid !== userInfo._id);
     }).map(function(member){
-        return member.uid;
+        return member._id;
     }).then(function(uids){
         return Promise.map(channelList, function(channel){
             var host = uids[getRandom((uids.length))];

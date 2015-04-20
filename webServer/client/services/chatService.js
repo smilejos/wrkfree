@@ -34,7 +34,7 @@ exports.sendMsgAsync = function(data) {
         params: data
     };
     return SocketManager.publishAsync(channel, packet)
-        .catch(function(err){
+        .catch(function(err) {
             SharedUtils.printError('chatService.js', 'sendMsgAsync', err);
             return null;
         });
@@ -55,7 +55,7 @@ exports.getChannelMsgAsync = function(data) {
         params: data
     };
     return SocketManager.requestAsync(packet)
-        .then(function(msgs){
+        .then(function(msgs) {
             if (msgs.length > 0) {
                 var ackPacket = {
                     service: 'chat',
@@ -67,7 +67,7 @@ exports.getChannelMsgAsync = function(data) {
                 SocketManager.requestAsync(ackPacket);
             }
             return msgs;
-        }).catch(function(err){
+        }).catch(function(err) {
             SharedUtils.printError('chatService.js', 'getChannelMsgAsync', err);
             return null;
         });
