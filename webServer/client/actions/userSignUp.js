@@ -2,6 +2,7 @@
 var Request = require('superagent');
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
+var CompleteSignup = require('./completeSignup');
 
 /**
  * @Public API
@@ -26,8 +27,12 @@ module.exports = function(actionContext, submitInfo, callback) {
         if (res.body.error) {
             throw new Error('operational error from server');
         }
-        submitInfo.transitionHandler(res.body.route);
-        // build pomelo socket and trigger an new navigation action ?
+        var successInfo = {
+            user: res.body.user,
+            transitionHandler: submitInfo.transitionHandler,
+            nextRoute: res.body.route
+        };
+        return actionContext.executeAction(CompleteSignup, successInfo);
     }).catch(function(err) {
         SharedUtils.printError('SignUp', '_onSubmit', err);
     }).nodeify(callback);
