@@ -92,10 +92,17 @@ exports.getSignUpAsync = function(actionContext, routeInfo) {
  * @param {Object}      storeData, flux store datas
  */
 function _storesPolyfill(actionContext, storeData) {
-    var stores = Object.keys(storeData);
-    return Promise.map(stores, function(storeName) {
+    return Promise.try(function() {
+        return Object.keys(storeData);
+    }).map(function(storeName) {
         var store = actionContext.getStore(storeName);
-        return store.polyfillAsync(storeData[storeName]);
+        if (storeData[storeName]) {
+            return store.polyfillAsync(storeData[storeName]);
+        }
+        return null;
+    }).catch(function(err) {
+        SharedUtils.printError('server-routeEntry', '_storesPolyfill', err);
+        return null;
     });
 }
 

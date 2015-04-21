@@ -39,6 +39,23 @@ exports.leaveAsync = function(channelId) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: find all authorized channels info
+ */
+exports.findByAuthorizedAsync = function() {
+    var packet = {
+        service: 'channel',
+        api: 'getAuthChannelsAsync'
+    };
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', 'findByAuthorizedAsyncc', err);
+            return null;
+        });
+};
+
+/**
  * @Author: George_Chen
  * @Description: to create the channel subscription request
  *

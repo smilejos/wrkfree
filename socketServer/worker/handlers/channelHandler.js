@@ -69,6 +69,24 @@ exports.addMemberAsync = function(socket, data) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for getting all authorized channels of the current user
+ *
+ * @param {Object}          socket, the client socket instance
+ */
+exports.getAuthChannelsAsync = function(socket) {
+    var uid = socket.getAuthToken();
+    return SharedUtils.argsCheckAsync(uid, 'md5')
+        .then(function(validUid) {
+            return ChannelStorage.getAuthChannelsAsync(validUid);
+        }).catch(function(err) {
+            SharedUtils.printError('channelHandler.js', 'getAuthChannelsAsync', err);
+            throw new Error('get authorized channels fail');
+        });
+};
+
+/**
  * TODO:
  * Public API
  * @Author: George_Chen

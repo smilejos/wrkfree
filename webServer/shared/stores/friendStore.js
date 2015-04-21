@@ -22,6 +22,7 @@ var FriendStore = createStore({
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
         collection.ensureIndex('nickName');
+        this.isPolyFilled = null;
     },
 
     /**
@@ -38,6 +39,7 @@ var FriendStore = createStore({
                 return collection.insert(doc);
             });
         }).bind(this).then(function() {
+            this.isPolyFilled = true;
             return this.emitChange();
         }).catch(function(err) {
             return console.log('[polyfillAsync]', err);
@@ -78,6 +80,7 @@ var FriendStore = createStore({
      */
     rehydrate: function(serializedDB) {
         this.db.loadJSON(serializedDB);
+        this.isPolyFilled = !!serializedDB;
     }
 });
 
