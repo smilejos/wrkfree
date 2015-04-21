@@ -34,20 +34,19 @@ exports.getInfoAsync = function(uid) {
  * @param {Array}          users, group of user ids
  */
 exports.getGroupInfoAsync = function(users) {
-    var results = [];
     return Promise.filter(users, function(uid) {
         if (!SharedUtils.isMd5Hex(uid)) {
             throw new Error('invalid uid');
         }
-        var info = Users[uid];
-        if (info) {
-            results.push(info);
-        }
-        return !info;
+        return !Users[uid];
     }).then(function(remoteQueries) {
         return (remoteQueries.length === 0 ? [] : _getInfoRemote(remoteQueries));
-    }).then(function(remoteResults) {
-        return results.concat(remoteResults);
+    }).then(function() {
+        var results = {};
+        SharedUtils.fastArrayMap(users, function(uid) {
+            results[uid] = Users[uid];
+        });
+        return results;
     }).catch(function(err) {
         SharedUtils.printError('userService.js', 'getUserAsync', err);
         return null;
