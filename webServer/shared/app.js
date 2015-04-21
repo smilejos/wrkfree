@@ -27,6 +27,7 @@ app.registerStore(require('./stores/DashboardStore'));
 app.registerStore(require('./stores/channelInfoStore'));
 app.registerStore(require('./stores/userInfoStore'));
 app.registerStore(require('./stores/privateBoxesStore'));
+app.registerStore(require('./stores/MessageStore'));
 app.registerStore(require('./stores/friendStore'));
 
 module.exports = app;
