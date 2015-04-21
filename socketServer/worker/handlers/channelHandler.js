@@ -71,7 +71,7 @@ exports.addMemberAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: for getting all authorized channels of specific user
+ * @Description: for getting all authorized channels of the current user
  *
  * @param {Object}          socket, the client socket instance
  */
