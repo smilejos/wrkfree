@@ -4,7 +4,7 @@ var SocketCluster = require('sc2').SocketCluster;
 var socketCluster = new SocketCluster({
     workers: 1, // Number of worker processes
     stores: 1, // Number of store processes
-    port: 8000, // The port number on which your server should listen
+    port: 3050, // The port number on which your server should listen
     appName: 'wrkfreeSocket', // A unique name for your app
 
     /* A JS file which you can use to configure each of your 
