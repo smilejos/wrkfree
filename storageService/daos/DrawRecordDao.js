@@ -195,6 +195,27 @@ exports.delUndosAsync = function(channelId, boardId) {
     });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get the counts of actived draw records on current channel board
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.countActivedRecordsAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
+        isArchived: false
+    }).then(function(condition) {
+        return Model.count(condition).execAsync();
+    }).catch(function(err) {
+        SharedUtils.printError('DrawRecordDao', 'countActivedRecordsAsync', err);
+        return null;
+    });
+};
+
 /************************************************
  *
  *           internal functions
