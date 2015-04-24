@@ -9,6 +9,7 @@ var Schema = Mongoose.Schema;
  * baseImg.encode, the encode of base image
  * baseImg.contentType, the content type of base image
  * baseImg.chunks, the raw data of base image
+ * updatedTime, the last time for updating model
  */
 var DrawBoardSchema = new Schema({
     channelId:        {type: String, default: '', trim: true, index: true},
@@ -17,7 +18,8 @@ var DrawBoardSchema = new Schema({
         contentType:  String,
         encode:       String,
         chunks:       Buffer
-    }
+    },
+    updatedTime:      {type : Date  , default : Date.now }
 });
 
 DrawBoardSchema.set('autoIndex', false);

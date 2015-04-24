@@ -54,6 +54,7 @@ exports.updateBaseImgAsync = function(channelId, boardId, rawData) {
             throw new Error('raw data is invalid');
         }
         var updateDoc = {
+            updatedTime: Date.now(),
             baseImg: {
                 contentType: 'image/png',
                 encode: 'base64',
@@ -77,7 +78,7 @@ exports.updateBaseImgAsync = function(channelId, boardId, rawData) {
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
  */
-exports.findByChannelBoardAsync = function(channelId, boardId) {
+exports.findByBoardAsync = function(channelId, boardId) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
@@ -88,7 +89,33 @@ exports.findByChannelBoardAsync = function(channelId, boardId) {
         };
         return Model.findOneAsync(condition, fields, options);
     }).catch(function(err) {
-        SharedUtils.printError('DrawBoardDao.js', 'findByChannelBoardAsync', err);
+        SharedUtils.printError('DrawBoardDao.js', 'findByBoardAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get the updatedTime of the current drawing board
+ *         NOTE: use findOne().lean().execAsync() is because we just query UpdatedTime,
+ *              so binary field bugs on mongoose cache should not happen
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.findBoardUpdatedTimeAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        var fields = {
+            _id: DbUtil.select(false),
+            updatedTime: DbUtil.select(true)
+        };
+        return Model.findOne(condition, fields).lean(true).execAsync();
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'findBoardUpdatedTimeAsync', err);
         return null;
     });
 };
