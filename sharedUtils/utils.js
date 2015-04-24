@@ -1,5 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
+var GLOBAL_MAXIMUM_DRAW_BOARD_NUM = 10;
 
 /**
  * Public API
@@ -192,6 +193,10 @@ exports.isDate = function(object) {
     return (object instanceof Date);
 };
 
+exports.isBuffer = function(object) {
+    return (object instanceof Buffer);
+};
+
 /**
  * @Public API
  * @Author: George_Chen
@@ -356,6 +361,13 @@ exports.isChannelName = function(name, type) {
     return (type === 'public' ? _isPublicChannel(name) : _isPrivateChannel(name));
 };
 
+exports.isDrawBoardId = function(boardId) {
+    if (!this.isNumber(boardId)) {
+        return false;
+    }
+    return (boardId >=0 && boardId < GLOBAL_MAXIMUM_DRAW_BOARD_NUM);
+};
+
 /**
  * @Author: George_Chen
  * @Description: get the log prefix, for debug purpose
@@ -478,6 +490,16 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('boolean value check error');
+            case 'boardId':
+                if (exports.isDrawBoardId(arg)) {
+                    return arg;
+                }
+                throw new Error('draw boardId check error');
+            case 'buffer':
+                if (exports.isBuffer(arg)) {
+                    return arg;
+                }
+                throw new Error('buffer check error');
             default:
                 throw new Error('no support args type check');
         }
