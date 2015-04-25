@@ -119,3 +119,54 @@ exports.findBoardUpdatedTimeAsync = function(channelId, boardId) {
         return null;
     });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to remove specific board document
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.removeByBoardAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        return _remove(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'removeByBoardAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to remove all documents under the current channel
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.removeByChannelAsync = function(channelId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
+    }).then(function(condition) {
+        return _remove(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'removeByChannelAsync', err);
+        return null;
+    });
+};
+
+/**
+ * @Author: George_Chen
+ * @Description: a low level implementation of mongodb remove
+ *
+ * @param {Object}          condition, mongodb query condition
+ */
+function _remove(condition) {
+    return Model.removeAsync(condition)
+        .then(function(result) {
+            return DbUtil.checkDocumentRemoveStatusAsync(result);
+        });
+}
