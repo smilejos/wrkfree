@@ -204,7 +204,7 @@ exports.unSubscribeAsync = function(subscribeReq) {
  * @param {String}        subscribeReq, the sbuscription requsest
  * @param {Object}        packet, json object come from subscription CHANNEL
  */
-function _evtWatcher(packet) {
+function _evtWatcher(subscription, packet) {
     return Promise.try(function() {
         return require('./' + packet.service + 'Service');
     }).then(function(service) {
