@@ -146,12 +146,12 @@ exports.restoreUndoAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to delete all archived records on current channel board
+ * @Description: to remove all archived records on current channel board
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
  */
-exports.delArchivesAsync = function(channelId, boardId) {
+exports.removeArchivesAsync = function(channelId, boardId) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
@@ -163,7 +163,7 @@ exports.delArchivesAsync = function(channelId, boardId) {
     }).then(function(result) {
         return DbUtil.checkDocumentRemoveStatusAsync(result);
     }).catch(function(err) {
-        SharedUtils.printError('DrawRecordDao', 'delArchivesAsync', err);
+        SharedUtils.printError('DrawRecordDao', 'removeArchivesAsync', err);
         return null;
     });
 };
@@ -171,12 +171,12 @@ exports.delArchivesAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to delete all undo records on current channel board
+ * @Description: to remove all undo records on current channel board
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
  */
-exports.delUndosAsync = function(channelId, boardId) {
+exports.removeUndosAsync = function(channelId, boardId) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
@@ -188,7 +188,45 @@ exports.delUndosAsync = function(channelId, boardId) {
     }).then(function(result) {
         return DbUtil.checkDocumentRemoveStatusAsync(result);
     }).catch(function(err) {
-        SharedUtils.printError('DrawRecordDao', 'delUndosAsync', err);
+        SharedUtils.printError('DrawRecordDao', 'removeUndosAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to remove records of the current channel board
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.removeByBoardAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        return _remove(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawRecordDao.js', 'removeByBoardAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to remove all documents under the current channel
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.removeByChannelAsync = function(channelId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
+    }).then(function(condition) {
+        return _remove(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawRecordDao.js', 'removeByChannelAsync', err);
         return null;
     });
 };
@@ -233,6 +271,19 @@ function _find(isFindOne, condition, selectFields) {
     return (isFindOne ? Model.findOne(condition, fields) : Model.find(condition, fields))
         .lean()
         .execAsync();
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a low level implementation of mongodb remove
+ *
+ * @param {Object}          condition, mongodb query condition
+ */
+function _remove(condition) {
+    return Model.removeAsync(condition)
+        .then(function(result) {
+            return DbUtil.checkDocumentRemoveStatusAsync(result);
+        });
 }
 
 /**
