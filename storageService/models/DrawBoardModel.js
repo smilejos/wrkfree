@@ -15,9 +15,9 @@ var DrawBoardSchema = new Schema({
     channelId:        {type: String, default: '', trim: true, index: true},
     boardId:          {type: Number, default: 0, trim: true},
     baseImg:          {
-        contentType:  String,
-        encode:       String,
-        chunks:       Buffer
+        contentType:  {type: String, default: 'image/png'},
+        encode:       {type: String, default: 'base64'},
+        chunks:       {type: Buffer, default: new Buffer('')},
     },
     updatedTime:      {type : Date  , default : Date.now }
 });
