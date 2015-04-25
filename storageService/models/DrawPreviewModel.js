@@ -15,7 +15,7 @@ var DrawPreviewSchema = new Schema({
     boardId:          {type: Number, default: 0, trim: true},
     contentType:      {type: String, default: 'image/png'},
     encode:           {type: String, default: 'base64'},
-    chunks:           Buffer,
+    chunks:           {type: Buffer, default: new Buffer('')},
     updatedTime:      {type : Date  , default : Date.now }
 });
 

@@ -22,8 +22,7 @@ var Model = Mongoose.model('DrawPreview');
 exports.saveAsync = function(channelId, boardId) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        chunks: new Buffer('')
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
     }).then(function(doc) {
         var newPreview = new Model(doc);
         return newPreview.saveAsync();
