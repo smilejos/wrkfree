@@ -45,17 +45,15 @@ exports.saveAsync = function(channelId, boardId, record) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {Boolean}         isArchived, the archived status of records
  */
-exports.findByChannelBoardAsync = function(channelId, boardId, isArchived) {
+exports.findByBoardAsync = function(channelId, boardId) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        isArchived: SharedUtils.argsCheckAsync(isArchived, 'boolean')
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
     }).then(function(condition) {
         return _find(false, condition);
     }).catch(function(err) {
-        SharedUtils.printError('DrawRecordDao.js', 'findByChannelBoardAsync', err);
+        SharedUtils.printError('DrawRecordDao.js', 'findByBoardAsync', err);
         return null;
     });
 };
