@@ -1,46 +1,81 @@
 var React = require('react');
+var FluxibleMixin = require('fluxible').Mixin; 
+
+/**
+ * wrkfree store/action on workspace
+ */
+var HeaderStore = require('../../stores/HeaderStore');
+var MessageStore = require('../../stores/MessageStore');
+var SendMessageAction = require('../../../client/actions/chat/sendMessage');
+
+/**
+ * common components
+ */
 var UserAvatar = require('../common/userAvatar.jsx');
+
 /**
  * material ui components
  */
 var Mui = require('material-ui');
 var TextField = Mui.TextField;
 
-/**
- * the workspace.jsx is the main container of each channel
+ /**
+ * @Author: Jos Tung
+ * @Description: a area for user cross-discuss in workspace
+ *  NOTE: Use MessageStore to receive message from server
  */
 var DiscussionArea = React.createClass({
-    getInitialState: function() {
-        return { 
-            message : '',
-            messageList: [
-            {
-                avatar: "https://graph.facebook.com/333479400166173/picture",
-                sender : 'Jos',
-                message : 'Hello, world.',
-                timestamp: new Date(2015,4,13,13,21,12)
-            } , {
-                avatar: "https://graph.facebook.com/Malachi1005/picture",
-                sender : 'Grogre',
-                message : 'Say something',
-                timestamp: new Date(2015,4,13,13,23,35)
-            }
-        ]};
-    },
-
-    _handleKeyDown: function(e){
-        if( e.which === 13 ) {
-            var _list = this.state.messageList;
-            _list.push({
-                avatar: "https://graph.facebook.com/333479400166173/picture",
-                sender: 'Jos',
-                message : this.refs.send.getValue(),
-                timestamp: new Date()
-            });
-            this.refs.send.clearValue();
-            this.setState({messageList: _list});
+    mixins: [FluxibleMixin],
+    statics: {
+        storeListeners: {
+            'onStoreChange': [MessageStore]
         }
     },
+    
+    /**
+     * @Author: Jos Tung
+     * @Description: use this function to scroll-down div after component receive message
+     */    
+    componentDidUpdate: function(nextProps, nextState){
+        var container = document.getElementById("MsgContainer");
+        container.scrollTop = container.scrollHeight;
+    },
+
+    getInitialState: function() {
+        return this._getStateFromStores();
+    },
+
+    onStoreChange: function(){
+        var _messageList = this.getStore(MessageStore).getMessages(this._getChannelId());
+        this.setState({messageList: _messageList});
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: handler message send-out function when user press 'enter' key on discussion area.
+     */
+    _handleKeyDown: function(e){
+        if( e.which === 13 ) {
+            var headerStore = this.getStore(HeaderStore);
+            var selfInfo = headerStore.getSelfInfo();
+            var message = {
+                channelId: this._getChannelId(),
+                message : this.refs.send.getValue(),
+                from: selfInfo.uid
+            };
+            this.refs.send.clearValue();
+            this.context.executeAction(SendMessageAction, message);
+        }
+    },
+
+    _getChannelId: function(){
+        return '111493a4347959681581111e8de82e89';
+    },
+
+    _getStateFromStores: function () {
+        return { messageList : this.getStore(MessageStore).getMessages(this._getChannelId()) };
+    },
+
     render: function(){
         return (
             <div className="infoBox" >
@@ -62,10 +97,9 @@ var MessageList = React.createClass({
         var _MessageList = this.props.data.map( function( message ){
             return <Message data={message} />;
         });
-        return <div>{_MessageList}</div>;
+        return <div className="MsgContainer" id="MsgContainer">{_MessageList}</div>;
     }
 });
-
 
 var Message = React.createClass({
     render: function(){
@@ -75,11 +109,10 @@ var Message = React.createClass({
                     <UserAvatar avatar={this.props.data.avatar} isCircle={true} />
                 </div>
                 <div className="pure-u-18-24">
-                    <MsgHead sender={this.props.data.sender}/>
+                    <MsgHead sender={this.props.data.nickName}/>
                     <MsgText message={this.props.data.message}/>
-                    <MsgTime time={this.props.data.timestamp}/>
+                    <MsgTime time={this.props.data.sentTime}/>
                 </div>
-                
             </div>
         );
     }

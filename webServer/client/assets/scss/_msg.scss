@@ -80,8 +80,18 @@ $border:  1px solid #bbb;
  ************************************************/
 .MsgSender {
     color: #b3aba9;
-    font-size: 14px;
+    color: $color-main;
+    font-size: 12px;
     line-height: 1.7;
+}
+
+.MsgContainer {
+    position: absolute;
+    top: 0px;
+    bottom: 90px;
+    width: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .MsgContent {
