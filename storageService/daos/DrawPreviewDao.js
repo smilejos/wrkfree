@@ -91,6 +91,28 @@ exports.findByBoardAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to check board preview document is exist or not
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.isExistAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        return Model.count(condition).execAsync();
+    }).then(function(count) {
+        return DbUtil.checkDocumentExistStatusAsync(count);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawPreviewDao.js', 'isExistAsync', err);
+        throw err;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to remove specific board preview document
  *
  * @param {String}          channelId, channel id
