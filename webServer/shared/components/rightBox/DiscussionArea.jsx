@@ -73,7 +73,9 @@ var DiscussionArea = React.createClass({
     },
 
     _getStateFromStores: function () {
-        return { messageList : this.getStore(MessageStore).getMessages(this._getChannelId()) };
+        return { 
+            messageList : this.getStore(MessageStore).getMessages(this._getChannelId()) 
+        };
     },
 
     render: function(){
