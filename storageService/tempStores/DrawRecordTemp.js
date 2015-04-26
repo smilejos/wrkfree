@@ -7,7 +7,7 @@ var SharedUtils = require('../../sharedUtils/utils');
 // TODO: these args should be put at a params configured files
 var RECORD_DATA_LIMIT = 300;
 // if no streams arrived within 2 second, stream raw data will be expired
-var RECORD_STREAM_EXPIRE_TIME = 2;
+var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = 2;
 // valid rawData is a array with [fromX, fromY, toX, toY, colorCode]
 var RAW_RECORD_DATA_LENGTH = 5;
 
@@ -41,7 +41,7 @@ exports.streamRecordAsync = function(channelId, boardId, drawer, rawData) {
             var streamKey = _getStreamKey(cid, bid, uid);
             return Promise.props({
                 pushLength: RedisClient.rpushAsync(streamKey, _serializeChunks(rawData)),
-                ttlResult: RedisClient.expireAsync(streamKey, RECORD_STREAM_EXPIRE_TIME)
+                ttlResult: RedisClient.expireAsync(streamKey, RECORD_STREAM_EXPIRE_TIME_IN_SECONDS)
             });
         }).then(function(result) {
             if (result.pushLength > RECORD_DATA_LIMIT) {
