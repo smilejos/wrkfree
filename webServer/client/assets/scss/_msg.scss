@@ -73,18 +73,16 @@ $border:  1px solid #bbb;
     color: #FFFFFF;
 }
 
-/************************************************
- *
- *            message style
- *
- ************************************************/
-.MsgSender {
-    color: #b3aba9;
-    color: $color-main;
-    font-size: 12px;
-    line-height: 1.7;
-}
-
+/**
+ * @Author: Jos Tung
+ * @Description: this style for message component using in DiscussionArea.jsx
+ *  Note: the div stratum can refer below information.
+ *  --MsgContainer
+ *    --MsgContent
+ *      --MsgSender
+ *      --MsgText
+ *      --MsgTime
+ */
 .MsgContainer {
     position: absolute;
     top: 0px;
@@ -92,26 +90,32 @@ $border:  1px solid #bbb;
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-}
 
-.MsgContent {
-    padding: 10px 2px 5px 2px;
-    border-bottom-style: solid;
-    border-bottom-color: #eee;
-    border-bottom-width: 1px;
-}
+    .MsgContent {
+        padding: 10px 2px 5px 2px;
+        border-bottom-style: solid;
+        border-bottom-color: #eee;
+        border-bottom-width: 1px;
 
-.MsgText {
-    color: #333;
-    font-size: 14px;
-    line-height: 1.7;
-}
+        .MsgSender {
+            color: $color-main;
+            font-size: 12px;
+            line-height: 1.7;
+        }
 
-.MsgTime {
-    padding-right: 5px;
-    text-align: right;
-    font-size: 12px;
-    color: #CECECE;
+        .MsgText {
+            color: #333;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .MsgTime {
+            color: #cecece;
+            font-size: 12px;
+            padding-right: 5px;
+            text-align: right;
+        }
+    }
 }
 
 .bubble {

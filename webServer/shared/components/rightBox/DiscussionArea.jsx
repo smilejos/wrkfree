@@ -46,8 +46,8 @@ var DiscussionArea = React.createClass({
     },
 
     onStoreChange: function(){
-        var _messageList = this.getStore(MessageStore).getMessages(this._getChannelId());
-        this.setState({messageList: _messageList});
+        var state = this._getStateFromStores();
+        this.setState(state);
     },
 
     /**
@@ -97,7 +97,11 @@ var MessageList = React.createClass({
         var _MessageList = this.props.data.map( function( message ){
             return <Message data={message} />;
         });
-        return <div className="MsgContainer" id="MsgContainer">{_MessageList}</div>;
+        return ( 
+            <div className="MsgContainer" id="MsgContainer">
+                {_MessageList}
+            </div> 
+        );
     }
 });
 
@@ -150,4 +154,4 @@ var MsgTime = React.createClass({
     }
 });
 
-module.exports = DiscussionArea; 
+module.exports = DiscussionArea;
