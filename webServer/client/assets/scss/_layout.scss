@@ -63,11 +63,12 @@ $app-infoBox-width: 250px;
  */
 .infoBox {
     @extend .baseBox;
-    background-color: $color-background_2;
+    background-color: $color-background_1;
     width: $app-infoBox-width;
     top: $app-header-height;
     right: 0px;
     bottom: 0px;
+    box-shadow: 0 3px 10px rgba(0,0,0,.23);
 }
 
 /**

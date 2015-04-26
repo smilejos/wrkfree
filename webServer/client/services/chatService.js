@@ -2,7 +2,7 @@
 var Promise = require('bluebird');
 var SocketManager = require('./socketManager');
 var SharedUtils = require('../../../sharedUtils/utils');
-// var recvMessage = require('../actions/recvMessage');
+var recvMessage = require('../actions/chat/recvMessage');
 
 /**
  * Public API
@@ -13,7 +13,7 @@ var SharedUtils = require('../../../sharedUtils/utils');
  * @param {Object}          data, the message data from server
  */
 exports.receiveMsg = function(data) {;
-    // return window.context.executeAction(recvMessage, data);
+    return window.context.executeAction(recvMessage, data);
 };
 
 /**
