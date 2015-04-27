@@ -54,6 +54,7 @@ exports.updateBaseImgAsync = function(channelId, boardId, rawData) {
             throw new Error('raw data is invalid');
         }
         var updateDoc = {
+            updatedTime: Date.now(),
             baseImg: {
                 contentType: 'image/png',
                 encode: 'base64',
@@ -77,7 +78,7 @@ exports.updateBaseImgAsync = function(channelId, boardId, rawData) {
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
  */
-exports.findByChannelBoardAsync = function(channelId, boardId) {
+exports.findByBoardAsync = function(channelId, boardId) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
@@ -88,7 +89,106 @@ exports.findByChannelBoardAsync = function(channelId, boardId) {
         };
         return Model.findOneAsync(condition, fields, options);
     }).catch(function(err) {
-        SharedUtils.printError('DrawBoardDao.js', 'findByChannelBoardAsync', err);
+        SharedUtils.printError('DrawBoardDao.js', 'findByBoardAsync', err);
         return null;
     });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get the updatedTime of the current drawing board
+ *         NOTE: use findOne().lean().execAsync() is because we just query UpdatedTime,
+ *              so binary field bugs on mongoose cache should not happen
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.findBoardUpdatedTimeAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        var fields = {
+            _id: DbUtil.select(false),
+            updatedTime: DbUtil.select(true)
+        };
+        return Model.findOne(condition, fields).lean(true).execAsync();
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'findBoardUpdatedTimeAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to check draw board is exist or not
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.isExistAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        return Model.count(condition).execAsync();
+    }).then(function(count) {
+        return DbUtil.checkDocumentExistStatusAsync(count);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao', 'isExistAsync', err);
+        throw err;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to remove specific board document
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.removeByBoardAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        return _remove(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'removeByBoardAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to remove all documents under the current channel
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.removeByChannelAsync = function(channelId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
+    }).then(function(condition) {
+        return _remove(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'removeByChannelAsync', err);
+        return null;
+    });
+};
+
+/**
+ * @Author: George_Chen
+ * @Description: a low level implementation of mongodb remove
+ *
+ * @param {Object}          condition, mongodb query condition
+ */
+function _remove(condition) {
+    return Model.removeAsync(condition)
+        .then(function(result) {
+            return DbUtil.checkDocumentRemoveStatusAsync(result);
+        });
+}
