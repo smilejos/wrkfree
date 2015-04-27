@@ -8,7 +8,9 @@
   },
   "dependencies": {
     "bluebird": "^2.9.24",
+    "canvas": "^1.2.2",
     "cookie": "^0.1.2",
+    "generic-pool": "^2.2.0",
     "sc2": "^2.1.0"
   },
   "devDependencies": {
