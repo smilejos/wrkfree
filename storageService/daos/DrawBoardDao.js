@@ -151,6 +151,24 @@ exports.isExistAsync = function(channelId, boardId, timestamp) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to count the number of boards on current channel
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.countBoardsAsync = function(channelId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
+    }).then(function(condition) {
+        return Model.count(condition).execAsync();
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'countBoardsAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to remove specific board document
  *
  * @param {String}          channelId, channel id
