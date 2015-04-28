@@ -124,14 +124,20 @@ exports.findBoardUpdatedTimeAsync = function(channelId, boardId) {
  * Public API
  * @Author: George_Chen
  * @Description: used to check draw board is exist or not
- *
+ *         NOTE: timestamp is optional, if we want to find older boarder document
+ *               is exist or not
+ *               
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
+ * @param {Number}          timestamp, the Date timestamp
  */
-exports.isExistAsync = function(channelId, boardId) {
+exports.isExistAsync = function(channelId, boardId, timestamp) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
+        updatedTime: {
+            $lte: timestamp
+        }
     }).then(function(condition) {
         return Model.count(condition).execAsync();
     }).then(function(count) {
