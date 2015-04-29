@@ -32,7 +32,7 @@
     "react-grid-layout": "^0.8.0",
     "react-router": "^0.12.0",
     "react-tap-event-plugin": "^0.1.4",
-    "sc2-client": "^2.1.2",
+    "sc2-client": "^2.2.5",
     "serialize-javascript": "^1.0.0",
     "superagent": "^0.21.0"
   },
