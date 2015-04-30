@@ -24,7 +24,7 @@ var RedisClient = Redis.createClient(
 /**
  * Public API
  * @Author: George_Chen
- * @Description: get the memberlist from channe temp storage
+ * @Description: get the memberlist from channel temp storage
  *
  * @param {String}      channelId, channel's id
  */
