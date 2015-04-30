@@ -1,7 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
-var UserService = require('../../services/userService');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var ChatUtils = require('./chatUtils');
 
 /**
  * @Public API
@@ -21,15 +21,7 @@ module.exports = function(actionContext, data, callback) {
         message: SharedUtils.argsCheckAsync(data.message, 'string'),
         from: SharedUtils.argsCheckAsync(data.from, 'md5')
     }).then(function(validMsg) {
-        return UserService.getInfoAsync(validMsg.from)
-            .then(function(senderInfo) {
-                if (!senderInfo) {
-                    throw new Error('message sender is invalid');
-                }
-                validMsg.nickName = senderInfo.nickName;
-                validMsg.avatar = senderInfo.avatar;
-                return validMsg;
-            });
+        return ChatUtils.fillUserInfo(validMsg);
     }).then(function(fullMsg) {
         return actionContext.dispatch('RECV_MESSAGE', fullMsg);
     }).catch(function(err) {
