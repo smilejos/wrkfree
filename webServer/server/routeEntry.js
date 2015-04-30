@@ -43,8 +43,8 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
  * @param {Object}      routeInfo, route infomation for channel route
  */
 exports.getChannelAsync = function(actionContext, routeInfo) {
-    var channelId = routeInfo.channelId;
-    var friendStorage = routeInfo.storageManager.getService('Friend');
+    var storageManager = routeInfo.storageManager;
+    var friendStorage = storageManager.getService('Friend');
     // temp test data for header store
     var headerState = {
         user: routeInfo.user,
@@ -54,7 +54,8 @@ exports.getChannelAsync = function(actionContext, routeInfo) {
 
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
-        HeaderStore: headerState
+        HeaderStore: headerState,
+        WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
@@ -119,5 +120,22 @@ function _getChannelStreams(uid, storageManager) {
     return Promise.props({
         layout: 'grid', // TODO: should be store at userModel
         channels: channelStorage.getAuthChannelsAsync(uid)
+    });
+}
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: 
+ *
+ * @param {String}      uid, user's id
+ * @param {String}      channelId, channel's id
+ * @param {Object}      storageManager, storageManager instance
+ */
+function _getWorkSpace(uid, channelId, storageManager) {
+    var channelStorage = storageManager.getService('Channel');
+    return Promise.props({
+        channel: channelStorage.getChannelInfoAsync(uid, channelId),
+        members: channelStorage.getMembersAsync(channelId)
     });
 }
