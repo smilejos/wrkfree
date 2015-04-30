@@ -7,7 +7,8 @@ module.exports = CreateStore({
     storeName: 'MessageStore',
 
     handlers: {
-        'RECV_MESSAGE': 'onRecvMessage'
+        'RECV_MESSAGE': 'onRecvMessage',
+        'PULL_MESSAGES': 'polyfillAsync'
     },
 
     initialize: function() {
