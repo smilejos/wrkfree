@@ -7,6 +7,7 @@ var FluxibleMixin = require('fluxible').Mixin;
 var HeaderStore = require('../../stores/HeaderStore');
 var MessageStore = require('../../stores/MessageStore');
 var SendMessageAction = require('../../../client/actions/chat/sendMessage');
+var PullMessagesAction = require('../../../client/actions/chat/pullMessages');
 
 /**
  * common components
@@ -41,6 +42,24 @@ var DiscussionArea = React.createClass({
         container.scrollTop = container.scrollHeight;
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: only switch between different channels will trigger pullMessages
+     */
+    componentWillReceiveProps: function(nextProps) {
+        if (this.props.channel.channelId !== nextProps.channel.channelId) {
+            this._pullMessages(nextProps.channel.channelId);
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: start to load channel messages from server
+     */
+    componentDidMount: function(){
+        this._pullMessages(this._getChannelId());
+    },
+
     getInitialState: function() {
         return this._getStateFromStores();
     },
@@ -48,6 +67,22 @@ var DiscussionArea = React.createClass({
     onStoreChange: function(){
         var state = this._getStateFromStores();
         this.setState(state);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to trigger pullMessages action
+     *         NOTE: specify timePeriod.start or timePeriod.end 
+     *               can restrict message documents queried from server
+     *               
+     * @param {String}      cid, the channel's id
+     * @param {Object}      timePeriod, the time period object, [optional]
+     */
+    _pullMessages: function(cid, timePeriod){
+        this.executeAction(PullMessagesAction, {
+            channelId: cid,
+            period: timePeriod || {}
+        });
     },
 
     /**
@@ -69,7 +104,7 @@ var DiscussionArea = React.createClass({
     },
 
     _getChannelId: function(){
-        return '111493a4347959681581111e8de82e89';
+        return this.props.channel.channelId;
     },
 
     _getStateFromStores: function () {
