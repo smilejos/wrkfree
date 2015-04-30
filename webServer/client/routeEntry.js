@@ -9,6 +9,7 @@ var SignUpStore = require('../shared/stores/SignUpStore');
 var HeaderStore = require('../shared/stores/HeaderStore');
 var FriendStore = require('../shared/stores/friendStore');
 var DashboardStore = require('../shared/stores/DashboardStore');
+var WorkSpaceStore = require('../shared/stores/WorkSpaceStore');
 
 /**
  * socket services
@@ -38,12 +39,23 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
     });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: getting the resource for route '/channel'
+ *
+ * @param {Object}      actionContext, fluxible actionContext
+ * @param {Object}      routeInfo, route infomation for dashboard route
+ */
 exports.getChannelAsync = function(actionContext, routeInfo) {
-    return Promise.try(function() {
-        // do something
-        return {
-            result: 'done'
-        };
+    var channelId = routeInfo.channelId;
+    return Promise.props({
+        WorkSpaceStore: _getWorkSpaceResource(actionContext, channelId)
+    }).then(function(resource) {
+        return _storesPolyfill(actionContext, resource);
+    }).catch(function(err) {
+        SharedUtils.printError('client-routeEntry', 'getChannelAsync', err);
+        return {};
     });
 };
 
@@ -93,7 +105,6 @@ function _getFriendResource(actionContext, userInfo) {
  * @Description: get dashboard resource if dashboardStore is not polyfilled
  *
  * @param {Object}      actionContext, fluxible actionContext
- * @param {Object}      userInfo, the info of login's user
  */
 function _getDashboardResource(actionContext) {
     var dashboardStore = actionContext.getStore(DashboardStore);
@@ -101,6 +112,26 @@ function _getDashboardResource(actionContext) {
         return Promise.props({
             layout: 'grid', // TODO: should be store at userModel
             channels: ChannelService.findByAuthorizedAsync()
+        });
+    }
+    return null;
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: polyfill the workspace store on client side
+ *
+ * @param {Object}      actionContext, fluxible actionContext
+ * @param {String}      channelId, the channel's id
+ */
+function _getWorkSpaceResource(actionContext, channelId) {
+    var workSpaceStore = actionContext.getStore(WorkSpaceStore);
+    var params = {};
+    if (!workSpaceStore.isPolyFilled(channelId)) {
+        params.channelId = channelId;
+        return Promise.props({
+            channel: ChannelService.getInfoAsync(params),
+            members: ChannelService.getMemberListAsync(params)
         });
     }
     return null;
