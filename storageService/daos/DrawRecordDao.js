@@ -61,27 +61,66 @@ exports.findByBoardAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: archive the oldest unarchived record of current channel board
+ * @Description: find the latest draw record on the current channel
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
  */
-exports.setNewArchiveAsync = function(channelId, boardId) {
+exports.findLatestByChannelAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
+    }).then(function(condition) {
+        return _findLatest(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'findLatestByChannelAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: find the latest draw record on the current board
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.findLatestByBoardAsync = function(channelId, boardId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
+    }).then(function(condition) {
+        return _findLatest(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('DrawBoardDao.js', 'findLatestByBoardAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: archive number of documents on the current board
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ * @param {Number}          number, set how many docs to be archived
+ */
+exports.archiveByNumberAsync = function(channelId, boardId, number) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        isArchived: false,
-        isUndo: false
+        isArchived: false
     }).then(function(condition) {
         var updateDoc = {
             isArchived: true
         };
-        var options = {
-            sort: DbUtil.getSort('drawTime', 'ascending')
-        };
-        return Model.findOneAndUpdate(condition, updateDoc, options).select('_id').execAsync();
+        if (number > 1) {
+            return _archiveMany(condition, updateDoc, number);
+        }
+        return _archiveOne(condition, updateDoc);
     }).catch(function(err) {
-        SharedUtils.printError('DrawRecordDao', 'setNewArchiveAsync', err);
+        SharedUtils.printError('DrawRecordDao', 'ArchiveByNumberAsync', err);
         return null;
     });
 };
@@ -275,6 +314,20 @@ function _find(isFindOne, condition, selectFields) {
 
 /**
  * @Author: George_Chen
+ * @Description: based on query condition, find the latest one
+ *
+ * @param {Object}          condition, mongodb query condition
+ */
+function _findLatest(condition) {
+    var sortOrder = DbUtil.getSort('drawTime', 'descending');
+    return Model.findOne(condition)
+        .sort(sortOrder)
+        .lean()
+        .execAsync();
+}
+
+/**
+ * @Author: George_Chen
  * @Description: a low level implementation of mongodb remove
  *
  * @param {Object}          condition, mongodb query condition
@@ -283,6 +336,51 @@ function _remove(condition) {
     return Model.removeAsync(condition)
         .then(function(result) {
             return DbUtil.checkDocumentRemoveStatusAsync(result);
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: based on query condition, archive the oldest document
+ *
+ * @param {Object}          condition, mongodb query condition
+ * @param {Object}          updateDoc, update json document
+ */
+function _archiveOne(condition, updateDoc) {
+    var options = {
+        sort: DbUtil.getSort('drawTime', 'ascending')
+    };
+    return Model.findOneAndUpdate(condition, updateDoc, options)
+        .select('_id')
+        .execAsync()
+        .then(function(result) {
+            return (result ? 1 : null);
+        });
+};
+
+/**
+ * @Author: George_Chen
+ * @Description: based on query condition, archive number of outdated docuements
+ *
+ * @param {Object}          condition, mongodb query condition
+ * @param {Object}          updateDoc, update json document
+ */
+function _archiveMany(condition, updateDoc, number) {
+    var fields = {
+        drawTime: DbUtil.select(true)
+    };
+    return Model.find(condition, fields).limit(number).execAsync()
+        .then(function(docs) {
+            if (docs.length === 0) {
+                return null;
+            }
+            var options = {
+                multi: (number > 1)
+            };
+            condition.drawTime = {
+                $lte: docs[docs.length - 1].drawTime
+            };
+            return Model.update(condition, updateDoc, options).execAsync();
         });
 }
 
