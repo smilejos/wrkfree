@@ -70,12 +70,14 @@ exports.findByUidAsync = function(uid, period) {
  *                          period.end, the end time of this period
  */
 exports.findByChannelAsync = function(channelId, period) {
+    var timePeriod = period || {};
+    var queryNums = (!!timePeriod.start ? MSG_QUERY_NUMBER : 0);
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         return DbUtil.getTimeCondAsync(condition, 'sentTime', period);
     }).then(function(queryCondition) {
-        return _findMsg(queryCondition);
+        return _findMsg(queryCondition, queryNums);
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'findByChannelAsync', err);
         return null;
@@ -128,10 +130,9 @@ function _findMsg(condition, limitNum, selectField) {
     var fields = (selectField ? selectField : DbUtil.selectOriginDoc());
     var sortOrder = DbUtil.getSort('sentTime', 'descending');
     var isFindOne = (limitNum === 1);
-    var queryNums = limitNum || MSG_QUERY_NUMBER;
     return (isFindOne ? Model.findOne(condition, fields) : Model.find(condition, fields))
         .sort(sortOrder)
-        .limit(queryNums)
+        .limit(limitNum)
         .lean()
         .execAsync();
 }
