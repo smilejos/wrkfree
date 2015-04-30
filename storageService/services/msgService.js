@@ -3,6 +3,7 @@ var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var MsgDao = require('../daos/MsgDao');
 var ChannelMemberDao = require('../daos/ChannelMemberDao');
+var ChannelStoreage = require('./ChannelService');
 
 /************************************************
  *
@@ -20,16 +21,17 @@ var ChannelMemberDao = require('../daos/ChannelMemberDao');
  * @param {String}          msg, message content
  */
 exports.saveAsync = function(sender, channelId, msg) {
-    return MsgDao.saveMsgAsync(sender, channelId, msg)
-        .then(function(result) {
-            if (!result) {
-                throw new Error('db save fail');
-            }
-            return ChannelMemberDao.updateMsgAsync(sender, channelId);
-        }).catch(function(err) {
-            SharedUtils.printError('msgService.js', 'saveAsync', err);
-            return null;
-        });
+    return _ensureAuth(sender, channelId).then(function() {
+        return MsgDao.saveMsgAsync(sender, channelId, msg);
+    }).then(function(result) {
+        if (!result) {
+            throw new Error('db save fail');
+        }
+        return ChannelMemberDao.updateMsgAsync(sender, channelId);
+    }).catch(function(err) {
+        SharedUtils.printError('msgService.js', 'saveAsync', err);
+        return null;
+    });
 };
 
 /**
@@ -44,10 +46,17 @@ exports.saveAsync = function(sender, channelId, msg) {
  *                          timePeriod.end, the end time of this period
  */
 exports.pullAsync = function(user, channelId, timePeriod) {
-    return Promise.all([
-        MsgDao.findByChannelAsync(channelId, timePeriod),
-        ChannelMemberDao.updateMsgAsync(user, channelId)
-    ]).catch(function(err) {
+    return Promise.props({
+        messages: MsgDao.findByChannelAsync(channelId, timePeriod),
+        isAuth: _ensureAuth(user, channelId)
+    }).then(function(data) {
+        ChannelMemberDao.updateMsgAsync(user, channelId);
+        return Promise.map(data.messages, function(msgDoc) {
+            var time = msgDoc.sentTime.toString();
+            msgDoc.sentTime = new Date(time).getTime();
+            return msgDoc;
+        });
+    }).catch(function(err) {
         SharedUtils.printError('msgService.js', 'pullAsync', err);
         return null;
     });
@@ -58,14 +67,19 @@ exports.pullAsync = function(user, channelId, timePeriod) {
  * @Author: George_Chen
  * @Description: to find the latest message on a group of channels
  *
- * @param {Array}          channels, an array of channelIds
+ * @param {String}          user, user uid
+ * @param {Array}           channels, an array of channelIds
  */
-exports.getLatestAsync = function(channels) {
-    return MsgDao.findChannelsLatestAsync(channels)
-        .catch(function(err) {
-            SharedUtils.printError('msgService.js', 'getLatestAsync', err);
-            return null;
-        });
+exports.getLatestAsync = function(user, channels) {
+    return Promise.props({
+        message: MsgDao.findChannelsLatestAsync(channels),
+        isAuth: _ensureAuth(user, channelId)
+    }).then(function(data) {
+        return data.message;
+    }).catch(function(err) {
+        SharedUtils.printError('msgService.js', 'getLatestAsync', err);
+        return null;
+    });
 };
 
 /**
@@ -77,9 +91,30 @@ exports.getLatestAsync = function(channels) {
  * @param {String}          channelId, channel id
  */
 exports.readAckAsync = function(user, channelId) {
-    return ChannelMemberDao.updateMsgAsync(user, channelId)
-        .catch(function(err) {
-            SharedUtils.printError('msgService.js', 'readAckAsync', err);
-            return null;
-        });
+    return Promise.props({
+        ackResult: ChannelMemberDao.updateMsgAsync(user, channelId),
+        isAuth: _ensureAuth(user, channelId)
+    }).then(function(data) {
+        return data.ackResult;
+    }).catch(function(err) {
+        SharedUtils.printError('msgService.js', 'readAckAsync', err);
+        return null;
+    });
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: used to ensure the channel related request is authed
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ */
+function _ensureAuth(member, channelId) {
+    return ChannelStoreage.getAuthAsync(member, channelId)
+        .then(function(isAuth) {
+            if (!isAuth) {
+                throw new Error('get auth fail');
+            }
+            return true;
+        });
+}
