@@ -119,8 +119,8 @@ function _configEmit(server) {
  * @param {Object}        server, the socket server instance
  */
 function _configPublish(server) {
-    var middleware = require('./middlewares/publish');
-    var type = server.MIDDLEWARE_PUBLISH;
+    var middleware = require('./middlewares/publishIn');
+    var type = server.MIDDLEWARE_PUBLISH_IN;
     server.addMiddleware(type, middleware.ensureLogin);
     server.addMiddleware(type, middleware.ensureSubscribed);
     server.addMiddleware(type, middleware.preprocessing);
