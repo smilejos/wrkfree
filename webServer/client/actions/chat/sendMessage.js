@@ -16,6 +16,9 @@ var ChatUtils = require('./chatUtils');
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
+    if (data instanceof Object && data.message === '') {
+        return (SharedUtils.isFunction(callback) ? callback() : null);
+    }
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         message: SharedUtils.argsCheckAsync(data.message, 'string'),
