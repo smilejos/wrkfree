@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var ChatService = require('../../services/chatService');
+var ChatUtils = require('./chatUtils');
 
 /**
  * @Public API
@@ -25,7 +26,9 @@ module.exports = function(actionContext, data, callback) {
         if (!result) {
             throw new Error('server response error');
         }
-        return;
+        return ChatUtils.fillUserInfo(data);
+    }).then(function(fullMsg) {
+        return actionContext.dispatch('RECV_MESSAGE', fullMsg);
     }).catch(function(err) {
         SharedUtils.printError('sendMessage.js', 'core', err);
         return null;
