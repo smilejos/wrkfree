@@ -56,6 +56,46 @@ exports.findByAuthorizedAsync = function() {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: get channel infomation from server
+ *
+ * @param {String}        data.channelId, channel's id
+ */
+exports.getInfoAsync = function(data) {
+    var packet = {
+        service: 'channel',
+        api: 'getInfoAsync',
+        params: data
+    };
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', 'getInfoAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: get current channel memberList from server
+ *
+ * @param {String}        data.channelId, channel's id
+ */
+exports.getMemberListAsync = function(data) {
+    var packet = {
+        service: 'channel',
+        api: 'getMemberListAsync',
+        params: data
+    };
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', 'getMemberListAsync', err);
+            return null;
+        });
+};
+
+/**
  * @Author: George_Chen
  * @Description: to create the channel subscription request
  *

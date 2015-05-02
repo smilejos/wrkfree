@@ -87,6 +87,48 @@ exports.getAuthChannelsAsync = function(socket) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for client to get the channel information
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, channel id
+ */
+exports.getInfoAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    return Promise.props({
+        uid: SharedUtils.argsCheckAsync(uid, 'md5'),
+        cid: SharedUtils.argsCheckAsync(data.channelId, 'md5')
+    }).then(function(data) {
+        return ChannelStorage.getChannelInfoAsync(data.uid, data.cid);
+    }).catch(function(err) {
+        SharedUtils.printError('channelHandler.js', 'getInfoAsync', err);
+        throw new Error('get channel info fail');
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for client to get the channel memberList
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, channel id
+ */
+exports.getMemberListAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    return Promise.props({
+        uid: SharedUtils.argsCheckAsync(uid, 'md5'),
+        cid: SharedUtils.argsCheckAsync(data.channelId, 'md5')
+    }).then(function(data) {
+        return ChannelStorage.getMembersAsync(data.cid);
+    }).catch(function(err) {
+        SharedUtils.printError('channelHandler.js', 'getMemberListAsync', err);
+        throw new Error('get member list fail');
+    });
+};
+
+/**
  * TODO:
  * Public API
  * @Author: George_Chen
