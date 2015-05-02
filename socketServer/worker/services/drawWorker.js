@@ -70,7 +70,6 @@ exports.drawBaseImgAsync = function(board, records) {
     }).then(function(archives) {
         return _drawAndUpdate(board, archives, false);
     }).then(function(newImg) {
-        console.log('new image ', newImg);
         if (newImg) {
             board.baseImg.chunks.buffer = newImg;
         }
