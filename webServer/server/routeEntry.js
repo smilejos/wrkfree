@@ -126,7 +126,7 @@ function _getChannelStreams(uid, storageManager) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: 
+ * @Description: for getting the workspace resource for polyfill
  *
  * @param {String}      uid, user's id
  * @param {String}      channelId, channel's id
