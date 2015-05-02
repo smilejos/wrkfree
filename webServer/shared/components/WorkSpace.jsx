@@ -21,12 +21,16 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
-        return this.getStore(WorkSpaceStore).getState();
+        return this._getState();
     },
 
     onStoreChange: function(){
-        var state = this.getStore(WorkSpaceStore).getState();
+        var state = this._getState();
         this.setState(state);
+    },
+
+    _getState: function() {
+        return this.getStore(WorkSpaceStore).getState();
     },
 
     render: function(){
