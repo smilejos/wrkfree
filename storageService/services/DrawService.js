@@ -69,6 +69,15 @@ exports.delBoardAsync = function(channelId, boardId, member) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: clean out all draws on current channel board
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ * @param {String}          member, the member uid
+ */
 exports.cleanBoardAsync = function(channelId, boardId, member) {
     return _ensureAuth(member, channelId)
         .then(function() {
@@ -200,12 +209,11 @@ exports.getPreviewImgAsync = function(channelId, boardId, member) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: used to get the preview image status
- *               (outdated or not)
- *
+ * @Description: used to get the preview image status (outdated or not)
+ *         NOTE: time is used to compare preview image updatedTime
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          member, the member uid
+ * @param {String}          time, the timestamp
  */
 exports.getPreviewStatusAsync = function(channelId, boardId, time) {
     return Promise.props({
@@ -336,6 +344,7 @@ function _delBoard(channelId, boardId) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
+ * @param {Array}           record, a array of record data
  */
 function _saveRecord(channelId, boardId, record) {
     return RecordDao.removeUndosAsync(channelId, boardId)
@@ -349,7 +358,7 @@ function _saveRecord(channelId, boardId, record) {
 
 /**
  * @Author: George_Chen
- * @Description: used to outdated draw records will be archived
+ * @Description: used to ensure all outdated records will be archived
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
