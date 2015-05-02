@@ -17,6 +17,9 @@ var WorkSpaceStore = require('../shared/stores/WorkSpaceStore');
 var FriendService = require('./services/friendService');
 var ChannelService = require('./services/channelService');
 
+// define the current work space channel
+var WorkSpaceChannel = null;
+
 /**
  * Public API
  * @Author: George_Chen
@@ -28,14 +31,21 @@ var ChannelService = require('./services/channelService');
 exports.getDashboardAsync = function(actionContext, routeInfo) {
     var headerStore = actionContext.getStore(HeaderStore);
     var selfInfo = headerStore.getSelfInfo();
-    return Promise.props({
-        FriendStore: _getFriendResource(actionContext, selfInfo),
-        DashboardStore: _getDashboardResource(actionContext)
+    return Promise.try(function() {
+        return _setWorkSpace(null);
+    }).then(function(result) {
+        if (!result) {
+            throw new Error('set workspace channel fail');
+        }
+        return Promise.props({
+            FriendStore: _getFriendResource(actionContext, selfInfo),
+            DashboardStore: _getDashboardResource(actionContext)
+        });
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
         SharedUtils.printError('client-routeEntry', 'getDashboardAsync', err);
-        return {};
+        throw err;
     });
 };
 
@@ -49,15 +59,61 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
  */
 exports.getChannelAsync = function(actionContext, routeInfo) {
     var channelId = routeInfo.channelId;
-    return Promise.props({
-        WorkSpaceStore: _getWorkSpaceResource(actionContext, channelId)
-    }).then(function(resource) {
-        return _storesPolyfill(actionContext, resource);
-    }).catch(function(err) {
-        SharedUtils.printError('client-routeEntry', 'getChannelAsync', err);
-        return {};
-    });
+    return _isAuthToEnterChannel(channelId)
+        .then(function(isAuth) {
+            if (!isAuth) {
+                throw new Error('enter channel fail');
+            }
+            return Promise.props({
+                WorkSpaceStore: _getWorkSpaceResource(actionContext, channelId)
+            });
+        }).then(function(resource) {
+            return _storesPolyfill(actionContext, resource);
+        }).catch(function(err) {
+            SharedUtils.printError('client-routeEntry', 'getChannelAsync', err);
+            throw err;
+        });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: check user has authorization to enter channel or not
+ *
+ * @param {String}      channelId, the channel's id
+ */
+function _isAuthToEnterChannel(channelId) {
+    return ChannelService.enterAsync(channelId)
+        .then(function(isAuth) {
+            if (!isAuth) {
+                return null;
+            }
+            return _setWorkSpace(channelId);
+        });
+}
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to set the channel id for workSpace route.
+ *         NOTE:  we should set "channelId = null" for
+ *                 non-workspace route
+ *
+ * @param {String}      channelId, the channel's id
+ */
+function _setWorkSpace(channelId) {
+    var setChannel = function(cid) {
+        WorkSpaceChannel = cid;
+        return true;
+    };
+    if (!WorkSpaceChannel) {
+        return setChannel(channelId);
+    }
+    return ChannelService.leaveAsync(WorkSpaceChannel)
+        .then(function(result) {
+            return (result ? setChannel(channelId) : null);
+        });
+}
 
 /**
  * Public API
