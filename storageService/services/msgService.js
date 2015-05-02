@@ -71,11 +71,10 @@ exports.pullAsync = function(user, channelId, timePeriod) {
  * @param {Array}           channels, an array of channelIds
  */
 exports.getLatestAsync = function(user, channels) {
-    return Promise.props({
-        message: MsgDao.findChannelsLatestAsync(channels),
-        isAuth: _ensureAuth(user, channelId)
-    }).then(function(data) {
-        return data.message;
+    return Promise.map(channels, function(channelId) {
+        return _ensureAuth(user, channelId);
+    }).then(function() {
+        return MsgDao.findChannelsLatestAsync(channels);
     }).catch(function(err) {
         SharedUtils.printError('msgService.js', 'getLatestAsync', err);
         return null;
