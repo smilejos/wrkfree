@@ -23,7 +23,8 @@ var Services = [
     'UserService',
     'FriendService',
     'ChannelService',
-    'MsgService'
+    'MsgService',
+    'DrawService'
 ];
 
 /************************************************
