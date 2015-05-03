@@ -27,11 +27,8 @@ var OauthProviders = ['facebook', 'google'];
 exports.findByIdAsync = function(id) {
     return SharedUtils.argsCheckAsync(id, 'md5')
         .then(function(uid) {
-            var condition = {
-                _id: uid
-            };
             var selectField = _getBasicInfoFields();
-            return UserModel.findOne(condition, selectField).lean().execAsync();
+            return UserModel.findById(uid, selectField).lean().execAsync();
         }).then(function(doc) {
             return _transformUid(doc);
         }).catch(function(err) {
@@ -49,9 +46,9 @@ exports.findByIdAsync = function(id) {
  */
 exports.findByEmailAsync = function(email) {
     return SharedUtils.argsCheckAsync(email, 'email')
-        .then(function(validUid) {
+        .then(function(validEmail) {
             var condition = {
-                email: validUid
+                email: validEmail
             };
             var selectField = _getBasicInfoFields();
             return UserModel.findOne(condition, selectField).lean().execAsync();
@@ -94,13 +91,13 @@ exports.findByGroupAsync = function(uids) {
  * @Author: George_Chen
  * @Description: check user is exist or not
  *
- * @param {String} uid, user's uid
+ * @param {String} email, user's email
  */
-exports.isEmailUsedAsync = function(uid) {
-    return SharedUtils.argsCheckAsync(uid, 'email')
-        .then(function() {
+exports.isEmailUsedAsync = function(email) {
+    return SharedUtils.argsCheckAsync(email, 'email')
+        .then(function(validEmail) {
             var condition = {
-                email: uid
+                email: validEmail
             };
             return UserModel.countAsync(condition);
         }).then(function(count) {
@@ -211,12 +208,12 @@ exports.addNewUserAsync = function(userInfo) {
  *
  ************************************************/
 
- /**
-  * @Author: George_Chen
-  * @Description: transform field from _id to uid
-  *
-  * @param {Object}          doc, user document
-  */
+/**
+ * @Author: George_Chen
+ * @Description: transform field from _id to uid
+ *
+ * @param {Object}          doc, user document
+ */
 function _transformUid(doc) {
     if (!doc) {
         throw new Error('user document not exist');
@@ -226,11 +223,11 @@ function _transformUid(doc) {
     return doc;
 }
 
- /**
-  * @Author: George_Chen
-  * @Description: get the basic infomation of user document
-  *         NOTE: currently we request only nickName and avatar
-  */
+/**
+ * @Author: George_Chen
+ * @Description: get the basic infomation of user document
+ *         NOTE: currently we request only nickName and avatar
+ */
 function _getBasicInfoFields() {
     return {
         nickName: DbUtil.select(true),
