@@ -71,7 +71,7 @@ exports.findByUidAsync = function(uid, period) {
  */
 exports.findByChannelAsync = function(channelId, period) {
     var timePeriod = period || {};
-    var queryNums = (!!timePeriod.start ? MSG_QUERY_NUMBER : 0);
+    var queryNums = (!!timePeriod.start ? 0 : MSG_QUERY_NUMBER);
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
