@@ -52,8 +52,13 @@ exports.pullAsync = function(user, channelId, timePeriod) {
     }).then(function(data) {
         ChannelMemberDao.updateMsgAsync(user, channelId);
         return Promise.map(data.messages, function(msgDoc) {
-            var time = msgDoc.sentTime.toString();
-            msgDoc.sentTime = new Date(time).getTime();
+            if (msgDoc.sentTime instanceof Date) {
+                // data from db
+                msgDoc.sentTime = Date.parse(msgDoc.sentTime.toISOString());
+            } else {
+                // data from cache
+                msgDoc.sentTime = Date.parse(msgDoc.sentTime.toString());
+            }
             return msgDoc;
         });
     }).catch(function(err) {
