@@ -3,7 +3,7 @@ var Mongoose = require('mongoose');
 var Promise = require('bluebird');
 var SharedUtils = require('../../sharedUtils/utils');
 var DbUtil = require('../dbUtils');
-var UserModel = Mongoose.model('User');
+var Model = Mongoose.model('User');
 var CryptoUtils = require('../../sharedUtils/cryptoUtils');
 
 /**
@@ -28,7 +28,7 @@ exports.findByIdAsync = function(id) {
     return SharedUtils.argsCheckAsync(id, 'md5')
         .then(function(uid) {
             var selectField = _getBasicInfoFields();
-            return UserModel.findById(uid, selectField).lean().execAsync();
+            return Model.findById(uid, selectField).lean().execAsync();
         }).then(function(doc) {
             return _transformUid(doc);
         }).catch(function(err) {
@@ -51,7 +51,7 @@ exports.findByEmailAsync = function(email) {
                 email: validEmail
             };
             var selectField = _getBasicInfoFields();
-            return UserModel.findOne(condition, selectField).lean().execAsync();
+            return Model.findOne(condition, selectField).lean().execAsync();
         }).then(function(doc) {
             return _transformUid(doc);
         }).catch(function(err) {
@@ -77,7 +77,7 @@ exports.findByGroupAsync = function(uids) {
             }
         };
         var selectField = _getBasicInfoFields();
-        return UserModel.find(condition, selectField).lean().execAsync();
+        return Model.find(condition, selectField).lean().execAsync();
     }).map(function(info) {
         return _transformUid(info);
     }).catch(function(err) {
@@ -99,7 +99,7 @@ exports.isEmailUsedAsync = function(email) {
             var condition = {
                 email: validEmail
             };
-            return UserModel.countAsync(condition);
+            return Model.countAsync(condition);
         }).then(function(count) {
             return (count > 0);
         }).catch(function(err) {
@@ -123,7 +123,7 @@ exports.findByNameAsync = function(queryString) {
             var condition = {};
             condition.nickName = new RegExp(queryString + '.*', 'i');
             var selectField = _getBasicInfoFields();
-            return UserModel.find(condition, selectField).lean().execAsync();
+            return Model.find(condition, selectField).lean().execAsync();
         }).map(function(info) {
             return _transformUid(info);
         }).catch(function(err) {
@@ -150,7 +150,7 @@ exports.findByOAuthAsync = function(oAuthId, provider) {
         selectField.email = DbUtil.select(true);
         selectField.nickName = DbUtil.select(true);
         condition[provider] = oAuthId;
-        return UserModel.findOne(condition, selectField).lean().execAsync();
+        return Model.findOne(condition, selectField).lean().execAsync();
     }).then(function(doc) {
         return _transformUid(doc);
     }).catch(function(err) {
@@ -188,9 +188,9 @@ exports.addNewUserAsync = function(userInfo) {
             throw new Error('oauth provider is invalid');
         }
         info.gender = userInfo.gender;
-        var newUser = new UserModel(info);
+        var newUser = new Model(info);
         // make mongoose cache outdated
-        UserModel.find()._touchCollectionCheck(true);
+        Model.find()._touchCollectionCheck(true);
         return newUser.saveAsync();
     }).then(function(result) {
         return DbUtil.checkDocumentSaveStatusAsync(result);
