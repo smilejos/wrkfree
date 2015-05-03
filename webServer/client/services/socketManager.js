@@ -162,6 +162,9 @@ exports.subscribeAsync = function(subscribeReq) {
         if (Socket.getState() !== 'open') {
             throw new Error('server connection lost');
         }
+        if (Socket.isSubscribed(subscribeReq)) {
+            return resolver(true);
+        }
         var channel = Socket.subscribe(subscribeReq);
         channel.on('subscribeFail', function() {
             rejecter(new Error('subscribe fail'));
