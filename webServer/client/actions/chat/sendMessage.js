@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var ChatService = require('../../services/chatService');
+var ChatUtils = require('./chatUtils');
 
 /**
  * @Public API
@@ -15,6 +16,9 @@ var ChatService = require('../../services/chatService');
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
+    if (data instanceof Object && data.message === '') {
+        return (SharedUtils.isFunction(callback) ? callback() : null);
+    }
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         message: SharedUtils.argsCheckAsync(data.message, 'string'),
@@ -25,7 +29,9 @@ module.exports = function(actionContext, data, callback) {
         if (!result) {
             throw new Error('server response error');
         }
-        return;
+        return ChatUtils.fillUserInfo(data);
+    }).then(function(fullMsg) {
+        return actionContext.dispatch('RECV_MESSAGE', fullMsg);
     }).catch(function(err) {
         SharedUtils.printError('sendMessage.js', 'core', err);
         return null;
