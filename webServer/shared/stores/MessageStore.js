@@ -50,9 +50,7 @@ module.exports = CreateStore({
         return Promise.map(messages, function(doc) {
             return _saveMessage(collection, doc);
         }).bind(this).then(function() {
-            if (messages.length > 0) {
-                this.emitChange();
-            }
+            this.emitChange();
             this.isPolyFilled = true;
             return true;
         }).catch(function(err) {
@@ -68,7 +66,13 @@ module.exports = CreateStore({
      * 
      * @param {Object}      channelId, channel's id
      */
-    getOrdestMessageAsync: function(channelId) {
+    getOldestMessage: function(channelId) {
+        var collection = this.db.getCollection(this.dbName);
+        var channelMessages = _getMsgView(collection, channelId).data();
+        return channelMessages[0];
+    },
+
+    getLatestMessage: function(channelId) {
         var collection = this.db.getCollection(this.dbName);
         var channelMessages = _getMsgView(collection, channelId).data();
         return channelMessages[channelMessages.length - 1];

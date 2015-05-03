@@ -44,11 +44,11 @@ var DiscussionArea = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: only switch between different channels will trigger pullMessages
+     * @Description: only switch between different channels will trigger _pullLatestMessages
      */
     componentWillReceiveProps: function(nextProps) {
-        if (this.props.channel.channelId !== nextProps.channel.channelId) {
-            this._pullMessages(nextProps.channel.channelId);
+        if (this.props.channel.channelId !== nextProps.channel.channelId) {            
+            this._pullLatestMessages(nextProps.channel.channelId);
         }
     },
 
@@ -57,7 +57,8 @@ var DiscussionArea = React.createClass({
      * @Description: start to load channel messages from server
      */
     componentDidMount: function(){
-        this._pullMessages(this._getChannelId());
+        var channelId = this._getChannelId();
+        this._pullLatestMessages(channelId);
     },
 
     getInitialState: function() {
@@ -67,6 +68,36 @@ var DiscussionArea = React.createClass({
     onStoreChange: function(){
         var state = this._getStateFromStores();
         this.setState(state);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: pull latest messages on current channel
+     *         NOTE: different from _pullOlderMessages, we must assign
+     *               channelId because this function usually triggered on
+     *               channel switching
+     */
+    _pullLatestMessages: function(cid) {
+        var latestMessage = this.getStore(MessageStore).getLatestMessage(cid);
+        var timePeriod = {};
+        if (latestMessage) {
+            timePeriod.start = latestMessage.sentTime;
+        }
+        return this._pullMessages(cid, timePeriod);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: pull older messages on current channel
+     */
+    _pullOlderMessages: function() {
+        var cid = this._getChannelId();
+        var oldestMessage = this.getStore(MessageStore).getOldestMessage(cid);
+        var timePeriod = {};
+        if (oldestMessage) {
+            timePeriod.end = oldestMessage.sentTime;
+        }
+        return this._pullMessages(cid, timePeriod);
     },
 
     /**
