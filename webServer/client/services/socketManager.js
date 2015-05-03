@@ -126,8 +126,17 @@ exports.requestAsync = function(packet) {
  *     packet.api,     the API name of the target service handler
  *     packet.clientHandler, the API for handling this publish request on client side
  *     packet.params,  the parameters that service handler can handling
+ *     packet.filterList, the define which uids will not receive this packet
+ *         e.g.: filterList is a json object like below:
+ *         {
+ *             'uid1': true,
+ *             'uid2': true,
+ *             'uid3': false
+ *         }
+ *         "uid1" and "uid2" will be filtered out in this case
  */
 exports.publishAsync = function(subscribedChannel, packet) {
+    packet.socketId = Socket.id;
     return new Promise(function(resolver, rejecter) {
         if (Socket.getState() !== 'open') {
             throw new Error('server connection lost');
