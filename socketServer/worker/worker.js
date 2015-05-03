@@ -21,6 +21,7 @@ module.exports.run = function(worker) {
     _configSubscribe(scServer);
     _configEmit(scServer);
     _configPublish(scServer);
+    _configPublishOut(scServer);
 
     /*
       In here we handle our incoming realtime connections and listen for events.
@@ -118,9 +119,22 @@ function _configEmit(server) {
  * @param {Object}        server, the socket server instance
  */
 function _configPublish(server) {
-    var middleware = require('./middlewares/publish');
-    var type = server.MIDDLEWARE_PUBLISH;
+    var middleware = require('./middlewares/publishIn');
+    var type = server.MIDDLEWARE_PUBLISH_IN;
     server.addMiddleware(type, middleware.ensureLogin);
     server.addMiddleware(type, middleware.ensureSubscribed);
     server.addMiddleware(type, middleware.preprocessing);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to configure the publish-out related middlewares
+ *
+ * @param {Object}        server, the socket server instance
+ */
+function _configPublishOut(server) {
+    var middleware = require('./middlewares/publishOut');
+    var type = server.MIDDLEWARE_PUBLISH_OUT;
+    server.addMiddleware(type, middleware.filterSelf);
+    server.addMiddleware(type, middleware.filterByUids);
 }
