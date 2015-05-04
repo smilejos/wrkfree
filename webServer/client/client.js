@@ -3,7 +3,6 @@ var React = require('react');
 var Router = require('react-router');
 var HistoryLocation = Router.HistoryLocation;
 var Promise = require('bluebird');
-var channelService = require('./services/channelService');
 
 /**
  * collect state infomation sent from server
@@ -46,11 +45,6 @@ app.rehydrate(dehydratedState, function(err, context) {
             if (!hasConnection) {
                 throw new Error('server connection lost');
             }
-            return _isAuthToEnterChannel(state);
-        }).then(function(isAuth) {
-            if (!isAuth) {
-                throw new Error('not auth to navigate');
-            }
             // start the navigation action
             context.executeAction(navigateAction, state, function() {
                 React.withContext(context.getComponentContext(), function() {
@@ -79,19 +73,5 @@ function _hasConnection(routeState) {
         SocketManager.init(function(err) {
             return (err ? rejecter(err) : resolver(true));
         });
-    });
-}
-
-/**
- * @Author: George_Chen
- * @Description: check the authorization if next url is to channel space
- *
- * @param {Object}        routeState, the react router state object
- */
-function _isAuthToEnterChannel(routeState) {
-    var urlInfo = routeState.params;
-    return Promise.try(function() {
-        var channel = urlInfo.channelId;
-        return (channel ? channelService.enterAsync(urlInfo.channelId) : true);
     });
 }
