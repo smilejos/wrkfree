@@ -27,9 +27,7 @@ module.exports = function(actionContext, data, callback) {
     }).map(function(msgDoc) {
         return ChatUtils.fillUserInfo(msgDoc);
     }).then(function(messages) {
-        if (messages.length > 0) {
-            actionContext.dispatch('PULL_MESSAGES', messages);
-        }
+        actionContext.dispatch('PULL_MESSAGES', messages);
     }).catch(function(err) {
         SharedUtils.printError('pullMessage.js', 'core', err);
         return null;
