@@ -62,11 +62,13 @@ exports.setUpdateSchedule = function(channelId, boardId, user) {
  * @param {Array}           records, a array of drawRecord documents
  */
 exports.drawBaseImgAsync = function(board, records) {
-    return Promise.filter(records, function(recordDoc, index) {
-        if (recordDoc.isArchived) {
-            records.splice(index, 1);
-        }
-        return recordDoc.isArchived;
+    var activeRecords = [];
+    return Promise.try(function() {
+        var archives = [];
+        SharedUtils.fastArrayMap(records, function(doc) {
+            doc.isArchived ? archives.push(doc) : activeRecords.push(doc)
+        });
+        return archives;
     }).then(function(archives) {
         return _drawAndUpdate(board, archives, false);
     }).then(function(newImg) {
@@ -75,7 +77,7 @@ exports.drawBaseImgAsync = function(board, records) {
         }
         return {
             baseImg: board.baseImg,
-            records: records,
+            records: activeRecords,
             isUpdated: !!newImg
         };
     });
@@ -96,7 +98,6 @@ exports.drawBaseImgAsync = function(board, records) {
  * @param {Number}          boardId, the draw board id
  */
 function _getScheduleId(channelId, boardId) {
-    var sid = channelId + boardId;
     return channelId + boardId;
 }
 
