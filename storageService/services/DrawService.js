@@ -235,15 +235,16 @@ exports.getPreviewStatusAsync = function(channelId, boardId, time) {
  * @param {String}          member, the member uid
  */
 exports.getBoardInfoAsync = function(channelId, boardId, member) {
-    return _ensureArchived(channelId, boardId)
-        .then(function(result) {
-            if (!result) {
+    return Promise.join(
+        _ensureArchived(channelId, boardId),
+        _ensureAuth(member, channelId),
+        function(isArchived) {
+            if (!isArchived) {
                 throw new Error('record archive fail');
             }
             return Promise.props({
                 board: BoardDao.findByBoardAsync(channelId, boardId),
-                reocrds: RecordDao.findByBoardAsync(channelId, boardId), // reutnr all channel records
-                isAuth: _ensureAuth(member, channelId)
+                reocrds: RecordDao.findByBoardAsync(channelId, boardId)
             });
         }).catch(function(err) {
             SharedUtils.printError('DrawService.js', 'getBoardResource', err);
@@ -251,16 +252,16 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
         });
 };
 
- /**
-  * Public API
-  * @Author: George_Chen
-  * @Description: used to update the base Image on current draw board
-  *         NOTE: base image is the snapshot of all archived draw records
-  *
-  * @param {String}          channelId, channel id
-  * @param {Number}          boardId, the draw board id
-  * @param {Buffer}          img, the image buffer
-  */
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to update the base Image on current draw board
+ *         NOTE: base image is the snapshot of all archived draw records
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ * @param {Buffer}          img, the image buffer
+ */
 exports.updateBaseImgAsync = function(channelId, boardId, img) {
     return BoardDao.updateBaseImgAsync(channelId, boardId, img)
         .then(function(result) {

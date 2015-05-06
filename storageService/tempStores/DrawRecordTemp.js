@@ -43,11 +43,11 @@ exports.streamRecordAsync = function(channelId, boardId, drawer, rawData) {
                 pushLength: RedisClient.rpushAsync(streamKey, _serializeChunks(rawData)),
                 ttlResult: RedisClient.expireAsync(streamKey, RECORD_STREAM_EXPIRE_TIME_IN_SECONDS)
             });
-        }).then(function(result) {
-            if (result.pushLength > RECORD_DATA_LIMIT) {
+        }).then(function(data) {
+            if (data.pushLength > RECORD_DATA_LIMIT) {
                 throw new Error('record stream exceed limit');
             }
-            return (result > 0);
+            return (data.pushLength > 0 ? true : null);
         }).catch(function(err) {
             SharedUtils.printError('DrawTemp.js', 'streamRecordAsync', err);
             throw err;

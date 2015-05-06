@@ -101,8 +101,10 @@ function _release(canvasObj) {
  * @param {Buffer}          baseImg, the base image chunks
  */
 function _drawImg(canvasObj, baseImg) {
-    canvasObj.img.src = baseImg;
-    canvasObj.ctx.drawImage(canvasObj.img, 0, 0);
+    if (baseImg.length > 0) {
+        canvasObj.img.src = baseImg;
+        canvasObj.ctx.drawImage(canvasObj.img, 0, 0);
+    }
 }
 
 /**
@@ -121,7 +123,7 @@ function _drawRecords(canvasObj, records) {
                 fromY: raw[1],
                 toX: raw[2],
                 toY: raw[3],
-                mode: raw[3]
+                mode: raw[4]
             });
         });
     });

@@ -445,6 +445,11 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('_id check error');
+            case 'number':
+                if (exports.isNumber(arg)) {
+                    return arg;
+                }
+                throw new Error('number check error');    
             case 'string':
                 if (exports.isString(arg)) {
                     return arg;

@@ -104,7 +104,7 @@ exports.isExistAsync = function(channelId, boardId, timestamp) {
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
         updatedTime: {
-            $lte: timestamp
+            $lte: (timestamp ? timestamp : Date.now())
         }
     }).then(function(condition) {
         return Model.count(condition).execAsync();
