@@ -78,6 +78,8 @@ exports.findByChannelAsync = function(channelId, period) {
         return DbUtil.getTimeCondAsync(condition, 'sentTime', period);
     }).then(function(queryCondition) {
         return _findMsg(queryCondition, queryNums);
+    }).then(function(docs) {
+        return DbUtil.transformTimeAsync(docs, 'sentTime');
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'findByChannelAsync', err);
         return null;
