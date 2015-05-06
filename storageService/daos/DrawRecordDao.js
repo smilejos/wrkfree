@@ -20,11 +20,12 @@ var Model = Mongoose.model('DrawRecord');
  * @param {Number}          boardId, the draw board id
  * @param {Array}           record, an array of drawing raw data
  */
-exports.saveAsync = function(channelId, boardId, record) {
+exports.saveAsync = function(channelId, boardId, record, drawOptions) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        record: _checkRecord(record)
+        record: _checkRecord(record),
+        drawOptions: SharedUtils.argsCheckAsync(drawOptions, 'drawOptions'),
     }).then(function(drawDoc) {
         var newDraw = new Model(drawDoc);
         // make mongoose cache outdated
@@ -66,9 +67,8 @@ exports.findByBoardAsync = function(channelId, boardId) {
  * @Description: find the latest draw record on the current channel
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
  */
-exports.findLatestByChannelAsync = function(channelId, boardId) {
+exports.findLatestByChannelAsync = function(channelId) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
@@ -358,7 +358,7 @@ function _archiveOne(condition, updateDoc) {
         .then(function(result) {
             return (result ? 1 : null);
         });
-};
+}
 
 /**
  * @Author: George_Chen
@@ -390,45 +390,21 @@ function _archiveMany(condition, updateDoc, number) {
 /**
  * @Author: George_Chen
  * @Description: check draw record is valid or not
- *         NOTE: draw record is a array of draw points 
- *         record[0] = fromX
- *         record[1] = fromY
- *         record[2] = toX
- *         record[3] = toY
- *         record[4] = colorCode
+ *         NOTE: draw record is a array of draw positions 
+ *         position[0] = fromX
+ *         position[1] = fromY
+ *         position[2] = toX
+ *         position[3] = toY
  *
  * @param {Array}           record, an array of drawing raw data
  */
 function _checkRecord(record) {
-    return Promise.map(record, function(rawData) {
-        _checkDrawColor(rawData[rawData.length - 1]);
-        for (var i = 0; i < rawData.length - 2; ++i) {
-            _checkDrawPosition(rawData[i]);
-        }
-        return rawData;
+    return Promise.map(record, function(position) {
+        return SharedUtils.fastArrayMap(position, function(item) {
+            if (item < 0) {
+                throw new Error('draw position is invlid');
+            }
+            return item;
+        });
     });
-}
-
-/**
- * @Author: George_Chen
- * @Description: check the drawing point position is valid or not
- *
- * @param {Number}           value, position value of draw point 
- */
-function _checkDrawPosition(value) {
-    if (value < 0) {
-        throw new Error('draw position is invlid');
-    }
-}
-
-/**
- * @Author: George_Chen
- * @Description: check the color code is valid or not
- *
- * @param {String}           value, the color code 
- */
-function _checkDrawColor(value) {
-    if (value.indexOf('#')) {
-        throw new Error('draw color is invlid');
-    }
 }
