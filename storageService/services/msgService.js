@@ -51,16 +51,7 @@ exports.pullAsync = function(user, channelId, timePeriod) {
         isAuth: _ensureAuth(user, channelId)
     }).then(function(data) {
         ChannelMemberDao.updateMsgAsync(user, channelId);
-        return Promise.map(data.messages, function(msgDoc) {
-            if (msgDoc.sentTime instanceof Date) {
-                // data from db
-                msgDoc.sentTime = Date.parse(msgDoc.sentTime.toISOString());
-            } else {
-                // data from cache
-                msgDoc.sentTime = Date.parse(msgDoc.sentTime.toString());
-            }
-            return msgDoc;
-        });
+        return data.messages;
     }).catch(function(err) {
         SharedUtils.printError('msgService.js', 'pullAsync', err);
         return null;

@@ -52,6 +52,8 @@ exports.findByBoardAsync = function(channelId, boardId) {
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId')
     }).then(function(condition) {
         return _find(false, condition);
+    }).then(function(docs) {
+        return DbUtil.transformTimeAsync(docs, 'drawTime');
     }).catch(function(err) {
         SharedUtils.printError('DrawRecordDao.js', 'findByBoardAsync', err);
         return null;
