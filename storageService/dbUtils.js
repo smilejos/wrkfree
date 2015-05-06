@@ -146,7 +146,6 @@ exports.checkDocumentRemoveStatusAsync = function(removeResult) {
 
 /**
  * @Public API
- *
  * @Author: George_Chen
  * @Description: get the channel query condition
  *
@@ -162,6 +161,26 @@ exports.getChannelCondAsync = function(chId) {
         return {
             channelId: chId
         };
+    });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: transform date field of mongodb docs to timestamp number
+ *         NOTE: because date get from mongoose and from cache are different type,
+ *               so we need this transform function
+ * @param {Array}        mongoDocs, a array of mongodb docs
+ * @param {String}       dateField, the date fieldName on each doc
+ */
+exports.transformTimeAsync = function(mongoDocs, dateField) {
+    return Promise.map(mongoDocs, function(doc) {
+        if (doc[dateField] instanceof Date) {
+            doc[dateField] = Date.parse(doc[dateField].toISOString());
+        } else {
+            doc[dateField] = Date.parse(doc[dateField].toString());
+        }
+        return doc;
     });
 };
 
