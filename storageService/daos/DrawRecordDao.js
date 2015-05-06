@@ -369,7 +369,8 @@ function _archiveMany(condition, updateDoc, number) {
     var fields = {
         drawTime: DbUtil.select(true)
     };
-    return Model.find(condition, fields).limit(number).execAsync()
+    var sortOrder = DbUtil.getSort('_id', 'ascending');
+    return Model.find(condition, fields).sort(sortOrder).limit(number).execAsync()
         .then(function(docs) {
             if (docs.length === 0) {
                 return null;
@@ -377,8 +378,8 @@ function _archiveMany(condition, updateDoc, number) {
             var options = {
                 multi: (number > 1)
             };
-            condition.drawTime = {
-                $lte: docs[docs.length - 1].drawTime
+            condition._id = {
+                $lte: docs[docs.length - 1]._id
             };
             return Model.update(condition, updateDoc, options).execAsync();
         });
