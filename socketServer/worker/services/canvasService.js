@@ -133,7 +133,7 @@ function _drawRecords(canvasObj, records) {
  */
 function _draw(ctx, raw, options) {
     ctx.beginPath();
-    if (options.mode === 'erase') {
+    if (options.mode === 'eraser') {
         ctx.globalCompositeOperation = 'destination-out';
     }
     if (options.mode === 'pen') {

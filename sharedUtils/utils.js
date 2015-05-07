@@ -381,7 +381,7 @@ exports.isDrawOptions = function(options) {
     }
     switch (options.mode) {
         case 'pen':
-        case 'erase':
+        case 'eraser':
         case 'text':
         case 'rect':
         case 'circle':
