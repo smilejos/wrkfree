@@ -55,6 +55,8 @@ exports.updateChunksAsync = function(channelId, boardId, rawData) {
             chunks: rawData,
             updatedTime: Date.now()
         };
+        // make mongoose cache outdated
+        Model.find()._touchCollectionCheck(true);
         return Model.findOneAndUpdate(condition, updateDoc).select('_id').execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawPreviewDao.js', 'updateChunksAsync', err);
