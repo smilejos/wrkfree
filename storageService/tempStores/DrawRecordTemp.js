@@ -8,8 +8,8 @@ var SharedUtils = require('../../sharedUtils/utils');
 var RECORD_DATA_LIMIT = 300;
 // if no streams arrived within 2 second, stream raw data will be expired
 var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = 2;
-// valid rawData is a array with [fromX, fromY, toX, toY, colorCode]
-var RAW_RECORD_DATA_LENGTH = 5;
+// valid rawData is a array with [fromX, fromY, toX, toY]
+var RAW_RECORD_DATA_LENGTH = 4;
 
 /**
  * stream record data should be put at local scope

@@ -13,13 +13,15 @@ var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
  * @param {String}      data.channelId, target channel id
  * @param {Number}      data.boardId, target board id
  * @param {Array}       data.chunks, the rawData of draw record
+ * @param {Object}      data.drawOptions, the draw related options
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number'),
-        chunks: DrawUtils.checkDrawChunksAsync(data.chunks)
+        chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
+        drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
     }).then(function(recordData) {
         var workspaceStore = actionContext.getStore(WorkSpaceStore);
         var state = workspaceStore.getState();

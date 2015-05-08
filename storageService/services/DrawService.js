@@ -130,7 +130,7 @@ exports.streamRecordDataAsync = function(channelId, boardId, member, rawData) {
  * @param {String}          member, the member uid
  * @param {Number}          rawDataNumbers, the number of rawData
  */
-exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers) {
+exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers, drawOptions) {
     return Promise.join(
         RecordTemp.getRecordAsync(channelId, boardId, member),
         _ensureAuth(member, channelId),
@@ -139,7 +139,7 @@ exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers) {
                 throw new Error('tempRecord is broken');
             }
             RecordTemp.initDrawStreamAsync(channelId, boardId, member);
-            return _saveRecord(channelId, boardId, tempRecord);
+            return _saveRecord(channelId, boardId, tempRecord, drawOptions);
         }).catch(function(err) {
             SharedUtils.printError('DrawService.js', 'saveRecordAsync', err);
             RecordTemp.initDrawStreamAsync(channelId, boardId, member);
@@ -347,13 +347,13 @@ function _delBoard(channelId, boardId) {
  * @param {Number}          boardId, the draw board id
  * @param {Array}           record, a array of record data
  */
-function _saveRecord(channelId, boardId, record) {
+function _saveRecord(channelId, boardId, record, drawOptions) {
     return RecordDao.removeUndosAsync(channelId, boardId)
         .then(function(result) {
             if (result === null) {
                 throw new Error('remove undo document fail');
             }
-            return RecordDao.saveAsync(channelId, boardId, record);
+            return RecordDao.saveAsync(channelId, boardId, record, drawOptions);
         });
 }
 

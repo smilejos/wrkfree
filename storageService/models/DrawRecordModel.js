@@ -8,6 +8,16 @@ var Schema = Mongoose.Schema;
  * isUndo, mark this record is during user undo or not
  * isArchived, mark this record is archived or not
  * record, an array of drawing raw data
+ * drawOptions, draw options of current record
+ *         NOTE:
+ *         draw options is to describe how to draw current record,
+ *         e.g. A normal drawing options
+ *         drawOptions = {
+ *             mode: 'pen',
+ *             lineCap: 'round',
+ *             lineWidth: 50,
+ *             strokeStyle: '#000000'
+ *         }
  * drawTime, the time that this record drawed
  */
 var DrawRecordSchema = new Schema({
@@ -15,7 +25,8 @@ var DrawRecordSchema = new Schema({
     boardId:            {type : Number, default : 999, trim : true},
     isUndo:             {type : Boolean, default : false},
     isArchived:         {type : Boolean, default : false},
-    record:             {type : Array, default: [] , trim: true},
+    record:             {type : Array, default: []},
+    drawOptions:        {type : Schema.Types.Mixed},
     drawTime:           {type : Date  , default : Date.now }
 });
 

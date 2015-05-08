@@ -17,6 +17,7 @@ var DrawTempStore = require('../../../shared/stores/DrawTempStore');
  * @param {String}      data.channelId, target channel id
  * @param {Number}      data.boardId, target board id
  * @param {Number}      data.chunksNum, number of chunks in current record
+ * @param {Object}      data.drawOptions, the draw related options
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
@@ -24,6 +25,7 @@ module.exports = function(actionContext, data, callback) {
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         chunksNum: SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
+        drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
     }).then(function(validData) {
         return DrawService.saveRecordAsync(validData);
     }).then(function(result) {
@@ -35,7 +37,8 @@ module.exports = function(actionContext, data, callback) {
         return actionContext.dispatch('ON_RECORD_SAVE', {
             channelId: data.channelId,
             boardId: data.boardId,
-            record: drawTempStore.getDraws(data.channelId, data.boardId)
+            record: drawTempStore.getDraws(data.channelId, data.boardId),
+            drawOptions: data.drawOptions
         });
     }).catch(function(err) {
         SharedUtils.printError('saveDrawRecord.js', 'core', err);

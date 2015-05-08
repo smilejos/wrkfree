@@ -117,14 +117,8 @@ function _drawImg(canvasObj, baseImg) {
 function _drawRecords(canvasObj, records) {
     var ctx = canvasObj.ctx;
     return Promise.each(records, function(doc) {
-        return SharedUtils.fastArrayMap(doc.record, function(raw) {
-            _drawOnRawData(ctx, {
-                fromX: raw[0],
-                fromY: raw[1],
-                toX: raw[2],
-                toY: raw[3],
-                mode: raw[4]
-            });
+        return SharedUtils.fastArrayMap(doc.record, function(rawData) {
+            _draw(ctx, _deSerializeRecordData(rawData), doc.drawOptions);
         });
     });
 }
@@ -135,23 +129,38 @@ function _drawRecords(canvasObj, records) {
  *
  * @param {Object}          ctx, the canvas 2d context
  * @param {Object}          raw, rawData of draw record
+ * @param {Object}          options, draw options
  */
-function _drawOnRawData(ctx, raw) {
+function _draw(ctx, raw, options) {
     ctx.beginPath();
-    if (raw.mode === '#') {
+    if (options.mode === 'eraser') {
         ctx.globalCompositeOperation = 'destination-out';
-        ctx.arc(Number(raw.toX), Number(raw.toY), 50, 0, 2 * Math.PI, false);
-        ctx.fill();
-    } else {
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.lineJoin = 'round';
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = raw.mode;
-        ctx.moveTo(Number(raw.fromX), Number(raw.fromY));
-        ctx.lineTo(Number(raw.toX), Number(raw.toY));
-        ctx.stroke();
     }
+    if (options.mode === 'pen') {
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = options.strokeStyle;
+    }
+    ctx.lineCap = options.lineCap;
+    ctx.lineWidth = options.lineWidth;
+    ctx.moveTo(Number(raw.fromX), Number(raw.fromY));
+    ctx.lineTo(Number(raw.toX), Number(raw.toY));
+    ctx.stroke();
     ctx.closePath();
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: deserialize raw record data
+ *
+ * @param {Object}          rawData, rawData of draw record
+ */
+function _deSerializeRecordData(rawData) {
+    return {
+        fromX: rawData[0],
+        fromY: rawData[1],
+        toX: rawData[2],
+        toY: rawData[3]
+    };
 }
 
 /**

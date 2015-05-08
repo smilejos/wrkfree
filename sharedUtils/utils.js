@@ -78,7 +78,7 @@ exports.printError = function(fileName, funcName, error) {
 exports.checkExecuteResult = function(result, failMsg) {
     var errMsg = failMsg || 'operation fail';
     if (result === null) {
-        throw new Error(failMsg);
+        throw new Error(errMsg);
     }
     return result;
 };
@@ -365,7 +365,30 @@ exports.isDrawBoardId = function(boardId) {
     if (!this.isNumber(boardId)) {
         return false;
     }
-    return (boardId >=0 && boardId < GLOBAL_MAXIMUM_DRAW_BOARD_NUM);
+    return (boardId >= 0 && boardId < GLOBAL_MAXIMUM_DRAW_BOARD_NUM);
+};
+
+/**
+ * TODO: implement check functions for each mode
+ * @Author: George_Chen
+ * @Description: to check draw options is valid or not
+ * 
+ * @param {Object}      options, draw options
+ */
+exports.isDrawOptions = function(options) {
+    if (!options) {
+        return false;
+    }
+    switch (options.mode) {
+        case 'pen':
+        case 'eraser':
+        case 'text':
+        case 'rect':
+        case 'circle':
+            return true;
+        default:
+            return false;
+    }
 };
 
 /**
@@ -449,7 +472,7 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                 if (exports.isNumber(arg)) {
                     return arg;
                 }
-                throw new Error('number check error');    
+                throw new Error('number check error');
             case 'string':
                 if (exports.isString(arg)) {
                     return arg;
@@ -505,6 +528,11 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('buffer check error');
+            case 'drawOptions':
+                if (exports.isDrawOptions(arg)) {
+                    return arg;
+                }
+                throw new Error('draw options check error');
             default:
                 throw new Error('no support args type check');
         }
