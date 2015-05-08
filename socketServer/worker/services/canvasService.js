@@ -21,17 +21,14 @@ var POOL_SIZE = 3;
 var CanvasPool = PoolModule.Pool({
     name: 'canvas',
     create: function(callback) {
-        var canvasObj = {
+        callback(null, {
             canvas: new Canvas(BOARD_WIDTH, BOARD_HEIGHT),
             img: new Image()
-        };
-        canvasObj.ctx = canvasObj.canvas.getContext('2d');
-        callback(null, canvasObj);
+        });
     },
     destroy: function(canvasObj) {
         canvasObj.canvas = null;
         canvasObj.img = null;
-        canvasObj.ctx = null;
     },
     max: POOL_SIZE,
     priorityRange: POOL_PRIORITY_LEVELS,
