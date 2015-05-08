@@ -50,7 +50,7 @@ exports.loadCanvasAsync = function(canvas, imageElement, imgSrc, records) {
         _drawFromRecords(canvas.getContext('2d'), records);
         return canvas;
     }).catch(function(err) {
-        SharedUtils.printError('drawUtils.js', 'loadingBoard', err);
+        SharedUtils.printError('drawUtils.js', 'loadCanvasAsync', err);
         return null;
     });
 };
@@ -167,7 +167,7 @@ exports.deSerializeRecordData = function(rawData) {
  * @param {String}          imageSrc, the image source data url
  */
 function _drawFromImage(ctx, imageElement, imageSrc) {
-    if (imageSrc) {
+    if (imageSrc && imageSrc.length > 0) {
         imageElement.src = imageSrc;
         ctx.drawImage(imageElement, 0, 0);
     }
