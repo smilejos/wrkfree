@@ -14,7 +14,7 @@ var GLOBAL_MAXIMUM_DRAW_BOARD_NUM = 10;
  */
 exports.fastArrayMap = function(array, fn) {
     var nweArray = [];
-    if (this.isArray(array) || this.isFunction(fn)) {
+    if (this.isArray(array) && this.isFunction(fn)) {
         for (var i = 0; i < array.length; ++i) {
             nweArray[i] = fn(array[i], i, array);
         }
