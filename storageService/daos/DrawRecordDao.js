@@ -149,6 +149,8 @@ exports.setNewUndoAsync = function(channelId, boardId) {
         var options = {
             sort: DbUtil.getSort('drawTime', 'descending')
         };
+        // make mongoose cache outdated
+        Model.find()._touchCollectionCheck(true);
         return Model.findOneAndUpdate(condition, updateDoc, options).select('_id').execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawRecordDao', 'setNewUndoAsync', err);
@@ -177,6 +179,8 @@ exports.restoreUndoAsync = function(channelId, boardId) {
         var options = {
             sort: DbUtil.getSort('drawTime', 'ascending')
         };
+        // make mongoose cache outdated
+        Model.find()._touchCollectionCheck(true);
         return Model.findOneAndUpdate(condition, updateDoc, options).select('_id').execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawRecordDao', 'restoreUndoAsync', err);
@@ -352,6 +356,8 @@ function _archiveOne(condition, updateDoc) {
     var options = {
         sort: DbUtil.getSort('drawTime', 'ascending')
     };
+    // make mongoose cache outdated
+    Model.find()._touchCollectionCheck(true);
     return Model.findOneAndUpdate(condition, updateDoc, options)
         .select('_id')
         .execAsync()

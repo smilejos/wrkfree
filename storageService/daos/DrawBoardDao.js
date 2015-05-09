@@ -61,6 +61,8 @@ exports.updateBaseImgAsync = function(channelId, boardId, rawData) {
                 chunks: rawData
             }
         };
+        // make mongoose cache outdated
+        Model.find()._touchCollectionCheck(true);
         return Model.findOneAndUpdate(condition, updateDoc).select('_id').execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'updateBaseImgAsync', err);
