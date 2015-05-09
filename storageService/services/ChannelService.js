@@ -229,6 +229,21 @@ exports.getOnlineMembersAsync = function(channelId) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for asker to get the member status on current channel
+ *
+ * @param {String}          asker, asker's uid
+ * @param {String}          channelId, channel id
+ */
+exports.getMemberStatusAsync = function(asker, channelId) {
+    return ChannelMemberDao.findMemberAsync(asker, channelId)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'getMemberStatusAsync', err);
+            return null;
+        });
+};
 
 /************************************************
  *
