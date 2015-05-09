@@ -147,7 +147,7 @@ Queue.process(QUEUE_TYPE, function(job, done) {
     return DrawStorage.getPreviewStatusAsync(channelId, boardId, time)
         .then(function(status) {
             if (!status) {
-                throw new Error('not preview status found!');
+                throw new Error('no preview status found!');
             }
             if (!status.isOutdated) {
                 return null;
