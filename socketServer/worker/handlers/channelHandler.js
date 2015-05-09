@@ -110,6 +110,27 @@ exports.getInfoAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for login user to get his member status on current channel
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, channel id
+ */
+exports.getMemberStatusAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    return Promise.props({
+        uid: SharedUtils.argsCheckAsync(uid, 'md5'),
+        cid: SharedUtils.argsCheckAsync(data.channelId, 'md5')
+    }).then(function(data) {
+        return ChannelStorage.getMemberStatusAsync(data.uid, data.cid);
+    }).catch(function(err) {
+        SharedUtils.printError('channelHandler.js', 'getMemberStatusAsync', err);
+        throw new Error('get channel member status fail');
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for client to get the channel memberList
  *
  * @param {Object}          socket, the client socket instance

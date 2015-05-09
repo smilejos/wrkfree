@@ -96,6 +96,26 @@ exports.getMemberListAsync = function(data) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to get his member status on current channel
+ *
+ * @param {String}        data.channelId, channel's id
+ */
+exports.getMemberStatusAsync = function(data) {
+    var packet = {
+        service: 'channel',
+        api: 'getMemberStatusAsync',
+        params: data
+    };
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', 'getMemberStatusAsync', err);
+            return null;
+        });
+};
+
+/**
  * @Author: George_Chen
  * @Description: to create the channel subscription request
  *
