@@ -136,6 +136,7 @@ function _getWorkSpace(uid, channelId, storageManager) {
     var channelStorage = storageManager.getService('Channel');
     return Promise.props({
         channel: channelStorage.getChannelInfoAsync(uid, channelId),
-        members: channelStorage.getMembersAsync(channelId)
+        members: channelStorage.getMembersAsync(channelId),
+        status: channelStorage.getMemberStatusAsync(uid, channelId)
     });
 }
