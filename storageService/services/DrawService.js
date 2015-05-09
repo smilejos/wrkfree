@@ -85,7 +85,7 @@ exports.cleanBoardAsync = function(channelId, boardId, member) {
             var cleanDoc = DrawUtils.generateCleanRecord(channelId, boardId);
             return _saveRecord(channelId, boardId, cleanDoc.record, cleanDoc.drawOptions);
         }).catch(function(err) {
-            SharedUtils.printError('DrawService.js', 'delBoardAsync', err);
+            SharedUtils.printError('DrawService.js', 'cleanBoardAsync', err);
             return null;
         });
 };
@@ -121,6 +121,7 @@ exports.streamRecordDataAsync = function(channelId, boardId, member, rawData) {
  * @param {Number}          boardId, the draw board id
  * @param {String}          member, the member uid
  * @param {Number}          rawDataNumbers, the number of rawData
+ * @param {Object}          drawOptions, the draw options of current record
  */
 exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers, drawOptions) {
     return Promise.join(
@@ -239,7 +240,7 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
                 reocrds: RecordDao.findByBoardAsync(channelId, boardId)
             });
         }).catch(function(err) {
-            SharedUtils.printError('DrawService.js', 'getBoardResource', err);
+            SharedUtils.printError('DrawService.js', 'getBoardInfoAsync', err);
             return null;
         });
 };
