@@ -1,5 +1,6 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
+var DrawUtils = require('../../sharedUtils/drawUtils');
 var Promise = require('bluebird');
 var ChannelStoreage = require('./ChannelService');
 var RecordDao = require('../daos/DrawRecordDao');
@@ -81,17 +82,8 @@ exports.delBoardAsync = function(channelId, boardId, member) {
 exports.cleanBoardAsync = function(channelId, boardId, member) {
     return _ensureAuth(member, channelId)
         .then(function() {
-            var buf = new Buffer('');
-            return Promise.all([
-                RecordDao.removeByBoardAsync(channelId, boardId),
-                BoardDao.updateBaseImgAsync(channelId, boardId, buf),
-                PreviewDao.updateChunksAsync(channelId, boardId, buf)
-            ]);
-        }).map(function(result) {
-            if (!result) {
-                throw new Error('at least on document clean fail');
-            }
-            return true;
+            var cleanDoc = DrawUtils.generateCleanRecord(channelId, boardId);
+            return _saveRecord(channelId, boardId, cleanDoc.record, cleanDoc.drawOptions);
         }).catch(function(err) {
             SharedUtils.printError('DrawService.js', 'delBoardAsync', err);
             return null;
