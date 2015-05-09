@@ -66,7 +66,7 @@ exports.drawBaseImgAsync = function(board, records) {
     return Promise.try(function() {
         var archives = [];
         SharedUtils.fastArrayMap(records, function(doc) {
-            doc.isArchived ? archives.push(doc) : activeRecords.push(doc)
+            return (doc.isArchived ? archives.push(doc) : activeRecords.push(doc));
         });
         return archives;
     }).then(function(archives) {
@@ -80,6 +80,9 @@ exports.drawBaseImgAsync = function(board, records) {
             records: activeRecords,
             isUpdated: !!newImg
         };
+    }).catch(function(err) {
+        SharedUtils.printError('drawWorker.js', 'drawBaseImgAsync', err);
+        return null;
     });
 };
 
