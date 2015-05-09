@@ -3,6 +3,7 @@ var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
+var BoardDao = require('../daos/DrawBoardDao');
 var ChannelMemberDao = require('../daos/ChannelMemberDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 
@@ -151,7 +152,13 @@ exports.getAuthChannelsAsync = function(member) {
 exports.getChannelInfoAsync = function(asker, channelId) {
     return _isMemberAuthAsync(asker, channelId)
         .then(function(auth) {
-            return (auth ? ChannelDao.findByChanelAsync(channelId) : null);
+            if (!auth) {
+                return null;
+            }
+            return Promise.props({
+                basicInfo: ChannelDao.findByChanelAsync(channelId),
+                drawBoardNums: BoardDao.countBoardsAsync(channelId)
+            });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService', 'getChannelInfoAsync', err);
             return null;
