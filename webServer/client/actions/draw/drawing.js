@@ -1,8 +1,8 @@
 'use strict';
 var Promise = require('bluebird');
-var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
-var DrawUtils = require('./drawUtils');
+var SharedUtils = require('../../../../sharedUtils/utils');
+var DrawUtils = require('../../../../sharedUtils/drawUtils');
 
 /**
  * @Public API

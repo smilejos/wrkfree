@@ -1,7 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
-var DrawUtils = require('./drawUtils');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 
 /**
