@@ -1,15 +1,27 @@
 $app_canvas_width: 900px;
 $app_canvas_height: 500px;
+$app_drawing_area_height: $app_canvas_height + $app-header-height;
 
 /**
  * the style of drawing area on workspace
  */
 .DrawingArea {
     width: $app_canvas_width;
-    height: $app_canvas_height;
+    height: $app_drawing_area_height;
     background-color: #FFF;
     margin-left: 200px;
     margin-top: 5%;
+}
+
+/**
+ * define the style of drawing tool bar
+ */
+.DrawingToolBar {
+    width: 100%;
+    height: $app-header-height;
+    background-color: $grey-200;
+    color: $grey-800;
+    opacity: 0.5;
 }
 
 /**
