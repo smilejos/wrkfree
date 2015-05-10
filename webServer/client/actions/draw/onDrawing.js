@@ -1,7 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
-var DrawUtils = require('./drawUtils');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 
 /**
@@ -33,7 +33,7 @@ module.exports = function(actionContext, data, callback) {
         // client and remote drawer use different board, so just send receive event
         return actionContext.dispatch('ON_DRAW_RECEIVE', recordData);
     }).catch(function(err) {
-        SharedUtils.printError('drawing.js', 'core', err);
+        SharedUtils.printError('onDrawing.js', 'core', err);
         return null;
         // show alert message ?
     }).nodeify(callback);

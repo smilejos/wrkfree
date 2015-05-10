@@ -1,8 +1,8 @@
 'use strict';
 var Promise = require('bluebird');
-var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
-var DrawUtils = require('./drawUtils');
+var SharedUtils = require('../../../../sharedUtils/utils');
+var DrawUtils = require('../../../../sharedUtils/drawUtils');
 
 /**
  * @Public API
@@ -26,7 +26,7 @@ module.exports = function(actionContext, data, callback) {
         return DrawService.drawAsync(recordData);
     }).then(function(result) {
         if (!result) {
-            throw new Error('server response error');
+            throw new Error('drawing got failure from server side');
         }
         return actionContext.dispatch('ON_DRAW_CHANGE', data);
     }).catch(function(err) {
