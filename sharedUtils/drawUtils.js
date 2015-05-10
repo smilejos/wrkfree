@@ -152,6 +152,18 @@ exports.deSerializeRecordData = function(rawData) {
     };
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to generate a unique draw view id
+ *
+ * @param {String}          channelId, the channel id
+ * @param {Number}          boardId, the draw board id
+ */
+exports.getDrawViewId = function(channelId, boardId) {
+    return channelId + boardId;
+};
+
 /************************************************
  *
  *           internal functions
