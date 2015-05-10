@@ -66,7 +66,7 @@ exports.drawBaseImgAsync = function(board, records) {
     return Promise.try(function() {
         var archives = [];
         SharedUtils.fastArrayMap(records, function(doc) {
-            doc.isArchived ? archives.push(doc) : activeRecords.push(doc)
+            return (doc.isArchived ? archives.push(doc) : activeRecords.push(doc));
         });
         return archives;
     }).then(function(archives) {
@@ -80,6 +80,9 @@ exports.drawBaseImgAsync = function(board, records) {
             records: activeRecords,
             isUpdated: !!newImg
         };
+    }).catch(function(err) {
+        SharedUtils.printError('drawWorker.js', 'drawBaseImgAsync', err);
+        return null;
     });
 };
 
@@ -144,7 +147,7 @@ Queue.process(QUEUE_TYPE, function(job, done) {
     return DrawStorage.getPreviewStatusAsync(channelId, boardId, time)
         .then(function(status) {
             if (!status) {
-                throw new Error('not preview status found!');
+                throw new Error('no preview status found!');
             }
             if (!status.isOutdated) {
                 return null;
