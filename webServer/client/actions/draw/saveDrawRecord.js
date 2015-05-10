@@ -29,7 +29,6 @@ module.exports = function(actionContext, data, callback) {
     }).then(function(validData) {
         return DrawService.saveRecordAsync(validData);
     }).then(function(result) {
-        // TODO: failure handling
         if (!result) {
             throw new Error('save draw record fail');
         }
@@ -42,7 +41,26 @@ module.exports = function(actionContext, data, callback) {
         });
     }).catch(function(err) {
         SharedUtils.printError('saveDrawRecord.js', 'core', err);
+        _rePullBoardInfo(actionContext, data.channelId, data.boardId);
         return null;
         // show alert message ?
     }).nodeify(callback);
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: this is used when error happen during save draw records
+ * 
+ * @param {Object}      actionContext, the fluxible's action context
+ * @param {String}      cid, target channel id
+ * @param {Number}      bid, target board id
+ */
+function _rePullBoardInfo(actionContext, cid, bid) {
+    var data = {
+        channelId: cid,
+        boardId: bid
+    };
+    // not sure drawer should trigger board clean or not
+    actionContext.dispatch('ON_BOARD_CLEAN', data);
+    actionContext.executeAction(GetDrawBoardAction, data);
+}
