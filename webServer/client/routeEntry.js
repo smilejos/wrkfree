@@ -187,7 +187,8 @@ function _getWorkSpaceResource(actionContext, channelId) {
         params.channelId = channelId;
         return Promise.props({
             channel: ChannelService.getInfoAsync(params),
-            members: ChannelService.getMemberListAsync(params)
+            members: ChannelService.getMemberListAsync(params),
+            status: ChannelService.getMemberStatusAsync(params)
         });
     }
     return null;

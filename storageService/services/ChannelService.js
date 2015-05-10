@@ -3,6 +3,7 @@ var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
+var BoardDao = require('../daos/DrawBoardDao');
 var ChannelMemberDao = require('../daos/ChannelMemberDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 
@@ -151,7 +152,13 @@ exports.getAuthChannelsAsync = function(member) {
 exports.getChannelInfoAsync = function(asker, channelId) {
     return _isMemberAuthAsync(asker, channelId)
         .then(function(auth) {
-            return (auth ? ChannelDao.findByChanelAsync(channelId) : null);
+            if (!auth) {
+                return null;
+            }
+            return Promise.props({
+                basicInfo: ChannelDao.findByChanelAsync(channelId),
+                drawBoardNums: BoardDao.countBoardsAsync(channelId)
+            });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService', 'getChannelInfoAsync', err);
             return null;
@@ -222,6 +229,21 @@ exports.getOnlineMembersAsync = function(channelId) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for asker to get the member status on current channel
+ *
+ * @param {String}          asker, asker's uid
+ * @param {String}          channelId, channel id
+ */
+exports.getMemberStatusAsync = function(asker, channelId) {
+    return ChannelMemberDao.findMemberAsync(asker, channelId)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'getMemberStatusAsync', err);
+            return null;
+        });
+};
 
 /************************************************
  *
