@@ -3,6 +3,14 @@ var Promise = require('bluebird');
 var CreateStore = require('fluxible/utils/createStore');
 var SharedUtils = require('../../../sharedUtils/utils');
 
+/**
+ * Default Draw Parameters
+ */
+var DRAW_MODE = 'pen';
+var DRAW_PEN_LINECAP = 'round';
+var DRAW_PEN_WIDTH = 10;
+var DRAW_PEN_COLOR = '#000000';
+
 module.exports = CreateStore({
     storeName: 'WorkSpaceStore',
     handlers: {
@@ -15,10 +23,10 @@ module.exports = CreateStore({
         this.status = {};
         this.draw = {
             drawOptions: {
-                mode: 'pen',
-                lineCap: 'round',
-                lineWidth: 5,
-                strokeStyle: '#000000'
+                mode: DRAW_MODE,
+                lineCap: DRAW_PEN_LINECAP,
+                lineWidth: DRAW_PEN_WIDTH,
+                strokeStyle: DRAW_PEN_COLOR
             }
         };
     },
