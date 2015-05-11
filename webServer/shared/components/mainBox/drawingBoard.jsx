@@ -1,13 +1,239 @@
 var React = require('react');
+var Promise = require('bluebird');
+var FluxibleMixin = require('fluxible').Mixin; 
+var DrawUtils = require('../../../../sharedUtils/drawUtils');
+
+
+var BOARD_WIDTH = 900;
+var BOARD_HEIGHT = 500;
+
+/**
+ * actions
+ */
+var Drawing = require('../../../client/actions/draw/drawing');
+var SaveDrawRecord = require('../../../client/actions/draw/saveDrawRecord');
+var GetDrawBoard = require('../../../client/actions/draw/getDrawBoard');
+var UpdateBaseImage = require('../../../client/actions/draw/updateBaseImage');
+
+/**
+ * stores
+ */
+var DrawTempStore = require('../../stores/DrawTempStore');
+var DrawStore = require('../../stores/DrawStore');
+
+/**
+ * child components
+ */
+var DrawingToolBar = require('./drawingToolBar.jsx');
+
 /**
  * the drawingBoard.jsx is the drawing board
  */
 module.exports = React.createClass({
+    mixins: [FluxibleMixin],
+    statics: {
+        storeListeners: {
+            'onTempDrawChange': [DrawTempStore],
+            'onDrawBoardChange': [DrawStore]
+        }
+    },
+
+    getInitialState: function() {
+        return {
+            canvas: null,
+            image: null
+        };
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: based on nextProps, check and update drawing board or not
+     */
+    componentWillReceiveProps: function(nextProps) {
+        var prevCid = this.props.channelId;
+        var prevBid = this.props.boardId;
+        var isChannelChange = (prevCid !== nextProps.channelId);
+        var isBoardChange = (prevBid !== nextProps.boardId);
+        if (isChannelChange) {
+            this.getStore(DrawStore).cleanStore();
+        }
+        if (isChannelChange || isBoardChange) {
+            this.executeAction(GetDrawBoard, {
+                channelId: nextProps.channelId,
+                boardId: nextProps.boardId
+            });
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: initialize the draw board 
+     */
+    componentDidMount: function(){
+        var board = document.getElementById("DrawBoard");
+        var canvas = document.createElement('canvas');
+        var self = this;
+        var drawing = false;
+        // used to store previous mouse position
+        var prev = {};
+
+        /**
+         * this canvas and image element is for internal used
+         * not for client drawing
+         */
+        canvas.width = BOARD_WIDTH;
+        canvas.height = BOARD_HEIGHT;
+        this.state.canvas = canvas;
+        this.state.image = document.createElement('img');
+
+        board.addEventListener('mousemove',function(e){
+            if (!drawing) {
+                return;
+            }
+            var position = _getCanvasMouse(e);
+            // trigger the drawing action
+            self.executeAction(Drawing, {
+                channelId: self.props.channelId,
+                boardId: self.props.boardId,
+                chunks: DrawUtils.serializeRecordData({
+                    fromX: prev.x,
+                    fromY: prev.y,
+                    toX: position.x,
+                    toY: position.y
+                }),
+                drawOptions: self.props.drawInfo.drawOptions
+            });
+            prev = position;
+        });
+
+        board.addEventListener('mousedown', function(e) {
+            prev = _getCanvasMouse(e);
+            // to ensure the mouse pointer will not change to default behaviour
+            e.preventDefault();
+            drawing = true;
+        });
+
+        board.addEventListener('mouseup',function(){
+            var drawTempStore = self.getStore(DrawTempStore);
+            drawing = false;
+            self.executeAction(SaveDrawRecord, {
+                channelId: self.props.channelId,
+                boardId: self.props.boardId,
+                chunksNum: drawTempStore.getDraws(self.props.channelId, self.props.boardId).length,
+                drawOptions: self.props.drawInfo.drawOptions
+            });
+        });
+
+        board.addEventListener('mouseleave',function(){
+            drawing = false;
+        });
+
+        // because the componentWillUnmount abnormal, so init store here
+        this.getStore(DrawStore).cleanStore();
+
+        // get drawInfo
+        this.executeAction(GetDrawBoard, {
+            channelId: this.props.channelId,
+            boardId: this.props.boardId
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handling drawStore change
+     *         NOTE: drawStore save completed draw record documents
+     */
+    onDrawBoardChange: function(){
+        var canvas = document.getElementById('DrawBoard');
+        var cid = this.props.channelId;
+        var bid = this.props.boardId;
+        var self = this;
+        var drawInfo = this.getStore(DrawStore).getDrawInfo(cid, bid);
+        var archives = drawInfo.records.filter(function(doc){
+            return doc.isArchived;
+        });
+        if (archives.length > 0 ) {
+            setTimeout(function(){
+                self._updateBaseImage(drawInfo.baseImg, archives);
+            });
+        }
+        DrawUtils.loadCanvasAsync(canvas, this.state.image, drawInfo.baseImg, drawInfo.records);
+    },    
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handling drawTempStore change
+     *         NOTE: draw temp store save realtime draw chunks
+     */
+    onTempDrawChange: function(){
+        var cid = this.props.channelId;
+        var bid = this.props.boardId;
+        var ctx = _getDrawBoardCtx();
+        var rawData = this.getStore(DrawTempStore).getLastDraw(cid, bid);
+        var data = DrawUtils.deSerializeRecordData(rawData.chunks);
+        DrawUtils.draw(ctx, data, rawData.drawOptions);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for update board base image internally on client side
+     *         NOTE: use internal canvas to generate new base image
+     *
+     * @param {String}      img, image date url
+     * @param {Array}       archiveRecords, an array archived draw records
+     */
+    _updateBaseImage: function(img, archiveRecords) {
+        var cid = this.props.channelId;
+        var bid = this.props.boardId;
+        var canvas = this.state.canvas;
+        DrawUtils.loadCanvasAsync(canvas, this.state.image, img, archiveRecords)
+            .bind(this)
+            .then(function(loadedCanvas){
+                if (!loadedCanvas) {
+                    console.error('update base image fail');
+                }
+                this.executeAction(UpdateBaseImage, {
+                    channelId: cid,
+                    boardId: bid,
+                    imgDataUrl: loadedCanvas.toDataURL(),
+                    outdatedDocs: archiveRecords
+                });
+            });
+    },
+
     render: function(){
         return (
             <div className="DrawingArea" >
-                <canvas></canvas>
+                <canvas width={BOARD_WIDTH} height={BOARD_HEIGHT} id="DrawBoard"></canvas>
+                <DrawingToolBar 
+                    channelId={this.props.channelId} 
+                    boardId={this.props.boardId}
+                    drawInfo={this.props.drawInfo} />
             </div>
         );
     }
 });
+
+/**
+ * @Author: George_Chen
+ * @Description: for getting draw board 2d context
+ */
+function _getDrawBoardCtx(){
+    return document.getElementById("DrawBoard").getContext('2d');
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: for getting mouse position on canvas
+ * 
+ * @param {Object}       canvasEvent, canvas event object
+ */
+function _getCanvasMouse(canvasEvent){
+    var board = document.getElementById("DrawBoard");
+    // app-header-height = 50px defined in css
+    var headerHeight = 50;
+    return {
+        x: canvasEvent.pageX - board.offsetLeft,
+        y: canvasEvent.pageY - headerHeight - board.offsetTop
+    };
+}
