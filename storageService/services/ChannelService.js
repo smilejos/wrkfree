@@ -280,21 +280,21 @@ function _isMemberAuthAsync(asker, channelId) {
  * @param {String}          type, channel type
  */
 function _createChannel(creator, channelId, name, type) {
-    return Promise.all([
+    return Promise.join(
+        ChannelDao.newChannelAsync(channelId, name, type),
         ChannelMemberDao.addMemberAsync(creator, channelId, type, name, true),
-        ChannelDao.newChannelAsync(channelId, name, type)
-    ]).map(function(result) {
-        if (!result) {
-            throw new Error('at least one channel document create fail');
-        }
-        return result;
-    }).catch(function(err) {
-        SharedUtils.printError('ChannelService', '_createChannel', err);
-        // clean previous related docs
-        return _removeChannel(channelId).then(function() {
-            return null;
+        function(channelDoc, memberDoc) {
+            if (!channelDoc || !memberDoc) {
+                throw new Error('at least one channel document create fail');
+            }
+            return channelDoc;
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelService', '_createChannel', err);
+            // clean previous related docs
+            return _removeChannel(channelId).then(function() {
+                return null;
+            });
         });
-    });
 }
 
 /**
