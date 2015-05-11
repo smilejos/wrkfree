@@ -17,6 +17,12 @@ var RoutesHandler = {
     '/app/signup': RouteInstance.getSignUpAsync
 };
 
+/**
+ * @Author: George_Chen
+ * @Description: check path dependent RoutesHandler is exist or not
+ *
+ * @param {String}          path, route path
+ */
 function isHandlerExist(path) {
     return !!RoutesHandler[path];
 }
@@ -28,6 +34,14 @@ module.exports = {
         return {
             plugActionContext: function plugActionContext(actionContext) {
                 var routeInfo = {};
+
+                /**
+                 * Public API
+                 * @Author: George_Chen
+                 * @Description: polyfill route resource to matched fluxible stores
+                 *
+                 * @param {Object}          params, routing parameters
+                 */
                 actionContext.getRouteResourceAsync = function(params) {
                     return Promise.try(function() {
                         if (!isHandlerExist(params.path)) {
@@ -37,10 +51,23 @@ module.exports = {
                         return handler(actionContext, params);
                     });
                 };
+
+                /**
+                 * Public API
+                 * @Author: George_Chen
+                 * @Description: pre-fill the route info to action context
+                 *
+                 * @param {Object}          info, route info object
+                 */
                 actionContext.setRouteInfo = function(info) {
                     routeInfo = info;
                 };
 
+                /**
+                 * Public API
+                 * @Author: George_Chen
+                 * @Description: get the route info object on current action context
+                 */
                 actionContext.getRouteInfo = function() {
                     return routeInfo;
                 };
