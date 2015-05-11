@@ -4,6 +4,12 @@ var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible').Mixin;
 var SharedUtils = require('../../../sharedUtils/utils');
 var ChannelNavStore = require('../stores/ChannelNavStore');
+var HeaderStore = require('../stores/HeaderStore');
+
+/**
+ * actions
+ */
+var CreateChannel = require('../../client/actions/channel/createChannel');
 
 /**
  * child components
@@ -42,10 +48,32 @@ module.exports = React.createClass({
      */
     onStoreChange: function() {
         var state = this.getStore(ChannelNavStore).getState();
+        if (state.createdChannel !== -1) {
+            return this._checkCreatedChannel(state.createdChannel);
+        }
         if (state.isActived !== this.state.isActived) {
             this.refs.channelNav.toggle();
         }
         this.setState(state);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to check the result of create channel
+     *
+     * @param {Object}        createdChannel, the created channel
+     */
+    _checkCreatedChannel: function(createdChannel) {
+        if (!createdChannel) {
+            return;
+            // TODO: create Channel fail
+        }
+        var toggleMode = {
+            open: false
+        };
+        this.refs.channelName.clearValue();
+        this.executeAction(ToggleChannelNav, toggleMode);
+        this.transitionTo('/app/channel/'+createdChannel.channelId);
     },
 
     /**
@@ -88,13 +116,8 @@ module.exports = React.createClass({
      * @Description: handler for user create channel
      */
     _onCreateChannel: function() {
-        var name = this.refs.channelName.getValue();
-        var toggleMode = {
-            open: false
-        };
-        this.refs.channelName.clearValue();
-        this.executeAction(ToggleChannelNav, toggleMode, function(){
-            // TODO: execute create channel action here
+        this.executeAction(CreateChannel, {
+            name: this.refs.channelName.getValue()
         });
     },
 
