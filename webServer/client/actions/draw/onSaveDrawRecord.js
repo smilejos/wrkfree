@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawTempStore = require('../../../shared/stores/DrawTempStore');
+var GetDrawBoardAction = require('./getDrawBoard');
 
 /**
  * @Public API
@@ -25,8 +26,7 @@ module.exports = function(actionContext, data, callback) {
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
     }).then(function(validData) {
         var drawTempStore = actionContext.getStore(DrawTempStore);
-        var tempRecord = drawTempStore.getDraws(data.channelId, data.boardId);
-        // TODO: re-pull full board info
+        var tempRecord = drawTempStore.getDraws(validData.channelId, validData.boardId);
         if (tempRecord.length !== validData.chunksNum) {
             throw new Error('record is broken');
         }
@@ -38,7 +38,24 @@ module.exports = function(actionContext, data, callback) {
         });
     }).catch(function(err) {
         SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
+        _rePullBoardInfo(actionContext, data.channelId, data.boardId);
         return null;
-        // show alert message ?
     }).nodeify(callback);
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: this is used when error happen during save draw records
+ * 
+ * @param {Object}      actionContext, the fluxible's action context
+ * @param {String}      cid, target channel id
+ * @param {Number}      bid, target board id
+ */
+function _rePullBoardInfo(actionContext, cid, bid) {
+    var data = {
+        channelId: cid,
+        boardId: bid
+    };
+    actionContext.dispatch('ON_BOARD_CLEAN', data);
+    actionContext.executeAction(GetDrawBoardAction, data);
+}
