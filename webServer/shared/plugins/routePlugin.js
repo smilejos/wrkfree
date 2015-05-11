@@ -1,20 +1,20 @@
 'use strict';
 var Promise = require('bluebird');
-var RouteInstance;
+var RouteEntry;
 if (typeof window !== 'undefined') {
-    RouteInstance = require('../../client/routeEntry');
+    RouteEntry = require('../../client/routeEntry');
 } else {
-    RouteInstance = require('../../server/routeEntry');
+    RouteEntry = require('../../server/routeEntry');
 }
 
 /**
  * RoutesHandler
  */
 var RoutesHandler = {
-    '/app/': RouteInstance.getDashboardAsync,
-    '/app/dashboard': RouteInstance.getDashboardAsync,
-    '/app/channel': RouteInstance.getChannelAsync,
-    '/app/signup': RouteInstance.getSignUpAsync
+    '/app/': RouteEntry.getDashboardAsync,
+    '/app/dashboard': RouteEntry.getDashboardAsync,
+    '/app/channel': RouteEntry.getChannelAsync,
+    '/app/signup': RouteEntry.getSignUpAsync
 };
 
 /**
@@ -42,10 +42,10 @@ module.exports = {
                  *
                  * @param {Object}          params, routing parameters
                  */
-                actionContext.getRouteResourceAsync = function(params) {
+                actionContext.routePolyfillAsync = function(params) {
                     return Promise.try(function() {
                         if (!isHandlerExist(params.path)) {
-                            throw new Error('[getRouteResourceAsync] no matched handler', params.path);
+                            throw new Error('[routePolyfillAsync] no matched handler', params.path);
                         }
                         var handler = RoutesHandler[params.path];
                         return handler(actionContext, params);

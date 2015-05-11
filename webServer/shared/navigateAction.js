@@ -6,12 +6,14 @@ module.exports = function(actionContext, payload, done) {
     var urlInfo = _getUrlInfo(payload);
     var args = ObjectAssign(routeInfo, urlInfo);
 
-    actionContext.getRouteResourceAsync(args).then(function(resource) {
-        payload.resource = resource;
-        actionContext.dispatch('CHANGE_ROUTE', payload);
-    }).catch(function(err){
-        return console.log('[navigateAction]', err);
-    }).nodeify(done);
+    return actionContext.routePolyfillAsync(args)
+        .then(function() {
+            // TODO: should we check polyfill result ?
+            actionContext.dispatch('CHANGE_ROUTE', payload);
+        }).catch(function(err) {
+            return console.log('[navigateAction]', err);
+            // disaptch error route ???
+        }).nodeify(done);
 };
 
 /**
@@ -27,7 +29,7 @@ function _getUrlInfo(routerState) {
     var info = routerState.params;
     var lastIndex = routerState.routes.length - 1;
     // to get the real url index
-    var pathIndex = (Object.keys(info).length === 0 ? lastIndex : lastIndex-1);
+    var pathIndex = (Object.keys(info).length === 0 ? lastIndex : lastIndex - 1);
     info.path = routerState.routes[pathIndex].path;
     return info;
 }
