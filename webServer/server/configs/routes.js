@@ -101,8 +101,8 @@ module.exports = function(server) {
         };
         return reactRoute(req, res);
     });
-
-    ExpressRouter.get('/app/channel/:channelId', function(req, res) {
+    
+    ExpressRouter.get('/app/channel/:channelId', auth.ensureMember, function(req, res) {
         req.routeInfo = {
             user: req.user,
             channelId: req.params.channelId,
@@ -134,5 +134,12 @@ module.exports = function(server) {
     ExpressRouter.get('/app/build/*', function(req, res) {
         res.setHeader('X-Accel-Redirect', req.url.replace('/app/build/', '/protected/'));
         res.end();
+    });
+
+    /**
+     * for handling not found route request
+     */
+    ExpressRouter.use(function(req, res){
+        res.send(404);
     });
 };
