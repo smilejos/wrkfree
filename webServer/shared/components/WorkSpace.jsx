@@ -36,9 +36,10 @@ module.exports = React.createClass({
     render: function(){
         var channelInfo= this.state.channel;
         var membersInfo= this.state.members;
+        var drawInfo= this.state.draw;
         return (
             <div>
-                <DrawingArea channel={channelInfo} />
+                <DrawingArea channel={channelInfo} drawInfo={drawInfo}/>
                 <DiscussionArea channel={channelInfo} />
                 <WorkSpaceBar members={membersInfo}/>
             </div>

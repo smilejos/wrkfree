@@ -3,12 +3,61 @@ var Promise = require('bluebird');
 var CreateStore = require('fluxible/utils/createStore');
 var SharedUtils = require('../../../sharedUtils/utils');
 
+/**
+ * Default Draw Parameters
+ */
+var DRAW_MODE = 'pen';
+var DRAW_PEN_LINECAP = 'round';
+var DRAW_PEN_WIDTH = 10;
+var DRAW_PEN_COLOR = '#000000';
+
 module.exports = CreateStore({
     storeName: 'WorkSpaceStore',
+    handlers: {
+        'ON_BOARD_ADD': 'onBoardAdd'
+    },
 
     initialize: function() {
         this.channel = {};
         this.members = {};
+        this.status = {};
+        this.draw = {
+            drawOptions: {
+                mode: DRAW_MODE,
+                lineCap: DRAW_PEN_LINECAP,
+                lineWidth: DRAW_PEN_WIDTH,
+                strokeStyle: DRAW_PEN_COLOR
+            }
+        };
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: set current board id to target board id
+     *
+     * @param {Number}      boardId, the target board id
+     */
+    setCurrentBoard: function(boardId) {
+        this.draw.currentBoardId = boardId;
+        this.emitChange();
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: handler for new board added event
+     *
+     * @param {Number}      boardId, the new board id
+     * @param {Boolean}     toNewBoard, to indicate currentBoard id should
+     *                                 be set or not
+     */
+    onBoardAdd: function(data) {
+        this.draw.boardNums = data.boardId + 1;
+        if (data.toNewBoard) {
+            this.draw.currentBoardId = data.boardId;
+        }
+        this.emitChange();
     },
 
     /**
@@ -21,8 +70,11 @@ module.exports = CreateStore({
     polyfillAsync: function(state) {
         var self = this;
         return Promise.try(function() {
-            self.channel = state.channel;
+            self.channel = state.channel.basicInfo;
             self.members = state.members;
+            self.draw.boardNums = state.channel.drawBoardNums;
+            self.draw.currentBoardId = state.status.lastUseBoard;
+            self.status = state.status;
         }).then(function() {
             self.emitChange();
         }).catch(function(err) {
@@ -44,7 +96,9 @@ module.exports = CreateStore({
     getState: function() {
         return {
             channel: this.channel,
-            members: this.members
+            members: this.members,
+            draw: this.draw,
+            status: this.status
         };
     },
 
@@ -67,5 +121,7 @@ module.exports = CreateStore({
     rehydrate: function(state) {
         this.channel = state.channel;
         this.members = state.members;
+        this.draw = state.draw;
+        this.status = state.status;
     }
 });
