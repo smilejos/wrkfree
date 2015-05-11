@@ -1,6 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
+var CryptoUtils = require('../../../sharedUtils/cryptoUtils');
 var StorageManager = require('../../../storageService/storageManager');
 var ChannelStorage = StorageManager.getService('Channel');
 
@@ -10,31 +11,26 @@ var ChannelStorage = StorageManager.getService('Channel');
  * @Description: to handle channel create request
  *
  * @param {Object}          socket, the client socket instance
- * @param {String}          data.channelId, channel id
- * @param {String}          data.channelName, the full channel name
+ * @param {String}          data.name, the partial channel name
  */
 exports.createAsync = function(socket, data) {
-    var uid = socket.getAuthToken();
-    var type = 'public';
-    return Promise.props({
-        creator: SharedUtils.argsCheckAsync(uid, 'md5'),
-        channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        channelName: SharedUtils.argsCheckAsync(data.channelName, 'channelName', type)
-    }).then(function(params) {
-        return ChannelStorage.createChannelAsync(
-            params.creator,
-            params.channelId,
-            params.channelName,
-            type);
-    }).then(function(result) {
-        if (!result || result.length === 0) {
-            throw new Error('channel storage internal error');
-        }
-        return null;
-    }).catch(function(err) {
-        SharedUtils.printError('channelHandler.js', 'createAsync', err);
-        throw new Error('create channel fail');
-    });
+    return SharedUtils.argsCheckAsync(data.name, 'string')
+        .then(function(validName) {
+            var host = socket.getAuthToken();
+            var type = 'public';
+            var channelName = SharedUtils.getPublicChannelName(host, validName);
+            var cid = CryptoUtils.getMd5Hex(channelName);
+            return ChannelStorage.createChannelAsync(host, cid, channelName, type);
+        }).then(function(result) {
+            if (!result) {
+                throw new Error('channel storage internal error');
+            }
+            result._id = null;
+            return result;
+        }).catch(function(err) {
+            SharedUtils.printError('channelHandler.js', 'createAsync', err);
+            throw new Error('create channel fail');
+        });
 };
 
 /**

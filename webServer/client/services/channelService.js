@@ -5,6 +5,26 @@ var SharedUtils = require('../../../sharedUtils/utils');
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to create channel
+ *
+ * @param {String}        data.name, the partial channel name
+ */
+exports.createAsync = function(data) {
+    var packet = {
+        service: 'channel',
+        api: 'createAsync',
+        params: data
+    };
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', 'createAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for user to enter specific channel space
  *
  * @param {String}        channelId, channel's id
