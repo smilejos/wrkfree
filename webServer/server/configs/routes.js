@@ -135,4 +135,11 @@ module.exports = function(server) {
         res.setHeader('X-Accel-Redirect', req.url.replace('/app/build/', '/protected/'));
         res.end();
     });
+
+    /**
+     * for handling not found route request
+     */
+    ExpressRouter.use(function(req, res){
+        res.send(404);
+    });
 };
