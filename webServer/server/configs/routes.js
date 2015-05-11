@@ -101,8 +101,8 @@ module.exports = function(server) {
         };
         return reactRoute(req, res);
     });
-
-    ExpressRouter.get('/app/channel/:channelId', function(req, res) {
+    
+    ExpressRouter.get('/app/channel/:channelId', auth.ensureMember, function(req, res) {
         req.routeInfo = {
             user: req.user,
             channelId: req.params.channelId,
