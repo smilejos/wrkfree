@@ -2,9 +2,6 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../sharedUtils/utils');
 
-exports.setResource = function(resource) {
-    console.log('set resource on server');
-}
 
 /**
  * Public API
@@ -76,9 +73,9 @@ exports.getChannelAsync = function(actionContext, routeInfo) {
  */
 exports.getSignUpAsync = function(actionContext, routeInfo) {
     return Promise.try(function() {
-        return {
-            signUpInfo: routeInfo.userInfo
-        };
+        return _storesPolyfill(actionContext, {
+            SignUpStore: routeInfo.userInfo
+        });
     }).catch(function(err) {
         SharedUtils.printError('server-routeEntry', 'getSignUpAsync', err);
         return {};

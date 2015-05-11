@@ -131,9 +131,8 @@ exports.getSignUpAsync = function(actionContext, params) {
         if (!signUpResource) {
             throw new Error('Singup Store should not be empty');
         }
-        return {
-            signUpInfo: signUpResource.originInfo
-        };
+        // do nothing
+        return true;
     }).catch(function(err) {
         SharedUtils.printError('client-routeEntry', 'getSignUpAsync', err);
         // should not allowed 'CHANGE_ROUTE', so simply throw an error
