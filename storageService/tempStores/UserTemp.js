@@ -114,7 +114,7 @@ exports.bindSocketAsync = function(uid, socketId) {
         SharedUtils.argsCheckAsync(socketId, 'string'),
         function(validUid, validSocketId) {
             var userSocketKey = 'user:' + validUid + ':sockets';
-            return RedisClient.saddAsync(userSocketKey, validUid);
+            return RedisClient.saddAsync(userSocketKey, validSocketId);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'bindSocketAsync', err);
             return false;
@@ -135,7 +135,7 @@ exports.unbindSocketAsync = function(uid, socketId) {
         SharedUtils.argsCheckAsync(socketId, 'string'),
         function(validUid, validSocketId) {
             var userSocketKey = 'user:' + validUid + ':sockets';
-            return RedisClient.sremAsync(userSocketKey, validUid);
+            return RedisClient.sremAsync(userSocketKey, validSocketId);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'unbindSocketAsync', err);
             return false;
