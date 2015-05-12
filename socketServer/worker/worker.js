@@ -59,16 +59,6 @@ module.exports.run = function(worker) {
                 });
         });
 
-        socket.on('subscribe', function(channel) {
-            var uid = socket.getAuthToken();
-            return UserStorage.setSubscriptionAsync(uid, channel);
-        });
-
-        socket.on('unsubscribe', function(channel) {
-            var uid = socket.getAuthToken();
-            return UserStorage.remSubscriptionAsync(uid, channel);
-        });
-
         socket.on('disconnect', function() {
             var token = socket.getAuthToken();
             return UserStorage.userLeaveAsync(token, socket.id);
