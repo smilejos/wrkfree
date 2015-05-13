@@ -36,7 +36,10 @@ module.exports = CreateStore({
     initialize: function() {
         this.isEnabled = false;
         this.queryStr = null;
-        this.results = {};
+        this.results = {
+            channels: [],
+            users: []
+        };
     },
 
     getState: function() {
