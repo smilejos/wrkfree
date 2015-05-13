@@ -121,7 +121,7 @@ exports.checkDocumentUpdateStatusAsync = function(updateResult) {
         if (updateResult === 0) {
             throw new Error('mongoose update fail');
         }
-        return (updateResult === 1);
+        return (updateResult > 0);
     });
 };
 
