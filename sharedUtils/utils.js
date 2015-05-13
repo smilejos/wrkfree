@@ -101,6 +101,31 @@ exports.getArgs = function(rawArguments) {
     return args;
 };
 
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: generate public full channel name
+ *
+ * @param {String}      host, the host uid
+ * @param {String}      name, the partial channel name
+ */
+exports.getPublicChannelName = function(host, name) {
+    return host + '#' + name;
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: generate private full channel name
+ *         NOTE: private channel is 1on1 channel
+ *
+ * @param {String}      user1, the user1's uid
+ * @param {String}      user2, the user2's uid
+ */
+exports.getPrivateChannelName = function(user1, user2) {
+    return [user1, user2].sort().join('&');
+};
+
 /************************************************
  *
  *           args checker
