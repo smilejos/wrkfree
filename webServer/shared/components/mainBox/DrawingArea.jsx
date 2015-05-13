@@ -12,7 +12,7 @@ module.exports = React.createClass({
     render: function(){
         return (
             <div className="mainBox" >
-                <DrawingPalette />
+                <DrawingPalette isActive={this.props.drawInfo.drawOptions.palette}/>
                 <DrawingBoard 
                     channelId={this.props.channel.channelId} 
                     boardId={this.props.drawInfo.currentBoardId}
