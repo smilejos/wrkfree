@@ -5,8 +5,6 @@ var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
 var GLOBAL_OnlineUserKey = 'SYSTEM:onlineusers';
 var GLOBAL_SessionPrefix = 'sess:';
-// the expiration time of user token
-var GLOBAL_TOEKN_EXPIRE_TIME_IN_SECONDS = 3600;
 
 /**
  * Online user list is stored at global redis cache server
@@ -116,7 +114,7 @@ exports.bindSocketAsync = function(uid, socketId) {
         SharedUtils.argsCheckAsync(socketId, 'string'),
         function(validUid, validSocketId) {
             var userSocketKey = 'user:' + validUid + ':sockets';
-            return RedisClient.saddAsync(userSocketKey, validUid);
+            return RedisClient.saddAsync(userSocketKey, validSocketId);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'bindSocketAsync', err);
             return false;
@@ -137,90 +135,9 @@ exports.unbindSocketAsync = function(uid, socketId) {
         SharedUtils.argsCheckAsync(socketId, 'string'),
         function(validUid, validSocketId) {
             var userSocketKey = 'user:' + validUid + ':sockets';
-            return RedisClient.sremAsync(userSocketKey, validUid);
+            return RedisClient.sremAsync(userSocketKey, validSocketId);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'unbindSocketAsync', err);
             return false;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: add subscription token string to token cache
- *
- * @param  {String}           uid, user's id
- * @param  {String}           tokenStr, the token string
- */
-exports.addTokenAsync = function(uid, tokenStr) {
-    return Promise.join(
-        SharedUtils.argsCheckAsync(uid, 'md5'),
-        SharedUtils.argsCheckAsync(tokenStr, 'string'),
-        function(validUid, valuidSubscription) {
-            var userTokenKey = 'user:' + validUid + ':tokens';
-            return RedisClient.saddAsync(userTokenKey, valuidSubscription);
-        }).catch(function(err) {
-            SharedUtils.printError('UserTemp', 'addTokenAsync', err);
-            throw err;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: delete specific subscription token string from token cache
- *
- * @param  {String}           uid, user's id
- * @param  {String}           tokenStr, the token string
- */
-exports.delTokenAsync = function(uid, tokenStr) {
-    return Promise.join(
-        SharedUtils.argsCheckAsync(uid, 'md5'),
-        SharedUtils.argsCheckAsync(tokenStr, 'string'),
-        function(validUid, valuidSubscription) {
-            var userTokenKey = 'user:' + validUid + ':tokens';
-            return RedisClient.sremAsync(userTokenKey, valuidSubscription);
-        }).catch(function(err) {
-            SharedUtils.printError('UserTemp', 'delTokenAsync', err);
-            throw err;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: for user to check specific token is exist or not 
- *
- * @param  {String}           uid, user's id
- * @param  {String}           tokenStr, the token string
- */
-exports.isTokenExistAsync = function(uid, tokenStr) {
-    return Promise.join(
-        SharedUtils.argsCheckAsync(uid, 'md5'),
-        SharedUtils.argsCheckAsync(tokenStr, 'string'),
-        function(validUid, valuidSubscription) {
-            var userTokenKey = 'user:' + validUid + ':tokens';
-            return RedisClient.sismemberAsync(userTokenKey, valuidSubscription);
-        }).catch(function(err) {
-            SharedUtils.printError('UserTemp', 'addTokenAsync', err);
-            throw err;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: renew the timeout of specific user token cache
- *
- * @param  {String}           uid, user's id
- */
-exports.ttlTokenAsync = function(uid) {
-    return SharedUtils.argsCheckAsync(uid, 'md5')
-        .then(function(validUid) {
-            var userTokenKey = 'user:' + validUid + ':tokens';
-            return RedisClient.expireAsync(userTokenKey, GLOBAL_TOEKN_EXPIRE_TIME_IN_SECONDS);
-        }).catch(function(err) {
-            SharedUtils.printError('UserTemp', 'ttlTokenAsync', err);
-            throw err;
         });
 };

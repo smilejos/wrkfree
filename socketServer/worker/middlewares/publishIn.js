@@ -1,7 +1,6 @@
 'use strict';
 var Dispatcher = require('../dispatcher');
 var SharedUtils = require('../../../sharedUtils/utils');
-var StorageManager = require('../../../storageService/storageManager');
 
 /*
  * @Description: All publish middlewares has these arguments
@@ -37,18 +36,10 @@ exports.ensureLogin = function(socket, channel, data, next) {
  * @Description: ensure the subscription has already subscribed.
  */
 exports.ensureSubscribed = function(socket, channel, data, next) {
-    var uid = socket.getAuthToken();
-    var userStorage = StorageManager.getService('User');
-    return userStorage.isSubscribedAsync(uid, channel)
-        .then(function(result) {
-            if (!result) {
-                throw new Error('token invalid');
-            }
-            return next();
-        }).catch(function(err) {
-            SharedUtils.printError('publish.js', 'ensureSubscribed', err);
-            return next('authorization fail');
-        });
+    if (socket.isSubscribed(channel)) {
+        return next();
+    }
+    return next('not allowed to publish request');
 };
 
 /**
