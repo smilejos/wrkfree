@@ -9,6 +9,7 @@ var CleanDrawBoard = require('../../../client/actions/draw/cleanDrawBoard');
 var UndoDrawRecord = require('../../../client/actions/draw/drawUndo');
 var RedoDrawRecord = require('../../../client/actions/draw/drawRedo');
 var NavToBoard = require('../../../client/actions/draw/navToBoard');
+var ChangeDrawMode = require('../../../client/actions/draw/changeDrawMode');
 
 /**
  * material ui components
@@ -31,6 +32,36 @@ module.exports = React.createClass({
     componentWillReceiveProps: function(nextProps) {
         this.setState({
             boardIndex: nextProps.boardId + 1
+        });
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for pick new color on palette
+     */
+    _openPalette: function(){
+        this.executeAction(ChangeDrawMode, {
+            palette: true
+        });
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for change to pen mode
+     */
+    _changeToPen: function(){
+        this.executeAction(ChangeDrawMode, {
+            mode: "pen"
+        });
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for change eraser mode
+     */
+    _changeToEraser: function(){
+        this.executeAction(ChangeDrawMode, {
+            mode: "eraser"
         });
     },
 
@@ -157,7 +188,22 @@ module.exports = React.createClass({
     render: function(){
         return (
             <div className="DrawingToolBar" >
-                <div className="pure-u-1-3">
+                <div className="pure-u-1-3 Left">
+                    <IconButton 
+                        iconClassName="fa fa-eyedropper"
+                        tooltip={'pick color'}
+                        touch 
+                        onClick={this._openPalette} />
+                    <IconButton 
+                        iconClassName="fa fa-paint-brush"
+                        tooltip={'pen mode'}
+                        touch 
+                        onClick={this._changeToPen} />
+                    <IconButton 
+                        iconClassName="fa fa-eraser"
+                        tooltip={'eraser mode'}
+                        touch 
+                        onClick={this._changeToEraser} />
                 </div>
                 <div className="pure-u-1-3 Center" >
                     <IconButton 

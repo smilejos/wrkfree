@@ -10,11 +10,13 @@ var DRAW_MODE = 'pen';
 var DRAW_PEN_LINECAP = 'round';
 var DRAW_PEN_WIDTH = 10;
 var DRAW_PEN_COLOR = '#000000';
+var DRAW_PALETTE = false;
 
 module.exports = CreateStore({
     storeName: 'WorkSpaceStore',
     handlers: {
-        'ON_BOARD_ADD': 'onBoardAdd'
+        'ON_BOARD_ADD': 'onBoardAdd',
+        'ON_DRAW_MODE_CHANGE': 'onDrawModeChange'
     },
 
     initialize: function() {
@@ -26,8 +28,9 @@ module.exports = CreateStore({
                 mode: DRAW_MODE,
                 lineCap: DRAW_PEN_LINECAP,
                 lineWidth: DRAW_PEN_WIDTH,
-                strokeStyle: DRAW_PEN_COLOR
-            }
+                strokeStyle: DRAW_PEN_COLOR,
+                palette: DRAW_PALETTE
+            },
         };
     },
 
@@ -40,6 +43,20 @@ module.exports = CreateStore({
      */
     setCurrentBoard: function(boardId) {
         this.draw.currentBoardId = boardId;
+        this.emitChange();
+    },
+
+    /**
+     * @Public API
+     * @Author: Jos Tung
+     * @Description: handler for drawing mode change
+     *
+     * @param {drawOptions}  drawOptions = { mode, lineCap, lineWidth, strokeStyle }
+     */
+    onDrawModeChange: function(data) {
+        for( var prop in data) {
+            this.draw.drawOptions[prop] = data[prop];
+        }
         this.emitChange();
     },
 

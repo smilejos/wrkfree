@@ -40,3 +40,48 @@ $app_drawing_area_height: $app_canvas_height + $app-header-height;
     width: 100%; 
 }
 
+
+/**
+ * @Author: Jos Tung
+ * @Description: this style for color Palette component using in drawingPalette.jsx
+ *  Note: the div stratum can refer below information.
+ *  --DrawingPalette
+ *    --ColorRow
+ *      --ColorBlock * 8
+ */
+.DrawingPalette {
+    margin-left: 300px;
+    position: fixed;
+    background: #fefefe;
+    transition: 0.3s;
+    border: 1px;
+    margin-top: 30px;
+    visibility: hidden;
+    border-style: solid;
+    border-color: #dbdbdb;
+    border-radius: 0px 0px 0px 0px;
+    box-shadow: 2px 2px 2px rgba(20%,20%,40%,0.6), 
+                4px 4px 4px rgba(40%,40%,40%,0.6),
+                6px 6px 6px rgba(40%,40%,40%,0.6);
+    z-index: 1;
+
+    .ColorRow{
+        height: 20px;
+        width: auto;    
+
+        .ColorBlock{
+            position: relative;
+            width: 16px;
+            height: 16px;
+            margin: 2px;
+            border-radius: 2px;   
+            display: inline-block;
+            cursor: pointer;        
+        }
+    }
+}
+
+.PaletteShow{
+    margin-top: 60px;
+    visibility: visible;
+}
