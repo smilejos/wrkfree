@@ -28,8 +28,12 @@ module.exports = CreateStore({
      * @param {Array}          data.users, the search results of users
      */
     onQuickSearchUpdate: function(data) {
-        this.results.channels = data.channels;
-        this.results.users = data.users;
+        if (data.channels) {
+            this.results.channels = data.channels;
+        }
+        if (data.users) {
+            this.results.users = data.users;
+        }
         this.emitChange();
     },
 
