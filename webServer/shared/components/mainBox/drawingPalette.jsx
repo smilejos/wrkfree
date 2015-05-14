@@ -1,5 +1,7 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible').Mixin; 
+
+var SharedUtils = require('../../../../sharedUtils/utils');
 var ChangeDrawMode = require('../../../client/actions/draw/changeDrawMode');
 /**
  * @Author: Jos Tung
@@ -42,19 +44,17 @@ var Palette = React.createClass({
 
     render: function() {
         var _array = [];
-        var _row_count = this.state.row_count;
-        var _this = this;
-        var _palette = this.state.color_array.map( function(color, index){
-            if( ( index + 1 ) % _row_count == 0) {
-                _array.push( color );
-                return <ColorRow list={_array} key={index} onColorPickup={_this._handleColorPickup}/>;
+        var _component = {};
+        var _palette = SharedUtils.fastArrayMap(this.state.color_array, function(color, index){
+            if( ( index + 1 ) % this.state.row_count == 0) {
+                _array.push(color);
+                _component = <ColorRow list={_array} key={index} onColorPickup={this._handleColorPickup}/>;
+                _array = [];
+                return _component;
             } else {
-                if( index % _row_count == 0 ) {
-                    _array = [];
-                }
-                _array.push( color );
+                _array.push(color);
             }
-        });
+        }.bind(this));
         return (
             <div className={this.props.active ? "DrawingPalette PaletteShow" : "DrawingPalette"}>
                 {_palette}

@@ -51,26 +51,12 @@ module.exports = CreateStore({
      * @Author: Jos Tung
      * @Description: handler for drawing mode change
      *
-     * @param {data}  boolen
-     */
-    onPaletteChange: function(data) {
-        this.draw.isPaletteShow = data.isPaletteShow;
-        this.emitChange();
-    },
-
-    /**
-     * @Public API
-     * @Author: Jos Tung
-     * @Description: handler for drawing mode change
-     *
      * @param {drawOptions}  drawOptions = { mode, lineCap, lineWidth, strokeStyle }
      */
     onDrawModeChange: function(data) {
         for( var prop in data) {
-            console.log("======", data[prop]);
             this.draw.drawOptions[prop] = data[prop];
         }
-        console.log("======", data[prop]);
         this.emitChange();
     },
 
