@@ -1,0 +1,29 @@
+$info-card-width: 150px;
+$info-card-height: 235px;
+
+/**
+ * the style of info card
+ */
+.InfoCard {
+    @extend .baseFonts;
+    width: 150px;
+    height: 235px;
+    border-color: $grey-300;
+    border-style: solid;
+    border-width: 1px;
+    background-color: $grey-100;
+    color: #000;
+
+    .infoCardContent {
+        height: 50px;
+        overflow: hidden;
+        color: $grey-500;
+        font-size: 12px;
+        line-height: 24px;
+
+        .extraInfoContent {
+            color: #27A;
+            font-size: 16px;
+        }
+    }
+}
