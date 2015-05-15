@@ -1,4 +1,5 @@
 var React = require('react');
+var Router = require('react-router');
 var FluxibleMixin = require('fluxible').Mixin;
 var HeaderStore = require('../stores/HeaderStore');
 var Mui = require('material-ui');
@@ -7,6 +8,8 @@ var Mui = require('material-ui');
  * actions
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
+var QuickSearchAction = require('../../client/actions/search/quickSearch');
 
 /**
  * material UI compoents
@@ -21,6 +24,7 @@ var TextField = Mui.TextField;
  * child components
  */
 var UserAvatar = require('./common/userAvatar.jsx');
+var QuickSearch = require('./QuickSearch.jsx');
 
 /**
  * @Author: George_Chen
@@ -33,7 +37,7 @@ var UserAvatar = require('./common/userAvatar.jsx');
  * @param {Boolean}       this.state.hasNotification, login user has notification or not
  */
 module.exports = React.createClass({
-    mixins: [FluxibleMixin],
+    mixins: [Router.Navigation, FluxibleMixin],
     statics: {
         storeListeners: {
             'onStoreChange': [HeaderStore]
@@ -55,6 +59,9 @@ module.exports = React.createClass({
      */
     _onMenuIconButtonTouchTap: function() {
         this.executeAction(ToggleChannelNav, {});
+        this.executeAction(ToggleQuickSearch, {
+            isEnabled: false
+        });
     },
 
     /**
@@ -72,11 +79,10 @@ module.exports = React.createClass({
      * @Description: handle the search channels mechanism
      */
     _onSearchKeyDown: function(e) {
-        var value = this.refs.search.getValue();
-        if (e.keyCode === 13) {
-            // search new channels on server
+        if (e.keyCode === 27) {
+            this.refs.search.clearValue();
+            return this._onSearchCancel();
         }
-        // filter current channels on mainbox
     },
 
     /**
@@ -86,6 +92,76 @@ module.exports = React.createClass({
     _onSearchIconClick: function() {
         this.refs.search.clearValue();
         this.refs.search.focus();
+        this.executeAction(ToggleQuickSearch, {
+            isEnabled: true
+        });
+        this.executeAction(ToggleChannelNav, {
+            open: false
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: handler for user cancel quickSearch
+     */
+    _onSearchCancel: function() {
+        this.refs.search.clearValue();
+        this.refs.search.blur();
+        this.executeAction(ToggleQuickSearch, {
+            isEnabled: false
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: handler for search input change
+     * 
+     * @param {Object}      e, the react onChange event
+     */
+    _onSearchChange: function(e){
+        var value = e.target.value;
+        this.executeAction(QuickSearchAction, {
+            query: value,
+            type: 'user'
+        });
+        this.executeAction(QuickSearchAction, {
+            query: value,
+            type: 'channel'
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: generate the search icon component
+     */
+    _setSearchIcon: function(){
+        if (this.state.isSearchable) {
+            return '';
+        }
+        return (
+            <IconButton 
+                iconClassName="fa fa-search" 
+                tooltip="Search Channels, Users, ..." 
+                touch={true} 
+                onClick={this._onSearchIconClick} />
+        );
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: generate the cancel search icon component
+     */
+    _setCancelIcon: function(){
+        if (!this.state.isSearchable) {
+            return '';
+        }
+        return (
+            <IconButton 
+                iconClassName="fa fa-times" 
+                tooltip="Cancel Search" 
+                touch={true} 
+                onClick={this._onSearchCancel} />
+        );
     },
 
     render: function() {
@@ -93,11 +169,14 @@ module.exports = React.createClass({
             <div className="Header menuBox">
                 <Toolbar>
                     <IconButton iconClassName="fa fa-bars" tooltip="Your Channels" touch={true} onClick={this._onMenuIconButtonTouchTap} />
-                    <IconButton iconClassName="fa fa-search" tooltip="Search Channel" touch={true} onClick={this._onSearchIconClick} />
+                    {this._setSearchIcon()}
                     <TextField 
                         hintText="search channels ...." 
                         ref="search"
+                        onClick={this._onSearchIconClick}
+                        onChange={this._onSearchChange}
                         onKeyDown={this._onSearchKeyDown} />
+                    {this._setCancelIcon()}
                     <ToolbarGroup key={0} float="right">
                         <div className="pure-g" >
                             <UserAvatar avatar={this.state.userInfo.avatar} 
@@ -111,6 +190,7 @@ module.exports = React.createClass({
                         </div>
                     </ToolbarGroup>
                 </Toolbar>
+                <QuickSearch />
             </div>
         );
     }
