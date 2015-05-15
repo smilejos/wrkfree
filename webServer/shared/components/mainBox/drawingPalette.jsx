@@ -28,13 +28,20 @@ module.exports = React.createClass({
 
 var Palette = React.createClass({
     getInitialState: function() {
+        var colors = [
+            '#000000', '#993300', '#333300', '#003300', '#003366', '#000080', '#333399', '#333333', 
+            '#800000', '#ff6600', '#808000', '#008000', '#008080', '#0000ff', '#666699', '#808080', 
+            '#ff0000', '#ff6600', '#99cc00', '#339966', '#33cccc', '#3366ff', '#800080', '#999999', 
+            '#ff00ff', '#ffcc00', '#ffff00', '#00ff00', '#00ffff', '#00ccff', '#993366', '#c0c0c0', 
+            '#ff99cc', '#ffcc99', '#ffff99', '#ccffcc', '#ccffff', '#99ccff', '#cc99ff', '#eeeeee'
+        ];
+        var rowCounts = 8;
+        var paletteColors = [];
+        while (colors.length > 0) {
+            paletteColors.push(colors.splice(0, rowCounts));
+        }
         return {
-            row_count: 8,
-            color_array : [ '#000000', '#993300', '#333300', '#003300', '#003366', '#000080', '#333399', '#333333', 
-                            '#800000', '#ff6600', '#808000', '#008000', '#008080', '#0000ff', '#666699', '#808080', 
-                            '#ff0000', '#ff6600', '#99cc00', '#339966', '#33cccc', '#3366ff', '#800080', '#999999', 
-                            '#ff00ff', '#ffcc00', '#ffff00', '#00ff00', '#00ffff', '#00ccff', '#993366', '#c0c0c0', 
-                            '#ff99cc', '#ffcc99', '#ffff99', '#ccffcc', '#ccffff', '#99ccff', '#cc99ff', '#eeeeee' ]
+            colorArray: paletteColors
         };
     },
 
@@ -43,18 +50,15 @@ var Palette = React.createClass({
     },
 
     render: function() {
-        var _array = [];
-        var _component = {};
-        var _palette = SharedUtils.fastArrayMap(this.state.color_array, function(color, index){
-            if( ( index + 1 ) % this.state.row_count == 0) {
-                _array.push(color);
-                _component = <ColorRow list={_array} key={index} onColorPickup={this._handleColorPickup}/>;
-                _array = [];
-                return _component;
-            } else {
-                _array.push(color);
-            }
+        var _palette = SharedUtils.fastArrayMap(this.state.colorArray, function(rowContent, index){
+            return (
+                <ColorRow 
+                    list={rowContent} 
+                    key={index} 
+                    onColorPickup={this._handleColorPickup}/>
+            );
         }.bind(this));
+
         return (
             <div className={this.props.active ? "DrawingPalette PaletteShow" : "DrawingPalette"}>
                 {_palette}
