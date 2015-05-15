@@ -37,7 +37,7 @@ module.exports = function(actionContext, data, callback) {
             channelId: data.channelId,
             boardId: data.boardId,
             record: drawTempStore.getDraws(data.channelId, data.boardId),
-            drawOptions: data.drawOptions
+            drawOptions: _cloneOptions(data.drawOptions)
         });
     }).catch(function(err) {
         SharedUtils.printError('saveDrawRecord.js', 'core', err);
@@ -45,6 +45,23 @@ module.exports = function(actionContext, data, callback) {
         return null;
         // show alert message ?
     }).nodeify(callback);
+};
+
+/**
+ * @Author: George_Chen
+ * @Description: for crate a copy of draw options
+ *         NOTE: DrawStore will keep the same reference on draw options
+ *               if we do not clone new one. this is will cause abnormal
+ *               color duplicated
+ * 
+ * @param {Object}      options, the draw options
+ */
+function _cloneOptions(options) {
+    var copy = {};
+    SharedUtils.fastArrayMap(Object.keys(options), function(prop) {
+        copy[prop] = options[prop];
+    });
+    return copy;
 };
 
 /**
