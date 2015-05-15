@@ -56,6 +56,26 @@ exports.getGroupInfoAsync = function(users) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: use query string to find search users
+ *
+ * @param {String}        data.queryStr, the query string
+ */
+exports.searchAsync = function(data) {
+    var packet = {
+        service: 'user',
+        api: 'searchAsync',
+        params: data
+    };
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('userService.js', 'searchAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: polyfill the user info to local cache
  *
  * @param {Array/Object}          userInfos, can be a user info json or group of userInfos
