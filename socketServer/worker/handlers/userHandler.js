@@ -42,10 +42,10 @@ exports.getInfoAsync = function(socket, data) {
  * @Description: handle the request of searching users
  *
  * @param {Object}          socket, the client socket instance
- * @param {String}          data.searchStr, the string used to search users
+ * @param {String}          data.queryStr, the string used to search users
  */
 exports.searchAsync = function(socket, data) {
-    return SharedUtils.argsCheckAsync(data.searchStr, 'alphabet')
+    return SharedUtils.argsCheckAsync(data.queryStr, 'alphabet')
         .then(function(validString) {
             return UserStorage.findUsersAsync(validString);
         }).catch(function(err) {
