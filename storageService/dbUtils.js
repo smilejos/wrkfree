@@ -121,7 +121,7 @@ exports.checkDocumentUpdateStatusAsync = function(updateResult) {
         if (updateResult === 0) {
             throw new Error('mongoose update fail');
         }
-        return (updateResult === 1);
+        return (updateResult > 0);
     });
 };
 
@@ -180,6 +180,22 @@ exports.transformTimeAsync = function(mongoDocs, dateField) {
         } else {
             doc[dateField] = Date.parse(doc[dateField].toString());
         }
+        return doc;
+    });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: transform _id field of mongodb docs to new field
+ * 
+ * @param {Array}        mongoDocs, a array of mongodb docs
+ * @param {String}       newField, the new "_id" field name
+ */
+exports.transformToNewIdAsync = function(mongoDocs, newIdField) {
+    return Promise.map(mongoDocs, function(doc) {
+        doc[newIdField] = doc._id;
+        delete doc._id;
         return doc;
     });
 };
