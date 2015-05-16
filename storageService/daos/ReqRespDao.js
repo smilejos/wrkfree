@@ -176,6 +176,45 @@ exports.updateToRespAsync = function(reqId, replier, originalSender, respToPermi
     });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to create a permitted response document
+ *         NOTE: different from request docuemnt, if we directly create response document
+ *               then, the "respToPermitted" should always be true;
+ *               
+ *               the scenario of directly create response docuement usually called at 
+ *               "channel invitation"; in this case, the host directly add new member, so the
+ *               member doesn't need to send "channel request" document.
+ *
+ * @param {String}          reqUser, the uid of req uesr
+ * @param {String}          targetUser, the uid of target user
+ * @param {String}          reqType, request type
+ * @param {String}          info, extra information
+ */
+exports.savePermittedRespAsync = function(reqUser, targetUser, reqType, info) {
+    return Promise.props({
+        _id: Mongoose.Types.ObjectId().toString(),
+        sender: SharedUtils.argsCheckAsync(reqUser, 'md5'),
+        target: SharedUtils.argsCheckAsync(targetUser, 'md5'),
+        isReq: false,
+        respToPermitted: true,
+        type: reqType,
+        extraInfo: _checkInfo(reqType, info)
+    }).then(function(doc) {
+        return new Model(doc);
+    }).then(function(newResp) {
+        // make mongoose cache outdated
+        Model.find()._touchCollectionCheck(true);
+        return newResp.saveAsync();
+    }).then(function(result) {
+        return DbUtil.checkDocumentSaveStatusAsync(result);
+    }).catch(function(err) {
+        SharedUtils.printError('ReqRespDao', 'savePermittedRespAsync', err);
+        return null;
+    });
+};
+
 /************************************************
  *
  *           internal functions
