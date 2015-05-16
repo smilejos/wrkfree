@@ -146,6 +146,32 @@ exports.getMemberListAsync = function(socket, data) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: handle the request of searching channels
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.queryStr, the string used to search users
+ */
+exports.searchAsync = function(socket, data) {
+    return SharedUtils.argsCheckAsync(data.queryStr, 'alphabet')
+        .then(function(validString) {
+            return ChannelStorage.searchChannelAsync(validString);
+        }).map(function(channel) {
+            var uid = socket.getAuthToken();
+            return Promise.props({
+                name: channel.name,
+                channelId: channel.channelId,
+                organization: channel.organization,
+                isKnown: ChannelStorage.getAuthAsync(uid, channel.channelId)
+            });
+        }).catch(function(err) {
+            SharedUtils.printError('channelHandler.js', 'searchAsync', err);
+            throw new Error('search channel fail');
+        });
+};
+
+/**
  * TODO:
  * Public API
  * @Author: George_Chen

@@ -136,6 +136,26 @@ exports.getMemberStatusAsync = function(data) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: use query string to find search channels
+ *
+ * @param {String}        data.queryStr, the query string
+ */
+exports.searchAsync = function(data) {
+    var packet = {
+        service: 'channel',
+        api: 'searchAsync',
+        params: data
+    };
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', 'searchAsync', err);
+            return null;
+        });
+};
+
+/**
  * @Author: George_Chen
  * @Description: to create the channel subscription request
  *
