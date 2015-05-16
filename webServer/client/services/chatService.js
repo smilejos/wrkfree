@@ -1,6 +1,6 @@
 'use strict';
-var Promise = require('bluebird');
 var SocketManager = require('./socketManager');
+var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var RecvMessage = require('../actions/chat/recvMessage');
 
@@ -13,7 +13,7 @@ var RecvMessage = require('../actions/chat/recvMessage');
  * @param {Object}          data, the message data from server
  */
 exports.receiveMsg = function(data) {
-    return window.context.executeAction(RecvMessage, data);
+    return SocketUtils.execAction(RecvMessage, data, 'receiveMsg');
 };
 
 /**
@@ -26,18 +26,9 @@ exports.receiveMsg = function(data) {
  * @param {Object}          data, the message data from server
  */
 exports.sendMsgAsync = function(data) {
-    var channel = _subscribeReq(data.channelId);
-    var packet = {
-        service: 'chat',
-        api: 'sendMsgAsync',
-        clientHandler: 'receiveMsg',
-        params: data
-    };
-    return SocketManager.publishAsync(channel, packet)
-        .catch(function(err) {
-            SharedUtils.printError('chatService.js', 'sendMsgAsync', err);
-            return null;
-        });
+    var channel = SocketUtils.setChannelReq(data.channelId);
+    var packet = _setPacket('sendMsgAsync', 'receiveMsg', data);
+    return _publish(channel, packet, 'sendMsgAsync');
 };
 
 /**
@@ -49,22 +40,14 @@ exports.sendMsgAsync = function(data) {
  * @param {Object}          data, the message data from server
  */
 exports.getChannelMsgAsync = function(data) {
-    var packet = {
-        service: 'chat',
-        api: 'getMsgAsync',
-        params: data
-    };
-    return SocketManager.requestAsync(packet)
+    var packet = _setPacket('getMsgAsync', null, data);
+    return _request(packet, 'getChannelMsgAsync')
         .then(function(msgs) {
             if (msgs.length > 0) {
-                var ackPacket = {
-                    service: 'chat',
-                    api: 'readMsgAsync',
-                    params: {
-                        channelId: data.channelId
-                    }
-                };
-                SocketManager.requestAsync(ackPacket);
+                var ackPacket = _setPacket('readMsgAsync', null, {
+                    channelId: data.channelId
+                });
+                _request(ackPacket, 'getChannelMsgAsync');
             }
             return msgs;
         }).catch(function(err) {
@@ -73,12 +56,58 @@ exports.getChannelMsgAsync = function(data) {
         });
 };
 
+/************************************************
+ *
+ *           internal functions
+ *
+ ************************************************/
+
 /**
  * @Author: George_Chen
- * @Description: to create the channel subscription request
- *
- * @param {String}        channelId, channel's id
+ * @Description: a sugar sytanx function for handling socekt request
+ *              events on drawService
+ *         NOTE: caller is just for print error log; if error happen,
+ *              we can know the root cause from which caller
+ *       
+ * @param {Object}          packet, the packet for request
+ * @param {String}          caller, the caller function name
  */
-function _subscribeReq(channelId) {
-    return 'channel:' + channelId;
+function _request(packet, caller) {
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('chatService.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a sugar sytanx function for handling socekt publish
+ *              events on drawService
+ *         NOTE: caller is just for print error log; if error happen,
+ *              we can know the root cause from which caller
+ *
+ * @param {String}          subscription, socketCluster subscription
+ * @param {Object}          packet, the packet for request
+ * @param {String}          caller, the caller function name
+ */
+function _publish(subscription, packet, caller) {
+    return SocketManager.publishAsync(subscription, packet)
+        .catch(function(err) {
+            SharedUtils.printError('chatService.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a sugar sytanx function for wrap the socket formated
+ *               packet
+ *
+ * @param {String}          serverApi, the server handler api
+ * @param {String}          clientApi, the client receiver api
+ * @param {Object}          data, the request parameters
+ */
+function _setPacket(serverApi, clientApi, data) {
+    return SocketUtils.setPacket('chat', serverApi, clientApi, data);
 }
