@@ -65,6 +65,38 @@ var FriendStore = createStore({
     /**
      * @Public API
      * @Author: George_Chen
+     * @Description: check target user is friend or not
+     *
+     * @param {String}      user, the uid of target user
+     */
+    hasFriendShip: function(user) {
+        var collection = this.db.getCollection(this.dbName);
+        var condition = {
+            uid: user
+        };
+        return !!collection.findOne(condition);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: search friends by query string on store
+     *
+     * @param {String}      query, the query string
+     */
+    searchFriends: function(query) {
+        var collection = this.db.getCollection(this.dbName);
+        var condition = {
+            nickName: {
+                $regex: new RegExp(query + '.*', 'i')
+            }
+        };
+        return collection.chain().find(condition).data();
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
      * @Description: dehydrate mechanism will be called by fluxible framework
      */
     dehydrate: function() {
