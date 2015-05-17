@@ -63,6 +63,11 @@ module.exports = React.createClass({
                 boardId: nextProps.boardId
             });
         }
+
+        /**
+         * auto change cursor when props change
+         */
+        _changeBoardWheel(this.props.drawInfo.drawOptions);
     },
 
     /**
@@ -86,6 +91,11 @@ module.exports = React.createClass({
         this.state.canvas = canvas;
         this.state.image = document.createElement('img');
 
+        /**
+         * first time init for mouse cursor
+         */
+        _changeBoardWheel(this.props.drawInfo.drawOptions);
+        
         board.addEventListener('mousemove',function(e){
             if (!drawing) {
                 return;
@@ -213,6 +223,29 @@ module.exports = React.createClass({
         );
     }
 });
+
+/**
+ * @Author: Jos Tung
+ * @Description: auto change the mouse cursor to fit current pen color
+ */
+function _changeBoardWheel(drawOptions) {
+    var cursorGenerator = document.createElement('canvas');
+    cursorGenerator.width = drawOptions.lineWidth;
+    cursorGenerator.height = drawOptions.lineWidth;
+
+    var ctx = cursorGenerator.getContext('2d');
+    var centerX = cursorGenerator.width/2;
+    var centerY = cursorGenerator.height/2;
+    
+    ctx.globalAlpha = drawOptions.mode == "pen" ? 1 : 0.2;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, (drawOptions.lineWidth/2), 0, 2 * Math.PI, false);
+    ctx.fillStyle = drawOptions.strokeStyle;
+    ctx.fill();
+
+    var drawingBoard = document.getElementById('DrawBoard');
+    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL('image/png') + ') ' + drawOptions.lineWidth/2 + ' ' + drawOptions.lineWidth/2 + ',crosshair';
+}
 
 /**
  * @Author: George_Chen

@@ -51,7 +51,8 @@ module.exports = React.createClass({
      */
     _changeToPen: function(){
         this.executeAction(ChangeDrawMode, {
-            mode: "pen"
+            mode: "pen",
+            lineWidth: 10
         });
     },
 
@@ -61,7 +62,8 @@ module.exports = React.createClass({
      */
     _changeToEraser: function(){
         this.executeAction(ChangeDrawMode, {
-            mode: "eraser"
+            mode: "eraser",
+            lineWidth: 50
         });
     },
 
