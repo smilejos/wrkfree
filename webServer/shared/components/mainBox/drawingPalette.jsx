@@ -13,7 +13,9 @@ module.exports = React.createClass({
     _handleColorPickup: function(color){
         this.executeAction(ChangeDrawMode, {
             palette: false,
-            strokeStyle: color
+            strokeStyle: color,
+            mode: "pen",
+            lineWidth: 10
         });
     },
 
