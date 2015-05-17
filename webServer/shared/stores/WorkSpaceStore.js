@@ -90,7 +90,7 @@ module.exports = CreateStore({
             self.channel = state.channel.basicInfo;
             self.members = state.members;
             self.draw.boardNums = state.channel.drawBoardNums;
-            self.draw.currentBoardId = state.status.lastUseBoard;
+            self.draw.currentBoardId = state.status.lastUsedBoard;
             self.status = state.status;
         }).then(function() {
             self.emitChange();

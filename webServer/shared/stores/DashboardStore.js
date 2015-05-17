@@ -37,12 +37,9 @@ module.exports = createStore({
     polyfillAsync: function(state) {
         this.layout = state.layout || 'grid';
         return Promise.map(state.channels, function(item, index) {
-            var channelNameInfo = item.channelName.split('#');
-            var hostUid = channelNameInfo[0];
-            var partialChannelName = channelNameInfo[1];
             var hostIndex = 0;
             var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
-                if (info.uid === hostUid) {
+                if (info.uid === item.channel.host) {
                     hostIndex = index;
                 }
                 return {
@@ -53,8 +50,8 @@ module.exports = createStore({
             });
             // return channel item object
             return {
-                channelId: item.channelId,
-                channelName: partialChannelName,
+                channelId: item.channel.channelId,
+                channelName: item.channel.name,
                 hostInfo: members.splice(hostIndex, 1)[0],
                 memberList: members,
                 snapshotUrl: Snapshots[index] || SnapshotError,

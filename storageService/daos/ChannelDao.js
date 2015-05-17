@@ -159,9 +159,9 @@ exports.findByChanelsAsync = function(channelIds) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to search channels that matched partial channel name
+ * @Description: to search channels that matched channel name
  *
- * @param {String}          name, partial channel name
+ * @param {String}          name, channel name
  */
 exports.searchByNameAsync = function(name) {
     return SharedUtils.argsCheckAsync(name, 'alphabet')

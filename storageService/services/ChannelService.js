@@ -78,9 +78,9 @@ exports.visitChannelAsync = function(member, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: used to search channels which name matched the partial name
+ * @Description: used to search channels by its name
  *
- * @param {String}          name, partial channel name
+ * @param {String}          name, channel name
  */
 exports.searchChannelAsync = function(name) {
     return ChannelDao.searchByNameAsync(name);

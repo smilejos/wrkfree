@@ -11,16 +11,16 @@ var ChannelStorage = StorageManager.getService('Channel');
  * @Description: to handle channel create request
  *
  * @param {Object}          socket, the client socket instance
- * @param {String}          data.name, the partial channel name
+ * @param {String}          data.name, the channel name
  */
 exports.createAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.name, 'string')
         .then(function(validName) {
             var host = socket.getAuthToken();
-            var type = 'public';
-            var channelName = SharedUtils.getPublicChannelName(host, validName);
-            var cid = CryptoUtils.getMd5Hex(channelName);
-            return ChannelStorage.createChannelAsync(host, cid, channelName, type);
+            var time = Date.now().toString();
+            var cid = CryptoUtils.getMd5Hex(host+time);
+            var isPublic = true;
+            return ChannelStorage.createChannelAsync(host, cid, validName, isPublic);
         }).then(function(result) {
             if (!result) {
                 throw new Error('channel storage internal error');
@@ -134,15 +134,18 @@ exports.getMemberStatusAsync = function(socket, data) {
  */
 exports.getMemberListAsync = function(socket, data) {
     var uid = socket.getAuthToken();
-    return Promise.props({
-        uid: SharedUtils.argsCheckAsync(uid, 'md5'),
-        cid: SharedUtils.argsCheckAsync(data.channelId, 'md5')
-    }).then(function(data) {
-        return ChannelStorage.getMembersAsync(data.cid);
-    }).catch(function(err) {
-        SharedUtils.printError('channelHandler.js', 'getMemberListAsync', err);
-        throw new Error('get member list fail');
-    });
+    return SharedUtils.argsCheckAsync(data.channelId, 'md5')
+        .then(function(){
+            return ChannelStorage.getAuthAsync(uid, data.channelId); 
+        }).then(function(isAuth){
+            if (!isAuth) {
+                throw new Error('get Auth fail');
+            }
+            return ChannelStorage.getMembersAsync(data.channelId);
+        }).catch(function(err) {
+            SharedUtils.printError('channelHandler.js', 'getMemberListAsync', err);
+            throw new Error('get member list fail');
+        });
 };
 
 /**
@@ -154,7 +157,7 @@ exports.getMemberListAsync = function(socket, data) {
  * @param {String}          data.queryStr, the string used to search users
  */
 exports.searchAsync = function(socket, data) {
-    return SharedUtils.argsCheckAsync(data.queryStr, 'alphabet')
+    return SharedUtils.argsCheckAsync(data.queryStr, 'string')
         .then(function(validString) {
             return ChannelStorage.searchChannelAsync(validString);
         }).map(function(channel) {
