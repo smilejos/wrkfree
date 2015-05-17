@@ -4,7 +4,6 @@ var Promise = require('bluebird');
 var DbUtil = require('../dbUtils');
 var SharedUtils = require('../../sharedUtils/utils');
 var Model = Mongoose.model('Channel');
-var ObjectAssign = require('object-assign');
 
 /************************************************
  *
@@ -63,16 +62,18 @@ exports.create1on1Async = function(channelId, user1, user2) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: used to check channel is exist or not
+ * @Description: used to check channel is created or not
  *
- * @param {String}          channelId, channel id
+ * @param {String}          hostUid, host's uid
+ * @param {String}          channelName, channel's name
  */
-exports.isExistAsync = function(channelId) {
-    return _isExist(channelId, {})
-        .catch(function(err) {
-            SharedUtils.printError('ChannelDao.js', 'isExistAsync', err);
-            throw err;
-        });
+exports.isCreatedAsync = function(hostUid, channelName) {
+    return Promise.props({
+        host: SharedUtils.argsCheckAsync(hostUid, 'md5'),
+        name: SharedUtils.argsCheckAsync(channelName, 'string')
+    }).then(function(condition) {
+        return _isExist(condition, 'isCreatedAsync');
+    });
 };
 
 /**
@@ -83,11 +84,11 @@ exports.isExistAsync = function(channelId) {
  * @param {String}          channelId, channel id
  */
 exports.isAnonymousLoginAsync = function(channelId) {
-    return _isExist(channelId, {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         isAnonymousLogin: true
-    }).catch(function(err) {
-        SharedUtils.printError('ChannelDao.js', 'isAnonymousLoginAsync', err);
-        throw err;
+    }).then(function(condition) {
+        return _isExist(condition, 'isAnonymousLoginAsync');
     });
 };
 
@@ -100,15 +101,12 @@ exports.isAnonymousLoginAsync = function(channelId) {
  * @param {String}          password, the login password
  */
 exports.anonymousLoginAsync = function(channelId, password) {
-    return SharedUtils.argsCheckAsync(password, 'string')
-        .then(function(validPassword) {
-            return _isExist(channelId, {
-                anonymousPassword: validPassword
-            });
-        }).catch(function(err) {
-            SharedUtils.printError('ChannelDao.js', 'anonymousLoginAsync', err);
-            throw err;
-        });
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        anonymousPassword: SharedUtils.argsCheckAsync(password, 'string')
+    }).then(function(condition) {
+        return _isExist(condition, 'anonymousLoginAsync');
+    });
 };
 
 /**
@@ -169,7 +167,7 @@ exports.searchByNameAsync = function(name) {
     return SharedUtils.argsCheckAsync(name, 'alphabet')
         .then(function(validName) {
             var condition = {
-                name: new RegExp('#' + validName + '.*', 'i'),
+                name: new RegExp(validName + '.*', 'i'),
                 isPublic: true,
                 is1on1: false
             };
@@ -275,15 +273,14 @@ function _delete(condition, caller) {
  * @param {String}          channelId, channel id
  * @param {String}          extraFields, extra searching fields
  */
-function _isExist(channelId, extraFields) {
-    return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
-    }).then(function(condition) {
-        var queryCondition = ObjectAssign(condition, extraFields);
-        return Model.countAsync(queryCondition);
-    }).then(function(count) {
-        return DbUtil.checkDocumentExistStatusAsync(count);
-    });
+function _isExist(condition, caller) {
+    return Model.countAsync(condition)
+        .then(function(count) {
+            return DbUtil.checkDocumentExistStatusAsync(count);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelDao.js', caller, err);
+            throw err;
+        });
 }
 
 /**
