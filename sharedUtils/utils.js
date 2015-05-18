@@ -104,18 +104,6 @@ exports.getArgs = function(rawArguments) {
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: generate public full channel name
- *
- * @param {String}      host, the host uid
- * @param {String}      name, the partial channel name
- */
-exports.getPublicChannelName = function(host, name) {
-    return host + '#' + name;
-};
-
-/**
- * @Public API
- * @Author: George_Chen
  * @Description: generate formatted host string for 1on1 channel
  *
  * @param {String}      user1, the user1's uid

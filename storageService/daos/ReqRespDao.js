@@ -255,7 +255,7 @@ function _update(condition, updateDoc, isMulti) {
 /**
  * @Author: George_Chen
  * @Description: to vertify the type and its extra infomration is valid or not
- *         NOTE: the extra info for "channel" type should be partial channel name
+ *         NOTE: the extra info for "channel" type should be the channel name
  *         
  * @param {String}          type, request type
  * @param {String}          info, extra information
