@@ -24,7 +24,7 @@ var Model = Mongoose.model('Channel');
  */
 exports.createAsync = function(channelId, creator, name, isPublic, org) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
         host: SharedUtils.argsCheckAsync(creator, 'md5'),
         name: SharedUtils.argsCheckAsync(name, 'string'),
         isPublic: SharedUtils.argsCheckAsync(isPublic, 'boolean'),
@@ -48,7 +48,7 @@ exports.createAsync = function(channelId, creator, name, isPublic, org) {
  */
 exports.create1on1Async = function(channelId, user1, user2) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
         uid1: SharedUtils.argsCheckAsync(user1, 'md5'),
         uid2: SharedUtils.argsCheckAsync(user2, 'md5'),
         isPublic: false,
@@ -85,7 +85,7 @@ exports.isCreatedAsync = function(hostUid, channelName) {
  */
 exports.isAnonymousLoginAsync = function(channelId) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
         isAnonymousLogin: true
     }).then(function(condition) {
         return _isExist(condition, 'isAnonymousLoginAsync');
@@ -102,7 +102,7 @@ exports.isAnonymousLoginAsync = function(channelId) {
  */
 exports.anonymousLoginAsync = function(channelId, password) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
         anonymousPassword: SharedUtils.argsCheckAsync(password, 'string')
     }).then(function(condition) {
         return _isExist(condition, 'anonymousLoginAsync');
@@ -118,12 +118,14 @@ exports.anonymousLoginAsync = function(channelId, password) {
  */
 exports.findByChanelAsync = function(channelId, is1on1) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
+        _id: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         if (SharedUtils.isBoolean(is1on1)) {
             condition.is1on1 = is1on1;
         }
         return _find(true, condition);
+    }).then(function(doc) {
+        return DbUtil.transformToNewIdAsync(doc, 'channelId');
     }).catch(function(err) {
         SharedUtils.printError('ChannelDao.js', 'findByChanelAsync', err);
         return null;
@@ -145,11 +147,13 @@ exports.findByChanelsAsync = function(channelIds) {
         return channelId;
     }).then(function(channels) {
         var condition = {
-            channelId: {
+            _id: {
                 $in: channels
             }
         };
         return _find(false, condition);
+    }).map(function(doc) {
+        return DbUtil.transformToNewIdAsync(doc, 'channelId');
     }).catch(function(err) {
         SharedUtils.printError('ChannelDao.js', 'findByChanelsAsync', err);
         return [];
@@ -164,7 +168,7 @@ exports.findByChanelsAsync = function(channelIds) {
  * @param {String}          name, channel name
  */
 exports.searchByNameAsync = function(name) {
-    return SharedUtils.argsCheckAsync(name, 'alphabet')
+    return SharedUtils.argsCheckAsync(name, 'string')
         .then(function(validName) {
             var condition = {
                 name: new RegExp(validName + '.*', 'i'),
@@ -172,6 +176,8 @@ exports.searchByNameAsync = function(name) {
                 is1on1: false
             };
             return _find(false, condition);
+        }).map(function(doc) {
+            return DbUtil.transformToNewIdAsync(doc, 'channelId');
         }).catch(function(err) {
             SharedUtils.printError('ChannelDao.js', 'searchByNameAsync', err);
             return [];
@@ -188,7 +194,7 @@ exports.searchByNameAsync = function(name) {
  */
 exports.deleteAsync = function(channelId, hostUid) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
         host: SharedUtils.argsCheckAsync(hostUid, 'md5'),
         is1on1: false
     }).then(function(condition) {
@@ -212,7 +218,7 @@ exports.delete1on1Async = function(channelId, user1, user2) {
         SharedUtils.argsCheckAsync(user2, 'md5'),
         function(cid, uid1, uid2) {
             var condition = {
-                channelId: cid,
+                _id: cid,
                 host: SharedUtils.get1on1ChannelHost(uid1, uid2),
                 isPublic: false,
                 is1on1: true
@@ -241,6 +247,8 @@ function _save(channelDoc, caller) {
     return newChannel.saveAsync()
         .then(function(result) {
             return DbUtil.checkDocumentSaveStatusAsync(result);
+        }).then(function(channelDoc) {
+            return DbUtil.transformToNewIdAsync(channelDoc, 'channelId');
         }).catch(function(err) {
             SharedUtils.printError('ChannelDao.js', caller, err);
             return null;
@@ -292,7 +300,12 @@ function _isExist(condition, caller) {
  * @param {String}          selectFields, used to inform mongoose which fields should be taken
  */
 function _find(isFindOne, condition, selectFields) {
-    var fields = (selectFields ? selectFields : DbUtil.selectOriginDoc());
+    var fields = {
+        __v: DbUtil.select(false)
+    };
+    if (selectFields) {
+        fields = selectFields;
+    }
     return (isFindOne ? Model.findOne(condition, fields) : Model.find(condition, fields))
         .lean()
         .execAsync();
