@@ -30,7 +30,7 @@ var FlatButton = Mui.FlatButton;
  *
  * @param {Array}         this.state.navInfo, an array of channel navigation info,
  * @param {String}        navInfo[i].channelId, target's channel id,
- * @param {String}        navInfo[i].partialChannelName, target's channel name (without host uid)
+ * @param {String}        navInfo[i].channelName, target's channel name (without host uid)
  * @param {String}        navInfo[i].hostName, target channel's hostname
  * @param {Boolean}       this.state.isNameValid, to check creating channel name is valid or not
  * @param {Boolean}       this.state.isActived, indicate that channel nav should open or close
@@ -184,7 +184,7 @@ module.exports = React.createClass({
         var navMenu = SharedUtils.fastArrayMap(navInfo, function(item){
             return {
                 route: '/app/channel/'+item.channelId,
-                text: item.partialChannelName + ' @'+item.hostName
+                text: item.channelName + ' @'+item.hostName
             };
         });
         navMenu.unshift({

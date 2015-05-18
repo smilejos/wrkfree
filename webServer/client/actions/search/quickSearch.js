@@ -68,11 +68,10 @@ function _searchUser(actionContext, reqData) {
 function _searchChannel(actionContext, reqData) {
     return ChannelService.searchAsync(reqData)
         .map(function(channel) {
-            var channelInfo = channel.name.split('#');
-            return UserService.getInfoAsync(channelInfo[0])
+            return UserService.getInfoAsync(channel.host)
                 .then(function(info) {
                     info.type = 'channel';
-                    info.extraInfo = channelInfo[1];
+                    info.extraInfo = channel.name;
                     info.isKnown = channel.isKnown;
                     return info;
                 });

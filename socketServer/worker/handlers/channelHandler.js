@@ -163,6 +163,7 @@ exports.searchAsync = function(socket, data) {
         }).map(function(channel) {
             var uid = socket.getAuthToken();
             return Promise.props({
+                host: channel.host,
                 name: channel.name,
                 channelId: channel.channelId,
                 organization: channel.organization,

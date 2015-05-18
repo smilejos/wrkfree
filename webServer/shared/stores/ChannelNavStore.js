@@ -15,15 +15,15 @@ module.exports = createStore({
         // test data for channelNav Info
         this.navInfo = [{
             channelId: 'e8075f24e77e220c056ab1926be69cf7',
-            partialChannelName: 'wrkfree',
+            channelName: 'wrkfree',
             hostName: 'GeorgeChen'
         }, {
             channelId: 'test1234',
-            partialChannelName: 'Development',
+            channelName: 'Development',
             hostName: 'Normanywei'
         }, {
             channelId: 'test12356789',
-            partialChannelName: 'UI',
+            channelName: 'UI',
             hostName: 'SmileJos'
         }];
         this.isActived = false;
