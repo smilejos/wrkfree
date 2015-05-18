@@ -1,5 +1,6 @@
 'use strict';
 var SocketManager = require('./socketManager');
+var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 
 /**
@@ -10,16 +11,8 @@ var SharedUtils = require('../../../sharedUtils/utils');
  * @param {String}        data.name, the partial channel name
  */
 exports.createAsync = function(data) {
-    var packet = {
-        service: 'channel',
-        api: 'createAsync',
-        params: data
-    };
-    return SocketManager.requestAsync(packet)
-        .catch(function(err) {
-            SharedUtils.printError('channelService.js', 'createAsync', err);
-            return null;
-        });
+    var packet = _setPacket('createAsync', null, data);
+    return _request(packet, 'createAsync');
 };
 
 /**
@@ -32,8 +25,8 @@ exports.createAsync = function(data) {
 exports.enterAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(validChannelId) {
-            var req = _subscribeReq(validChannelId);
-            return SocketManager.subscribeAsync(req);
+            var channel = SocketUtils.setChannelReq(validChannelId);
+            return SocketManager.subscribeAsync(channel);
         }).catch(function(err) {
             SharedUtils.printError('channelService.js', 'enterAsync', err);
             return false;
@@ -50,8 +43,8 @@ exports.enterAsync = function(channelId) {
 exports.leaveAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(validChannelId) {
-            var req = _subscribeReq(validChannelId);
-            return SocketManager.unSubscribeAsync(req);
+            var channel = SocketUtils.setChannelReq(validChannelId);
+            return SocketManager.unSubscribeAsync(channel);
         }).catch(function(err) {
             SharedUtils.printError('channelService.js', 'leaveAsync', err);
             return false;
@@ -64,15 +57,8 @@ exports.leaveAsync = function(channelId) {
  * @Description: find all authorized channels info
  */
 exports.findByAuthorizedAsync = function() {
-    var packet = {
-        service: 'channel',
-        api: 'getAuthChannelsAsync'
-    };
-    return SocketManager.requestAsync(packet)
-        .catch(function(err) {
-            SharedUtils.printError('channelService.js', 'findByAuthorizedAsyncc', err);
-            return null;
-        });
+    var packet = _setPacket('getAuthChannelsAsync', null, null);
+    return _request(packet, 'findByAuthorizedAsync');
 };
 
 /**
@@ -83,16 +69,8 @@ exports.findByAuthorizedAsync = function() {
  * @param {String}        data.channelId, channel's id
  */
 exports.getInfoAsync = function(data) {
-    var packet = {
-        service: 'channel',
-        api: 'getInfoAsync',
-        params: data
-    };
-    return SocketManager.requestAsync(packet)
-        .catch(function(err) {
-            SharedUtils.printError('channelService.js', 'getInfoAsync', err);
-            return null;
-        });
+    var packet = _setPacket('getInfoAsync', null, data);
+    return _request(packet, 'getInfoAsync');
 };
 
 /**
@@ -103,16 +81,8 @@ exports.getInfoAsync = function(data) {
  * @param {String}        data.channelId, channel's id
  */
 exports.getMemberListAsync = function(data) {
-    var packet = {
-        service: 'channel',
-        api: 'getMemberListAsync',
-        params: data
-    };
-    return SocketManager.requestAsync(packet)
-        .catch(function(err) {
-            SharedUtils.printError('channelService.js', 'getMemberListAsync', err);
-            return null;
-        });
+    var packet = _setPacket('getMemberListAsync', null, data);
+    return _request(packet, 'getMemberListAsync');
 };
 
 /**
@@ -123,16 +93,8 @@ exports.getMemberListAsync = function(data) {
  * @param {String}        data.channelId, channel's id
  */
 exports.getMemberStatusAsync = function(data) {
-    var packet = {
-        service: 'channel',
-        api: 'getMemberStatusAsync',
-        params: data
-    };
-    return SocketManager.requestAsync(packet)
-        .catch(function(err) {
-            SharedUtils.printError('channelService.js', 'getMemberStatusAsync', err);
-            return null;
-        });
+    var packet = _setPacket('getMemberStatusAsync', null, data);
+    return _request(packet, 'getMemberStatusAsync');
 };
 
 /**
@@ -143,24 +105,43 @@ exports.getMemberStatusAsync = function(data) {
  * @param {String}        data.queryStr, the query string
  */
 exports.searchAsync = function(data) {
-    var packet = {
-        service: 'channel',
-        api: 'searchAsync',
-        params: data
-    };
-    return SocketManager.requestAsync(packet)
-        .catch(function(err) {
-            SharedUtils.printError('channelService.js', 'searchAsync', err);
-            return null;
-        });
+    var packet = _setPacket('searchAsync', null, data);
+    return _request(packet, 'searchAsync');
 };
+
+/************************************************
+ *
+ *           internal functions
+ *
+ ************************************************/
 
 /**
  * @Author: George_Chen
- * @Description: to create the channel subscription request
- *
- * @param {String}        channelId, channel's id
+ * @Description: a sugar sytanx function for handling socekt request
+ *              events on drawService
+ *         NOTE: caller is just for print error log; if error happen,
+ *              we can know the root cause from which caller
+ *       
+ * @param {Object}          packet, the packet for request
+ * @param {String}          caller, the caller function name
  */
-function _subscribeReq(channelId) {
-    return 'channel:' + channelId;
+function _request(packet, caller) {
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a sugar sytanx function for wrap the socket formated
+ *               packet
+ *
+ * @param {String}          serverApi, the server handler api
+ * @param {String}          clientApi, the client receiver api
+ * @param {Object}          data, the request parameters
+ */
+function _setPacket(serverApi, clientApi, data) {
+    return SocketUtils.setPacket('channel', serverApi, clientApi, data);
 }
