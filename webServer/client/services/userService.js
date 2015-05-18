@@ -1,5 +1,6 @@
 'use strict';
 var SocketManager = require('./socketManager');
+var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
 
@@ -48,7 +49,7 @@ exports.getGroupInfoAsync = function(users) {
         });
         return results;
     }).catch(function(err) {
-        SharedUtils.printError('userService.js', 'getUserAsync', err);
+        SharedUtils.printError('userService.js', 'getGroupInfoAsync', err);
         return null;
     });
 };
@@ -61,16 +62,8 @@ exports.getGroupInfoAsync = function(users) {
  * @param {String}        data.queryStr, the query string
  */
 exports.searchAsync = function(data) {
-    var packet = {
-        service: 'user',
-        api: 'searchAsync',
-        params: data
-    };
-    return SocketManager.requestAsync(packet)
-        .catch(function(err) {
-            SharedUtils.printError('userService.js', 'searchAsync', err);
-            return null;
-        });
+    var packet = _setPacket('searchAsync', null, data);
+    return _request(packet, 'searchAsync');
 };
 
 /**
@@ -102,16 +95,14 @@ exports.polyfillAsync = function(userInfos) {
  * @param {Array/String}          user, can be a uid or group of uids
  */
 function _getInfoRemote(user) {
-    var packet = {
-        service: 'User',
-        api: 'getInfoAsync',
-        params: {
-            users: user
-        }
-    };
-    var isUsers = SharedUtils.isArray(user);
-    var request = SocketManager.requestAsync(packet);
-    return (isUsers ? request.map(_cacheInfo) : request.then(_cacheInfo));
+    var packet = _setPacket('getInfoAsync', null, {
+        users: user
+    });
+    return _request(packet, '_getInfoRemote')
+        .then(function(result) {
+            var isUsers = SharedUtils.isArray(user);
+            return (isUsers ? Promise.map(result, _cacheInfo) : _cacheInfo(result));
+        });
 }
 
 /**
@@ -129,4 +120,35 @@ function _cacheInfo(info) {
         Users[validInfo.uid] = validInfo;
         return validInfo;
     });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a sugar sytanx function for handling socekt request
+ *              events on drawService
+ *         NOTE: caller is just for print error log; if error happen,
+ *              we can know the root cause from which caller
+ *       
+ * @param {Object}          packet, the packet for request
+ * @param {String}          caller, the caller function name
+ */
+function _request(packet, caller) {
+    return SocketManager.requestAsync(packet)
+        .catch(function(err) {
+            SharedUtils.printError('userService.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a sugar sytanx function for wrap the socket formated
+ *               packet
+ *
+ * @param {String}          serverApi, the server handler api
+ * @param {String}          clientApi, the client receiver api
+ * @param {Object}          data, the request parameters
+ */
+function _setPacket(serverApi, clientApi, data) {
+    return SocketUtils.setPacket('user', serverApi, clientApi, data);
 }
