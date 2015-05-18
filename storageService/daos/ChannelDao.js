@@ -4,7 +4,6 @@ var Promise = require('bluebird');
 var DbUtil = require('../dbUtils');
 var SharedUtils = require('../../sharedUtils/utils');
 var Model = Mongoose.model('Channel');
-var ObjectAssign = require('object-assign');
 
 /************************************************
  *
@@ -15,44 +14,66 @@ var ObjectAssign = require('object-assign');
 /**
  * Public API
  * @Author: George_Chen
- * @Description: for user to create channel document
+ * @Description: create normal channel document
  *
  * @param {String}          channelId, channel id
- * @param {String}          channelName, full channel name
- * @param {String}          channelType, channel type
+ * @param {String}          creator, the creator uid
+ * @param {String}          name, the channel name
+ * @param {Boolean}         isPublic, is channel public
+ * @param {String}          org, organization name
  */
-exports.newChannelAsync = function(channelId, channelName, channelType) {
+exports.createAsync = function(channelId, creator, name, isPublic, org) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
-        name: SharedUtils.argsCheckAsync(channelName, 'channelName', channelType),
-        type: channelType
+        host: SharedUtils.argsCheckAsync(creator, 'md5'),
+        name: SharedUtils.argsCheckAsync(name, 'string'),
+        isPublic: SharedUtils.argsCheckAsync(isPublic, 'boolean'),
+        is1on1: false
     }).then(function(doc) {
-        return new Model(doc);
-    }).then(function(newChannel) {
-        // make mongoose cache outdated
-        Model.find()._touchCollectionCheck(true);
-        return newChannel.saveAsync();
-    }).then(function(result) {
-        return DbUtil.checkDocumentSaveStatusAsync(result);
-    }).catch(function(err) {
-        SharedUtils.printError('ChannelDao', 'newChannelAsync', err);
-        return null;
+        if (SharedUtils.isString(org)) {
+            doc.organization = org;
+        }
+        return _save(doc, 'createAsync');
     });
 };
 
 /**
  * Public API
  * @Author: George_Chen
- * @Description: used to check channel is exist or not
+ * @Description: create 1on1 channel document
  *
  * @param {String}          channelId, channel id
+ * @param {String}          user1, the user1's uid
+ * @param {String}          user2, the user2's uid
  */
-exports.isExistAsync = function(channelId) {
-    return _isExist(channelId, {})
-        .catch(function(err) {
-            SharedUtils.printError('ChannelDao', 'isExistAsync', err);
-            throw err;
-        });
+exports.create1on1Async = function(channelId, user1, user2) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        uid1: SharedUtils.argsCheckAsync(user1, 'md5'),
+        uid2: SharedUtils.argsCheckAsync(user2, 'md5'),
+        isPublic: false,
+        is1on1: true
+    }).then(function(doc) {
+        doc.host = SharedUtils.get1on1ChannelHost(doc.uid1, doc.uid2);
+        return _save(doc, 'create1on1Async');
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to check channel is created or not
+ *
+ * @param {String}          hostUid, host's uid
+ * @param {String}          channelName, channel's name
+ */
+exports.isCreatedAsync = function(hostUid, channelName) {
+    return Promise.props({
+        host: SharedUtils.argsCheckAsync(hostUid, 'md5'),
+        name: SharedUtils.argsCheckAsync(channelName, 'string')
+    }).then(function(condition) {
+        return _isExist(condition, 'isCreatedAsync');
+    });
 };
 
 /**
@@ -63,11 +84,11 @@ exports.isExistAsync = function(channelId) {
  * @param {String}          channelId, channel id
  */
 exports.isAnonymousLoginAsync = function(channelId) {
-    return _isExist(channelId, {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         isAnonymousLogin: true
-    }).catch(function(err) {
-        SharedUtils.printError('ChannelDao', 'isAnonymousLoginAsync', err);
-        throw err;
+    }).then(function(condition) {
+        return _isExist(condition, 'isAnonymousLoginAsync');
     });
 };
 
@@ -80,15 +101,12 @@ exports.isAnonymousLoginAsync = function(channelId) {
  * @param {String}          password, the login password
  */
 exports.anonymousLoginAsync = function(channelId, password) {
-    return SharedUtils.argsCheckAsync(password, 'string')
-        .then(function(validPassword) {
-            return _isExist(channelId, {
-                anonymousPassword: validPassword
-            });
-        }).catch(function(err) {
-            SharedUtils.printError('ChannelDao', 'anonymousLoginAsync', err);
-            throw err;
-        });
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        anonymousPassword: SharedUtils.argsCheckAsync(password, 'string')
+    }).then(function(condition) {
+        return _isExist(condition, 'anonymousLoginAsync');
+    });
 };
 
 /**
@@ -98,13 +116,16 @@ exports.anonymousLoginAsync = function(channelId, password) {
  *
  * @param {String}          channelId, channel id
  */
-exports.findByChanelAsync = function(channelId) {
+exports.findByChanelAsync = function(channelId, is1on1) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
+        if (SharedUtils.isBoolean(is1on1)) {
+            condition.is1on1 = is1on1;
+        }
         return _find(true, condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelDao', 'findByChanelAsync', err);
+        SharedUtils.printError('ChannelDao.js', 'findByChanelAsync', err);
         return null;
     });
 };
@@ -130,7 +151,7 @@ exports.findByChanelsAsync = function(channelIds) {
         };
         return _find(false, condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelDao', 'findByChanelsAsync', err);
+        SharedUtils.printError('ChannelDao.js', 'findByChanelsAsync', err);
         return [];
     });
 };
@@ -138,20 +159,21 @@ exports.findByChanelsAsync = function(channelIds) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to search channels that matched partial channel name
+ * @Description: to search channels that matched channel name
  *
- * @param {String}          name, partial channel name
+ * @param {String}          name, channel name
  */
 exports.searchByNameAsync = function(name) {
     return SharedUtils.argsCheckAsync(name, 'alphabet')
         .then(function(validName) {
             var condition = {
-                name: new RegExp('#' + validName + '.*', 'i'),
-                type: 'public'
+                name: new RegExp(validName + '.*', 'i'),
+                isPublic: true,
+                is1on1: false
             };
             return _find(false, condition);
         }).catch(function(err) {
-            SharedUtils.printError('ChannelDao', 'searchByNameAsync', err);
+            SharedUtils.printError('ChannelDao.js', 'searchByNameAsync', err);
             return [];
         });
 };
@@ -159,24 +181,44 @@ exports.searchByNameAsync = function(name) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to delete channel document
+ * @Description: to delete normal channel document
  *
  * @param {String}          channelId, channel id
+ * @param {String}          hostUid, the host uid
  */
-exports.delChannelAsync = function(channelId) {
+exports.deleteAsync = function(channelId, hostUid) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
-        type: 'public'
+        host: SharedUtils.argsCheckAsync(hostUid, 'md5'),
+        is1on1: false
     }).then(function(condition) {
-        // make mongoose cache outdated
-        Model.find()._touchCollectionCheck(true);
-        return Model.removeAsync(condition);
-    }).then(function(result) {
-        return DbUtil.checkDocumentRemoveStatusAsync(result);
-    }).catch(function(err) {
-        SharedUtils.printError('ChannelDao', 'delChannelAsync', err);
-        return null;
+        return _delete(condition, 'deleteAsync');
     });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to delete 1on1 channel document
+ *
+ * @param {String}          channelId, channel id
+ * @param {String}          user1, the user1's uid
+ * @param {String}          user2, the user2's uid
+ */
+exports.delete1on1Async = function(channelId, user1, user2) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(user1, 'md5'),
+        SharedUtils.argsCheckAsync(user2, 'md5'),
+        function(cid, uid1, uid2) {
+            var condition = {
+                channelId: cid,
+                host: SharedUtils.get1on1ChannelHost(uid1, uid2),
+                isPublic: false,
+                is1on1: true
+            };
+            return _delete(condition, 'delete1on1Async');
+        });
 };
 
 /************************************************
@@ -187,20 +229,58 @@ exports.delChannelAsync = function(channelId) {
 
 /**
  * @Author: George_Chen
+ * @Description: an low-level implementation of save operation
+ *
+ * @param {Object}          channelDoc, new channel document
+ * @param {String}          caller, caller of this API
+ */
+function _save(channelDoc, caller) {
+    // make mongoose cache outdated
+    Model.find()._touchCollectionCheck(true);
+    var newChannel = new Model(channelDoc);
+    return newChannel.saveAsync()
+        .then(function(result) {
+            return DbUtil.checkDocumentSaveStatusAsync(result);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelDao.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: an low-level implementation of delete operation
+ *
+ * @param {Object}          condition, the query condition
+ * @param {String}          caller, caller of this API
+ */
+function _delete(condition, caller) {
+    // make mongoose cache outdated
+    Model.find()._touchCollectionCheck(true);
+    return Model.removeAsync(condition)
+        .then(function(result) {
+            return DbUtil.checkDocumentRemoveStatusAsync(result);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelDao.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
  * @Description: an low-level implementation of exist operation
  *
  * @param {String}          channelId, channel id
  * @param {String}          extraFields, extra searching fields
  */
-function _isExist(channelId, extraFields) {
-    return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
-    }).then(function(condition) {
-        var queryCondition = ObjectAssign(condition, extraFields);
-        return Model.countAsync(queryCondition);
-    }).then(function(count) {
-        return DbUtil.checkDocumentExistStatusAsync(count);
-    });
+function _isExist(condition, caller) {
+    return Model.countAsync(condition)
+        .then(function(count) {
+            return DbUtil.checkDocumentExistStatusAsync(count);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelDao.js', caller, err);
+            throw err;
+        });
 }
 
 /**

@@ -8,7 +8,7 @@ var SharedUtils = require('../../../sharedUtils/utils');
  * @Author: George_Chen
  * @Description: used to create channel
  *
- * @param {String}        data.name, the partial channel name
+ * @param {String}        data.name, the channel name
  */
 exports.createAsync = function(data) {
     var packet = _setPacket('createAsync', null, data);

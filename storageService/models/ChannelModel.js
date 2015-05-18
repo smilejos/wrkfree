@@ -4,13 +4,12 @@ var Schema = Mongoose.Schema;
 
 /**
  * channelId, the channel's id
- * name, the full name of this channel ex: "bamoo456@gmail.com#test"
- * type, the type of channel,
- *     NOTE: the "public" type of channel can be searched,
- *           the "private" type of channel can not be searched
+ * host, the host uid,
+ * name, the name of channel
+ * is1on1, to indicate channel is 1on1 or not
+ * isPublic, to indicate the channel can be searched or not
  * 
  * TODO: future support
- * 
  * isOpen, means that channel will be shown on home page or not
  * isAnonymousLogin: means channel support anonymous login or not
  * organization, the name of organization that this channel belong to 
@@ -19,12 +18,14 @@ var Schema = Mongoose.Schema;
 
 var ChannelSchema = new Schema({
     channelId:          {type : String, default : '', trim : true, index: true},
-    name:               {type : String, default : '', trim : true},
-    type:               {type : String, default : '', trim : true},
-    isOpen:             {type : Boolean,default : false, trim : true},
-    isAnonymousLogin:   {type : Boolean,default : false, trim : true},
+    host:               {type : String, default : '', trim : true, index: true},
+    name:               {type : String, default : '', trim : true, index: true},
+    is1on1:             {type : Boolean,default : false, index: true},
+    isPublic:           {type : Boolean,default : true, index: true},
+    isOpen:             {type : Boolean,default : false},
+    isAnonymousLogin:   {type : Boolean,default : false},
     organization:       {type : String, default : '', trim : true},
-    anonymousPassword:  {type : String, default : '', trim : true}
+    anonymousPassword:  {type : String, default : '', trim : true},
 });
 
 ChannelSchema.set('autoIndex', false);
