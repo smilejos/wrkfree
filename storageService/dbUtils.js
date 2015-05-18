@@ -189,15 +189,13 @@ exports.transformTimeAsync = function(mongoDocs, dateField) {
  * @Author: George_Chen
  * @Description: transform _id field of mongodb docs to new field
  * 
- * @param {Array}        mongoDocs, a array of mongodb docs
+ * @param {Object}       doc, a mongodb document
  * @param {String}       newField, the new "_id" field name
  */
-exports.transformToNewIdAsync = function(mongoDocs, newIdField) {
-    return Promise.map(mongoDocs, function(doc) {
-        doc[newIdField] = doc._id;
-        delete doc._id;
-        return doc;
-    });
+exports.transformToNewIdAsync = function(doc, newIdField) {
+    doc[newIdField] = doc._id;
+    delete doc._id;
+    return doc;
 };
 
 /**

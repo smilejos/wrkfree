@@ -17,15 +17,12 @@ exports.createAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.name, 'string')
         .then(function(validName) {
             var host = socket.getAuthToken();
-            var time = Date.now().toString();
-            var cid = CryptoUtils.getMd5Hex(host+time);
             var isPublic = true;
-            return ChannelStorage.createChannelAsync(host, cid, validName, isPublic);
+            return ChannelStorage.createChannelAsync(host, validName, isPublic);
         }).then(function(result) {
             if (!result) {
                 throw new Error('channel storage internal error');
             }
-            result._id = null;
             return result;
         }).catch(function(err) {
             SharedUtils.printError('channelHandler.js', 'createAsync', err);

@@ -3,7 +3,7 @@ var Mongoose = require('mongoose');
 var Schema = Mongoose.Schema;
 
 /**
- * channelId, the channel's id
+ * _id, the channel's id
  * host, the host uid,
  * name, the name of channel
  * is1on1, to indicate channel is 1on1 or not
@@ -17,7 +17,7 @@ var Schema = Mongoose.Schema;
  */
 
 var ChannelSchema = new Schema({
-    channelId:          {type : String, default : '', trim : true, index: true},
+    _id:                {type : String, default : '', trim : true, index: true},
     host:               {type : String, default : '', trim : true, index: true},
     name:               {type : String, default : '', trim : true, index: true},
     is1on1:             {type : Boolean,default : false, index: true},

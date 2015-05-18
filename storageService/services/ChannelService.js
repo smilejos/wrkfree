@@ -1,5 +1,6 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
+var CryptoUtils = require('../../sharedUtils/cryptoUtils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
@@ -19,20 +20,21 @@ var ChannelTemp = require('../tempStores/ChannelTemp');
  * @Description: for user to create channel related data
  *
  * @param {String}          creator, creator for this channel
- * @param {String}          channelId, channel id
  * @param {String}          name, full channel name
  * @param {Boolean}         isPublic, indicate channel should public or not
  */
-exports.createChannelAsync = function(creator, channelId, name, isPublic) {
+exports.createChannelAsync = function(creator, name, isPublic) {
+    var time = Date.now().toString();
+    var cid = CryptoUtils.getMd5Hex(creator + time);
     return ChannelDao.isCreatedAsync(creator, name)
         .then(function(hasChannel) {
             if (hasChannel) {
                 throw new Error('channel already exist');
             }
             // clean all related docs
-            return _removeChannel(channelId, creator);
+            return _removeChannel(cid, creator);
         }).then(function() {
-            return _createChannel(creator, channelId, name, isPublic);
+            return _createChannel(creator, cid, name, isPublic);
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'createChannelAsync', err);
             return null;
