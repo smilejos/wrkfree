@@ -99,6 +99,26 @@ exports.isReqSentAsync = function(reqUser, targetUser, reqType, info) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to check replier is auth to reply or not
+ *
+ * @param {String}          reqId, the request id
+ * @param {String}          replier, the replier uid
+ */
+exports.isReplierAuthAsync = function(reqId, replier) {
+    return Promise.props({
+        _id: SharedUtils.argsCheckAsync(reqId, '_id'),
+        target: SharedUtils.argsCheckAsync(replier, 'md5'),
+    }).then(function(condition) {
+        return _exist(condition);
+    }).catch(function(err) {
+        SharedUtils.printError('ReqRespDao', 'isReplierAuthAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: update target user's request and response to readed
  *
  * @param {String}          targetUser, the uid of target user
@@ -128,7 +148,7 @@ exports.updateToAllReadedAsync = function(targetUser) {
  */
 exports.updateToReadedAsync = function(reqId, targetUser) {
     return Promise.props({
-        _id: SharedUtils.argsCheckAsync(reqId, 'string'),
+        _id: SharedUtils.argsCheckAsync(reqId, '_id'),
         target: SharedUtils.argsCheckAsync(targetUser, 'md5')
     }).then(function(condition) {
         var updateDoc = {
@@ -156,7 +176,7 @@ exports.updateToReadedAsync = function(reqId, targetUser) {
  */
 exports.updateToRespAsync = function(reqId, replier, originalSender, respToPermitted) {
     return Promise.props({
-        _id: SharedUtils.argsCheckAsync(reqId, 'string'),
+        _id: SharedUtils.argsCheckAsync(reqId, '_id'),
         sender: SharedUtils.argsCheckAsync(originalSender, 'md5'),
         target: SharedUtils.argsCheckAsync(replier, 'md5'),
         isReq: true
