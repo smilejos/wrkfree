@@ -24,6 +24,11 @@ var SocketCluster = require('sc2-client');
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 
+/**
+ * actions
+ */
+var ClientInitAction = require('../actions/clientInit');
+
 // the websocket instance
 var Socket = null;
 
@@ -38,6 +43,13 @@ exports.init = function(callback) {
     if (Socket !== null) {
         return callback();
     }
+    
+    function _clientInit(){
+        window.context.executeAction(ClientInitAction, {
+            done: callback
+        });
+    }
+
     /**
      * initialize socket client
      * NOTE: socketCluster client will always try to recover 
@@ -54,16 +66,16 @@ exports.init = function(callback) {
      */
     Socket.on('ready', function(state) {
         if (!state.isAuthenticated) {
-            Socket.emit('auth', document.cookie, function(err) {
+            return Socket.emit('auth', document.cookie, function(err) {
                 // TODO:
                 // error handling on "auth"
                 if (err) {
                     return console.log(err);
                 }
-                return callback();
+                _clientInit();
             });
         }
-        callback();
+        _clientInit();
     });
 
     Socket.on('error', function() {
