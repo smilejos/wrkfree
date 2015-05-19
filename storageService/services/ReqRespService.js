@@ -31,9 +31,9 @@ exports.saveReqAsync = function(sender, target, type, info) {
             }
             return ReqRespDao.saveReqAsync(sender, target, type, info);
         }).catch(function(err) {
-        SharedUtils.printError('ReqRespService.js', 'saveReqAsync', err);
-        return null;
-    });
+            SharedUtils.printError('ReqRespService.js', 'saveReqAsync', err);
+            return null;
+        });
 };
 
 /**
@@ -54,16 +54,49 @@ exports.saveRespAsync = function(reqId, replier, originalSender, isPermitted) {
         });
 };
 
-// TODO:
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: before user update the response, call this API to check the auth
+ *
+ * @param {String}          reqId, the request id
+ * @param {String}          replier, the replier uid
+ */
+exports.isReplierAuthAsync = function(reqId, replier) {
+    return ReqRespDao.isReplierAuthAsync(reqId, replier)
+        .catch(function(err) {
+            SharedUtils.printError('ReqRespService.js', 'isReplierAuthAsync', err);
+            return null;
+        });
+};
 
-// exports.isAuthToRespAsync = function(reqId, replier) {
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check certain request has been sent or not
+ *
+ * @param {String}          sender, the uid of req sender
+ * @param {String}          target, the uid of target user
+ * @param {String}          type, request type
+ * @param {String}          info, extra information
+ */
+exports.isReqSentAsync = function(reqSender, targetUser, reqType, info) {
+    return ReqRespDao.isReqSentAsync(reqSender, targetUser, reqType, info)
+        .catch(function(err) {
+            SharedUtils.printError('ReqRespService.js', 'isReqSentAsync', err);
+            return null;
+        });
+};
 
-// };
-
-// exports.isReqSentAsync = function(reqSender, targetUser, reqType, info) {
-
-// };
-
+/**
+ * @Author: George_Chen
+ * @Description: used to check that request realted operation has been executed or not
+ *
+ * @param {String}          sender, the uid of req sender
+ * @param {String}          target, the uid of target user
+ * @param {String}          type, request type
+ * @param {String}          info, extra information
+ */
 function _isReqCompleted(sender, target, type, info) {
     return Promise.try(function() {
         if (type === 'channel') {
