@@ -5,9 +5,35 @@ var SharedUtils = require('../../../sharedUtils/utils');
 
 var HeaderStore = CreateStore({
     storeName: 'HeaderStore',
+    handlers: {
+        'ON_NOTIFY': '_onNotify',
+        'ON_MSG_NOTIFY': '_onMsgNotify'
+    },
 
     initialize: function() {
         this.user = {};
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for updating the notification state
+     *
+     * @param {Boolean}      hasNotify, notification state
+     */
+    _onNotify: function(hasNotify) {
+        this.hasNotification = hasNotify;
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for updating the unread message state
+     *
+     * @param {Boolean}      hasNotify, notification state
+     */
+    _onMsgNotify: function(hasNotify) {
+        this.hasUnreadMsgs = hasNotify;
+        this.emitChange();
     },
 
     /**
@@ -36,6 +62,11 @@ var HeaderStore = CreateStore({
         });
     },
 
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: for getting current user's self information
+     */
     getSelfInfo: function() {
         return this.user;
     },
