@@ -149,7 +149,7 @@ exports.getSignUpAsync = function(actionContext, params) {
  */
 function _getFriendResource(actionContext, userInfo) {
     var friendStore = actionContext.getStore(FriendStore);
-    if (!friendStore.isPolyFilled) {
+    if (!friendStore.hasPolyfilled()) {
         return FriendService.getFriendListAsync(userInfo.uid);
     }
     return null;

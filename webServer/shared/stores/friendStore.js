@@ -2,6 +2,7 @@
 var createStore = require('fluxible/utils/createStore');
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
+var FriendViewName = 'friendView';
 
 module.exports = createStore({
     storeName: 'FriendStore',
@@ -11,7 +12,6 @@ module.exports = createStore({
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
         collection.ensureIndex('nickName');
-        this.isPolyFilled = null;
     },
 
     /**
@@ -26,7 +26,7 @@ module.exports = createStore({
         return Promise.map(friendList, function(friendInfo) {
             return _impportFriend(collection, friendInfo);
         }).bind(this).then(function() {
-            this.isPolyFilled = true;
+            _getFriendView(collection);
             return this.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('FriendStore.js', 'polyfillAsync', err);
@@ -46,7 +46,7 @@ module.exports = createStore({
     getState: function() {
         var collection = this.db.getCollection(this.dbName);
         return {
-            friends: collection.chain().data()
+            friends: _getFriendView(collection).data()
         };
     },
 
@@ -85,6 +85,17 @@ module.exports = createStore({
     /**
      * @Public API
      * @Author: George_Chen
+     * @Description: used to check friend store has been polyfilled or not
+     *         NOTE: return true, only if friendView has been inited
+     */
+    hasPolyfilled: function() {
+        var collection = this.db.getCollection(this.dbName);
+        return !!collection.getDynamicView(FriendViewName);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
      * @Description: dehydrate mechanism will be called by fluxible framework
      */
     dehydrate: function() {
@@ -100,7 +111,6 @@ module.exports = createStore({
      */
     rehydrate: function(serializedDB) {
         this.db.loadJSON(serializedDB);
-        this.isPolyFilled = !!serializedDB;
     }
 });
 
@@ -117,8 +127,28 @@ function _impportFriend(collection, doc) {
         avatar: SharedUtils.argsCheckAsync(doc.avatar, 'avatar'),
         nickName: SharedUtils.argsCheckAsync(doc.nickName, 'nickName'),
         group: SharedUtils.argsCheckAsync(doc.group, 'string'),
-        isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean'),
+        isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean')
     }).then(function(drawDoc) {
         return collection.insert(drawDoc);
     });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to get friend view
+ *         NOTE: sort by online status
+ *
+ * @param {Object}      collection, lokijs collection
+ */
+function _getFriendView(collection) {
+    var friendView = collection.getDynamicView(FriendViewName);
+    if (!friendView) {
+        friendView = collection.addDynamicView(FriendViewName);
+        friendView.applyFind({}).applySort(function(obj1, obj2) {
+            if (obj1.isOnline && obj2.isOnline) return 0;
+            if (obj1.isOnline && !obj2.isOnline) return 1;
+            if (!obj1.isOnline && obj2.isOnline) return -1;
+        });
+    }
+    return friendView;
 }
