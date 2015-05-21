@@ -112,6 +112,49 @@ exports.friendRespAsync = function(socket, data) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to check specific channel request has been sent or not
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.targetUser, the uid of target user
+ * @param {String}          data.channelId, the channel id
+ */
+exports.isChannelReqSentAsync = function(socket, data) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.targetUser, 'md5'),
+        SharedUtils.argsCheckAsync(data.channelId, 'string'),
+        function(target, cid) {
+            var type = 'channel';
+            var uid = socket.getAuthToken();
+            return ReqRespStorage.isReqSentAsync(uid, target, type, cid);
+        }).catch(function(err) {
+            SharedUtils.printError('reqRespHandler.js', 'isChannelReqSentAsync', err);
+            throw new Error('check channel request status error');
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to check specific friend request has been sent or not
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.targetUser, the uid of target user
+ */
+exports.isFriendReqSentAsync = function(socket, data) {
+    return SharedUtils.argsCheckAsync(data.targetUser, 'md5')
+        .then(function(target) {
+            var type = 'friend';
+            var uid = socket.getAuthToken();
+            return ReqRespStorage.isReqSentAsync(uid, target, type);
+        }).catch(function(err) {
+            SharedUtils.printError('reqRespHandler.js', 'isFriendReqSentAsync', err);
+            throw new Error('check friend request status error');
+        });
+};
+
+/**
  * @Author: George_Chen
  * @Description: for handling response by type
  *
@@ -166,10 +209,6 @@ function _notifyTarget(socket, target) {
 // TODO:
 
 // exports.readAllAsync = function() {
-
-// };
-
-// exports.hasReqSentAsync = function() {
 
 // };
 

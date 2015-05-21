@@ -67,6 +67,31 @@ exports.friendRespAsync = function(data) {
     return _request(packet, 'friendRespAsync');
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check status of channel request (sent or not)
+ *
+ * @param {String}          data.targetUser, the uid of target user
+ * @param {String}          data.channelId, the channel id
+ */
+exports.isChannelReqSentAsync = function(data) {
+    var packet = _setPacket('isChannelReqSentAsync', null, data);
+    return _request(packet, 'isChannelReqSentAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check status of friend request (sent or not)
+ *
+ * @param {String}          data.targetUser, the uid of target user
+ */
+exports.isFriendReqSentAsync = function(data) {
+    var packet = _setPacket('isFriendReqSentAsync', null, data);
+    return _request(packet, 'isFriendReqSentAsync');
+};
+
 /************************************************
  *
  *           internal functions
