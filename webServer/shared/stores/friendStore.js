@@ -1,20 +1,9 @@
 'use strict';
 var createStore = require('fluxible/utils/createStore');
+var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
-var StoreUtils = require('./utils');
 
-/**
- * the document schema of friend db collection
- */
-var FriendSchema = {
-    nickName:           {type : 'String', default : ''},
-    uid:                {type : 'String', default : ''},
-    avatar:             {type : 'String', default : ''},
-    group:              {type : 'String', default : ''},
-    isOnline:           {type : 'Boolean', default : ''}
-};
-
-var FriendStore = createStore({
+module.exports = createStore({
     storeName: 'FriendStore',
 
     initialize: function() {
@@ -35,9 +24,7 @@ var FriendStore = createStore({
     polyfillAsync: function(friendList) {
         var collection = this.db.getCollection(this.dbName);
         return Promise.map(friendList, function(friendInfo) {
-            return StoreUtils.validDocAsync(friendInfo, FriendSchema).then(function(doc) {
-                return collection.insert(doc);
-            });
+            return _impportFriend(collection, friendInfo);
         }).bind(this).then(function() {
             this.isPolyFilled = true;
             return this.emitChange();
@@ -116,4 +103,21 @@ var FriendStore = createStore({
     }
 });
 
-module.exports = FriendStore;
+/**
+ * @Author: George_Chen
+ * @Description: save message document to the lokijs collection
+ *
+ * @param {Object}      collection, lokijs collection
+ * @param {Object}      doc, the message document
+ */
+function _impportFriend(collection, doc) {
+    return Promise.props({
+        uid: SharedUtils.argsCheckAsync(doc.uid, 'md5'),
+        avatar: SharedUtils.argsCheckAsync(doc.avatar, 'avatar'),
+        nickName: SharedUtils.argsCheckAsync(doc.nickName, 'nickName'),
+        group: SharedUtils.argsCheckAsync(doc.group, 'string'),
+        isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean'),
+    }).then(function(drawDoc) {
+        return collection.insert(drawDoc);
+    });
+}
