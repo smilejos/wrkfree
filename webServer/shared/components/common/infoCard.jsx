@@ -67,10 +67,12 @@ module.exports = React.createClass({
             value: 'Ask to Join',
             style: 'fa fa-envelope-o',
             handler: function(cardInfo){
-                this.executeAction(SendChannelReq, {
-                    targetUser: cardInfo.targetUid,
-                    channelId: cardInfo.channelId
-                });
+                if (!this.state.isReqSent) {
+                    this.executeAction(SendChannelReq, {
+                        targetUser: cardInfo.targetUid,
+                        channelId: cardInfo.channelId
+                    });
+                }
             }
         };
     },
@@ -84,9 +86,11 @@ module.exports = React.createClass({
             value: 'Add Friend',
             style: 'fa fa-user-plus',
             handler: function(cardInfo){
-                this.executeAction(SendFriendReq, {
-                    targetUser: cardInfo.targetUid
-                });
+                if (!this.state.isReqSent) {
+                    this.executeAction(SendFriendReq, {
+                        targetUser: cardInfo.targetUid
+                    });
+                }
             }
         };
     },
