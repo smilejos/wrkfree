@@ -33,5 +33,6 @@ app.registerStore(require('./stores/friendStore'));
 app.registerStore(require('./stores/DrawStore'));
 app.registerStore(require('./stores/DrawTempStore'));
 app.registerStore(require('./stores/QuickSearchStore'));
+app.registerStore(require('./stores/InfoCardStore'));
 
 module.exports = app;
