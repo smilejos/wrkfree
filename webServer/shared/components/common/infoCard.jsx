@@ -1,4 +1,5 @@
 var React = require('react');
+var Router = require('react-router');
 var FluxibleMixin = require('fluxible').Mixin;
 
 /**
@@ -6,6 +7,14 @@ var FluxibleMixin = require('fluxible').Mixin;
  */
 var Mui = require('material-ui');
 var Paper = Mui.Paper;
+
+/**
+ * actions
+ */
+var SendChannelReq = require('../../../client/actions/channel/sendChannelReq');
+var SendFriendReq = require('../../../client/actions/friend/sendFriendReq');
+var CheckChannelReq = require('../../../client/actions/channel/checkChannelReq');
+var CheckFriendReq = require('../../../client/actions/friend/checkFriendReq');
 
 /**
  * stores
@@ -57,8 +66,11 @@ module.exports = React.createClass({
         return {
             value: 'Ask to Join',
             style: 'fa fa-envelope-o',
-            handler: function(){
-                // TODO:
+            handler: function(cardInfo){
+                this.executeAction(SendChannelReq, {
+                    targetUser: cardInfo.targetUid,
+                    channelId: cardInfo.channelId
+                });
             }
         };
     },
@@ -71,8 +83,10 @@ module.exports = React.createClass({
         return {
             value: 'Add Friend',
             style: 'fa fa-user-plus',
-            handler: function(){
-                // TODO:
+            handler: function(cardInfo){
+                this.executeAction(SendFriendReq, {
+                    targetUser: cardInfo.targetUid
+                });
             }
         };
     },
@@ -85,8 +99,8 @@ module.exports = React.createClass({
         return {
             value: 'WorkSpace',
             style: 'fa fa-sign-in',
-            handler: function(){
-                // TODO:
+            handler: function(cardInfo){
+                this.transitionTo('/app/channel/' + cardInfo.channelId);
             }
         };
     },
@@ -147,6 +161,25 @@ module.exports = React.createClass({
 
     getInitialState: function() {
         return this._getCardState();
+    },
+
+    /**
+     * check the button state should be disabled or not based on
+     * the request has been sent or not
+     */
+    componentDidMount: function(){
+        if (this.state.isKnown) {
+            return;
+        }
+        var reqData = {
+            cardId: this.props.cardId,
+            targetUid: this.state.targetUid,
+        };
+        if (this.state.type === 'channel') {
+            reqData.channelId = this.state.channelId;
+            return this.executeAction(CheckChannelReq, reqData);
+        }
+        return this.executeAction(CheckFriendReq, reqData);
     },
 
     render: function() {
