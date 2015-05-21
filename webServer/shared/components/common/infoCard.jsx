@@ -7,20 +7,24 @@ var FluxibleMixin = require('fluxible').Mixin;
 var Mui = require('material-ui');
 var Paper = Mui.Paper;
 
+/**
+ * stores
+ */
+var InfoCardStore = require('../../stores/InfoCardStore');
 
 /**
  * @Author: George_Chen
- * @Description: the main component of infoCard
- *         NOTE: the type should only be "user" or "channel"
+ * @Description: the main component of infoCard, the card state is stored at infoCardStore
  *         
- * @param {String}       props.targetInfo.avatar, the target avatarUrl
- * @param {String}       props.targetInfo.nickName, the target nickName
- * @param {String}       props.targetInfo.type, the type of this info card
- * @param {Boolean}      props.targetInfo.isKnown, indicate target is known or not
- * @param {String}       props.targetInfo.extraInfo, the extra information of this target
+ * @param {String}       props.cardId, the info card id
  */
 module.exports = React.createClass({
-    mixins: [FluxibleMixin],
+    mixins: [FluxibleMixin, Router.Navigation],
+    statics: {
+        storeListeners: {
+            '_onStoreChange': [InfoCardStore],
+        }
+    },
 
     /**
      * @Author: George_Chen
@@ -38,7 +42,7 @@ module.exports = React.createClass({
      * @Description: polyfill the extra info on infoCard
      */
     _setExtraInfo: function() {
-        var info = this.props.targetInfo.extraInfo;
+        var info = this.state.extraInfo;
         if (!info) {
             return '';
         }
@@ -127,15 +131,35 @@ module.exports = React.createClass({
         return btnInfo[infoType][btnType]();
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: to get the card state from infoCardStore
+     */
+    _getCardState: function() {
+        var cardId = this.props.cardId;
+        return this.getStore(InfoCardStore).getCardState(cardId);
+    },
+
+    _onStoreChange: function() {
+        var state = this._getCardState();
+        this.setState(state);
+    },
+
+    getInitialState: function() {
+        return this._getCardState();
+    },
+
     render: function() {
         var classSet = React.addons.classSet;
-        var coverImgSrc = this._getCoverImgUrl(this.props.targetInfo.avatar);
-        var infoType = (this.props.targetInfo.type === 'user' ? 'user' : 'channel');
-        var btnType = (this.props.targetInfo.isKnown ? 'allowed' : 'request');
+        var cardInfo = this.state;
+        var coverImgSrc = this._getCoverImgUrl(cardInfo.avatar);
+        var infoType = (cardInfo.type === 'user' ? 'user' : 'channel');
+        var btnType = (cardInfo.isKnown ? 'allowed' : 'request');
         var btnInfo = this._getBtnInfo(infoType, btnType);
         var cardStyle = {
-            'button-request': !this.props.targetInfo.isKnown,
-            'button-allowed': this.props.targetInfo.isKnown,
+            'button-request': !cardInfo.isKnown,
+            'button-allowed': cardInfo.isKnown,
+            'pure-button-disabled': (!cardInfo.isKnown && cardInfo.isReqSent),
             'pure-button': true,
         };
         return (
@@ -143,11 +167,11 @@ module.exports = React.createClass({
                 <Paper zDepth={1} rounded={false} >
                     <img src={coverImgSrc} width="147" height="147"/>
                     <Paper zDepth={0} className="infoCardContent">
-                        <div>{'@'+this.props.targetInfo.nickName}</div>
+                        <div>{'@'+cardInfo.nickName}</div>
                         {this._setExtraInfo()}
                     </Paper>
                     <button className={classSet(cardStyle)}
-                            onClick={btnInfo.handler} >
+                            onClick={btnInfo.handler.bind(this, cardInfo)} >
                         <i className={btnInfo.style}></i>
                         &nbsp;
                         {btnInfo.value}
