@@ -29,7 +29,8 @@ module.exports = createStore({
             this.isPolyFilled = true;
             return this.emitChange();
         }).catch(function(err) {
-            return console.log('[polyfillAsync]', err);
+            SharedUtils.printError('FriendStore.js', 'polyfillAsync', err);
+            return null;
         });
     },
 
