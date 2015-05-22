@@ -116,7 +116,7 @@ module.exports = createStore({
 
 /**
  * @Author: George_Chen
- * @Description: save message document to the lokijs collection
+ * @Description: save friendInfo document to the lokijs collection
  *
  * @param {Object}      collection, lokijs collection
  * @param {Object}      doc, the message document
