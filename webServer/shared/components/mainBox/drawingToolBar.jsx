@@ -74,6 +74,7 @@ module.exports = React.createClass({
      */
     _addBoard: function(){
         this.executeAction(AddDrawBoard, {
+            urlNavigator: this.transitionTo,
             channelId: this.props.channelId,
             newBoardId: this.props.drawInfo.boardNums
         });

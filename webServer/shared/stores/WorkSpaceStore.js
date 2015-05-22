@@ -71,9 +71,6 @@ module.exports = CreateStore({
      */
     onBoardAdd: function(data) {
         this.draw.boardNums = data.boardId + 1;
-        if (data.toNewBoard) {
-            this.draw.currentBoardId = data.boardId;
-        }
         this.emitChange();
     },
 
