@@ -1,4 +1,5 @@
 var React = require('react');
+var FluxibleMixin = require('fluxible').Mixin; 
 var NavigationMixin = require('react-router').Navigation;
 
 /**
@@ -7,6 +8,11 @@ var NavigationMixin = require('react-router').Navigation;
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 var Paper = Mui.Paper;
+
+/**
+ * actions
+ */
+var NavToBoard = require('../../../client/actions/draw/navToBoard');
 
 /**
  * child components
@@ -31,7 +37,7 @@ var ChannelSnapshot = require('./channelSnapshot.jsx');
  * @param {Boolean}     this.props.isRtcOn, an status to inform channel currently has conference
  */
 module.exports = React.createClass({
-    mixins: [NavigationMixin],
+    mixins: [FluxibleMixin, NavigationMixin],
 
     getInitialState: function() {
         return {
@@ -64,8 +70,11 @@ module.exports = React.createClass({
      */
     _onEnterIconClick: function(channelId) {
         var info = this.props.channelInfo;
-        var boardIndex = info.lastBaord + 1;
-        this.transitionTo('/app/channel/'+info.channelId + '?board=' + boardIndex);
+        this.executeAction(NavToBoard, {
+            urlNavigator: this.transitionTo,
+            channelId: info.channelId,
+            boardId: info.lastBaord
+        });
     },
 
     render: function(){

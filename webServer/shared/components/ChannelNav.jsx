@@ -15,6 +15,7 @@ var CreateChannel = require('../../client/actions/channel/createChannel');
  * child components
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var NavToBoard = require('../../client/actions/draw/navToBoard');
 
 /**
  * material UI compoents
@@ -73,7 +74,11 @@ module.exports = React.createClass({
         };
         this.refs.channelName.clearValue();
         this.executeAction(ToggleChannelNav, toggleMode);
-        this.transitionTo('/app/channel/'+createdChannel.channelId);
+        this.executeAction(NavToBoard, {
+            urlNavigator: this.transitionTo,
+            channelId: createdChannel.channelId,
+            boardId: 0
+        });
     },
 
     /**

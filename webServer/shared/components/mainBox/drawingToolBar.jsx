@@ -168,9 +168,13 @@ module.exports = React.createClass({
      * @Description: switch to specifc drawing baord by target board index
      */
     _goToBoard: function(){
-        var boardIndex = this.state.boardIndex;
-        if (boardIndex > 0 && boardIndex <= this.props.drawInfo.boardNums) {
-            this.transitionTo('/app/channel/'+this.props.channelId + '?board='+boardIndex);
+        var newBoardId = this.state.boardIndex -1;
+        if (newBoardId >= 0 && newBoardId < this.props.drawInfo.boardNums) {
+            this.executeAction(NavToBoard, {
+                urlNavigator: this.transitionTo,
+                channelId: this.props.channelId,
+                boardId: newBoardId
+            });
         }
         this._setDefaultIndex();
     },

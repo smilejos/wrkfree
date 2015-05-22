@@ -1,26 +1,29 @@
 'use strict';
+var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
-var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: action for user to navigate between different drawBoards
- *               on current channel
+ * @Description: trigger the draw board url navigation
  * 
  * @param {Object}      actionContext, the fluxible's action context
+ * @param {String}      data.channelId, the channel id
  * @param {Number}      data.boardId, target board id
- * @param {Function}    callback, callback function
+ * @param {Function}    data.urlNavigator, the transitionTo reference of react-router
  */
-module.exports = function(actionContext, data, callback) {
-    return SharedUtils.argsCheckAsync(data.boardId, 'boardId')
-        .then(function(bid) {
-            var workSpaceStore = actionContext.getStore(WorkSpaceStore);
-            workSpaceStore.setCurrentBoard(bid);
-            return true;
+module.exports = function(actionContext, data) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        function(cid, bid) {
+            var navigator = data.urlNavigator;
+            var boardIndex = bid + 1;
+            if (!SharedUtils.isFunction(data.urlNavigator)) {
+                throw new Error('');
+            }
+            navigator('/app/channel/' + cid + '?board=' + boardIndex);
         }).catch(function(err) {
             SharedUtils.printError('navToBoard.js', 'core', err);
-            return null;
-            // show alert message ?
-        }).nodeify(callback);
+        });
 };
