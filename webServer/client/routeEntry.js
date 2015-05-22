@@ -109,6 +109,9 @@ function _setWorkSpace(channelId) {
     if (!WorkSpaceChannel) {
         return setChannel(channelId);
     }
+    if (WorkSpaceChannel === channelId) {
+        return true;
+    }
     return ChannelService.leaveAsync(WorkSpaceChannel)
         .then(function(result) {
             return (result ? setChannel(channelId) : null);
