@@ -63,20 +63,22 @@ module.exports = React.createClass({
      * handle event that user click the enter icon
      */
     _onEnterIconClick: function(channelId) {
-        this.transitionTo('/app/channel/'+this.props.channelId);
+        var info = this.props.channelInfo;
+        var boardIndex = info.lastBaord + 1;
+        this.transitionTo('/app/channel/'+info.channelId + '?board=' + boardIndex);
     },
 
     render: function(){
-        var info = this.props;
+        var info = this.props.channelInfo;
         return (
             <div className="ChannelGridItem" onClick={this._onClick}>
                 <Paper zDepth={this.state.zDepth} rounded={false}
                     onMouseOver={this._onMouseOver} onMouseOut={this._onMouseOut}>
                     <ChannelSummary 
-                        channelName={this.props.channelName}
-                        hostName={this.props.hostName}
-                        isRtcOn={this.props.isRtcOn} />
-                    <ChannelHostInfo hostAvatar={this.props.hostAvatar} />
+                        channelName={info.channelName}
+                        hostName={info.hostName}
+                        isRtcOn={info.isRtcOn} />
+                    <ChannelHostInfo hostAvatar={info.hostAvatar} />
                     <ChannelSnapshot url={info.snapshotUrl}/>
                     <ChannelMembers members={info.memberList} />
                     <div className="ChannelTimestamp Right">

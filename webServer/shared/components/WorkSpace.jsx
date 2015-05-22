@@ -37,6 +37,8 @@ module.exports = React.createClass({
         var channelInfo= this.state.channel;
         var membersInfo= this.state.members;
         var drawInfo= this.state.draw;
+        var boardIndex = this.props.route.query.board;
+        drawInfo.currentBoardId = (boardIndex ? boardIndex -1 : 0);
         return (
             <div>
                 <DrawingArea channel={channelInfo} drawInfo={drawInfo}/>

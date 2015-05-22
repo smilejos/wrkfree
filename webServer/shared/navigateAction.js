@@ -5,7 +5,6 @@ module.exports = function(actionContext, payload, done) {
     var routeInfo = actionContext.getRouteInfo();
     var urlInfo = _getUrlInfo(payload);
     var args = ObjectAssign(routeInfo, urlInfo);
-
     return actionContext.routePolyfillAsync(args)
         .then(function() {
             // TODO: should we check polyfill result ?
@@ -31,5 +30,6 @@ function _getUrlInfo(routerState) {
     // to get the real url index
     var pathIndex = (Object.keys(info).length === 0 ? lastIndex : lastIndex - 1);
     info.path = routerState.routes[pathIndex].path;
+    info.query = routerState.query;
     return info;
 }

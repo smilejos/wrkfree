@@ -57,7 +57,8 @@ module.exports = createStore({
                 snapshotUrl: Snapshots[index] || SnapshotError,
                 isStarred: item.isStarred,
                 isRtcOn: item.rtcStatus,
-                visitTime: item.visitTime
+                visitTime: item.visitTime,
+                lastBaord: item.lastBaord
             };
         }).bind(this).then(function(result) {
             this.isPolyFilled = true;

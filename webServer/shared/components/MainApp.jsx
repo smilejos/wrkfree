@@ -41,7 +41,7 @@ module.exports = React.createClass({
             <div>
                 <Header />
                 <ChannelNav />
-                <RouteHandler appInfo={this.state}/>
+                <RouteHandler route={this.state.route}/>
                 <PrivateMsgBoxes />
             </div>
         );
