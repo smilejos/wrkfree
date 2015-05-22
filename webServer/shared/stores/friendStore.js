@@ -1,20 +1,10 @@
 'use strict';
 var createStore = require('fluxible/utils/createStore');
+var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
-var StoreUtils = require('./utils');
+var FriendViewName = 'friendView';
 
-/**
- * the document schema of friend db collection
- */
-var FriendSchema = {
-    nickName:           {type : 'String', default : ''},
-    uid:                {type : 'String', default : ''},
-    avatar:             {type : 'String', default : ''},
-    group:              {type : 'String', default : ''},
-    isOnline:           {type : 'Boolean', default : ''}
-};
-
-var FriendStore = createStore({
+module.exports = createStore({
     storeName: 'FriendStore',
 
     initialize: function() {
@@ -22,7 +12,6 @@ var FriendStore = createStore({
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
         collection.ensureIndex('nickName');
-        this.isPolyFilled = null;
     },
 
     /**
@@ -35,14 +24,13 @@ var FriendStore = createStore({
     polyfillAsync: function(friendList) {
         var collection = this.db.getCollection(this.dbName);
         return Promise.map(friendList, function(friendInfo) {
-            return StoreUtils.validDocAsync(friendInfo, FriendSchema).then(function(doc) {
-                return collection.insert(doc);
-            });
+            return _impportFriend(collection, friendInfo);
         }).bind(this).then(function() {
-            this.isPolyFilled = true;
+            _getFriendView(collection);
             return this.emitChange();
         }).catch(function(err) {
-            return console.log('[polyfillAsync]', err);
+            SharedUtils.printError('FriendStore.js', 'polyfillAsync', err);
+            return null;
         });
     },
 
@@ -58,7 +46,7 @@ var FriendStore = createStore({
     getState: function() {
         var collection = this.db.getCollection(this.dbName);
         return {
-            friends: collection.chain().data()
+            friends: _getFriendView(collection).data()
         };
     },
 
@@ -97,6 +85,17 @@ var FriendStore = createStore({
     /**
      * @Public API
      * @Author: George_Chen
+     * @Description: used to check friend store has been polyfilled or not
+     *         NOTE: return true, only if friendView has been inited
+     */
+    hasPolyfilled: function() {
+        var collection = this.db.getCollection(this.dbName);
+        return !!collection.getDynamicView(FriendViewName);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
      * @Description: dehydrate mechanism will be called by fluxible framework
      */
     dehydrate: function() {
@@ -112,8 +111,44 @@ var FriendStore = createStore({
      */
     rehydrate: function(serializedDB) {
         this.db.loadJSON(serializedDB);
-        this.isPolyFilled = !!serializedDB;
     }
 });
 
-module.exports = FriendStore;
+/**
+ * @Author: George_Chen
+ * @Description: save friendInfo document to the lokijs collection
+ *
+ * @param {Object}      collection, lokijs collection
+ * @param {Object}      doc, the message document
+ */
+function _impportFriend(collection, doc) {
+    return Promise.props({
+        uid: SharedUtils.argsCheckAsync(doc.uid, 'md5'),
+        avatar: SharedUtils.argsCheckAsync(doc.avatar, 'avatar'),
+        nickName: SharedUtils.argsCheckAsync(doc.nickName, 'nickName'),
+        group: SharedUtils.argsCheckAsync(doc.group, 'string'),
+        isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean')
+    }).then(function(drawDoc) {
+        return collection.insert(drawDoc);
+    });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to get friend view
+ *         NOTE: sort by online status
+ *
+ * @param {Object}      collection, lokijs collection
+ */
+function _getFriendView(collection) {
+    var friendView = collection.getDynamicView(FriendViewName);
+    if (!friendView) {
+        friendView = collection.addDynamicView(FriendViewName);
+        friendView.applyFind({}).applySort(function(obj1, obj2) {
+            if (obj1.isOnline && obj2.isOnline) return 0;
+            if (obj1.isOnline && !obj2.isOnline) return 1;
+            if (!obj1.isOnline && obj2.isOnline) return -1;
+        });
+    }
+    return friendView;
+}
