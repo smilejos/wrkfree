@@ -26,7 +26,8 @@ module.exports = function(actionContext, data, callback) {
         }
         actionContext.dispatch('ON_BOARD_ADD', {
             channelId: data.channelId,
-            boardId: data.newBoardId
+            boardId: data.newBoardId,
+            isCreator: true
         });
     }).then(function() {
         actionContext.executeAction(NavToBoard, {
