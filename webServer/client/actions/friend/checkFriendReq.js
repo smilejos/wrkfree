@@ -9,7 +9,7 @@ var Promise = require('bluebird');
  * @Description: action for checking status of friend request (sent or not)
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {String}      data.targetUser, the uid of target user
+ * @param {String}      data.targetUid, the uid of target user
  */
 module.exports = function(actionContext, data) {
     return Promise.props({

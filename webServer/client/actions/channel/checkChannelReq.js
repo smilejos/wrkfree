@@ -9,7 +9,7 @@ var Promise = require('bluebird');
  * @Description: action for checking status of channel request (sent or not)
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {String}      data.targetUser, the uid of channel host
+ * @param {String}      data.targetUid, the uid of channel host
  * @param {String}      data.channelId, the target channel id
  */
 module.exports = function(actionContext, data) {
