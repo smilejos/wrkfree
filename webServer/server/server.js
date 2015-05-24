@@ -3,6 +3,13 @@ var server = express();
 var port = process.env.PORT || 3000;
 var Env = process.env.NODE_ENV || 'development';
 
+/**
+ * setup configurations for web server
+ */
+var Configs = require('../../configs/config');
+Configs.import('params', require('../../configs/parameters.json'));
+Configs.import('db', require('../../configs/db.json'));
+
 // needed when we get the ".jsx" files
 require('node-jsx').install({
     extension: '.jsx'
