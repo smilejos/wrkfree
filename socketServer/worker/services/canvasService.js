@@ -6,8 +6,12 @@ var Image = Canvas.Image;
 var SharedUtils = require('../../../sharedUtils/utils');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
 
-var BOARD_WIDTH = 900;
-var BOARD_HEIGHT = 500;
+/**
+ * load configs
+ */
+var Configs = require('../configs/config');
+var DrawParams = Configs.get().params.draw;
+
 // pool will be released after idle for 30 seconds
 var POOL_IDLE_TIMEOUT_IN_MILLISECOND = 30000;
 // priority will set to 2 level, "0" and "1", which "0" is high priority
@@ -22,7 +26,7 @@ var CanvasPool = PoolModule.Pool({
     name: 'canvas',
     create: function(callback) {
         callback(null, {
-            canvas: new Canvas(BOARD_WIDTH, BOARD_HEIGHT),
+            canvas: new Canvas(DrawParams.boardWidth, DrawParams.boardHeight),
             img: new Image()
         });
     },

@@ -3,9 +3,11 @@ var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible').Mixin; 
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
 
-
-var BOARD_WIDTH = 900;
-var BOARD_HEIGHT = 500;
+/**
+ * load configs
+ */
+var Configs = require('../../../../configs/config');
+var DrawParams = Configs.get().params.draw;
 
 /**
  * actions
@@ -86,8 +88,8 @@ module.exports = React.createClass({
          * this canvas and image element is for internal used
          * not for client drawing
          */
-        canvas.width = BOARD_WIDTH;
-        canvas.height = BOARD_HEIGHT;
+        canvas.width = DrawParams.boardWidth;
+        canvas.height = DrawParams.boardHeight;
         this.state.canvas = canvas;
         this.state.image = document.createElement('img');
 
@@ -214,7 +216,7 @@ module.exports = React.createClass({
     render: function(){
         return (
             <div className="DrawingArea" >
-                <canvas width={BOARD_WIDTH} height={BOARD_HEIGHT} id="DrawBoard"></canvas>
+                <canvas width={DrawParams.boardWidth} height={DrawParams.boardHeight} id="DrawBoard"></canvas>
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}

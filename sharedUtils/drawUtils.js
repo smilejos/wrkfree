@@ -1,8 +1,8 @@
 'use strict';
 var SharedUtils = require('./utils');
 var Promise = require('bluebird');
-var BOARD_WIDTH = 900;
-var BOARD_HEIGHT = 500;
+var Configs = require('../configs/config');
+var DrawParams = Configs.get().params.draw;
 
 /************************************************
  *
@@ -68,13 +68,13 @@ exports.generateCleanRecord = function(cid, bid) {
         channelId: cid,
         boardId: bid,
         record: [
-            [0, 0, BOARD_WIDTH, BOARD_HEIGHT]
+            [0, 0, DrawParams.boardWidth, DrawParams.boardHeight]
         ],
         isUndo: false,
         isArchived: false,
         drawOptions: {
             mode: 'eraser',
-            lineWidth: BOARD_WIDTH
+            lineWidth: DrawParams.boardWidth
         },
         drawTime: Date.now()
     };
