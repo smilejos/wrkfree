@@ -20,7 +20,9 @@ module.exports = CreateStore({
     /**
      * @Author: George_Chen
      * @Description: update the search results
-     *
+     *         NOTE: we only keep the index(keys) of search results on store
+     *         
+     * @param {String}         data.query, the search query string 
      * @param {Array}          data.channels, the search results of channels
      * @param {Array}          data.users, the search results of users
      */
@@ -35,7 +37,9 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
-     * @Description: update the current query string when query hit store cache
+     * @Description: update the current query string when cache hit
+     *         NOTE: if query hit local cache, then we update the query and inform
+     *               the listener component to updtae its view
      *
      * @param {String}         query, the search query string
      */
