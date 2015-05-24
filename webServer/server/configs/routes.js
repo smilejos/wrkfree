@@ -101,8 +101,11 @@ module.exports = function(server) {
         };
         return reactRoute(req, res);
     });
-    
+
     ExpressRouter.get('/app/channel/:channelId', auth.ensureMember, function(req, res) {
+        if (!req.query.board) {
+            return res.redirect('/app/channel/' + req.params.channelId + '?board=1');
+        }
         req.routeInfo = {
             user: req.user,
             channelId: req.params.channelId,
@@ -139,7 +142,7 @@ module.exports = function(server) {
     /**
      * for handling not found route request
      */
-    ExpressRouter.use(function(req, res){
+    ExpressRouter.use(function(req, res) {
         res.send(404);
     });
 };

@@ -32,6 +32,7 @@ module.exports = CreateStore({
                 palette: DRAW_PALETTE
             },
         };
+        this.newBoardTip = false;
     },
 
     /**
@@ -71,10 +72,10 @@ module.exports = CreateStore({
      */
     onBoardAdd: function(data) {
         this.draw.boardNums = data.boardId + 1;
-        if (data.toNewBoard) {
-            this.draw.currentBoardId = data.boardId;
+        this.newBoardTip = !data.isCreator;
+        if (!data.isCreator) {
+            this.emitChange();
         }
-        this.emitChange();
     },
 
     /**
@@ -90,7 +91,6 @@ module.exports = CreateStore({
             self.channel = state.channel.basicInfo;
             self.members = state.members;
             self.draw.boardNums = state.channel.drawBoardNums;
-            self.draw.currentBoardId = state.status.lastUsedBoard;
             self.status = state.status;
         }).then(function() {
             self.emitChange();
@@ -111,12 +111,16 @@ module.exports = CreateStore({
     },
 
     getState: function() {
-        return {
+        var state = {
             channel: this.channel,
             members: this.members,
             draw: this.draw,
-            status: this.status
+            status: this.status,
+            newBoardTip: !!this.newBoardTip // pass it by value
         };
+        // clean the board added tips
+        this.newBoardTip = false;
+        return state;
     },
 
     /**

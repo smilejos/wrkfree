@@ -25,8 +25,7 @@ module.exports = function(actionContext, data, callback) {
         }
         return actionContext.dispatch('ON_BOARD_ADD', {
             channelId: validData.channelId,
-            boardId: validData.newBoardId,
-            toNewBoard: true
+            boardId: validData.newBoardId
         });
     }).catch(function(err) {
         SharedUtils.printError('onAddDrawBoard.js', 'core', err);

@@ -1,5 +1,6 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible').Mixin; 
+var Router = require('react-router');
 
 /**
  * actions
@@ -21,7 +22,7 @@ var IconButton = Mui.IconButton;
  * the drawingToolBar component
  */
 module.exports = React.createClass({
-    mixins: [FluxibleMixin],
+    mixins: [FluxibleMixin, Router.Navigation],
 
     getInitialState: function() {
         return {
@@ -73,6 +74,7 @@ module.exports = React.createClass({
      */
     _addBoard: function(){
         this.executeAction(AddDrawBoard, {
+            urlNavigator: this.transitionTo,
             channelId: this.props.channelId,
             newBoardId: this.props.drawInfo.boardNums
         });
@@ -124,8 +126,8 @@ module.exports = React.createClass({
      * @Description: handler for user to switch to next drawing board
      */
     _goToNextBoard: function(){
-        var nextBoardId = this.props.boardId + 1;
-        return this._goToBoard(nextBoardId);
+        ++this.state.boardIndex;
+        return this._goToBoard();
     },
 
     /**
@@ -133,8 +135,8 @@ module.exports = React.createClass({
      * @Description: handler for user to switch to previous drawing board
      */
     _goToPreviousBoard: function(){
-        var prevBoardId = this.props.boardId - 1;
-        return this._goToBoard(prevBoardId);
+        --this.state.boardIndex;
+        return this._goToBoard();
     },
 
     /**
@@ -154,12 +156,11 @@ module.exports = React.createClass({
      *               modify it manually
      */
     _onBoardIndexKeyDown: function(e) {
-        var targetBoardId = this.state.boardIndex - 1;
         if (e.keyCode === 27) {
             return this._setDefaultIndex();
         }
         if (e.keyCode === 13) {
-            return this._goToBoard(targetBoardId);
+            return this._goToBoard();
         }
     },
 
@@ -167,10 +168,13 @@ module.exports = React.createClass({
      * @Author: George_Chen
      * @Description: switch to specifc drawing baord by target board index
      */
-    _goToBoard: function(targetBoardId){
-        if (targetBoardId >= 0 && targetBoardId < this.props.drawInfo.boardNums) {
-            return this.executeAction(NavToBoard, {
-                boardId: targetBoardId
+    _goToBoard: function(){
+        var newBoardId = this.state.boardIndex -1;
+        if (newBoardId >= 0 && newBoardId < this.props.drawInfo.boardNums) {
+            this.executeAction(NavToBoard, {
+                urlNavigator: this.transitionTo,
+                channelId: this.props.channelId,
+                boardId: newBoardId
             });
         }
         this._setDefaultIndex();

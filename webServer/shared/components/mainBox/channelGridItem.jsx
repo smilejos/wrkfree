@@ -1,4 +1,5 @@
 var React = require('react');
+var FluxibleMixin = require('fluxible').Mixin; 
 var NavigationMixin = require('react-router').Navigation;
 
 /**
@@ -7,6 +8,11 @@ var NavigationMixin = require('react-router').Navigation;
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 var Paper = Mui.Paper;
+
+/**
+ * actions
+ */
+var NavToBoard = require('../../../client/actions/draw/navToBoard');
 
 /**
  * child components
@@ -31,7 +37,7 @@ var ChannelSnapshot = require('./channelSnapshot.jsx');
  * @param {Boolean}     this.props.isRtcOn, an status to inform channel currently has conference
  */
 module.exports = React.createClass({
-    mixins: [NavigationMixin],
+    mixins: [FluxibleMixin, NavigationMixin],
 
     getInitialState: function() {
         return {
@@ -63,20 +69,25 @@ module.exports = React.createClass({
      * handle event that user click the enter icon
      */
     _onEnterIconClick: function(channelId) {
-        this.transitionTo('/app/channel/'+this.props.channelId);
+        var info = this.props.channelInfo;
+        this.executeAction(NavToBoard, {
+            urlNavigator: this.transitionTo,
+            channelId: info.channelId,
+            boardId: info.lastBaord
+        });
     },
 
     render: function(){
-        var info = this.props;
+        var info = this.props.channelInfo;
         return (
             <div className="ChannelGridItem" onClick={this._onClick}>
                 <Paper zDepth={this.state.zDepth} rounded={false}
                     onMouseOver={this._onMouseOver} onMouseOut={this._onMouseOut}>
                     <ChannelSummary 
-                        channelName={this.props.channelName}
-                        hostName={this.props.hostName}
-                        isRtcOn={this.props.isRtcOn} />
-                    <ChannelHostInfo hostAvatar={this.props.hostAvatar} />
+                        channelName={info.channelName}
+                        hostName={info.hostName}
+                        isRtcOn={info.isRtcOn} />
+                    <ChannelHostInfo hostAvatar={info.hostAvatar} />
                     <ChannelSnapshot url={info.snapshotUrl}/>
                     <ChannelMembers members={info.memberList} />
                     <div className="ChannelTimestamp Right">

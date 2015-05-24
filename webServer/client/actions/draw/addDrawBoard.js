@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
+var NavToBoard = require('./navToBoard');
 
 /**
  * @Public API
@@ -23,10 +24,16 @@ module.exports = function(actionContext, data, callback) {
         if (!result) {
             throw new Error('add draw board fail');
         }
-        return actionContext.dispatch('ON_BOARD_ADD', {
+        actionContext.dispatch('ON_BOARD_ADD', {
             channelId: data.channelId,
             boardId: data.newBoardId,
-            toNewBoard: true
+            isCreator: true
+        });
+    }).then(function() {
+        actionContext.executeAction(NavToBoard, {
+            urlNavigator: data.urlNavigator,
+            channelId: data.channelId,
+            boardId: data.newBoardId
         });
     }).catch(function(err) {
         SharedUtils.printError('addDrawBoard.js', 'core', err);
