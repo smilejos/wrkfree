@@ -118,7 +118,7 @@ var SearchResults = React.createClass({
             };
             return (
                 <div key={index}>
-                    <InfoCard targetInfo={item} />
+                    <InfoCard cardId={item} />
                 </div>
             );
         });

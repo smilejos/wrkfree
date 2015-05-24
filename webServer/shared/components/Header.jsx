@@ -119,14 +119,8 @@ module.exports = React.createClass({
      * @param {Object}      e, the react onChange event
      */
     _onSearchChange: function(e){
-        var value = e.target.value;
         this.executeAction(QuickSearchAction, {
-            query: value,
-            type: 'user'
-        });
-        this.executeAction(QuickSearchAction, {
-            query: value,
-            type: 'channel'
+            query: e.target.value
         });
     },
 
