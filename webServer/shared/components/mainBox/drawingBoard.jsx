@@ -3,9 +3,15 @@ var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible').Mixin; 
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
 
-
-var BOARD_WIDTH = 900;
-var BOARD_HEIGHT = 500;
+/**
+ * load configs
+ */
+var Configs = require('../../../../configs/config');
+var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
+var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
+if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
+    throw new Error('error while on getting draw related params');
+}
 
 /**
  * actions

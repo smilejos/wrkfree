@@ -1,8 +1,12 @@
 'use strict';
 var SharedUtils = require('./utils');
 var Promise = require('bluebird');
-var BOARD_WIDTH = 900;
-var BOARD_HEIGHT = 500;
+var Configs = require('../configs/config');
+var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
+var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
+if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
+    throw new Error('error while on getting draw related params');
+}
 
 /************************************************
  *

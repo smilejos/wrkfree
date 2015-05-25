@@ -5,6 +5,12 @@ var HistoryLocation = Router.HistoryLocation;
 var Promise = require('bluebird');
 
 /**
+ * setup configurations for client
+ */
+var Configs = require('../../configs/config');
+Configs.import('params', require('../../configs/parameters.json'));
+
+/**
  * collect state infomation sent from server
  */
 var dehydratedState = window.App;
