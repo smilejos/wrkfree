@@ -1,0 +1,29 @@
+/**
+ * style for showing local video webcam
+ */
+.Webcam-shown {
+    position: fixed;
+    top: 10px;
+    left: 650px;
+    width: 250px;
+    z-index: 10;
+    .icon {
+        width: 30px;
+        height: 40px;
+        margin-left: 110px;
+        color: $green-500;
+    }
+    .video-shown {
+        visibility: visible;
+    }
+    .video-hidden {
+        visibility: hidden;
+    }
+}
+
+/**
+ * style for hiding local video webcam
+ */
+.Webcam-hidden {
+    z-index: 1;
+}
