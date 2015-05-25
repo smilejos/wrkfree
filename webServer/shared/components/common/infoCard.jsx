@@ -104,7 +104,7 @@ module.exports = React.createClass({
             value: 'WorkSpace',
             style: 'fa fa-sign-in',
             handler: function(cardInfo){
-                this.transitionTo('/app/channel/' + cardInfo.channelId);
+                this.transitionTo('/app/workspace/' + cardInfo.channelId);
             }
         };
     },

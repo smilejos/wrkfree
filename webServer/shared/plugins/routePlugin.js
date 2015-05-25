@@ -13,7 +13,7 @@ if (typeof window !== 'undefined') {
 var RoutesHandler = {
     '/app/': RouteEntry.getDashboardAsync,
     '/app/dashboard': RouteEntry.getDashboardAsync,
-    '/app/channel': RouteEntry.getChannelAsync,
+    '/app/workspace': RouteEntry.getChannelAsync,
     '/app/signup': RouteEntry.getSignUpAsync
 };
 

@@ -22,7 +22,7 @@ module.exports = function(actionContext, data) {
             if (!SharedUtils.isFunction(data.urlNavigator)) {
                 throw new Error('');
             }
-            navigator('/app/channel/' + cid + '?board=' + boardIndex);
+            navigator('/app/workspace/' + cid + '?board=' + boardIndex);
         }).catch(function(err) {
             SharedUtils.printError('navToBoard.js', 'core', err);
         });
