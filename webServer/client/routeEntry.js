@@ -57,7 +57,7 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
  * @param {Object}      actionContext, fluxible actionContext
  * @param {Object}      routeInfo, route infomation for dashboard route
  */
-exports.getChannelAsync = function(actionContext, routeInfo) {
+exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     var channelId = routeInfo.channelId;
     return _isAuthToEnterChannel(channelId)
         .then(function(isAuth) {
@@ -70,7 +70,7 @@ exports.getChannelAsync = function(actionContext, routeInfo) {
         }).then(function(resource) {
             return _storesPolyfill(actionContext, resource);
         }).catch(function(err) {
-            SharedUtils.printError('client-routeEntry', 'getChannelAsync', err);
+            SharedUtils.printError('client-routeEntry', 'getWorkSpaceAsync', err);
             throw err;
         });
 };

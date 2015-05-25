@@ -39,7 +39,7 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
  * @param {Object}      actionContext, fluxible actionContext
  * @param {Object}      routeInfo, route infomation for channel route
  */
-exports.getChannelAsync = function(actionContext, routeInfo) {
+exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     var storageManager = routeInfo.storageManager;
     var friendStorage = storageManager.getService('Friend');
     // temp test data for header store
@@ -56,7 +56,7 @@ exports.getChannelAsync = function(actionContext, routeInfo) {
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
-        SharedUtils.printError('server-routeEntry', 'getChannelAsync', err);
+        SharedUtils.printError('server-routeEntry', 'getWorkSpaceAsync', err);
         return {};
     });
 };

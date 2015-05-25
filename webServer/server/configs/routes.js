@@ -102,9 +102,9 @@ module.exports = function(server) {
         return reactRoute(req, res);
     });
 
-    ExpressRouter.get('/app/channel/:channelId', auth.ensureMember, function(req, res) {
+    ExpressRouter.get('/app/workspace/:channelId', auth.ensureMember, function(req, res) {
         if (!req.query.board) {
-            return res.redirect('/app/channel/' + req.params.channelId + '?board=1');
+            return res.redirect('/app/workspace/' + req.params.channelId + '?board=1');
         }
         req.routeInfo = {
             user: req.user,

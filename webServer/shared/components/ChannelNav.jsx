@@ -188,7 +188,7 @@ module.exports = React.createClass({
         var navInfo = this.state.navInfo;
         var navMenu = SharedUtils.fastArrayMap(navInfo, function(item){
             return {
-                route: '/app/channel/'+item.channelId,
+                route: '/app/workspace/'+item.channelId + '?board=1',
                 text: item.channelName + ' @'+item.hostName
             };
         });

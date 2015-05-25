@@ -12,12 +12,12 @@ var SignUp = require('./SignUp.jsx');
 var Error = require('./Error.jsx');
 
 // route are nested as url display,
-// e.g. route="/chanel/ch-id" will use the 'WorkSpace.jsx' to replace the 
+// e.g. route="/workspace/ch-id" will use the 'WorkSpace.jsx' to replace the 
 //      <RouteHandler /> in the 'MainApp.jsx'
 var routes = (
     <Route name="app" handler={MainApp} >
         <DefaultRoute handler={Dashboard}/>
-        <Route name="channel" >
+        <Route name="workspace" >
             <Route name=":channelId" handler={WorkSpace}/>
             <DefaultRoute handler={Error} />
         </Route>
