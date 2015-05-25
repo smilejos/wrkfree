@@ -10,7 +10,11 @@ var DrawUtils = require('../../../sharedUtils/drawUtils');
  * load configs
  */
 var Configs = require('../configs/config');
-var DrawParams = Configs.get().params.draw;
+var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
+var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
+if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
+    throw new Error('error while on getting draw related params');
+}
 
 // pool will be released after idle for 30 seconds
 var POOL_IDLE_TIMEOUT_IN_MILLISECOND = 30000;
@@ -26,7 +30,7 @@ var CanvasPool = PoolModule.Pool({
     name: 'canvas',
     create: function(callback) {
         callback(null, {
-            canvas: new Canvas(DrawParams.boardWidth, DrawParams.boardHeight),
+            canvas: new Canvas(BOARD_WIDTH, BOARD_HEIGHT),
             img: new Image()
         });
     },

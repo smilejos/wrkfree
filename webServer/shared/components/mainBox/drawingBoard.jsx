@@ -7,7 +7,11 @@ var DrawUtils = require('../../../../sharedUtils/drawUtils');
  * load configs
  */
 var Configs = require('../../../../configs/config');
-var DrawParams = Configs.get().params.draw;
+var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
+var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
+if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
+    throw new Error('error while on getting draw related params');
+}
 
 /**
  * actions
@@ -88,8 +92,8 @@ module.exports = React.createClass({
          * this canvas and image element is for internal used
          * not for client drawing
          */
-        canvas.width = DrawParams.boardWidth;
-        canvas.height = DrawParams.boardHeight;
+        canvas.width = BOARD_WIDTH;
+        canvas.height = BOARD_HEIGHT;
         this.state.canvas = canvas;
         this.state.image = document.createElement('img');
 
@@ -216,7 +220,7 @@ module.exports = React.createClass({
     render: function(){
         return (
             <div className="DrawingArea" >
-                <canvas width={DrawParams.boardWidth} height={DrawParams.boardHeight} id="DrawBoard"></canvas>
+                <canvas width={BOARD_WIDTH} height={BOARD_HEIGHT} id="DrawBoard"></canvas>
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}

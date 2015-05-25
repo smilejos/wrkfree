@@ -2,7 +2,11 @@
 var SharedUtils = require('./utils');
 var Promise = require('bluebird');
 var Configs = require('../configs/config');
-var DrawParams = Configs.get().params.draw;
+var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
+var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
+if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
+    throw new Error('error while on getting draw related params');
+}
 
 /************************************************
  *
@@ -68,13 +72,13 @@ exports.generateCleanRecord = function(cid, bid) {
         channelId: cid,
         boardId: bid,
         record: [
-            [0, 0, DrawParams.boardWidth, DrawParams.boardHeight]
+            [0, 0, BOARD_WIDTH, BOARD_HEIGHT]
         ],
         isUndo: false,
         isArchived: false,
         drawOptions: {
             mode: 'eraser',
-            lineWidth: DrawParams.boardWidth
+            lineWidth: BOARD_WIDTH
         },
         drawTime: Date.now()
     };
