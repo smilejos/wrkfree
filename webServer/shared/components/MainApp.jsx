@@ -10,6 +10,7 @@ var MainAppStore = require('../stores/MainAppStore');
 var Header = require('./Header.jsx');
 var PrivateMsgBoxes = require('./PrivateMsgBoxes.jsx');
 var ChannelNav = require('./ChannelNav.jsx');
+var Webcam = require('./Webcam.jsx');
 
 module.exports = React.createClass({
     /**
@@ -40,6 +41,7 @@ module.exports = React.createClass({
         return (
             <div>
                 <Header />
+                <Webcam />
                 <ChannelNav />
                 <RouteHandler route={this.state.route}/>
                 <PrivateMsgBoxes />
