@@ -11,7 +11,7 @@ var Configs = {};
  */
 exports.import = function(field, content) {
     if (typeof field !== 'string') {
-        throw new Error('error on import config');
+        throw new Error('error while importing config file');
     }
     Configs[field] = content;
 };
