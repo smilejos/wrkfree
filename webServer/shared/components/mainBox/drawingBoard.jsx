@@ -1,6 +1,7 @@
 var React = require('react');
 var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible').Mixin; 
+var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
 
 /**

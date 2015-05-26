@@ -9,7 +9,7 @@ var DrawUtils = require('../../../sharedUtils/drawUtils');
 /**
  * load configs
  */
-var Configs = require('../configs/config');
+var Configs = require('../../../configs/config');
 var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
 var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
 if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {

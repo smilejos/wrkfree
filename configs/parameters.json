@@ -1,6 +1,6 @@
 {
     "draw": {
-        "baordWidth": 900,
+        "boardWidth": 900,
         "boardHeight": 500
     }
 }
