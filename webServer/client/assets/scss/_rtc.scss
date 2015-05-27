@@ -3,15 +3,14 @@
  */
 .Webcam-shown {
     position: fixed;
-    top: 10px;
     left: 650px;
     width: 250px;
     z-index: 10;
     .icon {
         width: 30px;
-        height: 40px;
+        height: 50px;
         margin-left: 110px;
-        color: $green-500;
+        color: $red-700;
     }
     .video-shown {
         visibility: visible;
