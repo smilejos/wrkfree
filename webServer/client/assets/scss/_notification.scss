@@ -1,0 +1,89 @@
+
+/**
+ * @Author: Jos Tung
+ * @Description: this style for notice component using in Notification.jsx
+ *  Note: we only put a 300x300 div to display notice
+ */
+.Notification {
+	position: fixed;
+	top: -100px;
+	right: 10px;
+	width: 300px;
+	height: 300px;
+	transition: 0.4s;
+	visibility: hidden;
+	opacity: 0;
+	background: #fff;
+	border-bottom: 1px rgba(0, 0, 0, .2);
+    box-shadow: 0 2px 2px 2px rgba(0, 0, 0, .2);
+	z-index: 4;
+}
+
+.NotificationShow {
+	top: 50px;
+	opacity: 1;
+	visibility: visible;
+}
+/**
+ * @Author: Jos Tung
+ * @Description: this style for notice component using in Notification.jsx
+ *  Note: the div stratum can refer below information.
+ *  --Notice
+ *    --NoticeSender
+ *    --NoticeContent
+ *      --NoticeMessage
+ *      --NOticeSender
+ */
+
+.Notice {
+	height: 50px;
+	padding: 4px;
+	border-bottom-style: inset;
+	border-bottom-width: 2px;
+	border-bottom-color: #eee;
+
+	.NoticeSender {
+		width: 40px;
+		float: left;
+	}
+
+	.NoticeContent {
+		height: 40px;
+		width: 250px;
+		float: left;
+		padding: 0px 10px;
+		font-family: 'Heiti TC';
+		color: #333;
+		
+
+		.NoticeAction {
+			font-size: 10px;
+			line-height: 20px;
+			height: 20px;
+			padding: 0px 10px 0px 5px;
+			margin: 0px 10px;
+			float: left;
+			cursor: pointer;
+			transition: 0.3s;
+			border: 1px solid #777;
+			border-radius: 5px;
+    		box-shadow: 0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3); 
+		}
+
+		.NoticeAction:hover {
+		    background-color: #CCEBD6;
+		    box-shadow: 0 1px 2px 2px rgba(0, 0, 0, .2);
+		}
+
+		.NoticeAction:last-child:hover {
+		    background-color: #F5CCCC;
+		    box-shadow: 0 1px 2px 2px rgba(0, 0, 0, .2);
+		}
+
+		.NoticeMessage {
+			height: 20px;
+			font-size: 14px;
+			line-height: 20px;
+		}
+	}
+}

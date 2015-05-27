@@ -124,6 +124,19 @@ module.exports = React.createClass({
         });
     },
 
+    _onInboxToggle: function(){
+        this.executeAction(ToggleComponent, {
+            para: 'friendVisiable'
+        });
+    },
+
+    _onNoticeToggle: function(){
+        this.executeAction(ToggleComponent, {
+            para: 'noticeVisiable'
+        });
+    },
+
+
     /**
      * @Author: George_Chen
      * @Description: generate the search icon component
@@ -176,10 +189,9 @@ module.exports = React.createClass({
                             <UserAvatar avatar={this.state.userInfo.avatar} 
                                 isCircle={true} 
                                 style={{'marginTop':'5px'}} 
-                                onAvatarClick={this._onAvatarClick}
-                                />
-                            <FontIcon className="fa fa-bell"/>
-                            <FontIcon className="fa fa-inbox"/>
+                                onAvatarClick={this._onAvatarClick} />
+                            <FontIcon className="fa fa-bell" onClick={this._onNoticeToggle}/>
+                            <FontIcon className="fa fa-inbox" onClick={this._onInboxToggle}/>
                             <span className="mui-toolbar-separator">&nbsp;</span>
                         </div>
                     </ToolbarGroup>

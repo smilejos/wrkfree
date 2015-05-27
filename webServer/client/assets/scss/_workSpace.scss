@@ -56,7 +56,7 @@ $app_drawing_area_height: $app_canvas_height + $app-header-height;
     background: #fefefe;
     transition: 0.3s;
     border: 1px;
-    visibility: hidden;
+    opacity: 0;
     border-style: solid;
     border-color: #dbdbdb;
     border-radius: 0px 0px 0px 0px;
@@ -84,6 +84,7 @@ $app_drawing_area_height: $app_canvas_height + $app-header-height;
 }
 
 .PaletteShow{
+    opacity: 1;
     margin-top: 600px;
     visibility: visible;
 }

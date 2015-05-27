@@ -35,5 +35,7 @@ app.registerStore(require('./stores/DrawTempStore'));
 app.registerStore(require('./stores/QuickSearchStore'));
 app.registerStore(require('./stores/InfoCardStore'));
 app.registerStore(require('./stores/WebcamStore'));
+app.registerStore(require('./stores/ToggleStore'));
+
 
 module.exports = app;
