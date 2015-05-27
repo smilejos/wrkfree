@@ -1,13 +1,14 @@
 'use strict';
 var Cookie = require('cookie');
 var Promise = require('bluebird');
+var Env = process.env.NODE_ENV || 'development';
 
 /**
  * setup configurations for each worker
  */
 var Configs = require('../../configs/config');
 Configs.import('params', require('../../configs/parameters.json'));
-Configs.import('db', require('../../configs/db.json'));
+Configs.import('db', require('../../configs/db.json')[Env]);
 
 var StorageManager = require('../../storageService/storageManager');
 // intialize db resource before internal modules
