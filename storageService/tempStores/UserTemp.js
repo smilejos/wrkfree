@@ -1,18 +1,22 @@
 'use strict';
 var Redis = require('redis');
 var Promise = require('bluebird');
-var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
 var GLOBAL_OnlineUserKey = 'SYSTEM:onlineusers';
 var GLOBAL_SessionPrefix = 'sess:';
+var Configs = require('../../configs/config');
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
 
 /**
  * Online user list is stored at global redis cache server
  */
 var RedisClient = Redis.createClient(
-    Configs.globalCacheEnv.port,
-    Configs.globalCacheEnv.host,
-    Configs.globalCacheEnv.options);
+    DbConfigs.cacheEnv.global.port,
+    DbConfigs.cacheEnv.global.host,
+    DbConfigs.cacheEnv.global.options);
 
 /**
  * Public API

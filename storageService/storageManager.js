@@ -5,10 +5,13 @@ var Redis = require('redis');
 var Fs = require('fs');
 var SharedUtils = require('../sharedUtils/utils');
 var MongooseCache = require('mongoose-cache-manager');
-var Configs = require('./configs');
+var Configs = require('../configs/config');
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
 
 var ModelsPath = __dirname + '/' + 'models';
-var CacheServer = Configs.globalCacheEnv;
 
 /**
  * flag used to check db is connected or not
@@ -95,8 +98,13 @@ exports.connectDb = function() {
     });
 
     // configure mongoose cache
-    CacheServer.store = Configs.cacheEngine;
-    MongooseCache(Mongoose, CacheServer);
+    MongooseCache(Mongoose, {
+        host: DbConfigs.cacheEnv.global.host,
+        port: DbConfigs.cacheEnv.global.port,
+        options: DbConfigs.cacheEnv.global.options,
+        ttl: DbConfigs.cacheEnv.global.ttl,
+        store: DbConfigs.cacheEngine
+    });
 
     // promisify storage libs
     Promise.promisifyAll(Mongoose);
@@ -111,8 +119,9 @@ exports.connectDb = function() {
  * @Description: used to connect mongoDB
  */
 function _MongoConnect() {
+    var targetDb = DbConfigs.dbEnv.host + DbConfigs.dbEnv.dbName;
     // connect to mongodb
-    return Mongoose.connect(Configs.db, {
+    return Mongoose.connect(targetDb, {
         server: {
             socketOptions: {
                 keepAlive: 1
