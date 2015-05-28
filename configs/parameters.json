@@ -2,5 +2,8 @@
     "draw": {
         "boardWidth": 900,
         "boardHeight": 500
+    },
+    "rtc": {
+        "sessionTimeoutInSecond": 100
     }
 }
