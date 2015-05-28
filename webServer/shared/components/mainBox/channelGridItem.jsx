@@ -85,9 +85,9 @@ module.exports = React.createClass({
                     onMouseOver={this._onMouseOver} onMouseOut={this._onMouseOut}>
                     <ChannelSummary 
                         channelName={info.channelName}
-                        hostName={info.hostName}
+                        hostName={info.hostInfo.nickName}
                         isRtcOn={info.isRtcOn} />
-                    <ChannelHostInfo hostAvatar={info.hostAvatar} />
+                    <ChannelHostInfo hostAvatar={info.hostInfo.avatar} />
                     <ChannelSnapshot url={info.snapshotUrl}/>
                     <ChannelMembers members={info.memberList} />
                     <div className="ChannelTimestamp Right">
@@ -95,7 +95,7 @@ module.exports = React.createClass({
                             iconClassName="fa fa-sign-in" 
                             tooltip={'Enter this channel'} 
                             onClick={this._onEnterIconClick}/>
-                        {info.time}
+                        {info.visitTime}
                     </div>
                 </Paper>
             </div>
