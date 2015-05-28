@@ -28,7 +28,8 @@ var Services = [
     'ChannelService',
     'MsgService',
     'DrawService',
-    'ReqRespService'
+    'ReqRespService',
+    'RtcService'
 ];
 
 /************************************************
