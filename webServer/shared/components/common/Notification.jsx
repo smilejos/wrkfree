@@ -4,7 +4,7 @@ var UserAvatar = require('./userAvatar.jsx');
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 
-
+var SharedUtils = require('../../../../sharedUtils/utils');
 var ToggleStore = require('../../stores/ToggleStore');
 /**
  * @Author: Jos Tung
@@ -14,21 +14,17 @@ var Notification = React.createClass({
     mixins: [FluxibleMixin],
     statics: {
         storeListeners: {
-            'onStoreChange': [ToggleStore]
+            '_onStoreChange': [ToggleStore]
         }
     },
 
     // handler for handling the change of FriendStore
-    onStoreChange: function(){
-
+    _onStoreChange: function(){
         var store = this.getStore(ToggleStore).getState();
-        console.log("state",store.noticeVisiable);
         if (this.state.isVisible !== store.noticeVisiable) {
             this.setState({
                 isVisible : store.noticeVisiable 
             }); 
-        } else {
-            return;
         }
     },
 
@@ -73,7 +69,7 @@ var Notification = React.createClass({
     },
 
     render: function(){
-        var _NoticeList = this.state.data.map( function( notice, index ){
+        var _NoticeList = SharedUtils.fastArrayMap(this.state.data, function( notice, index ){
             return <Notices data={notice} />;
         });
         return (

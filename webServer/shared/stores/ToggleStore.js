@@ -25,41 +25,13 @@ module.exports = CreateStore({
      * @Public API
      * @Author: Jos Tung
      * @Description: set notification visiable or not
+     * NOTE: 
      *
-     * @param data = { paramters, isVisible }
+     * @param {String}       data.param, the parameter name of toggle component
+     * @param {Boolean}      data.isVisible, indicate component is visible or not
      */
     onToggleChange: function(data){
-        if( data.isVisible ) {
-            this[data.para] = data.isVisible;    
-        } else {
-            this[data.para] = !this[data.para];
-        }
-        
-        console.log("onToggleChange", data);
+        this[data.param] = (data.isVisible ? data.isVisible : !this[data.param])
         this.emitChange();
     },
-
-    /**
-     * @Public API
-     * @Author: Jos Tung
-     * @Description: set notification visiable or not
-     *
-     * @param {boolen}    visible or not
-     */
-    onNoticeVisible: function(isVisible) {
-        this.isNoticeVisible = isVisible;
-        this.emitChange();
-    },
-
-    /**
-     * @Public API
-     * @Author: Jos Tung
-     * @Description: set friend list visiable or not
-     *
-     * @param {boolen}    visible or not
-     */
-    onFriendListVisible: function(isVisible) {
-        this.isFriendListVisible = isVisible;
-        this.emitChange();
-    }
 });

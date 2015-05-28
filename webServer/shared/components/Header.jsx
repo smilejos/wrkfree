@@ -8,6 +8,7 @@ var Mui = require('material-ui');
  * actions
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var ToggleComponent = require('../../client/actions/toggleComponent');
 var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
 var QuickSearchAction = require('../../client/actions/search/quickSearch');
 
@@ -126,13 +127,13 @@ module.exports = React.createClass({
 
     _onInboxToggle: function(){
         this.executeAction(ToggleComponent, {
-            para: 'friendVisiable'
+            param: 'friendVisiable'
         });
     },
 
     _onNoticeToggle: function(){
         this.executeAction(ToggleComponent, {
-            para: 'noticeVisiable'
+            param: 'noticeVisiable'
         });
     },
 
