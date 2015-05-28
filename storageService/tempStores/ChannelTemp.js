@@ -1,19 +1,24 @@
 'use strict';
 var Promise = require('bluebird');
 var Redis = require('redis');
-var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
 var GLOBAL_ONLINE_USER_KEY = 'SYSTEM:onlineusers';
 var GLOBAL_KEY_EXPIRE_TIME_IN_SECONDS = 100;
+
+var Configs = require('../../configs/config');
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
 
 /**
  * Channel temp is currently kept at global cache
  * TODO: should we kept member list at local cache ?
  */
 var RedisClient = Redis.createClient(
-    Configs.globalCacheEnv.port,
-    Configs.globalCacheEnv.host,
-    Configs.globalCacheEnv.options);
+    DbConfigs.cacheEnv.global.port,
+    DbConfigs.cacheEnv.global.host,
+    DbConfigs.cacheEnv.global.options);
 
 /************************************************
  *

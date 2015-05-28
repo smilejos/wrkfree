@@ -8,7 +8,7 @@ var Env = process.env.NODE_ENV || 'development';
  */
 var Configs = require('../../configs/config');
 Configs.import('params', require('../../configs/parameters.json'));
-Configs.import('db', require('../../configs/db.json'));
+Configs.import('db', require('../../configs/db.json')[Env]);
 
 // needed when we get the ".jsx" files
 require('node-jsx').install({

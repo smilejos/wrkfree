@@ -1,8 +1,13 @@
 'use strict';
 var Promise = require('bluebird');
 var Redis = require('redis');
-var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
+
+var Configs = require('../../configs/config');
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
 
 // TODO: these args should be put at a params configured files
 var RECORD_DATA_LIMIT = 300;
@@ -15,9 +20,9 @@ var RAW_RECORD_DATA_LENGTH = 4;
  * stream record data should be put at local scope
  */
 var RedisClient = Redis.createClient(
-    Configs.localCacheEnv.port,
-    Configs.localCacheEnv.host,
-    Configs.localCacheEnv.options);
+    DbConfigs.cacheEnv.local.port,
+    DbConfigs.cacheEnv.local.host,
+    DbConfigs.cacheEnv.local.options);
 
 /**
  * Public API
