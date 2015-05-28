@@ -8,6 +8,7 @@ var Mui = require('material-ui');
  * actions
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var ToggleComponent = require('../../client/actions/toggleComponent');
 var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
 var QuickSearchAction = require('../../client/actions/search/quickSearch');
 
@@ -124,6 +125,19 @@ module.exports = React.createClass({
         });
     },
 
+    _onInboxToggle: function(){
+        this.executeAction(ToggleComponent, {
+            param: 'friendVisiable'
+        });
+    },
+
+    _onNoticeToggle: function(){
+        this.executeAction(ToggleComponent, {
+            param: 'noticeVisiable'
+        });
+    },
+
+
     /**
      * @Author: George_Chen
      * @Description: generate the search icon component
@@ -176,10 +190,9 @@ module.exports = React.createClass({
                             <UserAvatar avatar={this.state.userInfo.avatar} 
                                 isCircle={true} 
                                 style={{'marginTop':'5px'}} 
-                                onAvatarClick={this._onAvatarClick}
-                                />
-                            <FontIcon className="fa fa-bell"/>
-                            <FontIcon className="fa fa-inbox"/>
+                                onAvatarClick={this._onAvatarClick} />
+                            <FontIcon className="fa fa-bell" onClick={this._onNoticeToggle}/>
+                            <FontIcon className="fa fa-inbox" onClick={this._onInboxToggle}/>
                             <span className="mui-toolbar-separator">&nbsp;</span>
                         </div>
                     </ToolbarGroup>
