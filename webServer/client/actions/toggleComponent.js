@@ -1,6 +1,7 @@
 'use strict';
-var ToggleStore = require('../../shared/stores/ToggleStore');
 var SharedUtils = require('../../../sharedUtils/utils');
+var Promise = require('bluebird');
+
 /**
  * @Public API
  * @Author: Jos Tung
@@ -12,11 +13,11 @@ var SharedUtils = require('../../../sharedUtils/utils');
  * @param {Boolean}     data.isVisible, indicate component is visible or not
  */
 module.exports = function(actionContext, data) {
- 	return Promise.props({
+    return Promise.props({
         param: SharedUtils.argsCheckAsync(data.param, 'string'),
-        isVisible: SharedUtils.argsCheckAsync(data.isVisible, 'boolean')
+        isVisible: SharedUtils.argsCheckAsync(!!data.isVisible, 'boolean')
     }).then(function(data) {
-    	return actionContext.dispatch('ON_TOGGLE_CHANGE', data);    
+        return actionContext.dispatch('ON_TOGGLE_CHANGE', data);
     }).catch(function(err) {
         SharedUtils.printError('toggleComponent.js', 'core', err);
     });
