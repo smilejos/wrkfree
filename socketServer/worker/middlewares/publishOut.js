@@ -48,3 +48,17 @@ exports.filterByUids = function(socket, channel, data, next) {
     }
     return next();
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: if packet has been assign to specific target, then filter
+ *               out other sockets
+ */
+exports.sendToTarget = function(socket, channel, data, next) {
+    var shouldFilter = true;
+    if (typeof data.target === 'string') {
+        return (socket.id === data.target ? next() : next(shouldFilter));
+    }
+    return next();
+};

@@ -141,4 +141,5 @@ function _configPublishOut(server) {
     var type = server.MIDDLEWARE_PUBLISH_OUT;
     server.addMiddleware(type, middleware.filterSelf);
     server.addMiddleware(type, middleware.filterByUids);
+    server.addMiddleware(type, middleware.sendToTarget);
 }
