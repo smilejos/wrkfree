@@ -68,6 +68,7 @@ $app-infoBox-width: 250px;
     top: $app-header-height;
     right: 0px;
     bottom: 0px;
+    transition: 0.4s;
     box-shadow: 0 3px 10px rgba(0,0,0,.23);
 }
 
@@ -108,4 +109,18 @@ $app-infoBox-width: 250px;
     color: $grey-600;
     opacity: 0.5;
     z-index: 5;
+}
+
+.dashboardInfo {
+    z-index: 2;
+    right: -300px;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.dashboardInfoShow {
+    z-index: 2;
+    opacity: 1;
+    visibility: visible;
+    right: 0px;
 }

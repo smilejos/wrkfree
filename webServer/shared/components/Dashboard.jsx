@@ -10,7 +10,7 @@ var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
  * child components
  */
 var MainBox = require('./mainBox/DashboardMain.jsx');
-var InfoBox = require('./infoBox/DashboardInfo.jsx');
+var InfoBox = require('./rightBox/DashboardInfo.jsx');
 var ChannelNav = require('./ChannelNav.jsx');
 
 module.exports = React.createClass({

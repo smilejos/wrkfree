@@ -8,7 +8,7 @@ var WorkSpaceStore = require('../stores/WorkSpaceStore');
 var WorkSpaceBar = require('./WorkSpaceBar.jsx');
 var DiscussionArea = require('./rightBox/DiscussionArea.jsx');
 var DrawingArea = require('./mainBox/DrawingArea.jsx');
-
+var InfoBox = require('./rightBox/DashboardInfo.jsx');
 /**
  * the workspace.jsx is the main container of each channel
  */
@@ -43,6 +43,7 @@ module.exports = React.createClass({
             <div>
                 <DrawingArea channel={channelInfo} drawInfo={drawInfo}/>
                 <DiscussionArea channel={channelInfo} />
+                <InfoBox />
                 <WorkSpaceBar members={membersInfo}/>
             </div>
         );
