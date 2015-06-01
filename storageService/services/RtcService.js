@@ -97,14 +97,16 @@ exports.delClientAsync = function(channelId, socketId) {
  * @param {Boolean}     isKeepAlive, indicate keep session alive or not
  */
 exports.getSessionAsync = function(channelId, isKeepAlive) {
+    var ttlSession = (isKeepAlive ? SessionTemp.ttlAsync : function(){});
     return Promise.join(
-        SessionTemp.getAsync(channelId), (isKeepAlive ? SessionTemp.ttlAsync(channelId) : null),
+        SessionTemp.getAsync(channelId), 
+        ttlSession(channelId),
         function(session) {
             return session;
         }).catch(function(err) {
-        SharedUtils.printError('RtcService.js', 'getSessionAsync', err);
-        return null;
-    });
+            SharedUtils.printError('RtcService.js', 'getSessionAsync', err);
+            return null;
+        });
 };
 
 /**
