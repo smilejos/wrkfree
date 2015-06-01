@@ -55,6 +55,14 @@ module.exports = React.createClass({
 
     render: function(){
         var style = (this.state.isEnabled ? 'Webcam-shown' : 'Webcam-hidden');
+        var videoComponent = '';
+        if (this.state.stream && this.state.isVideoShown) {
+            videoComponent = (
+                <RtcVideo 
+                    videoId="localVideo"
+                    stream={this.state.stream} />
+            );
+        }
         return (
             <div className={style}>
                 <div className="icon">
@@ -64,7 +72,7 @@ module.exports = React.createClass({
                         touch  
                         onClick={this._toggleVideo} />
                 </div>
-                <RtcVideo stream={this.state.stream} isVisible={this.state.isVideoShown} />
+                {videoComponent}
             </div>
         );
     }
