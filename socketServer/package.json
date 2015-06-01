@@ -11,7 +11,7 @@
     "canvas": "^1.2.2",
     "cookie": "^0.1.2",
     "generic-pool": "^2.2.0",
-    "kue": "^0.8.12",
+    "kue": "^0.9.3",
     "sc2": "^2.2.5"
   },
   "devDependencies": {

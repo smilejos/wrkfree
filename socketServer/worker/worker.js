@@ -32,6 +32,11 @@ module.exports.run = function(worker) {
     _configPublish(scServer);
     _configPublishOut(scServer);
 
+    /**
+     * configure rtc worker
+     */
+    require('./services/rtcWorker').setSocketWorker(worker);
+
     /*
       In here we handle our incoming realtime connections and listen for events.
     */
