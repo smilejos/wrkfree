@@ -34,22 +34,24 @@ var RedisClient = Redis.createClient(
 /**
  * Public API
  * @Author: George_Chen
- * @Description: set client sdp to current channel
+ * @Description: set the current channel's rtc session
+ *         NOTE: a client is a socketId
  *
  * @param {String}      channelId, channel id
- * @param {Object}      sdp, session's sdp
+ * @param {Object}      session, channel rtc session
+ * @param {Array}       session.clients, clients that join the rtc session
+ * @param {Object}      session.sdps, sdps of each joined clients
  */
-exports.setAsync = function(channelId, sdp) {
+exports.setAsync = function(channelId, session) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
-        _checkSdp(sdp),
-        function(cid, validSdp) {
+        SharedUtils.argsCheckAsync(session.clients, 'array'),
+        _checkSdp(session.sdps),
+        function(cid) {
             var redisKey = _getSessionKey(cid);
-            return RedisClient.setexAsync(
-                redisKey,
-                Params.sessionTimeoutInSecond,
-                JSON.stringify(validSdp)
-            );
+            var expiredTime = Params.sessionTimeoutInSecond;
+            var rawSession = JSON.stringify(session);
+            return RedisClient.setexAsync(redisKey, expiredTime, rawSession);
         }).catch(function(err) {
             SharedUtils.printError('rtcSessionTemp.js', 'setAsync', err);
             return null;
@@ -59,7 +61,7 @@ exports.setAsync = function(channelId, sdp) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: get sdps of channel rtc session
+ * @Description: get rtc session of current channel
  *
  * @param {String}      channelId, channel id
  */
@@ -68,8 +70,8 @@ exports.getAsync = function(channelId) {
         .then(function(cid) {
             var redisKey = _getSessionKey(cid);
             return RedisClient.getAsync(redisKey);
-        }).then(function(rawSdp) {
-            return JSON.parse(rawSdp);
+        }).then(function(rawSession) {
+            return JSON.parse(rawSession);
         }).catch(function(err) {
             SharedUtils.printError('rtcSessionTemp.js', 'getAsync', err);
             return null;

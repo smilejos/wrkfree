@@ -6,7 +6,7 @@ var Promise = require('bluebird');
 /**
  * Public API
  * @Author: George_Chen
- * @Description: set the client sdp on rtc session
+ * @Description: modify the current client's sdp
  *         NOTE: sdp is based on each socket client
  *
  * @param {String}      channelId, channel id
@@ -16,10 +16,10 @@ var Promise = require('bluebird');
 exports.setSdpAsync = function(channelId, socketId, sdp) {
     return SessionTemp.getAsync(channelId)
         .then(function(session) {
-            if (!session) {
-                session = {};
+            if (!session || session.clients.indexOf(socketId) === -1) {
+                throw new Error('set client sdp fail');
             }
-            session[socketId] = sdp;
+            session.sdps[socketId] = sdp;
             return SessionTemp.setAsync(channelId, session);
         }).catch(function(err) {
             SharedUtils.printError('RtcService.js', 'setSdpAsync', err);
@@ -30,21 +30,59 @@ exports.setSdpAsync = function(channelId, socketId, sdp) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: remove the client sdp from rtc session
+ * @Description: add rtc client and related sdp to rtc temp store
+ *         NOTE: sdp is based on each socket client
+ *
+ * @param {String}      channelId, channel id
+ * @param {String}      socketId, the client socket id
+ * @param {Object}      sdp, session's sdp
+ */
+exports.addClientAsync = function(channelId, socketId, sdp) {
+    return SessionTemp.getAsync(channelId)
+        .then(function(session) {
+            if (!session) {
+                session = {
+                    clients: [socketId],
+                    sdps: {}
+                };
+            } else {
+                if (session.clients.indexOf(socketId) > 0) {
+                    return true;
+                }
+                session.clients.push(socketId);
+            }
+            session.sdps[socketId] = sdp;
+            return SessionTemp.setAsync(channelId, session);
+        }).catch(function(err) {
+            SharedUtils.printError('RtcService.js', 'addClientAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: remove rtc client from rtc temp store
  *
  * @param {String}      channelId, channel id
  * @param {String}      socketId, the client socket id
  */
-exports.removeSdpAsync = function(channelId, socketId) {
+exports.delClientAsync = function(channelId, socketId) {
     return SessionTemp.getAsync(channelId)
         .then(function(session) {
             if (!session) {
                 throw new Error('rtc session is not exist');
             }
-            delete session[socketId];
+            var socketIndex = session.clients.indexOf(socketId);
+            if (socketIndex > 0) {
+                session.clients.splice(socketIndex, 1);
+            }
+            if (session.sdps[socketId]) {
+                delete session.sdps[socketId];
+            }
             return SessionTemp.setAsync(channelId, session);
         }).catch(function(err) {
-            SharedUtils.printError('RtcService.js', 'removeSdpAsync', err);
+            SharedUtils.printError('RtcService.js', 'delClientAsync', err);
             return null;
         });
 };
@@ -59,12 +97,11 @@ exports.removeSdpAsync = function(channelId, socketId) {
  * @param {Boolean}     isKeepAlive, indicate keep session alive or not
  */
 exports.getSessionAsync = function(channelId, isKeepAlive) {
+    var ttlSession = (isKeepAlive ? SessionTemp.ttlAsync : function(){});
     return Promise.join(
-        SessionTemp.getAsync(channelId), (isKeepAlive ? SessionTemp.ttlAsync(channelId) : null),
+        SessionTemp.getAsync(channelId), 
+        ttlSession(channelId),
         function(session) {
-            if (!session) {
-                throw new Error('rtc session is not exist');
-            }
             return session;
         }).catch(function(err) {
             SharedUtils.printError('RtcService.js', 'getSessionAsync', err);
