@@ -147,7 +147,8 @@ Queue.process(QUEUE_TYPE, function(job, done) {
     var cid = job.data.cid;
     return RtcStorage.getSessionAsync(cid, true)
         .then(function(session) {
-            return (session ? _notifyConference(cid, session) : false);
+            var shouldNotify = (session && session.clients.length > 0);
+            return (shouldNotify ? _notifyConference(cid, session) : false);
         }).then(function(isRepeat) {
             return (isRepeat ? _enqueueAsync(job.data) : false);
         }).nodeify(done);
