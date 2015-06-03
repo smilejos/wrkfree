@@ -112,6 +112,9 @@ $app-infoBox-width: 250px;
     z-index: 5;
 }
 
+/**
+ * right side hidden information division
+ */
 .dashboardInfo {
     z-index: 2;
     right: -300px;
@@ -119,6 +122,9 @@ $app-infoBox-width: 250px;
     opacity: 0;
 }
 
+/**
+ * right side display information division
+ */
 .dashboardInfoShow {
     z-index: 2;
     opacity: 1;
