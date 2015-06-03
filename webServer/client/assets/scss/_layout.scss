@@ -53,7 +53,8 @@ $app-infoBox-width: 250px;
     @extend .baseBox;
     background-color: $color-background_2;
     top: $app-header-height;
-    right: $app-infoBox-width;
+    width: 100%;
+    padding-right: $app-infoBox-width;
     bottom: 0px;
     left: 0px;
 }
