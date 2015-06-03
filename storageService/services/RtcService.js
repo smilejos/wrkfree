@@ -74,11 +74,14 @@ exports.delClientAsync = function(channelId, socketId) {
                 throw new Error('rtc session is not exist');
             }
             var socketIndex = session.clients.indexOf(socketId);
-            if (socketIndex > 0) {
+            if (socketIndex > -1) {
                 session.clients.splice(socketIndex, 1);
             }
             if (session.sdps[socketId]) {
                 delete session.sdps[socketId];
+            }
+            if (session.clients.length === 0) {
+                return SessionTemp.deleteAsync(channelId);
             }
             return SessionTemp.setAsync(channelId, session);
         }).catch(function(err) {
@@ -97,9 +100,9 @@ exports.delClientAsync = function(channelId, socketId) {
  * @param {Boolean}     isKeepAlive, indicate keep session alive or not
  */
 exports.getSessionAsync = function(channelId, isKeepAlive) {
-    var ttlSession = (isKeepAlive ? SessionTemp.ttlAsync : function(){});
+    var ttlSession = (isKeepAlive ? SessionTemp.ttlAsync : function() {});
     return Promise.join(
-        SessionTemp.getAsync(channelId), 
+        SessionTemp.getAsync(channelId),
         ttlSession(channelId),
         function(session) {
             return session;
