@@ -17,12 +17,12 @@ module.exports = React.createClass({
 
     statics: {
         storeListeners: {
-            'onStoreChange': [FriendStore]
+            '_onStoreChange': [FriendStore]
         }
     },
 
     // handler for handling the change of FriendStore
-    onStoreChange: function(){
+    _onStoreChange: function(){
         var state = this.getStore(FriendStore).getState();
         this.setState(state);
     },
