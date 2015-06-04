@@ -75,10 +75,34 @@ module.exports.run = function(worker) {
 
         socket.on('disconnect', function() {
             var token = socket.getAuthToken();
-            return UserStorage.userLeaveAsync(token, socket.id);
+            var subscriptions = socket.subscriptions();
+            return Promise.all([
+                UserStorage.userLeaveAsync(token, socket.id),
+                _disconnectChannel(socket.id, subscriptions),
+            ]).catch(function(err) {
+                SharedUtils.printError('worker.js', 'disconnect', err);
+            });
         });
     });
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: to disconnect channel while user offline
+ *         NOTE: now only deal with disconnect on rtc functionality
+ * 
+ * @param {String}        socketId, the client socket id
+ * @param {Array}         subscriptions, subscription channels
+ */
+function _disconnectChannel(socketId, subscriptions) {
+    var rtcStorage = StorageManager.getService('Rtc');
+    return Promise.map(subscriptions, function(subscription) {
+        var info = subscription.split(':');
+        if (info[0] === 'channel') {
+            return rtcStorage.delClientAsync(info[1], socketId);
+        }
+    });
+}
 
 /**
  * @Author: George_Chen
