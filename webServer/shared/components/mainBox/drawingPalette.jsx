@@ -77,7 +77,12 @@ var ColorRow = React.createClass({
     render: function() {
         var _this = this;
         var _blockArray = this.props.list.map( function(color){
-            return <ColorBlock color={color} onColorPickup={_this._handleColorPickup} />;
+            return (
+                <ColorBlock
+                    key={'drawColor'+color} 
+                    color={color} 
+                    onColorPickup={_this._handleColorPickup} />
+            );
         });
         return (
             <div className="ColorRow">

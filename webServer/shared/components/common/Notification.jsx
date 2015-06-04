@@ -70,7 +70,7 @@ var Notification = React.createClass({
 
     render: function(){
         var _NoticeList = SharedUtils.fastArrayMap(this.state.data, function( notice, index ){
-            return <Notices data={notice} />;
+            return <Notices data={notice} key={'Notification:'+index} />;
         });
         return (
             <div className={this.state.isVisible ? "Notification NotificationShow" : "Notification"}>
