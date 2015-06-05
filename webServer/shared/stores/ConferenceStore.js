@@ -53,7 +53,11 @@ module.exports = CreateStore({
         if (!this.conferences[data.channelId]) {
             this.conferences[data.channelId] = {};
         }
-        this.conferences[data.channelId][data.clientId] = data.stream;
+        if (!data.stream && this.conferences[data.channelId][data.clientId]) {
+            delete this.conferences[data.channelId][data.clientId];
+        } else {
+            this.conferences[data.channelId][data.clientId] = data.stream;
+        }
         this.emitChange();
     },
 
@@ -74,7 +78,7 @@ module.exports = CreateStore({
      * @Description: check user has conference.
      */
     hasConference: function() {
-        return (Object.keys(this.conferences).length === 0);
+        return (Object.keys(this.conferences).length > 0);
     },
 
     /**
