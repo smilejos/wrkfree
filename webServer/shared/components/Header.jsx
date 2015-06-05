@@ -192,7 +192,7 @@ module.exports = React.createClass({
                                 style={{'marginTop':'5px'}} 
                                 onAvatarClick={this._onAvatarClick} />
                             <FontIcon className="fa fa-bell" onClick={this._onNoticeToggle}/>
-                            <FontIcon className="fa fa-users" onClick={this._onInboxToggle}/>
+                            <FontIcon className="fa fa-comments" onClick={this._onInboxToggle}/>
                             <span className="mui-toolbar-separator">&nbsp;</span>
                         </div>
                     </ToolbarGroup>
