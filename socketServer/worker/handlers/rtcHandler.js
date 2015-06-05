@@ -8,7 +8,7 @@ var RtcWorker = require('../services/rtcWorker');
 /**
  * Public API
  * @Author: George_Chen
- * @Description: for user to start his conference staet on current channel
+ * @Description: for user to start his conference state on current channel
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
@@ -86,7 +86,7 @@ exports.getTargetsSdpAsync = function(socket, data) {
  *         NOTE: currently do nothing on this API
  */
 exports.signaling = function() {
-    // current do nothing
+    // currently do nothing
 };
 
 /**
