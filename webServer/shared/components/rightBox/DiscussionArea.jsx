@@ -47,8 +47,8 @@ var DiscussionArea = React.createClass({
      * @Description: only switch between different channels will trigger _pullLatestMessages
      */
     componentWillReceiveProps: function(nextProps) {
-        if (this.props.channel.channelId !== nextProps.channel.channelId) {            
-            this._pullLatestMessages(nextProps.channel.channelId);
+        if (this.props.channelId !== nextProps.channelId) {            
+            this._pullLatestMessages(nextProps.channelId);
         }
     },
 
@@ -135,7 +135,7 @@ var DiscussionArea = React.createClass({
     },
 
     _getChannelId: function(){
-        return this.props.channel.channelId;
+        return this.props.channelId;
     },
 
     _getStateFromStores: function () {
@@ -146,9 +146,9 @@ var DiscussionArea = React.createClass({
 
     render: function(){
         return (
-            <div className="infoBox" >
+            <div className="DiscussionArea" style={this.props.inlineStyle} >
                 <MessageList data={this.state.messageList} />
-                <div className="DiscussionArea" >
+                <div className="DiscussionInput" >
                     <TextField 
                         hintText="say something ..." 
                         onKeyDown={this._handleKeyDown} 
@@ -163,7 +163,7 @@ var DiscussionArea = React.createClass({
 var MessageList = React.createClass({
     render: function(){
         var _MessageList = this.props.data.map( function( message ){
-            return <Message data={message} />;
+            return <Message key={message.sentTime} data={message} />;
         });
         return ( 
             <div className="MsgContainer" id="MsgContainer">
