@@ -11,12 +11,14 @@ var DRAW_PEN_LINECAP = 'round';
 var DRAW_PEN_WIDTH = 10;
 var DRAW_PEN_COLOR = '#000000';
 var DRAW_PALETTE = false;
+var RTC_CANCEL_TIMEOUT_IN_MSECOND = 3000;
 
 module.exports = CreateStore({
     storeName: 'WorkSpaceStore',
     handlers: {
         'ON_BOARD_ADD': 'onBoardAdd',
-        'ON_DRAW_MODE_CHANGE': 'onDrawModeChange'
+        'ON_DRAW_MODE_CHANGE': 'onDrawModeChange',
+        'ON_CONFERENCE': '_onConference'
     },
 
     initialize: function() {
@@ -32,7 +34,11 @@ module.exports = CreateStore({
                 palette: DRAW_PALETTE
             },
         };
+        this.rtc = {
+            onConferenceCall: false
+        };
         this.newBoardTip = false;
+        this.rtcTimeout = null;
     },
 
     /**
@@ -81,6 +87,28 @@ module.exports = CreateStore({
     /**
      * @Public API
      * @Author: George_Chen
+     * @Description: to specify current conference call state
+     *
+     * @param {Boolean}     onConferenceCall, to indicate conference exist or not
+     */
+    _onConference: function(data) {
+        var self = this;
+        if (data.channelId === this.channel.channelId) {
+            this.rtc.onConferenceCall = data.onConferenceCall;
+            if (this.rtcTimeout) {
+                clearTimeout(this.rtcTimeout);
+            }
+            this.rtcTimeout = setTimeout(function(){
+                self.rtc.onConferenceCall = false;
+                self.emitChange();
+            }, RTC_CANCEL_TIMEOUT_IN_MSECOND);
+            this.emitChange();
+        }
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
      * @Description: polyfill the state of current store
      *
      * @param {Object}      state, the state of workSpace store
@@ -114,6 +142,7 @@ module.exports = CreateStore({
         var state = {
             channel: this.channel,
             members: this.members,
+            rtc: this.rtc,
             draw: this.draw,
             status: this.status,
             newBoardTip: !!this.newBoardTip // pass it by value
