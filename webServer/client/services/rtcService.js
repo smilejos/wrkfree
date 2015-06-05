@@ -143,7 +143,7 @@ exports.hangupConferenceAsync = function(data) {
 
 /**
  * @Author: George_Chen
- * @Description: a sugar sytanx function for handling socekt request
+ * @Description: a sugar sytanx function for handling socket request
  *              events on rtcService
  *         NOTE: caller is just for print error log; if error happen,
  *              we can know the root cause from which caller
@@ -180,7 +180,7 @@ function _publish(subscription, packet, caller) {
 
 /**
  * @Author: George_Chen
- * @Description: a sugar sytanx function for wrap the socket formated
+ * @Description: a sugar sytanx function for wrap the socket formatted
  *               packet
  *
  * @param {String}          serverApi, the server handler api
