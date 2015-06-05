@@ -7,7 +7,7 @@ var SharedUtils = require('../../sharedUtils/utils');
  */
 var SignUpStore = require('../shared/stores/SignUpStore');
 var HeaderStore = require('../shared/stores/HeaderStore');
-var FriendStore = require('../shared/stores/friendStore');
+var FriendStore = require('../shared/stores/FriendStore');
 var DashboardStore = require('../shared/stores/DashboardStore');
 var WorkSpaceStore = require('../shared/stores/WorkSpaceStore');
 

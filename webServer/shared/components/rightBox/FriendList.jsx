@@ -1,7 +1,7 @@
 var React = require('react');
 var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible').Mixin;
-var FriendStore = require('../../stores/friendStore');
+var FriendStore = require('../../stores/FriendStore');
 
 /**
  * child components

@@ -2,7 +2,7 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var HeaderStore = require('../../shared/stores/HeaderStore');
-var FriendStore = require('../../shared/stores/friendStore');
+var FriendStore = require('../../shared/stores/FriendStore');
 var SocketManager = require('../services/socketManager');
 var UserService = require('../services/userService');
 
