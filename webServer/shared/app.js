@@ -29,7 +29,7 @@ app.registerStore(require('./stores/userInfoStore'));
 app.registerStore(require('./stores/privateBoxesStore'));
 app.registerStore(require('./stores/MessageStore'));
 app.registerStore(require('./stores/WorkSpaceStore'));
-app.registerStore(require('./stores/friendStore'));
+app.registerStore(require('./stores/FriendStore'));
 app.registerStore(require('./stores/DrawStore'));
 app.registerStore(require('./stores/DrawTempStore'));
 app.registerStore(require('./stores/QuickSearchStore'));

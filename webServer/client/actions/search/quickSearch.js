@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var UserService = require('../../services/userService');
 var ChannelService = require('../../services/channelService');
-var FriendStore = require('../../../shared/stores/friendStore');
+var FriendStore = require('../../../shared/stores/FriendStore');
 var QuickSearchStore = require('../../../shared/stores/QuickSearchStore');
 
 /**
