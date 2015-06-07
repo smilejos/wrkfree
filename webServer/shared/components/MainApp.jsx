@@ -12,7 +12,7 @@ var PrivateMsgBoxes = require('./PrivateMsgBoxes.jsx');
 var ChannelNav = require('./ChannelNav.jsx');
 var Webcam = require('./Webcam.jsx');
 var EventToaster = require('./EventToaster.jsx');
-var Notification = require('./common/notification.jsx');
+var Notifications = require('./common/Notifications.jsx');
 
 module.exports = React.createClass({
     /**
@@ -46,7 +46,7 @@ module.exports = React.createClass({
                 <Webcam />
                 <ChannelNav />
                 <RouteHandler route={this.state.route}/>
-                <Notification />
+                <Notifications />
                 <EventToaster />
                 <PrivateMsgBoxes />
             </div>
