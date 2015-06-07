@@ -1,9 +1,63 @@
+$event_height: 80px;
+$event_width: 250px;
 
 /**
- * the eventToaster style
+ * the eventToaster and eventMessage style
  */
 .EventToaster {
-    .eventMessage {
-        // TODO:
+    .event {
+        @extend .baseFonts;
+        position: fixed;
+        width: $event_width;
+        height: $event_height;
+        margin-left: 10px;
+        padding: 10px 0px 10px 10px;
+        color: #EEE;
+        z-index: 2;
+        left: 0px;
+        border-radius: 10px;
+        opacity: 0.8;
+    }
+    .event-icon {
+        float: left;
+        width: 10%;
+        padding-top: 15px;
+        cursor: pointer;
+    }
+    .event-content {
+        float: left;
+        width: 70%;
+        padding-left: 10px;
+        overflow: auto;
+        line-height: 20px;
+        .event-content-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .event-content-message {
+            font-size: 14px;
+        }
+    }
+    .event-action {
+        float: left;
+        width: 20%;
+        padding-top: 10px;
+        padding-left: 5px;
+    }
+
+    /**
+     * the background color of each type of event
+     */
+    .event-success {
+        background-color: $green-500;
+    }
+    .event-info {
+        background-color: $light-blue-700;
+    }
+    .event-warning {
+        background-color: $yellow-700;
+    }
+    .event-error {
+        background-color: $red-500;
     }
 }
