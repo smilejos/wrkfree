@@ -12,11 +12,13 @@ $event_width: 250px;
         height: $event_height;
         margin-left: 10px;
         padding: 10px 0px 10px 10px;
-        color: #EEE;
+        background-color: #FFF;
+        border-width: 2px;
+        border-color: $grey-500;
         z-index: 2;
         left: 0px;
         border-radius: 10px;
-        opacity: 0.8;
+        opacity: 0.6;
     }
     .event-icon {
         float: left;
@@ -49,15 +51,15 @@ $event_width: 250px;
      * the background color of each type of event
      */
     .event-success {
-        background-color: $green-500;
+        color: $green-500;
     }
     .event-info {
-        background-color: $light-blue-700;
+        color: $light-blue-700;
     }
     .event-warning {
-        background-color: $yellow-700;
+        color: $yellow-700;
     }
     .event-error {
-        background-color: $red-500;
+        color: $red-500;
     }
 }
