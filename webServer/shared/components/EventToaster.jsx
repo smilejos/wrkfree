@@ -170,6 +170,6 @@ var EventMessage = React.createClass({
                     {this._getEventAction()}
                 </div>
             </div>
-        )
+        );
     }
 });
