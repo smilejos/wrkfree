@@ -67,6 +67,7 @@ module.exports = React.createClass({
                     type={events[id].type}
                     title={events[id].title}
                     message={events[id].message}
+                    actionLabel={events[id].actionLabel}
                     actionHandler={events[id].actionHandler}
                     bottomHeight={BOTTOM_HEIGHT + index * EVENT_HEIGHT } />
             );
