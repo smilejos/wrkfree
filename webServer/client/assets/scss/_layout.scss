@@ -55,8 +55,8 @@ $app-infoBox-width: 250px;
     top: $app-header-height;
     width: 100%;
     padding-right: $app-infoBox-width;
-    bottom: 0px;
-    left: 0px;
+    overflow: scroll;
+    height: 100%;
 }
 
 /**
