@@ -64,6 +64,8 @@ exports.findByTargetAsync = function(targetUser, isReaded) {
         return Model.find(condition).sort(sortOrder).select(fields).lean().execAsync();
     }).map(function(doc) {
         return DbUtil.transformToNewIdAsync(doc, 'reqId');
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'updatedTime');
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'findByTargetAsync', err);
         return null;

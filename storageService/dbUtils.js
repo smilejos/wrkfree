@@ -167,21 +167,19 @@ exports.getChannelCondAsync = function(chId) {
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: transform date field of mongodb docs to timestamp number
+ * @Description: transform date field of mongodb doc to timestamp number
  *         NOTE: because date get from mongoose and from cache are different type,
  *               so we need this transform function
- * @param {Array}        mongoDocs, a array of mongodb docs
+ * @param {Object}       doc, a mongodb document
  * @param {String}       dateField, the date fieldName on each doc
  */
-exports.transformTimeAsync = function(mongoDocs, dateField) {
-    return Promise.map(mongoDocs, function(doc) {
-        if (doc[dateField] instanceof Date) {
-            doc[dateField] = Date.parse(doc[dateField].toISOString());
-        } else {
-            doc[dateField] = Date.parse(doc[dateField].toString());
-        }
-        return doc;
-    });
+exports.transformTimeAsync = function(doc, dateField) {
+    if (doc[dateField] instanceof Date) {
+        doc[dateField] = Date.parse(doc[dateField].toISOString());
+    } else {
+        doc[dateField] = Date.parse(doc[dateField].toString());
+    }
+    return doc;
 };
 
 /**
