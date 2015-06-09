@@ -113,6 +113,24 @@ exports.getOnlineMembersAsync = function(channelId) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: delete the cache of member list
+ *
+ * @param {String}      channelId, channel's id
+ */
+exports.deleteListAsync = function(channelId) {
+    return SharedUtils.argsCheckAsync(channelId, 'md5')
+        .then(function(validChannelId) {
+            var redisKey = _getMemberKey(validChannelId);
+            return RedisClient.delAsync(redisKey);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelTemp', 'deleteListAsync', err);
+            return null;
+        });
+};
+
 /************************************************
  *
  *          internal functions

@@ -106,6 +106,12 @@ exports.addNewMemberAsync = function(host, member, channelId) {
                 throw new Error('authorize not allowed');
             }
             return MemberDao.addAsync(member, channelId, false);
+        }).then(function(result) {
+            // make channel list cache outdated
+            if (result) {
+                ChannelTemp.deleteListAsync(channelId);
+            }
+            return result;
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'addNewMemberAsync', err);
             return null;
