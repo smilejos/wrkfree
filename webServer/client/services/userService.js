@@ -69,6 +69,20 @@ exports.searchAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: get user notifications.
+ *         NOTE: if data.isReaded is not set, default will query all notifications
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {Boolean}         data.isReaded, notification status (optional)
+ */
+exports.getNotificationsAsync = function(data) {
+    var packet = _setPacket('getNotificationsAsync', null, data);
+    return _request(packet, 'getNotificationsAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: polyfill the user info to local cache
  *
  * @param {Array/Object}          userInfos, can be a user info json or group of userInfos

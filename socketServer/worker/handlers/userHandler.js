@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var UserStorage = StorageManager.getService('User');
+var ReqRespStorage = StorageManager.getService('ReqResp');
 
 /**
  * Public API
@@ -33,6 +34,31 @@ exports.getInfoAsync = function(socket, data) {
     }).catch(function(err) {
         SharedUtils.printError('userHandler.js', 'getInfoAsync', err);
         throw new Error('get user info fail');
+    });
+};
+
+/**
+ * TODO: currently only support reqResp like notifications
+ * Public API
+ * @Author: George_Chen
+ * @Description: get user notifications with read or unread.
+ *         NOTE: if data.isReaded is not set, default will query all notifications
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {Boolean}         data.isReaded, notification status (optional)
+ */
+exports.getNotificationsAsync = function(socket, data) {
+    return Promise.try(function() {
+        if (data.isReaded === 'undefined') {
+            return data.isReaded;
+        }
+        return SharedUtils.argsCheckAsync(data.isReaded, 'boolean');
+    }).then(function(isReadedFlag) {
+        var uid = socket.getAuthToken();
+        return ReqRespStorage.getReqRespAsync(uid, isReadedFlag);
+    }).catch(function(err) {
+        SharedUtils.printError('userHandler.js', 'getNotificationsAsync', err);
+        throw err;
     });
 };
 
