@@ -89,6 +89,25 @@ exports.isReqSentAsync = function(reqSender, targetUser, reqType, info) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: get user readed or unreaded requests and responses
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {Boolean}         data.isReaded, to indicate readed or not (optional)
+ */
+exports.getReqRespAsync = function(sender, isReaded) {
+    return ReqRespDao.findByTargetAsync(sender, isReaded)
+        .map(function(reqRespItem) {
+            reqRespItem.isNotification = false;
+            return reqRespItem;
+        }).catch(function(err) {
+            SharedUtils.printError('ReqRespService.js', 'getReqRespAsync', err);
+            return null;
+        });
+};
+
+/**
  * @Author: George_Chen
  * @Description: used to check that request realted operation has been executed or not
  *
