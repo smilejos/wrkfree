@@ -2,6 +2,7 @@ var React = require('react');
 var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible').Mixin;
 var FriendStore = require('../../stores/FriendStore');
+var ToggleStore = require('../../stores/ToggleStore');
 
 /**
  * child components
@@ -17,18 +18,34 @@ module.exports = React.createClass({
 
     statics: {
         storeListeners: {
-            '_onStoreChange': [FriendStore]
+            '_onStoreChange': [FriendStore],
+            '_onVisiableChange': [ToggleStore]
+        }
+    },
+
+    getInitialState: function() {
+        return {
+            isVisible : this.getStore(ToggleStore).getState().friendVisiable,
+            friends : this.getStore(FriendStore).getState().friends
+        };
+    },
+
+    // handler for handling display or not
+    _onVisiableChange: function(){
+        var store = this.getStore(ToggleStore).getState();
+        if (this.state.isVisible !== store.friendVisiable) {
+            this.setState({
+                isVisible : store.friendVisiable 
+            }); 
         }
     },
 
     // handler for handling the change of FriendStore
     _onStoreChange: function(){
-        var state = this.getStore(FriendStore).getState();
-        this.setState(state);
-    },
-
-    getInitialState: function() {
-        return this.getStore(FriendStore).getState();
+        var store = this.getStore(FriendStore).getState();
+        this.setState({
+            friends : store.friends
+        });
     },
     
     render: function(){
@@ -39,7 +56,7 @@ module.exports = React.createClass({
                 info={friendInfo} />
         });
         return (
-            <div className="Friends">
+            <div className={this.state.isVisible ? "FriendsShow" : "Friends"}>
                 {friendList}
             </div>
         );

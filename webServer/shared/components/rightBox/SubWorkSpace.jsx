@@ -65,7 +65,7 @@ module.exports = React.createClass({
      * @Description: to get the discussion view
      */
     _getDiscussionView: function() {
-        var DiscussionAreaTop = 0;
+        var DiscussionAreaTop = 50;
         if (!this.state.discussionVisible) {
             DiscussionAreaTop = 1000;
         }

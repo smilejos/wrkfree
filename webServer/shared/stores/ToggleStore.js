@@ -13,7 +13,7 @@ module.exports = CreateStore({
 
     initialize: function() {
         this.noticeVisiable = false;
-        this.friendVisiable = false;
+        this.friendVisiable = true;
         this.conferenceVisible = false;
         this.discussionVisible = true;
     },
