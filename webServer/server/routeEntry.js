@@ -131,9 +131,15 @@ function _getChannelStreams(uid, storageManager) {
  */
 function _getWorkSpace(uid, channelId, storageManager) {
     var channelStorage = storageManager.getService('Channel');
-    return Promise.props({
-        channel: channelStorage.getChannelInfoAsync(uid, channelId),
-        members: channelStorage.getMembersAsync(channelId),
-        status: channelStorage.getMemberStatusAsync(uid, channelId)
-    });
+    return channelStorage.getAuthAsync(uid, channelId)
+        .then(function(isAuth) {
+            if (!isAuth) {
+                throw new Error('not auth to get channel resource');
+            }
+            return Promise.props({
+                channel: channelStorage.getChannelInfoAsync(uid, channelId),
+                members: channelStorage.getMembersAsync(channelId),
+                status: channelStorage.getMemberStatusAsync(uid, channelId)
+            });
+        });
 }

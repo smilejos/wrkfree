@@ -148,23 +148,16 @@ exports.getAuthChannelsAsync = function(member) {
  * @Author: George_Chen
  * @Description: for asker to get specific channel's infomation
  *
- * @param {String}          asker, asker's uid
  * @param {String}          channelId, channel id
  */
-exports.getChannelInfoAsync = function(asker, channelId) {
-    return _isMemberAuthAsync(asker, channelId)
-        .then(function(auth) {
-            if (!auth) {
-                return null;
-            }
-            return Promise.props({
-                basicInfo: ChannelDao.findByChannelAsync(channelId),
-                drawBoardNums: BoardDao.countBoardsAsync(channelId)
-            });
-        }).catch(function(err) {
-            SharedUtils.printError('ChannelService.js', 'getChannelInfoAsync', err);
-            return null;
-        });
+exports.getChannelInfoAsync = function(channelId) {
+    return Promise.props({
+        basicInfo: ChannelDao.findByChannelAsync(channelId),
+        drawBoardNums: BoardDao.countBoardsAsync(channelId)
+    }).catch(function(err) {
+        SharedUtils.printError('ChannelService.js', 'getChannelInfoAsync', err);
+        return null;
+    });
 };
 
 /**
