@@ -116,7 +116,7 @@ exports.anonymousLoginAsync = function(channelId, password) {
  *
  * @param {String}          channelId, channel id
  */
-exports.findByChanelAsync = function(channelId, is1on1) {
+exports.findByChannelAsync = function(channelId, is1on1) {
     return Promise.props({
         _id: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
@@ -127,7 +127,7 @@ exports.findByChanelAsync = function(channelId, is1on1) {
     }).then(function(doc) {
         return DbUtil.transformToNewIdAsync(doc, 'channelId');
     }).catch(function(err) {
-        SharedUtils.printError('ChannelDao.js', 'findByChanelAsync', err);
+        SharedUtils.printError('ChannelDao.js', 'findByChannelAsync', err);
         return null;
     });
 };

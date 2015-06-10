@@ -131,7 +131,7 @@ exports.getAuthChannelsAsync = function(member) {
         .map(function(memberDoc) {
             var cid = memberDoc.channelId;
             return Promise.props({
-                channel: ChannelDao.findByChanelAsync(cid, false),
+                channel: ChannelDao.findByChannelAsync(cid, false),
                 isStarred: memberDoc.isStarred,
                 members: this.getMembersAsync(cid),
                 visitTime: memberDoc.lastVisitTime,
@@ -158,7 +158,7 @@ exports.getChannelInfoAsync = function(asker, channelId) {
                 return null;
             }
             return Promise.props({
-                basicInfo: ChannelDao.findByChanelAsync(channelId),
+                basicInfo: ChannelDao.findByChannelAsync(channelId),
                 drawBoardNums: BoardDao.countBoardsAsync(channelId)
             });
         }).catch(function(err) {
