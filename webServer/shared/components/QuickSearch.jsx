@@ -59,7 +59,7 @@ module.exports = React.createClass({
         var classSet = React.addons.classSet;
         var styleSet = {
             QuickSearch: this.state.isEnabled,
-            Invisible: !this.state.isEnabled,
+            hide: !this.state.isEnabled,
             Center: true
         };
         var users = this.state.results.users;

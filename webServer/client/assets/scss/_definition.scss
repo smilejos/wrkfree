@@ -1,3 +1,4 @@
+
 /************************************************
  *
  *            App defintion main color 
@@ -59,7 +60,10 @@ $color-boxBody: #5E807F;
  *
  ************************************************/
 
-.Invisible {
-    visibility: hidden;
+.show {
+    visibility: visible;
 }
 
+.hide {
+    visibility: hidden;
+}
