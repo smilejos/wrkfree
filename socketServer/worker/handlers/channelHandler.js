@@ -1,7 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
-var CryptoUtils = require('../../../sharedUtils/cryptoUtils');
 var StorageManager = require('../../../storageService/storageManager');
 var ChannelStorage = StorageManager.getService('Channel');
 
@@ -93,7 +92,12 @@ exports.getInfoAsync = function(socket, data) {
         uid: SharedUtils.argsCheckAsync(uid, 'md5'),
         cid: SharedUtils.argsCheckAsync(data.channelId, 'md5')
     }).then(function(data) {
-        return ChannelStorage.getChannelInfoAsync(data.uid, data.cid);
+        return ChannelStorage.getAuthAsync(data.uid, data.cid);
+    }).then(function(isAuth) {
+        if (!isAuth) {
+            throw new Error('not auth to get channel info');
+        }
+        return ChannelStorage.getChannelInfoAsync(data.channelId);
     }).catch(function(err) {
         SharedUtils.printError('channelHandler.js', 'getInfoAsync', err);
         throw new Error('get channel info fail');
@@ -132,9 +136,9 @@ exports.getMemberStatusAsync = function(socket, data) {
 exports.getMemberListAsync = function(socket, data) {
     var uid = socket.getAuthToken();
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
-        .then(function(){
-            return ChannelStorage.getAuthAsync(uid, data.channelId); 
-        }).then(function(isAuth){
+        .then(function() {
+            return ChannelStorage.getAuthAsync(uid, data.channelId);
+        }).then(function(isAuth) {
             if (!isAuth) {
                 throw new Error('get Auth fail');
             }
