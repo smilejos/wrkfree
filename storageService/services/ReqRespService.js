@@ -104,7 +104,7 @@ exports.getReqRespAsync = function(sender, isReaded) {
             if (reqRespItem.type !== 'channel') {
                 return reqRespItem;
             }
-            return ChannelDao.findByChanelAsync(reqRespItem.extraInfo, false)
+            return ChannelDao.findByChannelAsync(reqRespItem.extraInfo, false)
                 .then(function(info) {
                     reqRespItem.extraInfo = {
                         channelId: info.channelId,
