@@ -93,7 +93,7 @@ module.exports = React.createClass({
                     <IconButton iconClassName="fa fa-tag" />
                     <IconButton iconClassName="fa fa-star" />
                 </div>
-                <div className="pure-u-1-3" style={{'marginLeft':'40px'}}>
+                <div className="pure-u-1-3">
                     <FloatingActionButton mini secondary
                         disabled={this.state.isConferenceExist}
                         iconClassName="fa fa-users" 
@@ -112,7 +112,9 @@ module.exports = React.createClass({
                         iconClassName="fa fa-tty" 
                         onClick={this._hangupConference} />
                 </div>
-                <div className="pure-u-1-3 Right" >
+                <div className="rightControl" >
+                    <div className="switchButton"></div>
+                    <div className="switchButton"></div>
                 </div>
             </div>
         );

@@ -110,4 +110,15 @@ $app-infoBox-width: 250px;
     color: $grey-600;
     opacity: 0.5;
     z-index: 5;
+
+    .rightControl {
+        position: absolute;
+        background-color: $color-background_1;
+        border-top: 1px #aaa solid;
+        box-shadow: 0 3px 10px rgba(0,0,0,.23);
+        right: 0px;
+        bottom: 0px;
+        height: 100%;
+        width: 250px;
+    }
 }
