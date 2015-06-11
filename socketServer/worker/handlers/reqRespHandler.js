@@ -24,10 +24,14 @@ exports.channelReqAsync = function(socket, data) {
             var type = 'channel';
             return ReqRespStorage.saveReqAsync(uid, target, type, cid);
         }).then(function(result) {
-            if (result) {
-                _notifyTarget(socket, data.targetUser);
+            if (result === null) {
+                throw new Error('save request fail');
             }
-            return result;
+            return _getExtraChannelInfo(data.channelId).then(function(info) {
+                var notification = _setReqNotification(result, info);
+                _notifyTarget(socket, data.targetUser, notification);
+                return notification;
+            });
         }).catch(function(err) {
             SharedUtils.printError('reqRespHandler.js', 'channelReqAsync', err);
             throw new Error('send channel request fail');
@@ -49,10 +53,12 @@ exports.friendReqAsync = function(socket, data) {
             var type = 'friend';
             return ReqRespStorage.saveReqAsync(uid, target, type);
         }).then(function(result) {
-            if (result) {
-                _notifyTarget(socket, data.targetUser);
+            if (result === null) {
+                throw new Error('save request fail');
             }
-            return result;
+            var notification = _setReqNotification(result, {});
+            _notifyTarget(socket, data.targetUser, notification);
+            return notification;
         }).catch(function(err) {
             SharedUtils.printError('reqRespHandler.js', 'friendReqAsync', err);
             throw new Error('send friend request fail');
@@ -79,7 +85,17 @@ exports.channelRespAsync = function(socket, data) {
         function(reqId, target, isPermitted, cid) {
             var uid = socket.getAuthToken();
             var type = 'channel';
-            return _handleResp(socket, reqId, uid, target, isPermitted, type, cid);
+            return _handleResp(socket, reqId, uid, target, isPermitted, type, cid)
+                .then(function(result) {
+                    if (result === null) {
+                        throw new Error('handle channel response error');
+                    }
+                    return _getExtraChannelInfo(cid).then(function(info) {
+                        var notification = _setRespNotification(reqId, uid, target, isPermitted, type, info);
+                        _notifyTarget(socket, target, notification);
+                        return result;
+                    });
+                });
         }).catch(function(err) {
             SharedUtils.printError('reqRespHandler.js', 'channelRespAsync', err);
             throw new Error('response channel request fail');
@@ -104,7 +120,15 @@ exports.friendRespAsync = function(socket, data) {
         function(reqId, target, isPermitted) {
             var uid = socket.getAuthToken();
             var type = 'friend';
-            return _handleResp(socket, reqId, uid, target, isPermitted, type);
+            return _handleResp(socket, reqId, uid, target, isPermitted, type)
+                .then(function(result) {
+                    if (result === null) {
+                        throw new Error('handle friend response error');
+                    }
+                    var notification = _setRespNotification(reqId, uid, target, isPermitted, type, {});
+                    _notifyTarget(socket, target, notification);
+                    return result;
+                });
         }).catch(function(err) {
             SharedUtils.printError('reqRespHandler.js', 'friendRespAsync', err);
             throw new Error('response friend request fail');
@@ -183,27 +207,80 @@ function _handleResp(socket, reqId, uid, target, isPermitted, type, extraInfo) {
                 throw new Error('handle response operation fail');
             }
             return ReqRespStorage.saveRespAsync(reqId, uid, target, isPermitted);
-        }).then(function(result) {
-            if (result !== null) {
-                _notifyTarget(socket, target);
-            }
-            return result;
         });
 }
 
 /**
  * @Author: George_Chen
- * @Description: to notify target that he/her has unread request/response
+ * @Description: to push new notification data to target
  *
  * @param {Object}          socket, the client socket instance
  * @param {String}          target, the uid of target
+ * @param {Object}          data, the notification data
  */
-function _notifyTarget(socket, target) {
+function _notifyTarget(socket, target, data) {
     var targetChannel = 'user:' + target;
+    data.isNotification = false;
+    data.updatedTime = Date.now();
     socket.global.publish(targetChannel, {
-        service: 'reqResp',
-        clientHandler: 'onReqResp'
+        service: 'user',
+        clientHandler: 'onNotification',
+        params: data
     });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: for channel request/response, get the extra channel info
+ *
+ * @param {String}          cid, the channel id 
+ */
+function _getExtraChannelInfo(cid) {
+    return ChannelStorage.getChannelInfoAsync(cid)
+        .then(function(channel) {
+            return {
+                channelId: channel.basicInfo.channelId,
+                name: channel.basicInfo.name
+            };
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to create the new request notification data
+ *
+ * @param {Object}          saveResult, request save result (mongodb doc)
+ * @param {Object}          extraInfo, the extra info of this request
+ */
+function _setReqNotification(saveResult, extraInfo) {
+    saveResult.reqId = saveResult._id;
+    delete saveResult._id;
+    saveResult.extraInfo = extraInfo;
+    return saveResult;
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to create the new response notification data
+ *
+ * @param {String}          id, the request id
+ * @param {String}          uid, the sender uid
+ * @param {String}          targetUid, the uid of response target
+ * @param {Boolean}         isPermitted, the answer from host
+ * @param {String}          respType, the type of this response (channel or friend)
+ * @param {Object}          extraData, the extra infomation of the response notification
+ */
+function _setRespNotification(id, uid, targetUid, isPermitted, respType, extraData) {
+    return {
+        reqId: id,
+        sender: uid,
+        target: targetUid,
+        type: respType,
+        isReq: false,
+        isReaded: false,
+        respToPermitted: isPermitted,
+        extraInfo: extraData
+    };
 }
 
 // TODO:
@@ -213,9 +290,5 @@ function _notifyTarget(socket, target) {
 // };
 
 // exports.readReqRespAsync = function() {
-
-// };
-
-// exports.getUserReqRespAsync = function() {
 
 // };
