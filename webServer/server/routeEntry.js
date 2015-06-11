@@ -137,7 +137,7 @@ function _getWorkSpace(uid, channelId, storageManager) {
                 throw new Error('not auth to get channel resource');
             }
             return Promise.props({
-                channel: channelStorage.getChannelInfoAsync(uid, channelId),
+                channel: channelStorage.getChannelInfoAsync(channelId),
                 members: channelStorage.getMembersAsync(channelId),
                 status: channelStorage.getMemberStatusAsync(uid, channelId)
             });
