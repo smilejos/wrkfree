@@ -112,12 +112,12 @@ module.exports = React.createClass({
             self.executeAction(Drawing, {
                 channelId: self.props.channelId,
                 boardId: self.props.boardId,
-                chunks: DrawUtils.serializeRecordData({
+                chunks: {
                     fromX: prev.x,
                     fromY: prev.y,
                     toX: position.x,
                     toY: position.y
-                }),
+                },
                 drawOptions: self.props.drawInfo.drawOptions
             });
             prev = position;
@@ -187,8 +187,7 @@ module.exports = React.createClass({
         var bid = this.props.boardId;
         var ctx = _getDrawBoardCtx();
         var rawData = this.getStore(DrawTempStore).getLastDraw(cid, bid);
-        var data = DrawUtils.deSerializeRecordData(rawData.chunks);
-        DrawUtils.draw(ctx, data, rawData.drawOptions);
+        DrawUtils.draw(ctx, rawData.chunks, rawData.drawOptions);
     },
 
     /**

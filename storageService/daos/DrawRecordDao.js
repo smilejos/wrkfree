@@ -2,6 +2,7 @@
 var Mongoose = require('mongoose');
 var Promise = require('bluebird');
 var SharedUtils = require('../../sharedUtils/utils');
+var DrawUtils = require('../../sharedUtils/drawUtils');
 var DbUtil = require('../dbUtils');
 var Model = Mongoose.model('DrawRecord');
 
@@ -24,7 +25,7 @@ exports.saveAsync = function(channelId, boardId, record, drawOptions) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        record: _checkRecord(record),
+        record: DrawUtils.checkDrawRecordAsync(record),
         drawOptions: SharedUtils.argsCheckAsync(drawOptions, 'drawOptions'),
     }).then(function(drawDoc) {
         var newDraw = new Model(drawDoc);
@@ -391,26 +392,4 @@ function _archiveMany(condition, updateDoc, number) {
             };
             return Model.update(condition, updateDoc, options).execAsync();
         });
-}
-
-/**
- * @Author: George_Chen
- * @Description: check draw record is valid or not
- *         NOTE: draw record is a array of draw positions 
- *         position[0] = fromX
- *         position[1] = fromY
- *         position[2] = toX
- *         position[3] = toY
- *
- * @param {Array}           record, an array of drawing raw data
- */
-function _checkRecord(record) {
-    return Promise.map(record, function(position) {
-        return SharedUtils.fastArrayMap(position, function(item) {
-            if (item < 0) {
-                throw new Error('draw position is invlid');
-            }
-            return item;
-        });
-    });
 }

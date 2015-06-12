@@ -4,6 +4,7 @@ var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var DrawStorage = StorageManager.getService('Draw');
 var DrawWorker = require('../services/drawWorker');
+var DrawUtils = require('../../../sharedUtils/drawUtils');
 
 /**
  * Public API
@@ -19,7 +20,7 @@ exports.drawAsync = function(socket, data) {
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(data.chunks, 'array'),
+        DrawUtils.checkDrawChunksAsync(data.chunks),
         function(cid, bid, chunks) {
             var uid = socket.getAuthToken();
             return DrawStorage.streamRecordDataAsync(cid, bid, uid, chunks);
