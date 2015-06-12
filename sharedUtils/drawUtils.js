@@ -144,38 +144,6 @@ exports.draw = function(ctx, raw, options) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: serialize record data to an array
- *
- * @param {Object}          recordData, recordData object
- */
-exports.serializeRecordData = function(recordData) {
-    return [
-        recordData.fromX,
-        recordData.fromY,
-        recordData.toX,
-        recordData.toY
-    ];
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: deserialize raw record data
- *
- * @param {Object}          rawData, rawData of draw record
- */
-exports.deSerializeRecordData = function(rawData) {
-    return {
-        fromX: rawData[0],
-        fromY: rawData[1],
-        toX: rawData[2],
-        toY: rawData[3]
-    };
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: to generate a unique draw view id
  *
  * @param {String}          channelId, the channel id
