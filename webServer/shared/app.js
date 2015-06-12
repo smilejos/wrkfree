@@ -38,5 +38,6 @@ app.registerStore(require('./stores/WebcamStore'));
 app.registerStore(require('./stores/ConferenceStore'));
 app.registerStore(require('./stores/ToggleStore'));
 app.registerStore(require('./stores/EventToasterStore'));
+app.registerStore(require('./stores/NotificationStore'));
 
 module.exports = app;
