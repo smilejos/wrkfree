@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
 var DrawTempStore = require('../../../shared/stores/DrawTempStore');
+var GetDrawBoardAction = require('./getDrawBoard');
 
 /**
  * @Public API
@@ -62,7 +63,7 @@ function _cloneOptions(options) {
         copy[prop] = options[prop];
     });
     return copy;
-};
+}
 
 /**
  * @Author: George_Chen
