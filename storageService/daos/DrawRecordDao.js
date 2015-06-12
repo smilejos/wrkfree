@@ -25,7 +25,7 @@ exports.saveAsync = function(channelId, boardId, record, drawOptions) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        record: DrawUtils.checkDrawChunksAsync(record),
+        record: DrawUtils.checkDrawRecordAsync(record),
         drawOptions: SharedUtils.argsCheckAsync(drawOptions, 'drawOptions'),
     }).then(function(drawDoc) {
         var newDraw = new Model(drawDoc);

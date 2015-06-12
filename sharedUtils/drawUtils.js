@@ -18,21 +18,34 @@ if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
  * @Public API
  * @Author: George_Chen
  * @Description: check the draws chunks is valid or not
- *         NOTE:
- *         chunks[0] => fromX
- *         chunks[1] => fromY
- *         chunks[2] => toX
- *         chunks[3] => toY
- * @param {Array}       chunks, the rawData of draw record
+ * 
+ * @param {Number}       chunks.fromX, the x-axis value of prev draw position
+ * @param {Number}       chunks.fromY, the y-axis value of prev draw position
+ * @param {Number}       chunks.toX, the x-axis value of next draw position
+ * @param {Number}       chunks.toY, the y-axis value of next draw position
  */
 exports.checkDrawChunksAsync = function(chunks) {
-    return chunks;
-    // return Promise.map(chunks, function(position) {
-    //     if (position < 0) {
-    //         throw new Error('draw position is invlid');
-    //     }
-    //     return position;
-    // });
+    return Promise.props({
+        fromX: _checkDrawPosition(chunks.fromX),
+        fromY: _checkDrawPosition(chunks.fromY),
+        toX: _checkDrawPosition(chunks.toX),
+        toY: _checkDrawPosition(chunks.toY),
+    });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: check the draws record is valid or not
+ *         NOTE: currently we only assume that all elements in the record
+ *               is normal drawing chunks
+ * 
+ * @param {Array}       record, the data of draw record
+ */
+exports.checkDrawRecordAsync = function(record) {
+    return Promise.map(record, function(chunks) {
+        return exports.checkDrawChunksAsync(chunks);
+    });
 };
 
 /**
@@ -206,4 +219,17 @@ function _drawFromRecords(ctx, drawDocs) {
             exports.draw(ctx, rawData, doc.drawOptions);
         });
     });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: check draw chunks position is valid or not
+ *
+ * @param {Number}          position, the draw position value
+ */
+function _checkDrawPosition(position) {
+    if (!SharedUtils.isNumber(position) || position < 0) {
+        throw new Error('invalid draw position');
+    }
+    return position;
 }
