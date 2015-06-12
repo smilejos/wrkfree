@@ -3,7 +3,7 @@ var CreateStore = require('fluxible/utils/createStore');
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
 
-var OUTDATED_TIME_IN_MSCEOND = 10000;
+var OUTDATED_TIME_IN_MSECOND = 10000;
 
 /**
  * used to keep user's notifications
@@ -136,7 +136,7 @@ module.exports = CreateStore({
         }
         self.outdatedTimer = setTimeout(function() {
             self.isOutdated = true;
-        }, OUTDATED_TIME_IN_MSCEOND);
+        }, OUTDATED_TIME_IN_MSECOND);
     },
 
     getState: function() {
