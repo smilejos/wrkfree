@@ -20,7 +20,7 @@
  *     user can get specific channel's notification when he star a channel.
  */
 'use strict';
-var SocketCluster = require('sc2-client');
+var SocketCluster = require('socketcluster-client');
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 
@@ -64,7 +64,7 @@ exports.init = function(callback) {
     /**
      * secure socket after it initialized
      */
-    Socket.on('ready', function(state) {
+    Socket.on('connect', function(state) {
         if (!state.isAuthenticated) {
             return Socket.emit('auth', document.cookie, function(err) {
                 // TODO:

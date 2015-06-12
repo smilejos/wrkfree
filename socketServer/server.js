@@ -1,5 +1,5 @@
 'use strict';
-var SocketCluster = require('sc2').SocketCluster;
+var SocketCluster = require('socketcluster').SocketCluster;
 
 var socketCluster = new SocketCluster({
     workers: 1, // Number of worker processes
