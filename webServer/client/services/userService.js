@@ -4,6 +4,12 @@ var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
 
+var OnNotificationAction = require('../actions/onNotification');
+
+exports.onNotification = function(data) {
+    SocketUtils.execAction(OnNotificationAction, data, 'onNotification');
+};
+
 /**
  * the Users info cache on browser
  */
