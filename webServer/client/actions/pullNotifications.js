@@ -8,7 +8,7 @@ var SharedUtils = require('../../../sharedUtils/utils');
  * @Description: to pull user's notifications
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {Boolean}     data.isReaded, to indicate 
+ * @param {Boolean}     data.isReaded, to indicate pull targets is readed or unreaded
  */
 module.exports = function(actionContext, data) {
     return UserService.getNotificationsAsync({
