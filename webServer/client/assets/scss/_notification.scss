@@ -1,3 +1,5 @@
+$notice-width: 350px;
+$notice-action-width: 120px;
 
 /**
  * @Author: Jos Tung
@@ -8,8 +10,8 @@
     position: fixed;
     top: -100px;
     right: 10px;
-    width: 300px;
-    height: 300px;
+    width: $notice-width;
+    height: 320px;
     transition: 0.4s;
     visibility: hidden;
     opacity: 0;
@@ -17,6 +19,7 @@
     border-bottom: 1px rgba(0, 0, 0, .2);
     box-shadow: 0 2px 2px 2px rgba(0, 0, 0, .2);
     z-index: 4;
+    overflow: auto;
 }
 
 .NotificationShow {
@@ -24,65 +27,94 @@
     opacity: 1;
     visibility: visible;
 }
+
 /**
  * @Author: Jos Tung
  * @Description: this style for notice component using in Notification.jsx
- *  Note: the div stratum can refer below information.
+ *  NOTE: the div stratum can refer below information.
+ *  
+ *  LAST UPDATED: George_Chen, 06/10/2015
  *  --Notice
  *    --NoticeSender
  *    --NoticeContent
  *      --NoticeMessage
- *      --NOticeSender
+ *        --title
+ *        --description
+ *        --timeInfo
+ *    --NoticeAction
  */
 
 .Notice {
-    height: 50px;
+    height: 80px;
     padding: 4px;
     border-bottom-style: inset;
     border-bottom-width: 2px;
     border-bottom-color: #eee;
-
+    z-index: 4;
     .NoticeSender {
-        width: 40px;
+        padding-top: 18px;
+        width: 50px;
         float: left;
     }
-
     .NoticeContent {
-        height: 40px;
-        width: 250px;
-        float: left;
-        padding: 0px 10px;
-        font-family: 'Heiti TC';
-        color: #333;
-
-        .NoticeAction {
-            font-size: 10px;
-            line-height: 20px;
-            height: 20px;
-            padding: 0px 10px 0px 5px;
-            margin: 0px 10px;
-            float: left;
-            cursor: pointer;
-            transition: 0.3s;
-            border: 1px solid #777;
-            border-radius: 5px;
-            box-shadow: 0 0 1px 1px rgba(255,255,255,.8) inset, 0 1px 0 rgba(0,0,0,.3); 
-        }
-
-        .NoticeAction:hover {
-            background-color: #CCEBD6;
-            box-shadow: 0 1px 2px 2px rgba(0, 0, 0, .2);
-        }
-
-        .NoticeAction:last-child:hover {
-            background-color: #F5CCCC;
-            box-shadow: 0 1px 2px 2px rgba(0, 0, 0, .2);
-        }
-
+        @extend .baseFonts;
+        height: 80px;
+        width: $notice-width;
+        font-size: 14px;
         .NoticeMessage {
-            height: 20px;
-            font-size: 14px;
+            position: relative;
             line-height: 20px;
+            .title {
+                color: #000;
+                font-weight: bold;
+            }
+            .description {
+                height: 20px;
+                color: $grey-600;
+                .emphasis {
+                    font-size: 15px;
+                    font-weight: bold;
+                    color: $grey-700;
+                }
+            }
+            .time {
+                position: absolute;
+                top: 0px;
+                right: 10px;
+                width: 120px;
+                text-align: right;
+                color: $grey-400;
+                font-size: 12px;
+                font-weight: bold;
+            }
         }
     }
+    .NoticeAction {
+        width: $notice-width;
+        padding-top: 10px;
+        .action {
+            float: left;
+            width: $notice-action-width;
+            cursor:pointer;
+            transition: 0.3s;
+        }
+        .action-accept {
+            color: $green-700;
+        }
+        .action-reject {
+            color: $red-700;
+        }
+        .action-navigation {
+            color: $blue-700;
+        }
+        .action:hover {
+            font-weight: bold;
+        }
+    }
+}
+
+.Notice:hover {
+    background-color: $grey-100;
+    transition: 0.3s;
+    opacity: 0.95;
 }
