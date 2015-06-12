@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var Redis = require('redis');
 var SharedUtils = require('../../sharedUtils/utils');
+var DrawUtils = require('../../sharedUtils/drawUtils');
 
 var Configs = require('../../configs/config');
 var DbConfigs = Configs.get().db;
@@ -13,8 +14,6 @@ if (!DbConfigs) {
 var RECORD_DATA_LIMIT = 300;
 // if no streams arrived within 2 second, stream raw data will be expired
 var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = 2;
-// valid rawData is a array with [fromX, fromY, toX, toY]
-var RAW_RECORD_DATA_LENGTH = 4;
 
 /**
  * stream record data should be put at local scope
@@ -39,13 +38,11 @@ exports.streamRecordAsync = function(channelId, boardId, drawer, rawData) {
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
         SharedUtils.argsCheckAsync(drawer, 'md5'),
-        function(cid, bid, uid) {
-            if (rawData.length !== RAW_RECORD_DATA_LENGTH) {
-                throw new Error('record rawData invalid');
-            }
+        DrawUtils.checkDrawChunksAsync(rawData),
+        function(cid, bid, uid, chunks) {
             var streamKey = _getStreamKey(cid, bid, uid);
             return Promise.props({
-                pushLength: RedisClient.rpushAsync(streamKey, _serializeChunks(rawData)),
+                pushLength: RedisClient.rpushAsync(streamKey, _serializeChunks(chunks)),
                 ttlResult: RedisClient.expireAsync(streamKey, RECORD_STREAM_EXPIRE_TIME_IN_SECONDS)
             });
         }).then(function(data) {

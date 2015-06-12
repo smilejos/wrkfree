@@ -26,12 +26,13 @@ if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
  * @param {Array}       chunks, the rawData of draw record
  */
 exports.checkDrawChunksAsync = function(chunks) {
-    return Promise.map(chunks, function(position) {
-        if (position < 0) {
-            throw new Error('draw position is invlid');
-        }
-        return position;
-    });
+    return chunks;
+    // return Promise.map(chunks, function(position) {
+    //     if (position < 0) {
+    //         throw new Error('draw position is invlid');
+    //     }
+    //     return position;
+    // });
 };
 
 /**
@@ -71,9 +72,12 @@ exports.generateCleanRecord = function(cid, bid) {
     return {
         channelId: cid,
         boardId: bid,
-        record: [
-            [0, 0, BOARD_WIDTH, BOARD_HEIGHT]
-        ],
+        record: [{
+            fromX: 0,
+            fromY: 0,
+            toX: BOARD_WIDTH,
+            toY: BOARD_HEIGHT
+        }],
         isUndo: false,
         isArchived: false,
         drawOptions: {
@@ -199,8 +203,7 @@ function _drawFromImage(ctx, imageElement, imageSrc) {
 function _drawFromRecords(ctx, drawDocs) {
     return Promise.each(drawDocs, function(doc) {
         SharedUtils.fastArrayMap(doc.record, function(rawData) {
-            var data = exports.deSerializeRecordData(rawData);
-            exports.draw(ctx, data, doc.drawOptions);
+            exports.draw(ctx, rawData, doc.drawOptions);
         });
     });
 }

@@ -311,7 +311,7 @@ function _saveRecord(collection, doc) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(doc.boardId, 'boardId'),
-        record: SharedUtils.argsCheckAsync(doc.record, 'array'),
+        record: DrawUtils.checkDrawChunksAsync(doc.record),
         isUndo: doc.isUndo || false,
         isArchived: doc.isArchived || false,
         drawOptions: SharedUtils.argsCheckAsync(doc.drawOptions, 'drawOptions'),
