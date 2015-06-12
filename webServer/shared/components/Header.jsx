@@ -11,6 +11,7 @@ var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var ToggleComponent = require('../../client/actions/toggleComponent');
 var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
 var QuickSearchAction = require('../../client/actions/search/quickSearch');
+var ToggleNotifications = require('../../client/actions/toggleNotifications');
 
 /**
  * material UI compoents
@@ -132,9 +133,7 @@ module.exports = React.createClass({
     },
 
     _onNoticeToggle: function(){
-        this.executeAction(ToggleComponent, {
-            param: 'noticeVisiable'
-        });
+        this.executeAction(ToggleNotifications);
     },
 
 
@@ -192,7 +191,7 @@ module.exports = React.createClass({
                                 style={{'marginTop':'5px'}} 
                                 onAvatarClick={this._onAvatarClick} />
                             <FontIcon className="fa fa-bell" onClick={this._onNoticeToggle}/>
-                            <FontIcon className="fa fa-comments" onClick={this._onInboxToggle}/>
+                            <FontIcon className="fa fa-user" onClick={this._onInboxToggle}/>
                             <span className="mui-toolbar-separator">&nbsp;</span>
                         </div>
                     </ToolbarGroup>
