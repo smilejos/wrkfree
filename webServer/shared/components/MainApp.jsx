@@ -8,7 +8,6 @@ var MainAppStore = require('../stores/MainAppStore');
  * child components
  */
 var Header = require('./Header.jsx');
-var PrivateMsgBoxes = require('./PrivateMsgBoxes.jsx');
 var ChannelNav = require('./ChannelNav.jsx');
 var Webcam = require('./Webcam.jsx');
 var EventToaster = require('./EventToaster.jsx');
@@ -48,7 +47,6 @@ module.exports = React.createClass({
                 <RouteHandler route={this.state.route}/>
                 <Notifications />
                 <EventToaster />
-                <PrivateMsgBoxes />
             </div>
         );
     }
