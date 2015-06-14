@@ -55,7 +55,7 @@ module.exports = React.createClass({
             });
         }
         return (
-            <div className="ConferenceArea">
+            <div className="ConferenceArea" style={this.props.inlineStyle}>
                 {rtcComponents}
             </div>
         );

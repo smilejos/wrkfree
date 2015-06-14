@@ -109,12 +109,11 @@ $app-infoBox-width: 250px;
     background-color: $grey-300;
     color: $grey-600;
     opacity: 0.5;
-    z-index: 5;
+    z-index: 2;
 
     .rightControl {
         position: absolute;
         background-color: $color-background_1;
-        border-top: 1px #aaa solid;
         box-shadow: 0 3px 10px rgba(0,0,0,.23);
         right: 0px;
         bottom: 0px;
