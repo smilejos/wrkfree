@@ -1,10 +1,10 @@
 'use strict';
-var createStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
 var FriendViewName = 'friendView';
 
-module.exports = createStore({
+module.exports = CreateStore({
     storeName: 'FriendStore',
 
     initialize: function() {

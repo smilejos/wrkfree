@@ -1,5 +1,5 @@
 'use strict';
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 
 var EVENT_TIMEOUT_IN_MSECOND = 3000;
 

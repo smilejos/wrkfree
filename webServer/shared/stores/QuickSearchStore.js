@@ -1,5 +1,5 @@
 'use strict';
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 var Cache = require('lru-cache');
 var CachePolicy = {
     // the maximum number of key-value pair

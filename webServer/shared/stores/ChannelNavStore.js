@@ -1,10 +1,10 @@
 'use strict';
-var createStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
 
 
-module.exports = createStore({
+module.exports = CreateStore({
     storeName: 'ChannelNavStore',
 
     handlers: {
@@ -13,19 +13,7 @@ module.exports = createStore({
 
     initialize: function() {
         // test data for channelNav Info
-        this.navInfo = [{
-            channelId: 'e8075f24e77e220c056ab1926be69cf7',
-            channelName: 'wrkfree',
-            hostName: 'GeorgeChen'
-        }, {
-            channelId: 'test1234',
-            channelName: 'Development',
-            hostName: 'Normanywei'
-        }, {
-            channelId: 'test12356789',
-            channelName: 'UI',
-            hostName: 'SmileJos'
-        }];
+        this.navInfo = [];
         this.isActived = false;
         this.isNameValid = false;        
         // use "-1" to indicate that no channel create action

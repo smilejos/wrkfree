@@ -1,5 +1,5 @@
 'use strict';
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 
 /**
  * conference store used to track conference state
