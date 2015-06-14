@@ -1,6 +1,6 @@
 var React = require('react');
 var Router = require('react-router');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 
 /**
  * material UI compoents

@@ -1,5 +1,5 @@
 var PrivateBoxesStore = require('../stores/privateBoxesStore');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var React = require('react');
 var MsgBox = require('./common/msgBox.jsx');
 
