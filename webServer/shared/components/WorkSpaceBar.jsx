@@ -94,6 +94,10 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: switch video display or not
+     */
     _switchVideo: function() {
         this.executeAction(ToggleComponent, {
             param: 'conferenceVisible',
@@ -101,6 +105,10 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: switch Discussion display or not
+     */
     _switchChat: function() {
         this.executeAction(ToggleComponent, {
             param: 'discussionVisible',

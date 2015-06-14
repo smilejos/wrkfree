@@ -111,6 +111,9 @@ $app-infoBox-width: 250px;
     opacity: 0.5;
     z-index: 2;
 
+    /**
+     * define the switch buuton style of bottom setting bar
+     */
     .rightControl {
         position: absolute;
         background-color: $color-background_1;
