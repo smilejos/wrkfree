@@ -3,7 +3,13 @@ var Mongoose = require('mongoose');
 var Promise = require('bluebird');
 var SharedUtils = require('../../sharedUtils/utils');
 var DbUtil = require('../dbUtils');
-var UserModel = Mongoose.model('User');
+var Model = Mongoose.model('User');
+var CryptoUtils = require('../../sharedUtils/cryptoUtils');
+
+/**
+ * currently oauth providers
+ */
+var OauthProviders = ['facebook', 'google'];
 
 /************************************************
  *
@@ -14,20 +20,42 @@ var UserModel = Mongoose.model('User');
 /**
  * Public API
  * @Author: George_Chen
- * @Description: find the user by uid (email)
+ * @Description: find the user by his uid
  *
- * @param {String}          uid, user's uid
+ * @param {String}          id, user's uid
  */
-exports.findByUidAsync = function(uid) {
-    return SharedUtils.argsCheckAsync(uid, 'uid')
-        .then(function(validUid) {
-            var condition = {
-                email: validUid
-            };
-            var selectField = DbUtil.selectOriginDoc();
-            return UserModel.findOne(condition, selectField).lean().execAsync();
+exports.findByIdAsync = function(id) {
+    return SharedUtils.argsCheckAsync(id, 'md5')
+        .then(function(uid) {
+            var selectField = _getBasicInfoFields();
+            return Model.findById(uid, selectField).lean().execAsync();
+        }).then(function(doc) {
+            return _transformUid(doc);
         }).catch(function(err) {
-            SharedUtils.printError('UserDao', 'findByUidAsync', err);
+            SharedUtils.printError('UserDao', 'findByIdAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: find user by his email
+ *
+ * @param {String}          email, user's email
+ */
+exports.findByEmailAsync = function(email) {
+    return SharedUtils.argsCheckAsync(email, 'email')
+        .then(function(validEmail) {
+            var condition = {
+                email: validEmail
+            };
+            var selectField = _getBasicInfoFields();
+            return Model.findOne(condition, selectField).lean().execAsync();
+        }).then(function(doc) {
+            return _transformUid(doc);
+        }).catch(function(err) {
+            SharedUtils.printError('UserDao', 'findByEmailAsync', err);
             return null;
         });
 };
@@ -41,20 +69,17 @@ exports.findByUidAsync = function(uid) {
  */
 exports.findByGroupAsync = function(uids) {
     return Promise.map(uids, function(user) {
-        return SharedUtils.argsCheckAsync(user, 'uid');
+        return SharedUtils.argsCheckAsync(user, 'md5');
     }).then(function(userGroup) {
         var condition = {
-            email: {
+            _id: {
                 $in: userGroup
             }
         };
-        var selectField = {
-            nickName: DbUtil.select(true),
-            email: DbUtil.select(true),
-            avatar: DbUtil.select(true),
-            _id: DbUtil.select(false)
-        };
-        return UserModel.find(condition, selectField).lean().execAsync();
+        var selectField = _getBasicInfoFields();
+        return Model.find(condition, selectField).lean().execAsync();
+    }).map(function(info) {
+        return _transformUid(info);
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'findByGroupAsync', err);
         return [];
@@ -66,19 +91,19 @@ exports.findByGroupAsync = function(uids) {
  * @Author: George_Chen
  * @Description: check user is exist or not
  *
- * @param {String} uid, user's uid
+ * @param {String} email, user's email
  */
-exports.isUserExistAsync = function(uid) {
-    return SharedUtils.argsCheckAsync(uid, 'uid')
-        .then(function() {
+exports.isEmailUsedAsync = function(email) {
+    return SharedUtils.argsCheckAsync(email, 'email')
+        .then(function(validEmail) {
             var condition = {
-                email: uid
+                email: validEmail
             };
-            return UserModel.countAsync(condition);
+            return Model.countAsync(condition);
         }).then(function(count) {
             return (count > 0);
         }).catch(function(err) {
-            SharedUtils.printError('UserDao', 'isUserExistAsync', err);
+            SharedUtils.printError('UserDao', 'isEmailUsedAsync', err);
             throw err;
         });
 };
@@ -97,15 +122,10 @@ exports.findByNameAsync = function(queryString) {
             //         since they including <code>abc</code>. ggabcde ccabcffg abceedff
             var condition = {};
             condition.nickName = new RegExp(queryString + '.*', 'i');
-            var selectField = {
-                nickName: DbUtil.select(true),
-                email: DbUtil.select(true),
-                facebook: DbUtil.select(true),
-                google: DbUtil.select(true),
-                avatar: DbUtil.select(true),
-                _id: DbUtil.select(false)
-            };
-            return UserModel.find(condition, selectField).lean().execAsync();
+            var selectField = _getBasicInfoFields();
+            return Model.find(condition, selectField).lean().execAsync();
+        }).map(function(info) {
+            return _transformUid(info);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', 'findByNameAsync', err);
             return [];
@@ -122,13 +142,17 @@ exports.findByNameAsync = function(queryString) {
  */
 exports.findByOAuthAsync = function(oAuthId, provider) {
     return Promise.try(function() {
-        if (!_checkOAuthProvider(provider)) {
+        if (OauthProviders.indexOf(provider) === -1) {
             throw new Error('oauth provider is not support now');
         }
         var condition = {};
-        var selectField = DbUtil.selectOriginDoc();
+        var selectField = {};
+        selectField.email = DbUtil.select(true);
+        selectField.nickName = DbUtil.select(true);
         condition[provider] = oAuthId;
-        return UserModel.findOne(condition, selectField).lean().execAsync();
+        return Model.findOne(condition, selectField).lean().execAsync();
+    }).then(function(doc) {
+        return _transformUid(doc);
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'findByOAuthAsync', err);
         return null;
@@ -143,46 +167,70 @@ exports.findByOAuthAsync = function(oAuthId, provider) {
  * @param {Object} userInfo, the new users information
  */
 exports.addNewUserAsync = function(userInfo) {
-    return Promise.join(
-        SharedUtils.argsCheckAsync(userInfo.email, 'uid'),
-        SharedUtils.argsCheckAsync(userInfo.familyName, 'string'),
-        SharedUtils.argsCheckAsync(userInfo.givenName, 'string'),
-        function() {
-            if (userInfo.gender !== 'male' && userInfo.gender !== 'female') {
-                throw new Error('user gender is not in correct format');
-            }
-            // null "locale" value will be take care by the default value 
-            if (!!userInfo.locale && !SharedUtils.isString(userInfo.locale)) {
-                throw new Error('user locale should only be string');
-            }
-            // TODO: avatar should be checked
-            userInfo.nickName = userInfo.givenName + userInfo.familyName;
-            var newUser = new UserModel(userInfo);
-            // make mongoose cache outdated
-            UserModel.find()._touchCollectionCheck(true);
-            return newUser.saveAsync();
-        }).catch(function(err) {
-            SharedUtils.printError('UserDao', 'addNewUserAsync', err);
-            return null;
-        });
+    return Promise.props({
+        _id: CryptoUtils.getMd5Hex(userInfo.email),
+        email: SharedUtils.argsCheckAsync(userInfo.email, 'email'),
+        givenName: SharedUtils.argsCheckAsync(userInfo.givenName, 'string'),
+        familyName: SharedUtils.argsCheckAsync(userInfo.familyName, 'string'),
+        nickName: userInfo.givenName + userInfo.familyName,
+        avatar: SharedUtils.argsCheckAsync(userInfo.avatar, 'avatar'),
+        locale: SharedUtils.argsCheckAsync(userInfo.locale, 'alphabet'),
+        facebook: userInfo.facebook || '',
+        google: userInfo.google || ''
+    }).then(function(info) {
+        if (userInfo.gender !== 'male' && userInfo.gender !== 'female') {
+            throw new Error('gender is invalid');
+        }
+        if (!SharedUtils.isNickName(info.nickName)) {
+            throw new Error('nickName format is invalid');
+        }
+        if (!SharedUtils.isNormalChar(info.facebook) || !SharedUtils.isNormalChar(info.google)) {
+            throw new Error('oauth provider is invalid');
+        }
+        info.gender = userInfo.gender;
+        var newUser = new Model(info);
+        // make mongoose cache outdated
+        Model.find()._touchCollectionCheck(true);
+        return newUser.saveAsync();
+    }).then(function(result) {
+        return DbUtil.checkDocumentSaveStatusAsync(result);
+    }).then(function(doc) {
+        return _transformUid(doc);
+    }).catch(function(err) {
+        SharedUtils.printError('UserDao', 'addNewUserAsync', err);
+        return null;
+    });
 };
 
 /************************************************
  *
- *          internal functions
+ *           internal functions
  *
  ************************************************/
 
 /**
  * @Author: George_Chen
- * @Description: simply check the oauth provider is support or not
+ * @Description: transform field from _id to uid
+ *
+ * @param {Object}          doc, user document
  */
-function _checkOAuthProvider(provider) {
-    switch (provider) {
-        case 'google':
-        case 'facebook':
-            return true;
-        default:
-            return false;
+function _transformUid(doc) {
+    if (!doc) {
+        throw new Error('user document not exist');
     }
+    doc.uid = doc._id;
+    delete doc._id;
+    return doc;
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: get the basic infomation of user document
+ *         NOTE: currently we request only nickName and avatar
+ */
+function _getBasicInfoFields() {
+    return {
+        nickName: DbUtil.select(true),
+        avatar: DbUtil.select(true)
+    };
 }

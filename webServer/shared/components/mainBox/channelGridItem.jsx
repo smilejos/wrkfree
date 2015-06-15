@@ -1,4 +1,5 @@
 var React = require('react');
+var FluxibleMixin = require('fluxible').Mixin; 
 var NavigationMixin = require('react-router').Navigation;
 
 /**
@@ -7,6 +8,11 @@ var NavigationMixin = require('react-router').Navigation;
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 var Paper = Mui.Paper;
+
+/**
+ * actions
+ */
+var NavToBoard = require('../../../client/actions/draw/navToBoard');
 
 /**
  * child components
@@ -27,11 +33,11 @@ var ChannelSnapshot = require('./channelSnapshot.jsx');
  * @param {String}      this.props.snapshotUrl, channel's drawing snapshot url 
  * @param {String}      this.props.memberList, channel's member list
  * @param {String}      this.props.time, the timestamp that user last visited
- * @param {Boolean}     this.props.isSubscribed, to inform channel has been subscribed or not
+ * @param {Boolean}     this.props.isStarred, to inform channel has been subscribed or not
  * @param {Boolean}     this.props.isRtcOn, an status to inform channel currently has conference
  */
 module.exports = React.createClass({
-    mixins: [NavigationMixin],
+    mixins: [FluxibleMixin, NavigationMixin],
 
     getInitialState: function() {
         return {
@@ -63,20 +69,25 @@ module.exports = React.createClass({
      * handle event that user click the enter icon
      */
     _onEnterIconClick: function(channelId) {
-        this.transitionTo('/app/channel/'+this.props.channelId);
+        var info = this.props.channelInfo;
+        this.executeAction(NavToBoard, {
+            urlNavigator: this.transitionTo,
+            channelId: info.channelId,
+            boardId: info.lastBaord
+        });
     },
 
     render: function(){
-        var info = this.props;
+        var info = this.props.channelInfo;
         return (
             <div className="ChannelGridItem" onClick={this._onClick}>
                 <Paper zDepth={this.state.zDepth} rounded={false}
                     onMouseOver={this._onMouseOver} onMouseOut={this._onMouseOut}>
                     <ChannelSummary 
-                        channelName={this.props.channelName}
-                        hostName={this.props.hostName}
-                        isRtcOn={this.props.isRtcOn} />
-                    <ChannelHostInfo hostAvatar={this.props.hostAvatar} />
+                        channelName={info.channelName}
+                        hostName={info.hostInfo.nickName}
+                        isRtcOn={info.isRtcOn} />
+                    <ChannelHostInfo hostAvatar={info.hostInfo.avatar} />
                     <ChannelSnapshot url={info.snapshotUrl}/>
                     <ChannelMembers members={info.memberList} />
                     <div className="ChannelTimestamp Right">
@@ -84,7 +95,7 @@ module.exports = React.createClass({
                             iconClassName="fa fa-sign-in" 
                             tooltip={'Enter this channel'} 
                             onClick={this._onEnterIconClick}/>
-                        {info.time}
+                        {info.visitTime}
                     </div>
                 </Paper>
             </div>

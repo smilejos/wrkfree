@@ -1,0 +1,30 @@
+$quick-search-result-width: 800px;
+$quick-search-result-height: 250px;
+$quick-search-no-result-height: 100px;
+
+/**
+ * the style of QuickSearch
+ */
+.QuickSearch {
+    @extend .mainBox, .baseFonts;
+    background-color: $color-background_2;
+    .searchTitle {
+        margin-top: 20px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #2D2D2D;
+    }
+    .searchResults {
+        width: $quick-search-result-width;
+        height: $quick-search-result-height;
+        margin-left: $base-dashboard-content-left;
+    }
+    .noResult {
+        margin-top: 60px;
+        height: $quick-search-no-result-height;
+        font-size: 36px;
+        font-weight: bold;
+        font-family: monospace;
+        color: $grey-500;
+    }
+}

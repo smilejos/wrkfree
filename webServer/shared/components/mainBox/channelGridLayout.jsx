@@ -40,15 +40,7 @@ module.exports = React.createClass({
             });
             return (
                 <div key={index}>
-                    <ChannelGridItem 
-                        channelId={item.channelId}    
-                        channelName={item.channelName}
-                        hostName={item.hostInfo.nickName}
-                        hostAvatar={item.hostInfo.avatar}
-                        snapshotUrl={item.snapshotUrl}
-                        memberList={item.memberList}
-                        time={item.visitTime}
-                        isRtcOn={item.isRtcOn} />
+                    <ChannelGridItem channelInfo={item} />
                 </div>
             );
         });

@@ -3,6 +3,13 @@ var server = express();
 var port = process.env.PORT || 3000;
 var Env = process.env.NODE_ENV || 'development';
 
+/**
+ * setup configurations for web server
+ */
+var Configs = require('../../configs/config');
+Configs.import('params', require('../../configs/parameters.json'));
+Configs.import('db', require('../../configs/db.json')[Env]);
+
 // needed when we get the ".jsx" files
 require('node-jsx').install({
     extension: '.jsx'
@@ -12,14 +19,15 @@ require('node-jsx').install({
 var App = require('../shared/app');
 
 var StorageDir = '../../storageService/';
-var StorageManager = require(StorageDir + 'storageManager')(require(StorageDir + 'configs'));
+var StorageManager = require(StorageDir + 'storageManager');
+StorageManager.connectDb();
 
 /**
  * Configurations
  */
 require('./configs/passport')();
 require('./configs/express')(server);
-require('./configs/routes')(server, StorageManager);
+require('./configs/routes')(server);
 
 server.listen(port);
 

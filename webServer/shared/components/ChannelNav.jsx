@@ -4,11 +4,18 @@ var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible').Mixin;
 var SharedUtils = require('../../../sharedUtils/utils');
 var ChannelNavStore = require('../stores/ChannelNavStore');
+var HeaderStore = require('../stores/HeaderStore');
+
+/**
+ * actions
+ */
+var CreateChannel = require('../../client/actions/channel/createChannel');
 
 /**
  * child components
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var NavToBoard = require('../../client/actions/draw/navToBoard');
 
 /**
  * material UI compoents
@@ -24,7 +31,7 @@ var FlatButton = Mui.FlatButton;
  *
  * @param {Array}         this.state.navInfo, an array of channel navigation info,
  * @param {String}        navInfo[i].channelId, target's channel id,
- * @param {String}        navInfo[i].partialChannelName, target's channel name (without host uid)
+ * @param {String}        navInfo[i].channelName, target's channel name (without host uid)
  * @param {String}        navInfo[i].hostName, target channel's hostname
  * @param {Boolean}       this.state.isNameValid, to check creating channel name is valid or not
  * @param {Boolean}       this.state.isActived, indicate that channel nav should open or close
@@ -42,10 +49,36 @@ module.exports = React.createClass({
      */
     onStoreChange: function() {
         var state = this.getStore(ChannelNavStore).getState();
+        if (state.createdChannel !== -1) {
+            return this._checkCreatedChannel(state.createdChannel);
+        }
         if (state.isActived !== this.state.isActived) {
             this.refs.channelNav.toggle();
         }
         this.setState(state);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to check the result of create channel
+     *
+     * @param {Object}        createdChannel, the created channel
+     */
+    _checkCreatedChannel: function(createdChannel) {
+        if (!createdChannel) {
+            return;
+            // TODO: create Channel fail
+        }
+        var toggleMode = {
+            open: false
+        };
+        this.refs.channelName.clearValue();
+        this.executeAction(ToggleChannelNav, toggleMode);
+        this.executeAction(NavToBoard, {
+            urlNavigator: this.transitionTo,
+            channelId: createdChannel.channelId,
+            boardId: 0
+        });
     },
 
     /**
@@ -88,13 +121,8 @@ module.exports = React.createClass({
      * @Description: handler for user create channel
      */
     _onCreateChannel: function() {
-        var name = this.refs.channelName.getValue();
-        var toggleMode = {
-            open: false
-        };
-        this.refs.channelName.clearValue();
-        this.executeAction(ToggleChannelNav, toggleMode, function(){
-            // TODO: execute create channel action here
+        this.executeAction(CreateChannel, {
+            name: this.refs.channelName.getValue()
         });
     },
 
@@ -160,8 +188,8 @@ module.exports = React.createClass({
         var navInfo = this.state.navInfo;
         var navMenu = SharedUtils.fastArrayMap(navInfo, function(item){
             return {
-                route: '/app/channel/'+item.channelId,
-                text: item.partialChannelName + ' @'+item.hostName
+                route: '/app/workspace/'+item.channelId + '?board=1',
+                text: item.channelName + ' @'+item.hostName
             };
         });
         navMenu.unshift({

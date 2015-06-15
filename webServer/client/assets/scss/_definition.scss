@@ -1,3 +1,4 @@
+
 /************************************************
  *
  *            App defintion main color 
@@ -51,4 +52,18 @@ $color-boxBody: #5E807F;
 
 .Center {
     text-align: center;
+}
+
+/************************************************
+ *
+ *            App Display and Visible defintion
+ *
+ ************************************************/
+
+.show {
+    visibility: visible;
+}
+
+.hide {
+    visibility: hidden;
 }

@@ -1,11 +1,39 @@
 'use strict';
-var createStore = require('fluxible/utils/createStore');
+var Promise = require('bluebird');
+var CreateStore = require('fluxible/utils/createStore');
+var SharedUtils = require('../../../sharedUtils/utils');
 
-var HeaderStore = createStore({
+var HeaderStore = CreateStore({
     storeName: 'HeaderStore',
+    handlers: {
+        'ON_NOTIFY': '_onNotify',
+        'ON_MSG_NOTIFY': '_onMsgNotify'
+    },
 
     initialize: function() {
         this.user = {};
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for updating the notification state
+     *
+     * @param {Boolean}      hasNotify, notification state
+     */
+    _onNotify: function(hasNotify) {
+        this.hasNotification = hasNotify;
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for updating the unread message state
+     *
+     * @param {Boolean}      hasNotify, notification state
+     */
+    _onMsgNotify: function(hasNotify) {
+        this.hasUnreadMsgs = hasNotify;
+        this.emitChange();
     },
 
     /**
@@ -18,14 +46,29 @@ var HeaderStore = createStore({
      * @param {Boolean}      state.hasNotification, login user has notification or not
      */
     polyfillAsync: function(state) {
-        this.user = {
-            uid: state.user.email,
-            avatar: state.user.avatar,
-            name: state.user.name
-        };
-        this.hasUnreadMsgs = state.hasUnreadMsgs;
-        this.hasNotification = state.hasNotification;
-        this.emitChange();
+        var self = this;
+        return Promise.try(function() {
+            self.user = {
+                uid: state.user.uid,
+                avatar: state.user.avatar,
+                nickName: state.user.nickName
+            };
+            self.hasUnreadMsgs = state.hasUnreadMsgs;
+            self.hasNotification = state.hasNotification;
+            self.emitChange();
+        }).catch(function(err) {
+            SharedUtils.printError('HeaderStore.js', 'polyfillAsync', err);
+            throw err;
+        });
+    },
+
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: for getting current user's self information
+     */
+    getSelfInfo: function() {
+        return this.user;
     },
 
     getState: function() {
@@ -42,6 +85,8 @@ var HeaderStore = createStore({
 
     rehydrate: function(state) {
         this.user = state.userInfo;
+        this.hasUnreadMsgs = state.hasUnreadMsgs;
+        this.hasNotification = state.hasNotification;
     }
 });
 

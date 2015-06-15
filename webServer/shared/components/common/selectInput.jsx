@@ -29,7 +29,7 @@ module.exports = React.createClass({
      */
     _handleChange: function(event) {
         if (SharedUtils.isFunction(this.props.handleChange)) {
-            this.props.handleChange(this.props.field, value);
+            this.props.handleChange(this.props.field, event.target.value);
         }
     },
 

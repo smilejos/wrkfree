@@ -8,8 +8,10 @@ var MainAppStore = require('../stores/MainAppStore');
  * child components
  */
 var Header = require('./Header.jsx');
-var PrivateMsgBoxes = require('./PrivateMsgBoxes.jsx');
 var ChannelNav = require('./ChannelNav.jsx');
+var Webcam = require('./Webcam.jsx');
+var EventToaster = require('./EventToaster.jsx');
+var Notifications = require('./common/Notifications.jsx');
 
 module.exports = React.createClass({
     /**
@@ -40,9 +42,11 @@ module.exports = React.createClass({
         return (
             <div>
                 <Header />
+                <Webcam />
                 <ChannelNav />
-                <RouteHandler appInfo={this.state}/>
-                <PrivateMsgBoxes />
+                <RouteHandler route={this.state.route}/>
+                <Notifications />
+                <EventToaster />
             </div>
         );
     }

@@ -1,0 +1,12 @@
+{
+    "draw": {
+        "boardWidth": 900,
+        "boardHeight": 500
+    },
+    "rtc": {
+        "workQueueType": "rtc",
+        "sessionTimeoutInSecond": 100,
+        "notificationTimeoutInMSecond": 3000,
+        "notificationDelayInMSecond": 2000
+    }
+}

@@ -1,6 +1,5 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
-var Configs = require('../configs');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var UserTemp = require('../tempStores/UserTemp');
@@ -20,7 +19,7 @@ var UserTemp = require('../tempStores/UserTemp');
  */
 exports.addUserAsync = function(userInfo) {
     return Promise.try(function() {
-        return UserDao.isUserExistAsync(userInfo.email);
+        return UserDao.isEmailUsedAsync(userInfo.email);
     }).then(function(exist) {
         return (exist ? new Error('user is exist') : UserDao.addNewUserAsync(userInfo));
     }).catch(function(err) {
@@ -43,10 +42,7 @@ exports.oAuthLoginAsync = function(clientId, provider) {
             if (!userInfo) {
                 return null;
             }
-            return {
-                email: userInfo.email,
-                name: userInfo.nickName
-            };
+            return userInfo;
         });
 };
 
@@ -68,10 +64,10 @@ exports.findUsersAsync = function(findString) {
  *
  * @param {String}      uid, user id
  */
-exports.isUserExistAsync = function(uid) {
-    return UserDao.isUserExistAsync(uid)
+exports.isEmailUsedAsync = function(uid) {
+    return UserDao.isEmailUsedAsync(uid)
         .catch(function(err) {
-            SharedUtils.printError('UserService', 'isUserExistAsync', err);
+            SharedUtils.printError('UserService', 'isEmailUsedAsync', err);
             throw err;
         });
 };
@@ -88,10 +84,7 @@ exports.getUserAsync = function(user) {
         if (SharedUtils.isArray(user)) {
             return UserDao.findByGroupAsync(user);
         }
-        if (SharedUtils.isEmail(user)) {
-            return UserDao.findByUidAsync(user);
-        }
-        throw new Error('not an valid user');
+        return UserDao.findByIdAsync(user);
     }).catch(function(err) {
         SharedUtils.printError('UserService', 'getUserAsync', err);
         return null;
@@ -107,11 +100,51 @@ exports.getUserAsync = function(user) {
  * @param  {String}           sid, user's web session id
  */
 exports.isUserSessionAuthAsync = function(user, sid) {
-    return UserTemp.getWebSessionAsync(user, sid)
-        .then(function(rawInfo) {
-            return (user === JSON.parse(rawInfo).passport.user.email);
+    return Promise.join(
+        SharedUtils.argsCheckAsync(user, 'md5'),
+        UserTemp.getWebSessionAsync(sid),
+        function(validUid, rawSession) {
+            return (validUid === JSON.parse(rawSession).passport.user.uid);
         }).catch(function(err) {
-            SharedUtils.printError('UserService', 'getSessAuthAsync', err);
+        SharedUtils.printError('UserService', 'getSessAuthAsync', err);
+        return false;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: binding current socket and set to online status
+ *
+ * @param  {String}           uid, user's id
+ * @param  {String}           socketId, websocket id
+ */
+exports.userEnterAsync = function(uid, socketId) {
+    return Promise.all([
+        UserTemp.bindSocketAsync(uid, socketId),
+        UserTemp.enterAsync(uid),
+    ]).catch(function(err) {
+        SharedUtils.printError('UserService', 'userEnterAsync', err);
+        return false;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: unbinding current socket and check user should be offline or not
+ *
+ * @param  {String}           uid, user's id
+ * @param  {String}           socketId, websocket id
+ */
+exports.userLeaveAsync = function(uid, socketId) {
+    return UserTemp.unbindSocketAsync(uid, socketId)
+        .then(function() {
+            return UserTemp.isSocketExistAsync(uid);
+        }).then(function(socketExist) {
+            return (socketExist ? null : UserTemp.leaveAsync(uid));
+        }).catch(function(err) {
+            SharedUtils.printError('UserService', 'userLeaveAsync', err);
             return false;
         });
 };

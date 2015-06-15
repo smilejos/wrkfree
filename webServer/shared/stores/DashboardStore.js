@@ -13,7 +13,7 @@ var Snapshots = [
     'https://goo.gl/YqzlWS',
     'https://goo.gl/0DxoSH',
     'https://goo.gl/VXPGaZ',
-    'http://goo.gl/00t6Mh'
+    'https://goo.gl/00t6Mh'
 ];
 
 
@@ -23,6 +23,7 @@ module.exports = createStore({
     initialize: function() {
         this.layout = 'grid';
         this.channels = [];
+        this.isPolyFilled = null;
     },
 
     /**
@@ -36,29 +37,31 @@ module.exports = createStore({
     polyfillAsync: function(state) {
         this.layout = state.layout || 'grid';
         return Promise.map(state.channels, function(item, index) {
-            var channelNameInfo = item.channelName.split('#');
-            var hostUid = channelNameInfo[0];
-            var partialChannelName = channelNameInfo[1];
-            var host;
-            // extract host info from members
-            for (var i=0;i<item.members.info.length; ++i) {
-                if (item.members.info[i].email === hostUid) {
-                    host = item.members.info.splice(i, 1)[0];
-                    break;
+            var hostIndex = 0;
+            var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
+                if (info.uid === item.channel.host) {
+                    hostIndex = index;
                 }
-            }
+                return {
+                    uid: info.uid,
+                    nickName: info.nickName,
+                    avatar: info.avatar
+                };
+            });
             // return channel item object
             return {
-                channelId: item.channelId,
-                channelName: partialChannelName,
-                hostInfo: host,
-                memberList: item.members.info,
+                channelId: item.channel.channelId,
+                channelName: item.channel.name,
+                hostInfo: members.splice(hostIndex, 1)[0],
+                memberList: members,
                 snapshotUrl: Snapshots[index] || SnapshotError,
-                isSubscribed: item.isSubscribed,
+                isStarred: item.isStarred,
                 isRtcOn: item.rtcStatus,
-                visitTime: item.visitTime
+                visitTime: item.visitTime,
+                lastBaord: item.lastBaord
             };
         }).bind(this).then(function(result) {
+            this.isPolyFilled = true;
             this.channels = result;
             this.emitChange();
         }).catch(function(err) {
@@ -81,5 +84,6 @@ module.exports = createStore({
     rehydrate: function(state) {
         this.layout = state.layout;
         this.channels = state.channels;
+        this.isPolyFilled = !!state;
     }
 });

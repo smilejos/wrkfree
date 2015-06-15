@@ -69,10 +69,10 @@ webpackConfig = {
         filename: 'bundle.js'
     },
     module: {
-        loaders: [{
-            test: /\.jsx$/,
-            loader: 'jsx-loader'
-        }]
+        loaders: [
+            { test: /\.jsx$/, loader: 'jsx-loader'},
+            { test: /\.json$/, loader: 'json-loader'}
+        ]
     },
     node: {
         // make "fs" module as empty object "{}" 
@@ -123,7 +123,8 @@ gulp.task('compass', function() {
             keepBreaks: true,
             cache: true // this add-on is gulp only
         }))
-        .pipe(gulp.dest(paths.destCSS));
+        .pipe(gulp.dest(paths.destCSS))
+        .pipe(connect.reload());
 });
 
 /**

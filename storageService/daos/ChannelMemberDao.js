@@ -6,6 +6,8 @@ var DbUtil = require('../dbUtils');
 var SharedUtils = require('../../sharedUtils/utils');
 var ObjectAssign = require('object-assign');
 
+var BOARD_NUM_MAXIMU = 100;
+
 /************************************************
  *
  *           Public APIs
@@ -15,35 +17,42 @@ var ObjectAssign = require('object-assign');
 /**
  * Public API
  * @Author: George_Chen
- * @Description: create an channel member document
+ * @Description: create a document of normal channel member
  *
  * @param {String}          member, the member uid
  * @param {String}          channelId, channel id
- * @param {String}          type, channel type
- * @param {String}          name, full channel name
  * @param {Boolean}         isChannelHost, the host flag
  */
-exports.addMemberAsync = function(member, channelId, type, name, isChannelHost) {
+exports.addAsync = function(member, channelId, isChannelHost) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, 'uid'),
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId'),
-        channelName: SharedUtils.argsCheckAsync(name, 'channelName', type),
-        channelType: type,
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         isHost: SharedUtils.argsCheckAsync(isChannelHost, 'boolean'),
-        isSubscribed: isChannelHost,
+        isStarred: isChannelHost,
         visitCounts: (isChannelHost ? 1 : 0),
         lastVisitTime: (isChannelHost ? Date.now() : new Date(0))
     }).then(function(doc) {
-        return new Model(doc);
-    }).then(function(newMember) {
-        // make mongoose cache outdated
-        Model.find()._touchCollectionCheck(true);
-        return newMember.saveAsync();
-    }).then(function(result) {
-        return DbUtil.checkDocumentSaveStatusAsync(result);
-    }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'addMemberAsync', err);
-        return null;
+        return _save(doc, 'addMemberAsync');
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: create a document for 1on1 channel member
+ *
+ * @param {String}          member, the member uid
+ * @param {String}          channelId, channel id
+ */
+exports.add1on1Async = function(member, channelId) {
+    return Promise.props({
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        is1on1: true,
+        isHost: true,
+        isStarred: true
+    }).then(function(doc) {
+        return _save(doc, 'add1on1MemberAsync');
     });
 };
 
@@ -55,14 +64,14 @@ exports.addMemberAsync = function(member, channelId, type, name, isChannelHost) 
  * @param {String}  member, the member's id
  * @param {String}  channelId, the channel identifier
  */
-exports.delMemberAsync = function(member, channelId) {
+exports.deleteAsync = function(member, channelId) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, 'uid'),
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         return _remove(condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'delMemberAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'delMemberAsync', err);
         throw err;
     });
 };
@@ -75,13 +84,13 @@ exports.delMemberAsync = function(member, channelId) {
  *
  * @param {String}          channelId, channel id
  */
-exports.delChannelAsync = function(channelId) {
+exports.deleteByChannelAsync = function(channelId) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         return _remove(condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'delChannelAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'delChannelAsync', err);
         throw err;
     });
 };
@@ -94,18 +103,17 @@ exports.delChannelAsync = function(channelId) {
  * NOTE: if type is not "public" or "private", then type restriction will not added
  *
  * @param {String}      member, member's id
- * @param {String}      type, type of channel
  */
-exports.findByUidAsync = function(member, type) {
+exports.findByUidAsync = function(member, is1on1) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, 'uid')
+        member: SharedUtils.argsCheckAsync(member, 'md5')
     }).then(function(condition) {
-        if (SharedUtils.isValidChannelType(type)) {
-            condition.channelType = type;
+        if (SharedUtils.isBoolean(is1on1)) {
+            condition.is1on1 = is1on1;
         }
         return _find(false, condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'findByUidAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'findByUidAsync', err);
         return [];
     });
 };
@@ -119,13 +127,13 @@ exports.findByUidAsync = function(member, type) {
  */
 exports.findByHostUidAsync = function(host) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(host, 'uid'),
-        channelType: 'public',
-        isHost: true
+        member: SharedUtils.argsCheckAsync(host, 'md5'),
+        isHost: true,
+        is1on1: false
     }).then(function(condition) {
         return _find(false, condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'findByHostUidAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'findByHostUidAsync', err);
         return [];
     });
 };
@@ -137,13 +145,16 @@ exports.findByHostUidAsync = function(host) {
  *
  * @param {String}          channelId, channel id
  */
-exports.findByChannelAsync = function(channelId) {
+exports.findByChannelAsync = function(channelId, is1on1) {
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
     }).then(function(condition) {
+        if (SharedUtils.isBoolean(is1on1)) {
+            condition.is1on1 = is1on1;
+        }
         return _find(false, condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'findByChannelAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'findByChannelAsync', err);
         return [];
     });
 };
@@ -156,14 +167,17 @@ exports.findByChannelAsync = function(channelId) {
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
  */
-exports.findMemberAsync = function(member, channelId) {
+exports.findMemberAsync = function(member, channelId, is1on1) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, 'uid'),
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
+        if (SharedUtils.isBoolean(is1on1)) {
+            condition.is1on1 = is1on1;
+        }
         return _find(true, condition);
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'findMemberAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'findMemberAsync', err);
         return null;
     });
 };
@@ -179,7 +193,7 @@ exports.findMemberAsync = function(member, channelId) {
 exports.isExistAsync = function(member, channelId) {
     return _isExist(member, channelId, {})
         .catch(function(err) {
-            SharedUtils.printError('ChannelMemberDao', 'isExistAsync', err);
+            SharedUtils.printError('ChannelMemberDao.js', 'isExistAsync', err);
             throw err;
         });
 };
@@ -192,11 +206,11 @@ exports.isExistAsync = function(member, channelId) {
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
  */
-exports.isSubscribedAsync = function(member, channelId) {
+exports.isStarredAsync = function(member, channelId) {
     return _isExist(member, channelId, {
-        isSubscribed: true
+        isStarred: true
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'isSubscribedAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'isStarredAsync', err);
         throw err;
     });
 };
@@ -213,7 +227,7 @@ exports.isRtcAsync = function(member, channelId) {
     return _isExist(member, channelId, {
         isRtc: true
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'isRtcAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'isRtcAsync', err);
         throw err;
     });
 };
@@ -230,7 +244,7 @@ exports.isHostAsync = function(member, channelId) {
     return _isExist(member, channelId, {
         isHost: true
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'isHostAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'isHostAsync', err);
         throw err;
     });
 };
@@ -247,7 +261,7 @@ exports.updateMsgAsync = function(member, channelId) {
     return _update(member, channelId, {
         msgSeenTime: Date.now()
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'updateMsgAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'updateMsgAsync', err);
         throw err;
     });
 };
@@ -263,14 +277,14 @@ exports.updateMsgAsync = function(member, channelId) {
  */
 exports.updateDrawAsync = function(member, channelId, boardId) {
     return Promise.try(function() {
-        if (boardId >= 0 && boardId < 100) {
+        if (boardId >= 0 && boardId < BOARD_NUM_MAXIMU) {
             return _update(member, channelId, {
-                lastUseBoard: boardId
+                lastUsedBoard: boardId
             });
         }
         throw new Error('boardId is invalid');
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'updateDrawAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'updateDrawAsync', err);
         throw err;
     });
 };
@@ -291,7 +305,7 @@ exports.updateRtcAsync = function(member, channelId, status) {
                 isRtc: validStatus
             });
         }).catch(function(err) {
-            SharedUtils.printError('ChannelMemberDao', 'updateRtcAsync', err);
+            SharedUtils.printError('ChannelMemberDao.js', 'updateRtcAsync', err);
             throw err;
         });
 };
@@ -312,7 +326,7 @@ exports.updateVisitAsync = function(member, channelId) {
         },
         lastVisitTime: Date.now()
     }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao', 'updateVisitAsync', err);
+        SharedUtils.printError('ChannelMemberDao.js', 'updateVisitAsync', err);
         throw err;
     });
 };
@@ -330,10 +344,10 @@ exports.updateSubscribedAsync = function(member, channelId, status) {
     return SharedUtils.argsCheckAsync(status, 'boolean')
         .then(function(validStatus) {
             return _update(member, channelId, {
-                isSubscribed: validStatus
+                isStarred: validStatus
             });
         }).catch(function(err) {
-            SharedUtils.printError('ChannelMemberDao', 'updateSubscribedAsync', err);
+            SharedUtils.printError('ChannelMemberDao.js', 'updateSubscribedAsync', err);
             throw err;
         });
 };
@@ -346,6 +360,26 @@ exports.updateSubscribedAsync = function(member, channelId, status) {
 
 /**
  * @Author: George_Chen
+ * @Description: an low-level implementation of save operation
+ *
+ * @param {Object}          memberDoc, new member document
+ * @param {String}          caller, caller of this API
+ */
+function _save(memberDoc, caller) {
+    // make mongoose cache outdated
+    Model.find()._touchCollectionCheck(true);
+    var newMember = new Model(memberDoc);
+    return newMember.saveAsync()
+        .then(function(result) {
+            return DbUtil.checkDocumentSaveStatusAsync(result);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelMemberDao.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
  * @Description: an low-level implementation of checking document exist or not
  *
  * @param {String}          member, member's id
@@ -354,8 +388,8 @@ exports.updateSubscribedAsync = function(member, channelId, status) {
  */
 function _isExist(member, channelId, extraFields) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, 'uid'),
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         var queryCondition = ObjectAssign(condition, extraFields);
         return Model.countAsync(queryCondition);
@@ -374,8 +408,8 @@ function _isExist(member, channelId, extraFields) {
  */
 function _update(member, channelId, info) {
     return Promise.props({
-        member: SharedUtils.argsCheckAsync(member, 'uid'),
-        channelId: SharedUtils.argsCheckAsync(channelId, 'channelId')
+        member: SharedUtils.argsCheckAsync(member, 'md5'),
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
     }).then(function(condition) {
         return Model.update(condition, info).execAsync();
     }).then(function(result) {

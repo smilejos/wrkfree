@@ -15,8 +15,8 @@ var DocumentField = {
     select: 1
 };
 var SortMethod = {
-    descending: 1,
-    ascending: -1
+    ascending: 1,
+    descending: -1
 };
 
 /************************************************
@@ -121,7 +121,7 @@ exports.checkDocumentUpdateStatusAsync = function(updateResult) {
         if (updateResult === 0) {
             throw new Error('mongoose update fail');
         }
-        return (updateResult === 1);
+        return (updateResult > 0);
     });
 };
 
@@ -146,7 +146,6 @@ exports.checkDocumentRemoveStatusAsync = function(removeResult) {
 
 /**
  * @Public API
- *
  * @Author: George_Chen
  * @Description: get the channel query condition
  *
@@ -154,7 +153,7 @@ exports.checkDocumentRemoveStatusAsync = function(removeResult) {
  */
 exports.getChannelCondAsync = function(chId) {
     return Promise.try(function() {
-        if (!SharedUtils.isChannelId(chId)) {
+        if (!SharedUtils.isMd5Hex(chId)) {
             var err = new Error('channel id is invalid');
             SharedUtils.printError('dbUtils', 'getChannelCondAsync', err);
             throw err;
@@ -163,6 +162,38 @@ exports.getChannelCondAsync = function(chId) {
             channelId: chId
         };
     });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: transform date field of mongodb doc to timestamp number
+ *         NOTE: because date get from mongoose and from cache are different type,
+ *               so we need this transform function
+ * @param {Object}       doc, a mongodb document
+ * @param {String}       dateField, the date fieldName on each doc
+ */
+exports.transformTimeAsync = function(doc, dateField) {
+    if (doc[dateField] instanceof Date) {
+        doc[dateField] = Date.parse(doc[dateField].toISOString());
+    } else {
+        doc[dateField] = Date.parse(doc[dateField].toString());
+    }
+    return doc;
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: transform _id field of mongodb docs to new field
+ * 
+ * @param {Object}       doc, a mongodb document
+ * @param {String}       newField, the new "_id" field name
+ */
+exports.transformToNewIdAsync = function(doc, newIdField) {
+    doc[newIdField] = doc._id;
+    delete doc._id;
+    return doc;
 };
 
 /**

@@ -21,8 +21,8 @@ var FriendModel = Mongoose.model('Friend');
  */
 exports.getFriendsAsync = function(candidate, asker) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(candidate, 'uid'),
-        SharedUtils.argsCheckAsync(asker, 'uid'),
+        SharedUtils.argsCheckAsync(candidate, 'md5'),
+        SharedUtils.argsCheckAsync(asker, 'md5'),
         function(candidateUid, askerUid) {
             var condition = {
                 friendOwner: candidateUid
@@ -48,11 +48,11 @@ exports.getFriendsAsync = function(candidate, asker) {
  * @param {Object}      info, channel's identifier
  *                      info must have property: {friendUid, friendName, friendAvatar, friendGroup}
  */
-exports.addNewFriendAsync = function(asker, friendEmail, friendName, friendAvatar, friendGroup) {
+exports.addNewFriendAsync = function(asker, friendUid, friendName, friendAvatar, friendGroup) {
     friendGroup = friendGroup || 'none';
     return Promise.props({
-        friendOwner: SharedUtils.argsCheckAsync(asker, 'uid'),
-        uid: SharedUtils.argsCheckAsync(friendEmail, 'uid'),
+        friendOwner: SharedUtils.argsCheckAsync(asker, 'md5'),
+        uid: SharedUtils.argsCheckAsync(friendUid, 'md5'),
         nickName: SharedUtils.argsCheckAsync(friendName, 'nickName'),
         avatar: SharedUtils.argsCheckAsync(friendAvatar, 'avatar'),
         group: SharedUtils.argsCheckAsync(friendGroup, 'alphabet')
@@ -78,17 +78,17 @@ exports.addNewFriendAsync = function(asker, friendEmail, friendName, friendAvata
  */
 exports.isFriendExistAsync = function(candidate, asker) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(candidate, 'uid'),
-        SharedUtils.argsCheckAsync(asker, 'uid'),
+        SharedUtils.argsCheckAsync(candidate, 'md5'),
+        SharedUtils.argsCheckAsync(asker, 'md5'),
         function(candidateUid, askerUid) {
             var condition = _getFriendConition(askerUid, candidateUid);
             return FriendModel.countAsync(condition);
         }).then(function(count) {
-        return (count > 0);
-    }).catch(function(err) {
-        SharedUtils.printError('FriendDao', 'isFriendExistAsync', err);
-        return null;
-    });
+            return (count > 0);
+        }).catch(function(err) {
+            SharedUtils.printError('FriendDao', 'isFriendExistAsync', err);
+            return null;
+        });
 };
 
 /**
@@ -101,8 +101,8 @@ exports.isFriendExistAsync = function(candidate, asker) {
  */
 exports.delFriendAsync = function(candidate, asker) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(candidate, 'uid'),
-        SharedUtils.argsCheckAsync(asker, 'uid'),
+        SharedUtils.argsCheckAsync(candidate, 'md5'),
+        SharedUtils.argsCheckAsync(asker, 'md5'),
         function(candidateUid, askerUid) {
             var condition = _getFriendConition(askerUid, candidateUid);
             return FriendModel.remove(condition).execAsync();
@@ -125,8 +125,8 @@ exports.delFriendAsync = function(candidate, asker) {
  */
 exports.updateAvatarAsync = function(candidate, asker, avatarUrl) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(candidate, 'uid'),
-        SharedUtils.argsCheckAsync(asker, 'uid'),
+        SharedUtils.argsCheckAsync(candidate, 'md5'),
+        SharedUtils.argsCheckAsync(asker, 'md5'),
         SharedUtils.argsCheckAsync(avatarUrl, 'avatar'),
         function(candidateUid, askerUid, validAvatar) {
             return _update(candidateUid, askerUid, {
@@ -149,8 +149,8 @@ exports.updateAvatarAsync = function(candidate, asker, avatarUrl) {
  */
 exports.updateNameAsync = function(candidate, asker, name) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(candidate, 'uid'),
-        SharedUtils.argsCheckAsync(asker, 'uid'),
+        SharedUtils.argsCheckAsync(candidate, 'md5'),
+        SharedUtils.argsCheckAsync(asker, 'md5'),
         SharedUtils.argsCheckAsync(name, 'nickName'),
         function(candidateUid, askerUid, validName) {
             return _update(candidateUid, askerUid, {
@@ -173,8 +173,8 @@ exports.updateNameAsync = function(candidate, asker, name) {
  */
 exports.updateGroupAsync = function(candidate, asker, groupName) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(candidate, 'uid'),
-        SharedUtils.argsCheckAsync(asker, 'uid'),
+        SharedUtils.argsCheckAsync(candidate, 'md5'),
+        SharedUtils.argsCheckAsync(asker, 'md5'),
         SharedUtils.argsCheckAsync(groupName, 'alphabet'),
         function(candidateUid, askerUid, validGroup) {
             return _update(candidateUid, askerUid, {

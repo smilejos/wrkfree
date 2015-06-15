@@ -1,6 +1,7 @@
 'use strict';
 var SharedUtils = require('../../../../sharedUtils/utils');
 var Promise = require('bluebird');
+var Passport = require('passport');
 
 /**
  * the user storage service, will be inited by the module.exports
@@ -18,26 +19,28 @@ var UserEntry = {};
 /**
  * Public API
  * @Author: George_Chen
- * @Description: middleware for handling the successful oauth login
+ * @Description: middleware for handling oauth login
+ *     NOTE: triggered when user try oauth login each time
  */
-UserEntry.enter = function(req, res, next) {
-    if (!UserStorage) {
-        return next();
-    }
-    var userInfo = req.session.passport.user;
-    return UserStorage.oAuthLoginAsync(userInfo.id, userInfo.provider)
-        .then(function(basicInfo) {
-            // pass to signup or user's dashboard
-            req.nextRoute = (!basicInfo ? '/app/signup' : '/app/dashboard');
-            if (basicInfo) {
-                userInfo.email = basicInfo.email;
-                userInfo.name = basicInfo.name;
-            }
-            return next();
-        }).catch(function(err) {
-            SharedUtils.printError('UserEntry', 'enter', err);
-            res.redirect('/error');
-        });
+UserEntry.oAuthLogin = function(req, res, next) {
+    return Passport.authenticate(req.provider, function(err, user) {
+        return UserStorage.oAuthLoginAsync(user.id, req.provider)
+            .then(function(info) {
+                if (!info) {
+                    user.provider = req.provider;
+                    req.session.passport.user = user;
+                    return res.redirect('/app/signup');
+                }
+                req.logIn(info, function(err) {
+                    if (err) {
+                        SharedUtils.printError('userEntry.js', 'oauthLogin', err);
+                        return res.redirect('/app/logout');
+                    }
+                    res.cookie('uid', info.uid);
+                    return res.redirect('/app/dashboard');
+                });
+            });
+    })(req, res, next);
 };
 
 /**
@@ -60,6 +63,12 @@ UserEntry.create = function(req, res, next) {
         if (SharedUtils.isError(result)) {
             req.error = result.toString();
         } else {
+            req.user = result;
+            // override current session content
+            req.session.passport.user = {
+                uid: result.uid
+            };
+            res.cookie('uid', result.uid);
             // next route should be '/app/signup/done' to send basic notification
             req.nextRoute = '/app/dashboard';
         }
@@ -77,12 +86,12 @@ UserEntry.create = function(req, res, next) {
  * @Description: middleware for handling uid availability check
  * NOTE: used on user signup
  */
-UserEntry.isUidAvailable = function(req, res, next) {
+UserEntry.isEmailAvailable = function(req, res, next) {
     return Promise.try(function() {
         if (!UserStorage) {
             throw new Error('UserStorage is not initialized');
         }
-        return UserStorage.isUserExistAsync(req.query.email);
+        return UserStorage.isEmailUsedAsync(req.query.email);
     }).then(function(result) {
         // user exist means not available
         req.uidAvailable = !result;
@@ -93,6 +102,18 @@ UserEntry.isUidAvailable = function(req, res, next) {
         req.nextRoute = '/';
         return next();
     });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: ensure non-login user can access signup page
+ */
+UserEntry.authToSignup = function(req, res, next) {
+    if (!!req.cookies.uid) {
+        return res.redirect('/app/dashboard');
+    }
+    next();
 };
 
 module.exports = function(storageManager) {

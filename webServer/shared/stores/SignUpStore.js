@@ -1,12 +1,10 @@
 'use strict';
-var createStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/utils/createStore');
+var Promise = require('bluebird');
 
-var SignUpStore = createStore({
+module.exports = CreateStore({
     storeName: 'SignUpStore',
-    handlers: {
-        'CHANGE_ROUTE': 'handleNavigate'
-    },
-    
+
     initialize: function() {
         // prefilled values for signup form
         this.preFilledInfo = null;
@@ -20,19 +18,26 @@ var SignUpStore = createStore({
         };
     },
 
-    handleNavigate: function(route) {
-        if (route.path === '/app/signup' && !this.preFilledInfo) {
-            var signUpInfo = route.resource.signUpInfo;
-            this.preFilledInfo = {
-                email: signUpInfo.email || '',
-                familyName: signUpInfo.familyName || '',
-                givenName: signUpInfo.givenName || '',
-                gender: signUpInfo.gender || 'male',
-                originInfo: signUpInfo
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: polyfill friendList object to friend store
+     *
+     * @param {String}      friendList, an array of friends got from mongodb
+     */
+    polyfillAsync: function(userInfo) {
+        var self = this;
+        return Promise.try(function() {
+            self.preFilledInfo = {
+                email: userInfo.email || '',
+                familyName: userInfo.familyName || '',
+                givenName: userInfo.givenName || '',
+                gender: userInfo.gender || 'male'
             };
-            this.Filled = true;
-        }
-        this.emitChange();
+        }).then(function() {
+            // inform the fluxible that this store has changed
+            self.emitChange();
+        });
     },
 
     /**
@@ -59,12 +64,12 @@ var SignUpStore = createStore({
             status: this.statusInfo
         };
     },
+
     dehydrate: function() {
         return this.preFilledInfo;
     },
+
     rehydrate: function(info) {
         this.preFilledInfo = info;
     }
 });
-
-module.exports = SignUpStore;

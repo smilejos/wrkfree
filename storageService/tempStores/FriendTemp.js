@@ -1,17 +1,21 @@
 'use strict';
 var Promise = require('bluebird');
 var Redis = require('redis');
-var Configs = require('../configs');
 var SharedUtils = require('../../sharedUtils/utils');
 var GLOBAL_OnlineUserKey = 'SYSTEM:onlineusers';
+var Configs = require('../../configs/config');
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
 
 /**
  * Online user list is stored at global redis cache server
  */
 var RedisClient = Redis.createClient(
-    Configs.globalCacheEnv.port,
-    Configs.globalCacheEnv.host,
-    Configs.globalCacheEnv.options);
+    DbConfigs.cacheEnv.global.port,
+    DbConfigs.cacheEnv.global.host,
+    DbConfigs.cacheEnv.global.options);
 
 /************************************************
  *
@@ -28,7 +32,7 @@ var RedisClient = Redis.createClient(
  */
 exports.getOnlineFriendsAsync = function(friends) {
     return Promise.map(friends, function(doc) {
-        return (SharedUtils.isEmail(doc.uid) ? doc.uid : '');
+        return (SharedUtils.isMd5Hex(doc.uid) ? doc.uid : '');
     }).then(function(friendUids) {
         var tempKey = Date.now().toString(); // use timestamp as an unique tempKey
         return RedisClient
