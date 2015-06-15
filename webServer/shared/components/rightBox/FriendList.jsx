@@ -56,7 +56,7 @@ module.exports = React.createClass({
                 info={friendInfo} />
         });
         return (
-            <div className={this.state.isVisible ? "FriendsShow" : "Friends"}>
+            <div className={this.state.isVisible ? 'FriendsShow' : 'Friends'}>
                 {friendList}
             </div>
         );

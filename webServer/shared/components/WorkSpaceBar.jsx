@@ -118,11 +118,8 @@ module.exports = React.createClass({
 
     render: function (){
         var barStyle = {};
-        
-        var switchChatStyle = "pure-u-1-2 switchButton " + (this.state.isDiscussionVisible ? "switchButtonActive" : "");
-        var switchVieoStyle = "pure-u-1-2 switchButton " + (this.state.isConferenceVisible ? "switchButtonActive" : "");
-        console.log("switchChatStyle", switchChatStyle);
-
+        var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
+        var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         if (this.props.onConferenceCall) {
             barStyle = {
                 'backgroundColor': '#000'
