@@ -10,7 +10,7 @@ var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
  * child components
  */
 var MainBox = require('./mainBox/DashboardMain.jsx');
-var InfoBox = require('./rightBox/DashboardInfo.jsx');
+var FriendList = require('./rightBox/FriendList.jsx');
 var ChannelNav = require('./ChannelNav.jsx');
 
 module.exports = React.createClass({
@@ -30,7 +30,7 @@ module.exports = React.createClass({
         return (
             <div onClick={this._onContentClick} >
                 <MainBox />
-                <InfoBox />
+                <FriendList />
             </div>
         );
     }

@@ -7,11 +7,12 @@ var FluxibleMixin = require('fluxible').Mixin;
  */
 var StartConference = require('../../client/actions/rtc/startConference');
 var HangupConference = require('../../client/actions/rtc/hangupConference');
-
+var ToggleComponent = require('../../client/actions/toggleComponent');
 /**
  * stores
  */
 var ConferenceStore = require('../stores/ConferenceStore');
+var ToggleStore = require('../stores/ToggleStore');
 
 /**
  * material ui components
@@ -27,13 +28,17 @@ module.exports = React.createClass({
     mixins: [Router.Navigation, FluxibleMixin],
     statics: {
         storeListeners: {
-            '_onConferenceChange': [ConferenceStore]
+            '_onConferenceChange': [ConferenceStore],
+            '_onStoreChange': [ToggleStore]
         }
     },
 
     getInitialState: function() {
+        var toggleStore = this.getStore(ToggleStore);
         return {
-            isConferenceExist: false 
+            isConferenceExist: false,
+            isConferenceVisible: toggleStore.conferenceVisible,
+            isDiscussionVisible: toggleStore.discussionVisible
         };
     },
 
@@ -46,6 +51,18 @@ module.exports = React.createClass({
         var channelId = this.props.channel.channelId;
         this.setState({
             isConferenceExist: conferenceStore.isExist(channelId)
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for tracking channel's conference state
+     */
+    _onStoreChange: function() {
+        var toggleStore = this.getStore(ToggleStore);
+        this.setState({
+            isConferenceVisible: toggleStore.conferenceVisible,
+            isDiscussionVisible: toggleStore.discussionVisible
         });
     },
 
@@ -77,8 +94,32 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: switch video display or not
+     */
+    _switchVideo: function() {
+        this.executeAction(ToggleComponent, {
+            param: 'conferenceVisible',
+            isVisible: !this.state.isConferenceVisible,
+        });
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: switch Discussion display or not
+     */
+    _switchChat: function() {
+        this.executeAction(ToggleComponent, {
+            param: 'discussionVisible',
+            isVisible: !this.state.isDiscussionVisible
+        });
+    },
+
     render: function (){
         var barStyle = {};
+        var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
+        var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         if (this.props.onConferenceCall) {
             barStyle = {
                 'backgroundColor': '#000'
@@ -93,7 +134,7 @@ module.exports = React.createClass({
                     <IconButton iconClassName="fa fa-tag" />
                     <IconButton iconClassName="fa fa-star" />
                 </div>
-                <div className="pure-u-1-3" style={{'marginLeft':'40px'}}>
+                <div className="pure-u-1-3">
                     <FloatingActionButton mini secondary
                         disabled={this.state.isConferenceExist}
                         iconClassName="fa fa-users" 
@@ -112,7 +153,9 @@ module.exports = React.createClass({
                         iconClassName="fa fa-tty" 
                         onClick={this._hangupConference} />
                 </div>
-                <div className="pure-u-1-3 Right" >
+                <div className="rightControl" >
+                    <div className={switchVieoStyle} onClick={this._switchVideo}>Video</div>
+                    <div className={switchChatStyle} onClick={this._switchChat}>Chat</div>
                 </div>
             </div>
         );

@@ -11,6 +11,7 @@ $app_drawing_area_height: $app_canvas_height + $app-header-height;
     background-color: #FFF;
     margin-left: 200px;
     margin-top: 5%;
+    position: absolute;
 }
 
 /**
@@ -49,6 +50,31 @@ $app_drawing_area_height: $app_canvas_height + $app-header-height;
 
 .DiscussionArea .mui-text-field{
     width: 100%; 
+}
+
+/**
+ * the style of switch button on bottom setting bar in workspace
+ */
+.switchButton {
+    padding: 10px;
+    height: 40px;
+    text-align: center;
+    border: solid 1px #aaa;
+    cursor: pointer;
+    font-family: 'Heiti TC', sans-serif;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.switchButton:hover {
+    background-color: #999;
+    color: #fff;
+    text-decoration: underline;
+}
+
+.switchButtonActive {
+    background-color: #444;
+    color: #fff;
 }
 
 
