@@ -1,7 +1,7 @@
 'use strict';
-var createStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 
-var MainAppStore = createStore({
+var MainAppStore = CreateStore({
     storeName: 'MainAppStore',
     handlers: {
         'CHANGE_ROUTE': 'handleNavigate'

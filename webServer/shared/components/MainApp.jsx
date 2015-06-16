@@ -1,5 +1,5 @@
 var React = require('react');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var RouteHandler = require('react-router').RouteHandler;
 var RouterState = require('react-router').State;
 var MainAppStore = require('../stores/MainAppStore');
@@ -12,6 +12,14 @@ var ChannelNav = require('./ChannelNav.jsx');
 var Webcam = require('./Webcam.jsx');
 var EventToaster = require('./EventToaster.jsx');
 var Notifications = require('./common/Notifications.jsx');
+
+/**
+ * TODO: below is for material-ui 9.0 up
+ * material-ui 
+ */
+// var Mui = require('material-ui');
+// var ThemeManager = new Mui.Styles.ThemeManager();
+// var Colors = Mui.Styles.Colors;
 
 module.exports = React.createClass({
     /**
@@ -36,6 +44,20 @@ module.exports = React.createClass({
     getInitialState: function() {
         return this.getStore(MainAppStore).getState();
     },
+
+    // Important!
+    // TODO: below is for material-ui 9.0 up
+    // childContextTypes: {
+    //     muiTheme: React.PropTypes.object
+    // },
+
+    // Important!
+    // TODO: below is for material-ui 9.0 up
+    // getChildContext: function() { 
+    //     return {
+    //         muiTheme: ThemeManager.getCurrentTheme()
+    //     };
+    // },
     
     render: function(){
         // RouteHandler will take care of Routes while url change

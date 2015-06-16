@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 
 var HeaderStore = CreateStore({

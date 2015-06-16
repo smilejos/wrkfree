@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 
 module.exports = CreateStore({
     storeName: 'ToggleStore',

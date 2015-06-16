@@ -3,6 +3,7 @@ var React = require('react');
 var Router = require('react-router');
 var HistoryLocation = Router.HistoryLocation;
 var Promise = require('bluebird');
+var FluxibleComponent = require('fluxible/addons/FluxibleComponent');
 
 /**
  * setup configurations for client
@@ -44,17 +45,16 @@ app.rehydrate(dehydratedState, function(err, context) {
     }
 
     window.context = context;
-    var mountNode = document.getElementById('app');
     // start the react-router
-    return Router.run(app.getAppComponent(), HistoryLocation, function(Handler, state) {
+    return Router.run(app.getComponent(), HistoryLocation, function(Handler, state) {
         return _hasConnection(state).then(function(hasConnection) {
             if (!hasConnection) {
                 throw new Error('server connection lost');
             }
             // start the navigation action
-            context.executeAction(navigateAction, state, function() {
-                React.withContext(context.getComponentContext(), function() {
-                    React.render(React.createFactory(Handler)(), mountNode);
+            Router.run(app.getComponent(), HistoryLocation, function(Handler, state) {
+                context.executeAction(navigateAction, state, function() {
+                    RenderApp(context, Handler);
                 });
             });
         }).catch(function(err) {
@@ -64,6 +64,26 @@ app.rehydrate(dehydratedState, function(err, context) {
         });
     });
 });
+
+/**
+ * @Author: George_Chen
+ * @Description: used to render app by resource from server
+ *
+ * @param {Object}        context, the app context
+ * @param {Object}        Handler, the react router handler
+ */
+function RenderApp(context, Handler) {
+    var mountNode = document.getElementById('app');
+    var component = React.createFactory(Handler);
+    var props = {
+        context: context.getComponentContext()
+    };
+    React.render(
+        React.createElement(FluxibleComponent, props, component()),
+        mountNode,
+        function() {}
+    );
+}
 
 /**
  * @Author: George_Chen

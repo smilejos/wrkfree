@@ -1,6 +1,6 @@
 var React = require('react');
 var Mui = require('material-ui');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var DashboardStore = require('../../stores/DashboardStore');
 
 /**
