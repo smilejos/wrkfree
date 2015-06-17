@@ -3,6 +3,7 @@ var Mongoose = require('mongoose');
 var Promise = require('bluebird');
 var DbUtil = require('../dbUtils');
 var SharedUtils = require('../../sharedUtils/utils');
+var CryptoUtils = require('../../sharedUtils/cryptoUtils');
 var Model = Mongoose.model('Channel');
 
 /************************************************
@@ -46,15 +47,15 @@ exports.createAsync = function(channelId, creator, name, isPublic, org) {
  * @param {String}          user1, the user1's uid
  * @param {String}          user2, the user2's uid
  */
-exports.create1on1Async = function(channelId, user1, user2) {
+exports.create1on1Async = function(user1, user2) {
     return Promise.props({
-        _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
         uid1: SharedUtils.argsCheckAsync(user1, 'md5'),
         uid2: SharedUtils.argsCheckAsync(user2, 'md5'),
         isPublic: false,
         is1on1: true
     }).then(function(doc) {
         doc.host = SharedUtils.get1on1ChannelHost(doc.uid1, doc.uid2);
+        doc._id = CryptoUtils.getMd5Hex(doc.host);
         return _save(doc, 'create1on1Async');
     });
 };

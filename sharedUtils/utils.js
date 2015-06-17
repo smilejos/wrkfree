@@ -1,5 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
+var CryptoUtils = require('./cryptoUtils');
 var GLOBAL_MAXIMUM_DRAW_BOARD_NUM = 10;
 
 /**
@@ -111,6 +112,19 @@ exports.getArgs = function(rawArguments) {
  */
 exports.get1on1ChannelHost = function(user1, user2) {
     return [user1, user2].sort().join('&');
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: generate 1on1 channel id
+ *
+ * @param {String}      user1, the user1's uid
+ * @param {String}      user2, the user2's uid
+ */
+exports.get1on1ChannelId = function(user1, user2) {
+    var str = exports.get1on1ChannelHost(user1, user2);
+    return CryptoUtils.getMd5Hex(str);
 };
 
 /************************************************

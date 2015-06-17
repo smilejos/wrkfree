@@ -2,6 +2,8 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
+var ChannelDao = require('../daos/ChannelDao');
+var MemberDao = require('../daos/ChannelMemberDao');
 var UserTemp = require('../tempStores/UserTemp');
 var FriendDao = require('../daos/FriendDao');
 var FriendTemp = require('../tempStores/FriendTemp');
@@ -55,6 +57,11 @@ exports.addFriendshipAsync = function(user1, user2) {
         }).map(function(userInfo) {
             var asker = (userInfo.uid === user1 ? user2 : user1);
             return FriendDao.addNewFriendAsync(asker, userInfo.uid, userInfo.nickName, userInfo.avatar);
+        }).then(function(friends) {
+            return _create1on1Channel(user1, user2)
+                .then(function() {
+                    return friends;
+                });
         }).map(function(friendInfo) {
             return UserTemp.isUserOnlineAsync(friendInfo.uid)
                 .then(function(status) {
@@ -104,7 +111,6 @@ exports.delFriendshipAsync = function(user1, user2) {
  ************************************************/
 
 /**
- * Public API
  * @Author: George_Chen
  * @Description: check user1 and user2 have friendship or not
  *
@@ -123,5 +129,24 @@ function _hasFriendshipAsync(user1, user2) {
         }).catch(function(err) {
             SharedUtils.printError('FriendService', 'checkFriendshipAsync', err);
             throw err;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: create 1on1 channel between two users
+ *
+ * @param {String}      user1, the user1's uid
+ * @param {String}      user2, the user2's uid
+ */
+function _create1on1Channel(user1, user2) {
+    return ChannelDao.create1on1Async(user1, user2)
+        .then(function(doc) {
+            if (!doc) {
+                throw new Error('create 1on1 channel fail');
+            }
+            return Promise.map([user1, user2], function(member) {
+                return MemberDao.add1on1Async(member, doc.channelId);
+            });
         });
 }
