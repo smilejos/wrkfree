@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var FriendStore = require('../../stores/FriendStore');
 var ToggleStore = require('../../stores/ToggleStore');
+var HeaderStore = require('../../stores/HeaderStore');
 
 /**
  * child components
@@ -26,7 +27,8 @@ module.exports = React.createClass({
     getInitialState: function() {
         return {
             isVisible : this.getStore(ToggleStore).getState().friendVisiable,
-            friends : this.getStore(FriendStore).getState().friends
+            friends : this.getStore(FriendStore).getState().friends,
+            selfUid: this.getStore(HeaderStore).getSelfInfo().uid
         };
     },
 
@@ -50,9 +52,11 @@ module.exports = React.createClass({
     
     render: function(){
         var friends = this.state.friends;
+        var selfUid = this.state.selfUid;
         var friendList = friends.map(function(friendInfo){
             return <Friend 
                 key={friendInfo.uid}
+                self={selfUid}
                 info={friendInfo} />
         });
         return (
