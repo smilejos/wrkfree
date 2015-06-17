@@ -19,7 +19,9 @@ module.exports = CreateStore({
         'RESIZE_OPEN_HANGOUT': '_resizeHangout',
         'UPDATE_CONFERENCE': '_updateConference',
         'ON_CONFERENCE': '_onCall',
-        'CHANGE_ROUTE': '_onChangeRoute'
+        'CHANGE_ROUTE': '_onChangeRoute',
+        'ON_CONFERENCE_START': '_onConferenceStart',
+        'ON_CONFERENCE_END': '_onConferenceEnd'
     },
 
     initialize: function() {
@@ -71,6 +73,7 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: to handle hangout window resize
      *
+     * @param {String}     data.channelId, channel id
      * @param {Boolean}     data.isCompressed, to hangout is resized to compressed or not
      */
     _resizeHangout: function(data) {
@@ -82,13 +85,26 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
-     * @Description: to handle conference state change on current hangout
+     * @Description: to handle conference start on current hangout
      *
-     * @param {Boolean}     data.hasConference, to indicate conference created or not
+     * @param {String}     data.channelId, channel id
      */
-    _updateConference: function(data) {
+    _onConferenceStart: function(data) {
         if (this.isHangoutExist(data.channelId)) {
-            this.hangoutsInfo[data.channelId].hasConference = data.hasConference;
+            this.hangoutsInfo[data.channelId].hasConference = true;
+            this.emitChange();
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to handle conference stop on current hangout
+     *
+     * @param {String}     data.channelId, channel id
+     */
+    _onConferenceEnd: function(data) {
+        if (this.isHangoutExist(data.channelId)) {
+            this.hangoutsInfo[data.channelId].hasConference = false;
             this.emitChange();
         }
     },
@@ -97,7 +113,8 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: to specify current conference call state on hangout
      *
-     * @param {Boolean}     data.onConferenceCall, to indicate conference exist or not
+     * @param {String}     data.channelId, channel id
+     * @param {Boolean}    data.onConferenceCall, to indicate conference exist or not
      */
     _onCall: function(data) {
         var info = this.hangoutsInfo[data.channelId];
