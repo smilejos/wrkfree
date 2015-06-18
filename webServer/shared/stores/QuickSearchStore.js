@@ -15,6 +15,7 @@ module.exports = CreateStore({
     handlers: {
         'ON_QUICKSEARCH_UPDATE': '_onQuickSearchUpdate',
         'ON_QUICKSEARCH_CACHE_HIT': '_onQuickSearchCacheHit',
+        'TOGGLE_QUICKSEARCH': '_toggleQuickSearch'
     },
 
     /**
@@ -60,14 +61,13 @@ module.exports = CreateStore({
     },
 
     /**
-     * Public API
      * @Author: George_Chen
-     * @Description: to set the enable status of quickSearch
+     * @Description: to toggle the enable status of quickSearch
      *
-     * @param {Boolean}          isEnabled, enable quickSearch or not
+     * @param {Boolean}          isEnabled, indicate quick search state
      */
-    enableSearch: function(isEnabled) {
-        this.isEnabled = isEnabled;
+    _toggleQuickSearch: function(data) {
+        this.isEnabled = data.isEnabled;
         this.emitChange();
     },
 

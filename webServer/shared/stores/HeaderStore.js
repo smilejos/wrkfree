@@ -7,11 +7,13 @@ var HeaderStore = CreateStore({
     storeName: 'HeaderStore',
     handlers: {
         'ON_NOTIFY': '_onNotify',
-        'ON_MSG_NOTIFY': '_onMsgNotify'
+        'ON_MSG_NOTIFY': '_onMsgNotify',
+        'TOGGLE_QUICKSEARCH': '_toggleQuickSearch'
     },
 
     initialize: function() {
         this.user = {};
+        this.isSearchable = false;
     },
 
     /**
@@ -33,6 +35,17 @@ var HeaderStore = CreateStore({
      */
     _onMsgNotify: function(hasNotify) {
         this.hasUnreadMsgs = hasNotify;
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update the status of quick search bar
+     *
+     * @param {Boolean}      data.isEnabled, indicate quickSearch is enable or not
+     */
+    _toggleQuickSearch: function(data) {
+        this.isSearchable = data.isEnabled;
         this.emitChange();
     },
 
@@ -76,6 +89,7 @@ var HeaderStore = CreateStore({
             userInfo: this.user,
             hasUnreadMsgs: this.hasUnreadMsgs,
             hasNotification: this.hasNotification,
+            isSearchable: this.isSearchable
         };
     },
 
