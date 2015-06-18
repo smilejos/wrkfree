@@ -17,7 +17,7 @@
     "express-session": "^1.10.3",
     "fluxible": "~0.4.10",
     "jsx-loader": "^0.12.2",
-    "lokijs": "~1.3.0",
+    "lokijs": "~1.2.0",
     "lru-cache": "^2.6.4",
     "material-ui": "~0.7.0",
     "material-ui-sass": "0.7.1",
