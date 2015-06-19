@@ -1,11 +1,13 @@
 var React = require('react');
 var Router = require('react-router');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var SharedUtils = require('../../../../sharedUtils/utils');
 
 /**
  * actions
  */
- var NavToBoard = require('../../../client/actions/draw/navToBoard');
+var NavToBoard = require('../../../client/actions/draw/navToBoard');
+var OpenHangout = require('../../../client/actions/openHangout');
 
 /**
  * child components
@@ -38,7 +40,11 @@ module.exports = React.createClass({
      * @Description: handler for opening hangout with target user
      */
     _openHangout: function() {
-        // TODO:
+        var info = this.props.info;
+        this.executeAction(OpenHangout, {
+            channelId: SharedUtils.get1on1ChannelId(info.sender.uid, info.target),
+            hangoutTitle: info.sender.nickName
+        });
     },
     
     /**
