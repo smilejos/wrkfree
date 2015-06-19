@@ -164,9 +164,7 @@ module.exports = React.createClass({
         }
         return (
             <IconButton 
-                iconClassName="fa fa-times" 
-                tooltip="Cancel Search" 
-                touch={true} 
+                iconClassName="fa fa-times"  
                 onClick={this._onSearchCancel} />
         );
     },
