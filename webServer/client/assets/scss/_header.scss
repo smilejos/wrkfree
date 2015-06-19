@@ -1,0 +1,107 @@
+$header-main-color: #FFF;
+$header-left-state-color: #FFF;
+$header-right-state-color: #144766;
+
+$header-user-state-width: 135px;
+
+/**
+ * unread notification state container
+ */
+.baseCounterContainer {
+    font-size: 25px;
+    width: 50px;
+}
+
+/**
+ * unread notification state counter
+ */
+.baseCounter {
+    width: 17px;
+    height: 17px;
+    padding-top: 2px;
+    border-radius: 50%;
+    opacity: 0.9;
+    font-size: 11px;
+    text-align: center;
+    background-color: $red-600;
+    color: $grey-300;
+}
+
+/**
+ * the main style of Header.jsx
+ */
+.Header {
+    @extend .baseBox, .baseFonts;
+    background-color: $color-main;
+    border-color: $grey-300;
+    border-bottom-style: solid;
+    border-width: 1px;
+    height: $app-header-height;
+    width: 100%;
+    color: $header-main-color;
+    z-index: 5;
+    position: relative;
+    /**
+     * the left part of header menu
+     */
+    .headerLeftMenu {
+        position: absolute;
+        top: 0px;
+        left: 10px;
+        .leftState {
+            @extend .baseCounterContainer;       
+            padding-left: 15px; 
+            color: $header-left-state-color;
+            float: left;
+            position: relative;
+            .counter {
+                @extend .baseCounter;
+                position: absolute;
+                top: 5px;
+                right: 5px;
+            }
+        }
+        .headerSearch {
+            float:left;
+        }
+    }
+    /**
+     * the right part of header menu
+     */
+    .headerRightMenu {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        .userState {
+            float:left;
+            cursor: pointer;
+            width: $header-user-state-width;
+            .UserStateName {
+                font-size: 14px;
+                padding-left: 5px;
+                line-height: $app-header-height;
+            }
+            .UserAvatar {
+                float:left;
+                margin-top: 10px;
+                width: 30px;
+                height: 30px;
+            }
+        }
+        .rightState {
+            @extend .baseCounterContainer;
+            position: relative;
+            float: left;
+            color: $header-right-state-color;
+            .counter {
+                @extend .baseCounter;
+                position: absolute;
+                top: 5px;
+                right: 20px;
+            }
+        }
+        .rightState:hover {
+            color: #0d2f44;
+        }
+    }
+}
