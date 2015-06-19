@@ -1,0 +1,150 @@
+$hangout-space-width: 260px;
+$hangout-space-height: 350px;
+$hangout-header-height: 35px;
+$hangout-messages-height: 275px;
+$hangout-header-background-color: $light-blue-800;
+$hangout-video-background-color: rgba(0,0,0, .8);
+$hangout-client-message-bubble-color: #FFF;
+$hangout-host-message-bubble-color: $grey-400;
+
+/**
+ * message bubble related definition
+ */
+$shadow_radius: 6px;
+$nose_size: 12px;
+$shadow: 0 1px $shadow_radius #B2B2B2;
+
+/**
+ * @Author: George_Chen
+ * @Description: the container of all hangout spaces
+ */
+.Hangouts {
+    /**
+     * @Author: George_Chen
+     * @Description: hangout sapce style, each channel will open as a hangout space
+     */
+    .HangoutSpace {
+        @extend .baseFonts;
+        position: fixed;
+        right: $app-infoBox-width;
+        width: $hangout-space-width;
+        height: $hangout-space-height;
+        background-color: $grey-100;
+        z-index: 3;
+        .hangoutHeader {
+            position:relative;
+            background-color: $hangout-header-background-color;
+            height: $hangout-header-height;
+            line-height: $hangout-header-height;
+            padding-left: 10px;
+            opacity: 0.8;
+            color: #FFF;
+            .hangoutHeaderTitle {
+                font-size: 12px;
+                font-weight: bold;
+            }
+            .hangoutHeaderControls {
+                position: absolute;
+                color: $light-blue-900;
+                font-size: 18px;
+                top: 10px;
+                right: 0px;
+                .controlIcon {
+                    width: 25px;
+                    cursor:pointer;
+                }
+                .controlIcon:hover {
+                    color: $blue-100;
+                }
+            }
+        }
+        .hangoutVideo {
+            height: 0px;
+            background-color: $hangout-video-background-color;
+        }
+        .hangoutMessages {
+            height: $hangout-messages-height;
+            overflow: scroll;
+            .message {
+                .messageAvatar {
+                    width: 60px;
+                }
+                .messageContent {
+                    padding-top: 10px;
+                    padding-left: 10px;
+                    padding-left: 40px;
+                    .msgBubble {
+                        background-color: $hangout-client-message-bubble-color;
+                        border-radius:    10px;
+                        display:          block;
+                        padding:          10px 18px;
+                        margin:           1em ($shadow_radius + $nose_size);
+                        margin-top:       0px;
+                        position:         relative;
+                        vertical-align:   top;
+                    }
+                    .msgBubbleTail {
+                        position: absolute;
+                        height:  ($shadow_radius + $nose_size);
+                        width:   ($shadow_radius + $nose_size);
+                        overflow: hidden;
+                        &:before {
+                            background-color:  $hangout-client-message-bubble-color;
+                            content:           "\00a0";
+
+                            display:           block;
+                            position:          absolute;
+                            top:               0px;
+                            height:            $nose_size;
+                            width:             $nose_size;
+                        }
+                    }
+                    .msgBubble.left {
+                        text-align: left;
+                        .msgBubbleTail {
+                            top:      $nose_size;
+                            left:   -($shadow_radius + $nose_size);
+
+                            &:before {
+                                left:              $nose_size;
+                                -webkit-transform: skewX( -45deg );
+                                -moz-transform:    skewX( -45deg );
+                                -o-transform:      skewX( -45deg );
+                            }
+                        }
+                    }
+                    .msgBubble.right {
+                        text-align: left;
+                        background-color: $hangout-host-message-bubble-color;
+                        color: #FFF;                        
+                        .msgBubbleTail {
+                            top:      $nose_size;
+                            right:   -($shadow_radius + $nose_size);
+                            &:before {
+                                background-color: $hangout-host-message-bubble-color;
+                                right:              $nose_size;
+                                -webkit-transform: skewX( 45deg );
+                                -moz-transform:    skewX( 45deg );
+                                -o-transform:      skewX( 45deg );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .hangoutInputBar {
+            height: 40px;
+            opacity: 0.8;
+            .hangoutRtcIcon {
+                float: left;
+                width: 40px;
+                padding: 13px 0px 5px 10px;
+                cursor: pointer;
+            }
+            .hangoutTextField {
+                width: 200px;
+                overflow: hidden;
+            }
+        }
+    }
+}
