@@ -74,6 +74,20 @@ $app-infoBox-width: 250px;
 }
 
 /**
+ * define the style of list box 
+ */
+.listBox {
+    @extend .baseBox;
+    background-color: $color-background_1;
+    width: $app-infoBox-width;
+    top: $app-header-height;
+    left: 0px;
+    bottom: 0px;
+    transition: 0.4s;
+    box-shadow: 0 3px 10px rgba(0,0,0,.23);
+}
+
+/**
  * define the style of priv box 
  */
 .privBox {
