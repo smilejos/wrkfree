@@ -1,5 +1,8 @@
 var React = require('react');
 var UserAvatar = require('./userAvatar.jsx');
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var SharedUtils = require('../../../../sharedUtils/utils');
+var OpenHangout = require('../../../client/actions/openHangout');
 
 /**
  * @Author: George_Chen
@@ -12,6 +15,17 @@ var UserAvatar = require('./userAvatar.jsx');
  * @param {Boolean}     this.props.isOnline, status about user online or not
  */
 var Friend = React.createClass({
+    mixins: [FluxibleMixin],
+
+    _openHangout: function() {
+        var selfUid = this.props.self;
+        var info = this.props.info;
+        this.executeAction(OpenHangout, {
+            channelId: SharedUtils.get1on1ChannelId(info.uid, selfUid),
+            hangoutTitle: info.nickName
+        });
+    },
+
     render: function(){
         var info = this.props.info;
         var stateColor = (info.isOnline ? "onlineState" : "offlineState");
@@ -22,7 +36,10 @@ var Friend = React.createClass({
                 </div>
                 <div className="pure-u-18-24 showContent">
                     <div className="displayName">{info.nickName}</div>
-                    <div className="lastMessage">Hello world.</div>
+                    <div className="lastMessage"
+                        onClick={this._openHangout}
+                        style={{'cursor':'pointer'}}>
+                        Hello world.</div>
                 </div>
                 <span className= {stateColor}></span>
             </div>

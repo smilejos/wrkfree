@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
 var LokiUtils = require('../../../sharedUtils/lokiUtils');
@@ -236,8 +236,8 @@ module.exports = CreateStore({
         var collection = this.db.getCollection(this.dbName);
         this.baseImgs = {};
         // clean DyanmicViews
-        collection.DynamicViews = [];
         collection.removeDataOnly();
+        collection.DynamicViews = [];
     },
 
     /**

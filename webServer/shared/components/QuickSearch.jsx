@@ -1,5 +1,5 @@
 var React = require('react');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../sharedUtils/utils');
 var ReactGridLayout = require('react-grid-layout');
 

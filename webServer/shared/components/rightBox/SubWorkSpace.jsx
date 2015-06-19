@@ -1,5 +1,5 @@
 var React = require('react');
-var FluxibleMixin = require('fluxible').Mixin; 
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
 
 /**
  * stores
@@ -49,13 +49,26 @@ module.exports = React.createClass({
      * @Description: to get the conference view
      */
     _getConferenceView: function() {
-        var conferenceAreaHeight = 0;
-        if (this.state.conferenceVisible) {
-            conferenceAreaHeight = 300;
+        var style = {};
+        if (this.state.conferenceVisible && this.state.discussionVisible) {
+            style.top = 50;
+            style.height = 400;
+            style.opacity = 1;
+        } else if (this.state.discussionVisible){
+            style.height = 0;
+            style.opacity = 0;
+        } else if (this.state.conferenceVisible) {
+            style.top = 50;
+            style.bottom = 0;
+            style.opacity = 1;
+        } else {
+            style.top = 50;
+            style.opacity = 0;
+            style.height = 400;
         }
         return (
             <ConferenceArea 
-                inlineStyle={{'height':conferenceAreaHeight}}
+                inlineStyle={style}
                 channelId={this.props.channelId} />
         );
     },
@@ -65,16 +78,29 @@ module.exports = React.createClass({
      * @Description: to get the discussion view
      */
     _getDiscussionView: function() {
-        var DiscussionAreaTop = 0;
-        if (!this.state.discussionVisible) {
-            DiscussionAreaTop = 1000;
+        var style = {};
+        if (this.state.conferenceVisible && this.state.discussionVisible) {
+            style.top = 450;
+            style.bottom = 0;
+            style.opacity = 1;
+        } else if (this.state.discussionVisible){
+            style.top = 50;
+            style.bottom = 0;
+            style.opacity = 1;
+        } else if (this.state.conferenceVisible) {
+            style.bottom = -100;
+            style.top = 1000;
+            style.height = 0;
+            style.opacity = 0;
+        } else {
+            style.top = 50;
+            style.bottom = 0;
+            style.opacity = 1;
         }
-        if (this.state.conferenceVisible) {
-            DiscussionAreaTop = 400;
-        }
+        
         return (
             <DiscussionArea 
-                inlineStyle={{'top':DiscussionAreaTop}}
+                inlineStyle={style}
                 channelId={this.props.channelId} />
         );
     },

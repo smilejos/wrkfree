@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 
 module.exports = CreateStore({
     storeName: 'ToggleStore',
@@ -13,7 +13,7 @@ module.exports = CreateStore({
 
     initialize: function() {
         this.noticeVisiable = false;
-        this.friendVisiable = false;
+        this.friendVisiable = true;
         this.conferenceVisible = false;
         this.discussionVisible = true;
     },

@@ -1,6 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
-var createStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 
 /**
@@ -17,7 +17,7 @@ var Snapshots = [
 ];
 
 
-module.exports = createStore({
+module.exports = CreateStore({
     storeName: 'DashboardStore',
 
     initialize: function() {

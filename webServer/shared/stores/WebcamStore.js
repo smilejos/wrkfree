@@ -1,5 +1,5 @@
 'use strict';
-var CreateStore = require('fluxible/utils/createStore');
+var CreateStore = require('fluxible/addons').createStore;
 
 /**
  * Webcam store used to keep the local webcam state

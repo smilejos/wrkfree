@@ -21,7 +21,7 @@
 @import "./layout";
 @import "./userAvatar";
 @import "./friend";
-@import "./msg";
+@import "./discussion";
 @import "./channel";
 @import "./signup";
 @import "./dashboard";
@@ -33,6 +33,7 @@
 @import "./rtc";
 @import "./eventToaster";
 @import "./notification";
+@import "./hangout";
 
 /**
  * override material-ui components

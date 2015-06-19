@@ -1,6 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var SharedUtils = require('../../../../sharedUtils/utils');
 
 /**
  * material UI compoents
@@ -15,11 +16,13 @@ var SendChannelReq = require('../../../client/actions/channel/sendChannelReq');
 var SendFriendReq = require('../../../client/actions/friend/sendFriendReq');
 var CheckChannelReq = require('../../../client/actions/channel/checkChannelReq');
 var CheckFriendReq = require('../../../client/actions/friend/checkFriendReq');
+var OpenHangout = require('../../../client/actions/openHangout');
 
 /**
  * stores
  */
 var InfoCardStore = require('../../stores/InfoCardStore');
+var HeaderStore = require('../../stores/HeaderStore');
 
 /**
  * @Author: George_Chen
@@ -117,8 +120,12 @@ module.exports = React.createClass({
         return {
             value: 'Hangout',
             style: 'fa fa-comments-o',
-            handler: function(){
-                // TODO:
+            handler: function(cardInfo){
+                var selfUid = this.getStore(HeaderStore).getSelfInfo().uid;
+                this.executeAction(OpenHangout, {
+                    channelId: SharedUtils.get1on1ChannelId(cardInfo.targetUid, selfUid),
+                    hangoutTitle: cardInfo.nickName
+                });
             }
         };
     },

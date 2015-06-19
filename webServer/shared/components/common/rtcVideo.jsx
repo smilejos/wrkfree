@@ -18,10 +18,11 @@ module.exports = React.createClass({
     },
 
     render: function(){
+        var videoWidth = (this.props.width ? this.props.width : 250);
         return (
             <div className="rtcVideo">
                 <video 
-                    width="250" 
+                    width={videoWidth} 
                     id={this.props.videoId}
                     muted />
             </div>

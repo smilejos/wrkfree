@@ -1,7 +1,9 @@
 var React = require('react');
 var Promise = require('bluebird');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var FriendStore = require('../../stores/FriendStore');
+var ToggleStore = require('../../stores/ToggleStore');
+var HeaderStore = require('../../stores/HeaderStore');
 
 /**
  * child components
@@ -17,29 +19,48 @@ module.exports = React.createClass({
 
     statics: {
         storeListeners: {
-            '_onStoreChange': [FriendStore]
+            '_onStoreChange': [FriendStore],
+            '_onVisiableChange': [ToggleStore]
+        }
+    },
+
+    getInitialState: function() {
+        return {
+            isVisible : this.getStore(ToggleStore).getState().friendVisiable,
+            friends : this.getStore(FriendStore).getState().friends,
+            selfUid: this.getStore(HeaderStore).getSelfInfo().uid
+        };
+    },
+
+    // handler for handling display or not
+    _onVisiableChange: function(){
+        var store = this.getStore(ToggleStore).getState();
+        if (this.state.isVisible !== store.friendVisiable) {
+            this.setState({
+                isVisible : store.friendVisiable 
+            }); 
         }
     },
 
     // handler for handling the change of FriendStore
     _onStoreChange: function(){
-        var state = this.getStore(FriendStore).getState();
-        this.setState(state);
-    },
-
-    getInitialState: function() {
-        return this.getStore(FriendStore).getState();
+        var store = this.getStore(FriendStore).getState();
+        this.setState({
+            friends : store.friends
+        });
     },
     
     render: function(){
         var friends = this.state.friends;
+        var selfUid = this.state.selfUid;
         var friendList = friends.map(function(friendInfo){
             return <Friend 
                 key={friendInfo.uid}
+                self={selfUid}
                 info={friendInfo} />
         });
         return (
-            <div className="Friends">
+            <div className={this.state.isVisible ? 'FriendsShow' : 'Friends'}>
                 {friendList}
             </div>
         );

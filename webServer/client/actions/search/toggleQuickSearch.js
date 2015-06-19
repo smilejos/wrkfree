@@ -1,6 +1,5 @@
 'use strict';
 var SharedUtils = require('../../../../sharedUtils/utils');
-var QuickSearchStore = require('../../../shared/stores/QuickSearchStore');
 
 /**
  * @Public API
@@ -12,15 +11,16 @@ var QuickSearchStore = require('../../../shared/stores/QuickSearchStore');
  */
 module.exports = function(actionContext, data) {
     return SharedUtils.argsCheckAsync(data.isEnabled, 'boolean')
-        .then(function(isEnabled) {
-            var searchStore = actionContext.getStore(QuickSearchStore);
-            if (!isEnabled) {
+        .then(function(searchEnable) {
+            if (!searchEnable) {
                 actionContext.dispatch('ON_QUICKSEARCH_UPDATE', {
                     users: [],
                     channels: []
                 });
             }
-            return searchStore.enableSearch(isEnabled);
+            actionContext.dispatch('TOGGLE_QUICKSEARCH', {
+                isEnabled: searchEnable
+            });
         }).catch(function(err) {
             SharedUtils.printError('navToBoard.js', 'core', err);
             return null;

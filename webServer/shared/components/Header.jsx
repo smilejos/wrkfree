@@ -1,8 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
-var FluxibleMixin = require('fluxible').Mixin;
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var HeaderStore = require('../stores/HeaderStore');
-var Mui = require('material-ui');
 
 /**
  * actions
@@ -16,6 +15,7 @@ var ToggleNotifications = require('../../client/actions/toggleNotifications');
 /**
  * material UI compoents
  */
+var Mui = require('material-ui');
 var Toolbar = Mui.Toolbar;
 var ToolbarGroup = Mui.ToolbarGroup;
 var FontIcon = Mui.FontIcon;
@@ -164,9 +164,7 @@ module.exports = React.createClass({
         }
         return (
             <IconButton 
-                iconClassName="fa fa-times" 
-                tooltip="Cancel Search" 
-                touch={true} 
+                iconClassName="fa fa-times"  
                 onClick={this._onSearchCancel} />
         );
     },

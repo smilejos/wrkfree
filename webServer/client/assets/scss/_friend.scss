@@ -1,6 +1,21 @@
 /**
  * friend style
  */
+.Friends {
+    @extend .infoBox;
+    z-index: 3;
+    right: -300px;
+    visibility: hidden;
+    opacity: 0;
+}
+
+.FriendsShow {
+    @extend .infoBox;
+    z-index: 3;
+    right: 0px;
+    visibility: visible;
+    opacity: 1;
+}
 
 .Friend {
     position: relative;
