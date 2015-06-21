@@ -13,6 +13,7 @@ var Webcam = require('./Webcam.jsx');
 var EventToaster = require('./EventToaster.jsx');
 var Notifications = require('./common/Notifications.jsx');
 var Hangouts = require('./Hangouts.jsx');
+var QuickSearch = require('./QuickSearch.jsx');
 
 /**
  * TODO: below is for material-ui 9.0 up
@@ -71,6 +72,7 @@ module.exports = React.createClass({
                 <Notifications />
                 <EventToaster />
                 <Hangouts />
+                <QuickSearch />
             </div>
         );
     }
