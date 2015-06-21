@@ -70,7 +70,8 @@ module.exports = React.createClass({
             value: 'Ask to Join',
             style: 'fa fa-envelope-o',
             handler: function(cardInfo){
-                if (this.state.isReqSent !== null) {
+                var isReqSent = this.state.isReqSent;
+                if (isReqSent !== null && !isReqSent) {
                     this.executeAction(SendChannelReq, {
                         targetUser: cardInfo.targetUid,
                         channelId: cardInfo.channelId
@@ -89,7 +90,8 @@ module.exports = React.createClass({
             value: 'Add Friend',
             style: 'fa fa-user-plus',
             handler: function(cardInfo){
-                if (this.state.isReqSent !== null) {
+                var isReqSent = this.state.isReqSent;
+                if (isReqSent !== null && !isReqSent) {
                     this.executeAction(SendFriendReq, {
                         targetUser: cardInfo.targetUid
                     });

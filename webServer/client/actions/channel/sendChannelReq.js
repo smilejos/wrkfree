@@ -22,7 +22,12 @@ module.exports = function(actionContext, data) {
         if (!result) {
             throw new Error('send channel request fail');
         }
-        // TODO:  send channel req success
+        actionContext.dispatch('ON_INFOCARD_UPDATE', {
+            cardId: data.channelId,
+            state: {
+                isReqSent: true
+            }
+        });
     }).catch(function(err) {
         SharedUtils.printError('sendChannelReq.js', 'core', err);
     });

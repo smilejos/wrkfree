@@ -21,7 +21,12 @@ module.exports = function(actionContext, data) {
         if (!result) {
             throw new Error('send friend request fail');
         }
-        // TODO:  send friend req success
+        actionContext.dispatch('ON_INFOCARD_UPDATE', {
+            cardId: data.targetUser,
+            state: {
+                isReqSent: true
+            }
+        });
     }).catch(function(err) {
         SharedUtils.printError('sendFriendReq.js', 'core', err);
     });
