@@ -22,36 +22,14 @@ module.exports = React.createClass({
         // mark notification as readed and not shown on notification window
     },
 
-    /**
-     * @Author: George_Chen
-     * @Description: handler for hiding timestamp
-     */
-    _hideTimestamp: function() {
-        this.setState({
-            isTimeVisible: false
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for show timestamp
-     */
-    _showTimestamp: function() {
-        this.setState({
-            isTimeVisible: true
-        });
-    },
-
     render: function() {
-        var isTimeVisible = this.state.isTimeVisible;
+        var isTimeVisible = this.props.isTimeVisible;
         var timeClass = (isTimeVisible ? 'show' : 'hide');
         var closeIconClass = (isTimeVisible ? 'hide' : 'show');
         return (
-            <div className="NoticeMessage">
+            <div className="NoticeMessage" >
                 <div className="title"> {this.props.title} </div>
-                <div className="time"
-                    onMouseOver={this._hideTimestamp}
-                    onMouseOut={this._showTimestamp} >
+                <div className="time" >
                     <span className={timeClass} >
                         {this.props.date.toLocaleDateString()}
                         &nbsp;
