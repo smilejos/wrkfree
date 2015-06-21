@@ -24,16 +24,11 @@ var OauthProviders = ['facebook', 'google'];
  *
  * @param {String}          id, user's uid
  */
-exports.findByIdAsync = function(id) {
+exports.findByIdAsync = function(id, isLogin) {
     return SharedUtils.argsCheckAsync(id, 'md5')
         .then(function(uid) {
-            var selectField = _getBasicInfoFields();
-            return Model.findById(uid, selectField).lean().execAsync();
-        }).then(function(doc) {
-            return _transformUid(doc);
-        }).catch(function(err) {
-            SharedUtils.printError('UserDao', 'findByIdAsync', err);
-            return null;
+            var fields = (isLogin ? _getLoginInfoFields() : _getBasicInfoFields());
+            return _findById(uid, fields, 'findByIdAsync');
         });
 };
 
@@ -202,6 +197,26 @@ exports.addNewUserAsync = function(userInfo) {
     });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to set the unreadNoticeCounts field on userModel
+ *
+ * @param {String}          user, user's uid
+ * @param {Boolean}         isReset, to indicate reset field or not
+ */
+exports.setUnreadNoticeCountAsync = function(user, isReset) {
+    return SharedUtils.argsCheckAsync(user, 'md5')
+        .then(function(uid){
+            var handler = (isReset ? _resetIncrValue : _incrValue);
+            return handler(
+                uid, 
+                'unreadNoticeCounts', 
+                'setUnreadNoticeCountAsync'
+                );
+        });
+};
+
 /************************************************
  *
  *           internal functions
@@ -225,6 +240,78 @@ function _transformUid(doc) {
 
 /**
  * @Author: George_Chen
+ * @Description: to reset specific incremental field to zero
+ *
+ * @param {String}          id, user's uid
+ * @param {String}          field, the field name on model
+ * @param {String}          caller, the caller of this function
+ */
+function _resetIncrValue(id, field, caller) {
+    var query = {
+        _id: id
+    };
+    var info = {};
+    info[field] = 0;
+    return _update(query, info, caller);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to increment specific field by 1
+ *
+ * @param {String}          id, user's uid
+ * @param {String}          field, the field name on model
+ * @param {String}          caller, the caller of this function
+ */
+function _incrValue(id, field, caller) {
+    var query = {
+        _id: id
+    };
+    var info = {
+        $inc: {}
+    };
+    info.$inc[field] = 1;
+    return _update(query, info, caller);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: low-level implementation of updating document
+ *
+ * @param {Object}          condition, the query condition
+ * @param {Object}          info, the new info will be updated
+ * @param {String}          caller, the caller of this function
+ */
+function _update(condition, info, caller){
+    return Model.update(condition, info).execAsync()
+        .then(function(result){
+            return DbUtil.checkDocumentUpdateStatusAsync(result);
+        }).catch(function(err){
+            SharedUtils.printError('UserDao', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: low-level implementation of finding doucment by id
+ *
+ * @param {String}          id, user's uid
+ * @param {Object}          fields, the fields will be selected
+ * @param {String}          caller, the caller of this function
+ */
+function _findById(id, fields, caller) {
+    return Model.findById(id, fields).lean().execAsync()
+        .then(function(doc){
+            return DbUtil.transformToNewIdAsync(doc, 'uid');
+        }).catch(function(err){
+            SharedUtils.printError('UserDao', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
  * @Description: get the basic infomation of user document
  *         NOTE: currently we request only nickName and avatar
  */
@@ -232,5 +319,18 @@ function _getBasicInfoFields() {
     return {
         nickName: DbUtil.select(true),
         avatar: DbUtil.select(true)
+    };
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: get the login infomation of user document
+ */
+function _getLoginInfoFields() {
+    return {
+        nickName: DbUtil.select(true),
+        avatar: DbUtil.select(true),
+        isDashBoardGrid: DbUtil.select(true),
+        unreadNoticeCounts: DbUtil.select(true)
     };
 }
