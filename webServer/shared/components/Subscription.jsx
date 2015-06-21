@@ -159,6 +159,10 @@ module.exports = React.createClass({
         );
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for Subscription of channels 
+     */
     _getChannelList: function(){
         var navInfo = this.state.navInfo;
         var channelList = SharedUtils.fastArrayMap(navInfo, function(item){
@@ -171,6 +175,10 @@ module.exports = React.createClass({
         );
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for channel content
+     */
     _getChannel: function(Channel){
         var route = '/app/workspace/'+Channel.channelId + '?board=1';
         var counter = this._getCounter(Channel);
@@ -193,6 +201,10 @@ module.exports = React.createClass({
         );
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: generate unread message count
+     */
     _getCounter: function(Channel){
         if( Channel.unreadMsgNumbers > 0 ) {
             return (
@@ -203,6 +215,10 @@ module.exports = React.createClass({
         }
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: generate channel conference icon
+     */
     _getConference: function(Channel){
         if( Channel.isConferenceExist ) {
             return (

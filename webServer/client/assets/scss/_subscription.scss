@@ -1,9 +1,31 @@
 
+/**
+ * @Author: Jos Tung
+ * @Description: this style for subscription channels component using in Subscription.jsx
+ *  Note: the div stratum can refer below information.
+ *  --SubscriptionChannels
+ *    --SubscriptionChannelsHeader
+ *      --SubscriptionChannelsContent
+ *    --ChannelList
+ *      --Channel
+ *        --ChannelText
+ *          --ChannelName
+ *          --ChannelHost
+ *        --Signal
+ *          --Counter
+ *          --Conference
+ */
+
+
 .SubscriptionChannels {
 	@extend .listBox;
 	transition: 0.5s;
 	z-index: 3;
 
+	/**
+     * @Author: Jos Tung
+     * @Description: keep original style
+     */
 	.SubscriptionChannelsHeader {
 		height: 150px;
 	    padding: 0px 20px;
@@ -17,6 +39,10 @@
 		}
 	}
 
+	/**
+     * @Author: Jos Tung
+     * @Description: custom a component of subscription channels 
+     */
 	.ChannelList {
 
 		position: absolute;
