@@ -9,16 +9,13 @@ var HeaderStore = require('../stores/HeaderStore');
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var ToggleComponent = require('../../client/actions/toggleComponent');
 var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
-var QuickSearchAction = require('../../client/actions/search/quickSearch');
 var ToggleNotifications = require('../../client/actions/toggleNotifications');
+var QuickSearchAction = require('../../client/actions/search/quickSearch');
 
 /**
  * material UI compoents
  */
 var Mui = require('material-ui');
-var Toolbar = Mui.Toolbar;
-var ToolbarGroup = Mui.ToolbarGroup;
-var FontIcon = Mui.FontIcon;
 var IconButton = Mui.IconButton;
 var TextField = Mui.TextField;
 
@@ -26,6 +23,7 @@ var TextField = Mui.TextField;
  * child components
  */
 var UserAvatar = require('./common/userAvatar.jsx');
+var StateIcon = require('./common/stateIcon.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
 
 /**
@@ -64,15 +62,6 @@ module.exports = React.createClass({
         this.executeAction(ToggleQuickSearch, {
             isEnabled: false
         });
-    },
-
-    /**
-     * TODO: show out the user settings pop-out
-     * @Author: George_Chen
-     * @Description: handle the user avatar click mechanism
-     */
-    _onAvatarClick: function() {
-        location.assign('https://localhost/app/logout');
     },
 
     /**
@@ -148,7 +137,7 @@ module.exports = React.createClass({
         return (
             <IconButton 
                 iconClassName="fa fa-search" 
-                tooltip="Search Channels, Users, ..." 
+                tooltip="Search things " 
                 touch={true} 
                 onClick={this._onSearchIconClick} />
         );
@@ -171,30 +160,64 @@ module.exports = React.createClass({
 
     render: function() {
         return (
-            <div className="Header menuBox">
-                <Toolbar>
-                    <IconButton iconClassName="fa fa-bars" tooltip="Your Channels" touch={true} onClick={this._onMenuIconButtonTouchTap} />
-                    {this._setSearchIcon()}
-                    <TextField 
-                        hintText="search channels ...." 
-                        ref="search"
-                        onClick={this._onSearchIconClick}
-                        onChange={this._onSearchChange}
-                        onKeyDown={this._onSearchKeyDown} />
-                    {this._setCancelIcon()}
-                    <ToolbarGroup key={0} float="right">
-                        <div className="pure-g" >
-                            <UserAvatar avatar={this.state.userInfo.avatar} 
-                                isCircle={true} 
-                                style={{'marginTop':'5px'}} 
-                                onAvatarClick={this._onAvatarClick} />
-                            <FontIcon className="fa fa-bell" onClick={this._onNoticeToggle}/>
-                            <FontIcon className="fa fa-user" onClick={this._onInboxToggle}/>
-                            <span className="mui-toolbar-separator">&nbsp;</span>
-                        </div>
-                    </ToolbarGroup>
-                </Toolbar>
-                <QuickSearch />
+            <div className="Header">
+                <div className="headerLeftMenu">
+                    <StateIcon
+                        stateClass="leftState" 
+                        iconClass="fa fa-bars"
+                        counts={this.state.unreadSubscribdMsgsCounts}
+                        handler={this._onMenuIconButtonTouchTap} />
+                    <div className="headerSearch" >
+                        {this._setSearchIcon()}
+                        <TextField 
+                            hintText="search channels, users, ...." 
+                            ref="search"
+                            onClick={this._onSearchIconClick}
+                            onChange={this._onSearchChange}
+                            onKeyDown={this._onSearchKeyDown} />
+                        {this._setCancelIcon()}
+                    </div>
+                </div>
+                <div className="headerRightMenu" >
+                    <StateIcon
+                        stateClass="rightState" 
+                        iconClass="fa fa-bell"
+                        counts={this.state.unreadNoticeCounts} 
+                        handler={this._onNoticeToggle} />
+                    <StateIcon
+                        stateClass="rightState" 
+                        iconClass="fa fa-comments"
+                        counts={this.state.unreadfriendMsgCounts}  
+                        handler={this._onInboxToggle} />
+                    <UserState avatar={this.state.userInfo.avatar} name={this.state.userInfo.nickName} />
+                </div>
+            </div>
+        );
+    }
+});
+
+/**
+ * @Author: George_Chen
+ * @Description: the state of login user
+ * 
+ * @param {String}        this.props.avatar, the current login user's avatar
+ * @param {String}        this.props.name, the current login user's name
+ */
+var UserState = React.createClass({
+    /**
+     * TODO: show out the user settings pop-out
+     * @Author: George_Chen
+     * @Description: handle the user avatar click mechanism
+     */
+    _onAvatarClick: function() {
+        location.assign('https://localhost/app/logout');
+    },
+
+    render: function() {
+        return (
+            <div className="userState" onClick={this._onAvatarClick}>
+                <span className="UserStateName" > {this.props.name} </span>
+                <UserAvatar avatar={this.props.avatar} isCircle />
             </div>
         );
     }
