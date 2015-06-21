@@ -5,6 +5,7 @@ var ReqRespDao = require('../daos/ReqRespDao');
 var FriendDao = require('../daos/FriendDao');
 var MemberDao = require('../daos/ChannelMemberDao');
 var ChannelDao = require('../daos/ChannelDao');
+var UserDao = require('../daos/UserDao');
 
 /************************************************
  *
@@ -31,11 +32,36 @@ exports.saveReqAsync = function(sender, target, type, info) {
                 throw new Error('request has already sent or completed');
             }
             return ReqRespDao.saveReqAsync(sender, target, type, info);
+        }).then(function(reqResult) {
+            if (!reqResult) {
+                throw new Error('save request fail');
+            }
+            return _incrNoticeCounts(target, 'saveReqAsync').then(function() {
+                return reqResult;
+            });
         }).catch(function(err) {
             SharedUtils.printError('ReqRespService.js', 'saveReqAsync', err);
             return null;
         });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to increment current user's unread notice counts
+ *
+ * @param {String}          user, user's id
+ * @param {String}          caller, the caller of this API
+ */
+function _incrNoticeCounts(user, caller) {
+    var err = new Error('incrNoticeCounts fail');
+    return UserDao.setUnreadNoticeCountAsync(user, false)
+        .then(function(incrResult) {
+            if (!incrResult) {
+                SharedUtils.printError('ReqRespService.js', caller, err);
+            }
+        });
+}
 
 /**
  * Public API
@@ -49,7 +75,14 @@ exports.saveReqAsync = function(sender, target, type, info) {
  */
 exports.saveRespAsync = function(reqId, replier, originalSender, isPermitted) {
     return ReqRespDao.updateToRespAsync(reqId, replier, originalSender, isPermitted)
-        .catch(function(err) {
+        .then(function(respResult) {
+            if (!respResult) {
+                throw new Error('save response fail');
+            }
+            return _incrNoticeCounts(originalSender, 'saveRespAsync').then(function() {
+                return respResult;
+            });
+        }).catch(function(err) {
             SharedUtils.printError('ReqRespService.js', 'saveRespAsync', err);
             return null;
         });
