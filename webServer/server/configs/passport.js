@@ -42,7 +42,7 @@ module.exports = function() {
         if (!SharedUtils.isString(user.uid)) {
             return done(error, user);
         }
-        return UserStorage.getUserAsync(user.uid)
+        return UserStorage.getUserAsync(user.uid, true)
             .then(function(info) {
                 info.uid = user.uid;
                 return info;

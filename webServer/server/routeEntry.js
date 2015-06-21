@@ -13,15 +13,9 @@ var SharedUtils = require('../../sharedUtils/utils');
  */
 exports.getDashboardAsync = function(actionContext, routeInfo) {
     var friendStorage = routeInfo.storageManager.getService('Friend');
-    // temp test data for header store
-    var headerState = {
-        user: routeInfo.user,
-        hasUnreadMsgs: false,
-        hasNotification: false
-    };
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
-        HeaderStore: headerState,
+        HeaderStore: routeInfo.user,
         DashboardStore: _getChannelStreams(routeInfo.user.uid, routeInfo.storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
@@ -42,16 +36,9 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
 exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     var storageManager = routeInfo.storageManager;
     var friendStorage = storageManager.getService('Friend');
-    // temp test data for header store
-    var headerState = {
-        user: routeInfo.user,
-        hasUnreadMsgs: false,
-        hasNotification: false
-    };
-
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
-        HeaderStore: headerState,
+        HeaderStore: routeInfo.user,
         WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);

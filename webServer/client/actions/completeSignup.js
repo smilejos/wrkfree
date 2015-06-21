@@ -16,9 +16,11 @@ var HeaderStore = require('../../shared/stores/HeaderStore');
 module.exports = function(actionContext, data, callback) {
     var headerStore = actionContext.getStore(HeaderStore);
     var state = {
-        user: data.user,
-        hasUnreadMsgs: false,
-        hasNotification: false
+        uid: data.user.uid,
+        avatar: data.user.avatar,
+        nickName: data.user.nickName,
+        unreadNoticeCounts: 0,
+        isDashBoardGrid: true
     };
     return headerStore.polyfillAsync(state)
         .then(function() {
