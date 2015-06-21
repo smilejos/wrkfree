@@ -75,16 +75,31 @@ exports.isEmailUsedAsync = function(uid) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to reset unread notice on target user's header;
+ *
+ * @param {Object}          socket, the client socket instance
+ */
+exports.resetUnreadNoticeAsync = function(user) {
+    return UserDao.setUnreadNoticeCountAsync(user, true)
+        .catch(function(err) {
+            SharedUtils.printError('UserService', 'resetUnreadNoticeAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to find out the information of specific user
  *
  * @param {String/Array}      user, an user id or an array of users
  */
-exports.getUserAsync = function(user) {
+exports.getUserAsync = function(user, isLogin) {
     return Promise.try(function() {
         if (SharedUtils.isArray(user)) {
             return UserDao.findByGroupAsync(user);
         }
-        return UserDao.findByIdAsync(user);
+        return UserDao.findByIdAsync(user, isLogin);
     }).catch(function(err) {
         SharedUtils.printError('UserService', 'getUserAsync', err);
         return null;
