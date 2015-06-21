@@ -207,13 +207,13 @@ exports.addNewUserAsync = function(userInfo) {
  */
 exports.setUnreadNoticeCountAsync = function(user, isReset) {
     return SharedUtils.argsCheckAsync(user, 'md5')
-        .then(function(uid){
+        .then(function(uid) {
             var handler = (isReset ? _resetIncrValue : _incrValue);
             return handler(
-                uid, 
-                'unreadNoticeCounts', 
+                uid,
+                'unreadNoticeCounts',
                 'setUnreadNoticeCountAsync'
-                );
+            );
         });
 };
 
@@ -282,11 +282,11 @@ function _incrValue(id, field, caller) {
  * @param {Object}          info, the new info will be updated
  * @param {String}          caller, the caller of this function
  */
-function _update(condition, info, caller){
+function _update(condition, info, caller) {
     return Model.update(condition, info).execAsync()
-        .then(function(result){
+        .then(function(result) {
             return DbUtil.checkDocumentUpdateStatusAsync(result);
-        }).catch(function(err){
+        }).catch(function(err) {
             SharedUtils.printError('UserDao', caller, err);
             return null;
         });
@@ -302,9 +302,9 @@ function _update(condition, info, caller){
  */
 function _findById(id, fields, caller) {
     return Model.findById(id, fields).lean().execAsync()
-        .then(function(doc){
+        .then(function(doc) {
             return DbUtil.transformToNewIdAsync(doc, 'uid');
-        }).catch(function(err){
+        }).catch(function(err) {
             SharedUtils.printError('UserDao', caller, err);
             return null;
         });
