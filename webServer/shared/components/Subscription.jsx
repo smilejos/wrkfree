@@ -173,22 +173,48 @@ module.exports = React.createClass({
 
     _getChannel: function(Channel){
         var route = '/app/workspace/'+Channel.channelId + '?board=1';
+        var counter = this._getCounter(Channel);
+        var conference= this._getConference(Channel);
         return (
             <div className="Channel" onClick={this._onChannelClick.bind(route)}>
-                <div className="ChannelName">
-                    {Channel.name}    
+                <div className="ChannelText">
+                    <div className="ChannelName">
+                        {Channel.name}    
+                    </div>
+                    <div className="ChannelHost">
+                        {'@' + Channel.host}
+                    </div>
                 </div>
-                <div className="ChannelHost">
-                    {'@' + Channel.host}
+                <div className="Signal">
+                    {conference}
+                    {counter}
                 </div>
             </div>
         );
     },
 
+    _getCounter: function(Channel){
+        if( Channel.unreadMsgNumbers > 0 ) {
+            return (
+                <div className="Counter">
+                    {Channel.unreadMsgNumbers}
+                </div>
+            );
+        }
+    },
+
+    _getConference: function(Channel){
+        if( Channel.isConferenceExist ) {
+            return (
+                <div className="Conference fa fa-users"></div>
+            );
+        }
+    },
+
     render: function() {
         var Header = this._getNavHeader();
         var ChannelList = this._getChannelList();
-        var style = "SubscriptionChannels" + this.state.isActived ? " SubscriptionChannelsShow" : " SubscriptionChannelsHide";
+        var style = "SubscriptionChannels" + ( this.state.isActived ? " SubscriptionChannelsShow" : " SubscriptionChannelsHide" );
         return (
             <div className={style}>
                 {Header}
