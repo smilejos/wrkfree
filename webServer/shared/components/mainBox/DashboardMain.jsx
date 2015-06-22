@@ -4,6 +4,11 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var DashboardStore = require('../../stores/DashboardStore');
 
 /**
+ * actions
+ */
+var SetDashboardLayout = require('../../../client/actions/setDashboardLayout');
+
+/**
  * material UI compoents
  */
 var Toolbar = Mui.Toolbar;
@@ -43,9 +48,8 @@ module.exports = React.createClass({
      * @Description: handle the layout type change while user select
      */
     _onLayoutChang: function(isGrid) {
-        this.setState({
-            isDashboardGrid: isGrid,
-            channels: this.state.channels
+        this.executeAction(SetDashboardLayout, {
+            isDashboardGrid: isGrid
         });
     },
 

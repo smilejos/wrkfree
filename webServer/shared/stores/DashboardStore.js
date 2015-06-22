@@ -21,6 +21,10 @@ var Snapshots = [
 
 module.exports = CreateStore({
     storeName: 'DashboardStore',
+    
+    handlers: {
+        'SET_DASHBOARD_LAYOUT': 'setLayout'
+    },
 
     initialize: function() {
         this.isDashboardGrid = true;
@@ -37,7 +41,7 @@ module.exports = CreateStore({
      * @param {Object}       state.channels, an array of channel info
      */
     setLayout: function(data) {
-        if (data.isDashboardGrid) {
+        if (SharedUtils.isBoolean(data.isDashboardGrid)) {
             this.isDashboardGrid = data.isDashboardGrid;
             this.emitChange();
         }
@@ -123,7 +127,7 @@ module.exports = CreateStore({
     rehydrate: function(state) {
         this.isDashboardGrid = state.isDashboardGrid;
         this.channels = state.channels;
-        if (SharedUtils.isArray(this.channels)){
+        if (SharedUtils.isArray(this.channels)) {
             this._setOutdatedTimer();
         }
     }
