@@ -330,7 +330,7 @@ function _getLoginInfoFields() {
     return {
         nickName: DbUtil.select(true),
         avatar: DbUtil.select(true),
-        isDashBoardGrid: DbUtil.select(true),
+        isDashboardGrid: DbUtil.select(true),
         unreadNoticeCounts: DbUtil.select(true)
     };
 }
