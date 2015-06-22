@@ -21,9 +21,16 @@ module.exports = CreateStore({
     storeName: 'DashboardStore',
 
     initialize: function() {
-        this.layout = 'grid';
+        this.isDashboardGrid = true;
         this.channels = [];
         this.isPolyFilled = null;
+    },
+
+    setLayout: function(data) {
+        if (data.isDashboardGrid) {
+            this.isDashboardGrid = data.isDashboardGrid;
+            this.emitChange();
+        }
     },
 
     /**
@@ -35,7 +42,6 @@ module.exports = CreateStore({
      * @param {Object}       state.channels, an array of channel info
      */
     polyfillAsync: function(state) {
-        this.layout = state.layout || 'grid';
         return Promise.map(state.channels, function(item, index) {
             var hostIndex = 0;
             var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
@@ -72,7 +78,7 @@ module.exports = CreateStore({
 
     getState: function() {
         return {
-            layout: this.layout,
+            isDashboardGrid: this.isDashboardGrid,
             channels: this.channels
         };
     },
@@ -82,7 +88,7 @@ module.exports = CreateStore({
     },
 
     rehydrate: function(state) {
-        this.layout = state.layout;
+        this.isDashboardGrid = state.isDashboardGrid;
         this.channels = state.channels;
         this.isPolyFilled = !!state;
     }

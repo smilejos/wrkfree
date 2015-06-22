@@ -168,7 +168,6 @@ function _getDashboardResource(actionContext) {
     var dashboardStore = actionContext.getStore(DashboardStore);
     if (!dashboardStore.isPolyFilled) {
         return Promise.props({
-            layout: 'grid', // TODO: should be store at userModel
             channels: ChannelService.findByAuthorizedAsync()
         });
     }
