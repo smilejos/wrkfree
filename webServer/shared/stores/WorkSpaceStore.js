@@ -37,7 +37,6 @@ module.exports = CreateStore({
         this.rtc = {
             onConferenceCall: false
         };
-        this.newBoardTip = false;
         this.rtcTimeout = null;
     },
 
@@ -78,10 +77,7 @@ module.exports = CreateStore({
      */
     onBoardAdd: function(data) {
         this.draw.boardNums = data.boardId + 1;
-        this.newBoardTip = !data.isCreator;
-        if (!data.isCreator) {
-            this.emitChange();
-        }
+        this.emitChange();
     },
 
     /**
@@ -144,11 +140,8 @@ module.exports = CreateStore({
             members: this.members,
             rtc: this.rtc,
             draw: this.draw,
-            status: this.status,
-            newBoardTip: !!this.newBoardTip // pass it by value
+            status: this.status
         };
-        // clean the board added tips
-        this.newBoardTip = false;
         return state;
     },
 
