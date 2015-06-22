@@ -21,9 +21,7 @@ module.exports = React.createClass({
 
     render: function(){
         return (
-            <div>
-                <Palette active={this.props.isActive} onColorPickup={this._handleColorPickup}/>
-            </div>
+            <Palette active={this.props.isActive} onColorPickup={this._handleColorPickup}/>
         );
     }
 });
