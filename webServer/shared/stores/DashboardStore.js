@@ -3,6 +3,8 @@ var Promise = require('bluebird');
 var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 
+var OUTDATED_TIME_IN_MSECOND = 10000;
+
 /**
  * Test data
  */
@@ -22,10 +24,18 @@ module.exports = CreateStore({
 
     initialize: function() {
         this.isDashboardGrid = true;
-        this.channels = [];
-        this.isPolyFilled = null;
+        this.channels = null;
+        this.isOutdated = true;
+        this.outdatedTimer = null;
     },
 
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: 
+     *
+     * @param {Object}       state.channels, an array of channel info
+     */
     setLayout: function(data) {
         if (data.isDashboardGrid) {
             this.isDashboardGrid = data.isDashboardGrid;
@@ -38,7 +48,6 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: polyfill dashboard state infomation
      *
-     * @param {String}       state.layout, the channel stream layout
      * @param {Object}       state.channels, an array of channel info
      */
     polyfillAsync: function(state) {
@@ -67,13 +76,37 @@ module.exports = CreateStore({
                 lastBaord: item.lastBaord
             };
         }).bind(this).then(function(result) {
-            this.isPolyFilled = true;
+            this._setOutdatedTimer();
             this.channels = result;
             this.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('DashboardStore', 'polyfillAsync', err);
             return null;
         });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to manage the outdated status of store
+     */
+    _setOutdatedTimer: function() {
+        var self = this;
+        self.isOutdated = false;
+        if (this.outdatedTimer) {
+            clearTimeout(this.outdatedTimer);
+        }
+        self.outdatedTimer = setTimeout(function() {
+            self.isOutdated = true;
+        }, OUTDATED_TIME_IN_MSECOND);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: to check current store data is outdated or not
+     */
+    isStoreOutdated: function() {
+        return this.isOutdated;
     },
 
     getState: function() {
@@ -90,6 +123,8 @@ module.exports = CreateStore({
     rehydrate: function(state) {
         this.isDashboardGrid = state.isDashboardGrid;
         this.channels = state.channels;
-        this.isPolyFilled = !!state;
+        if (SharedUtils.isArray(this.channels)){
+            this._setOutdatedTimer();
+        }
     }
 });
