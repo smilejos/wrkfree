@@ -217,6 +217,29 @@ exports.setUnreadNoticeCountAsync = function(user, isReset) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to set the user's isDashboardLayout field on userModel
+ *
+ * @param {String}          user, the current user id
+ * @param {Boolean}         data.isGridLayout, to indicate layout is grid or not
+ */
+exports.setLayoutAsync = function(user, isGridLayout) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(user, 'md5'),
+        SharedUtils.argsCheckAsync(isGridLayout, 'boolean'),
+        function(uid, isGrid) {
+            var query = {
+                _id: uid
+            };
+            var info = {
+                isDashboardGrid: isGrid
+            };
+            return _update(query, info, 'setLayoutAsync');
+        });
+};
+
 /************************************************
  *
  *           internal functions
