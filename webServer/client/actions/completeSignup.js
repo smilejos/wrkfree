@@ -20,7 +20,7 @@ module.exports = function(actionContext, data, callback) {
         avatar: data.user.avatar,
         nickName: data.user.nickName,
         unreadNoticeCounts: 0,
-        isDashBoardGrid: true
+        isDashboardGrid: true
     };
     return headerStore.polyfillAsync(state)
         .then(function() {

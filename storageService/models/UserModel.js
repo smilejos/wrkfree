@@ -17,7 +17,7 @@ var UserSchema = new Schema({
     expiryDate:                 {type : Date,   default : '' },
     locale:                     {type : String, default : 'en_US', trim : true},
     // app information
-    isDashBoardGrid:            {type : Boolean, default : true},
+    isDashboardGrid:            {type : Boolean, default : true},
     unreadNoticeCounts:         {type : Number, default: 0},
     createdTime:                {type : Date  , default : Date.now },
     updatedTime:                {type : Date  , default : Date.now },
