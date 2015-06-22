@@ -1,5 +1,5 @@
 'use strict';
-var ChannelNavStore = require('../../shared/stores/ChannelNavStore');
+var SubscriptionStore = require('../../shared/stores/SubscriptionStore');
 
 /**
  * @Public API
@@ -14,7 +14,7 @@ var ChannelNavStore = require('../../shared/stores/ChannelNavStore');
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, mode, callback) {
-    var navStore = actionContext.getStore(ChannelNavStore);
+    var navStore = actionContext.getStore(SubscriptionStore);
     // let navStore to detect his toggle mechanism
     return navStore.toggleAsync(mode.open).nodeify(callback);
 };
