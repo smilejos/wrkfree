@@ -3,7 +3,7 @@ var Router = require('react-router');
 var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../sharedUtils/utils');
-var ChannelNavStore = require('../stores/ChannelNavStore');
+var SubscriptionStore = require('../stores/SubscriptionStore');
 var HeaderStore = require('../stores/HeaderStore');
 
 /**
@@ -40,7 +40,7 @@ module.exports = React.createClass({
     mixins: [Router.Navigation, Router.State, FluxibleMixin],
     statics: {
         storeListeners: {
-            'onStoreChange': [ChannelNavStore]
+            'onStoreChange': [SubscriptionStore]
         }
     },
 
@@ -48,7 +48,7 @@ module.exports = React.createClass({
      * handler for channelNavStore change
      */
     onStoreChange: function() {
-        var state = this.getStore(ChannelNavStore).getState();
+        var state = this.getStore(SubscriptionStore).getState();
         if (state.createdChannel !== -1) {
             return this._checkCreatedChannel(state.createdChannel);
         }
@@ -84,7 +84,7 @@ module.exports = React.createClass({
      * initialize state of channelNav.jsx
      */
     getInitialState: function() {
-        return this.getStore(ChannelNavStore).getState();
+        return this.getStore(SubscriptionStore).getState();
     },
 
     _onChannelClick: function(route){

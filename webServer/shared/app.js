@@ -22,7 +22,7 @@ app.plug(storePlugin);
 app.registerStore(require('./stores/MainAppStore'));
 app.registerStore(require('./stores/HeaderStore'));
 app.registerStore(require('./stores/SignUpStore'));
-app.registerStore(require('./stores/ChannelNavStore'));
+app.registerStore(require('./stores/SubscriptionStore'));
 app.registerStore(require('./stores/DashboardStore'));
 app.registerStore(require('./stores/MessageStore'));
 app.registerStore(require('./stores/WorkSpaceStore'));
