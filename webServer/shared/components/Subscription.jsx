@@ -53,9 +53,8 @@ module.exports = React.createClass({
             return this._checkCreatedChannel(state.createdChannel);
         }
         if (state.isActived !== this.state.isActived) {
-            this.refs.channelNav.toggle();
+            this.setState(state);
         }
-        this.setState(state);
     },
 
     /**
@@ -88,32 +87,9 @@ module.exports = React.createClass({
         return this.getStore(ChannelNavStore).getState();
     },
 
-    /**
-     * @Author: George_Chen
-     * @Description: handler for user select item in channel navigation bar
-     *
-     * @param {Object}        e, react's mouse event
-     * @param {Number}        selectedIndex, the index of navMenu item that is selected
-     * @param {Object}        item, the selected item of navMenu
-     */
-    _onChannelNavSelect: function(e, selectedIndex, item) {
+    _onChannelClick: function(route){
         this.executeAction(ToggleChannelNav, {});
-        this.transitionTo(item.route);
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for handling which item in menu is selected
-     *
-     * @param {Array}        navMenu, current contents of navMenu
-     */
-    _getSelectedIndex: function(navMenu) {
-        for (var i=0;i<=navMenu.length-1;++i) {
-            if (navMenu[i].route && this.isActive(navMenu[i].route)) {
-                return i;
-            }
-        }
-        return 0;
+        this.transitionTo(route);
     },
 
     /**
@@ -163,9 +139,9 @@ module.exports = React.createClass({
     _getNavHeader: function() {
         var isNameValid = this.state.isNameValid;
         return (
-            <div className="ChannelNavHeader">
+            <div className="SubscriptionChannelsHeader">
                 {'Create Cannel'}
-                <div className="ChannelNavHeaderContent" >
+                <div className="SubscriptionChannelsContent" >
                     <TextField 
                         hintText="channel name" 
                         ref={'channelName'}
@@ -183,28 +159,82 @@ module.exports = React.createClass({
         );
     },
 
-    render: function() {
-        var header = this._getNavHeader();
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for Subscription of channels 
+     */
+    _getChannelList: function(){
         var navInfo = this.state.navInfo;
-        var navMenu = SharedUtils.fastArrayMap(navInfo, function(item){
-            return {
-                route: '/app/workspace/'+item.channelId + '?board=1',
-                text: item.channelName + ' @'+item.hostName
-            };
-        });
-        navMenu.unshift({
-            type: Mui.MenuItem.Types.SUBHEADER,
-            text: 'CHANNELS'
-        });
+        var channelList = SharedUtils.fastArrayMap(navInfo, function(item){
+            return this._getChannel(item);
+        }.bind(this));
         return (
-            <div className="ChannelNav leftNavBox">
-            <LeftNav 
-                ref={'channelNav'}
-                docked={this.state.isActived}
-                menuItems={navMenu}
-                header={header}
-                selectedIndex={this._getSelectedIndex(navMenu)}
-                onChange={this._onChannelNavSelect} />
+            <div className="ChannelList">
+                {channelList}
+            </div>
+        );
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for channel content
+     */
+    _getChannel: function(Channel){
+        var route = '/app/workspace/'+Channel.channelId + '?board=1';
+        var counter = this._getCounter(Channel);
+        var conference= this._getConference(Channel);
+        return (
+            <div className="Channel" onClick={this._onChannelClick.bind(route)}>
+                <div className="ChannelText">
+                    <div className="ChannelName">
+                        {Channel.name}    
+                    </div>
+                    <div className="ChannelHost">
+                        {'@' + Channel.host}
+                    </div>
+                </div>
+                <div className="Signal">
+                    {conference}
+                    {counter}
+                </div>
+            </div>
+        );
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: generate unread message count
+     */
+    _getCounter: function(Channel){
+        if( Channel.unreadMsgNumbers > 0 ) {
+            return (
+                <div className="Counter">
+                    {Channel.unreadMsgNumbers}
+                </div>
+            );
+        }
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: generate channel conference icon
+     */
+    _getConference: function(Channel){
+        if( Channel.isConferenceExist ) {
+            return (
+                <div className="Conference fa fa-users"></div>
+            );
+        }
+    },
+
+    render: function() {
+        var Header = this._getNavHeader();
+        var ChannelList = this._getChannelList();
+        var style = "SubscriptionChannels" + ( this.state.isActived ? " SubscriptionChannelsShow" : " SubscriptionChannelsHide" );
+        return (
+            <div className={style}>
+                {Header}
+                {ChannelList}
             </div>
         );
     }

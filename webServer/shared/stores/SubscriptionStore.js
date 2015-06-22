@@ -16,6 +16,28 @@ module.exports = CreateStore({
         this.navInfo = [];
         this.isActived = false;
         this.isNameValid = false;        
+
+        // test data for channelNav Info
+        this.navInfo = [{
+            channelId: 'e8075f24e77e220c056ab1926be69cf7',
+            name: 'wrkfree',
+            host: 'GeorgeChen',
+            unreadMsgNumbers: 2,
+            isConferenceExist: false
+        }, {
+            channelId: 'test1234',
+            name: 'Development',
+            host: 'Normanywei',
+            unreadMsgNumbers: 0,
+            isConferenceExist: false
+        }, {
+            channelId: 'test12356789',
+            name: 'UI',
+            host: 'SmileJos',
+            unreadMsgNumbers: 9,
+            isConferenceExist: true
+        }];
+        
         // use "-1" to indicate that no channel create action
         this.createdChannel = -1;
     },

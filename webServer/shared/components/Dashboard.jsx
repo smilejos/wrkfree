@@ -11,7 +11,6 @@ var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
  */
 var MainBox = require('./mainBox/DashboardMain.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
-var ChannelNav = require('./ChannelNav.jsx');
 
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
