@@ -64,6 +64,9 @@ module.exports = React.createClass({
         if (isChannelChange) {
             this.getStore(DrawStore).cleanStore();
         }
+        if (nextProps.drawInfo.boardNums === 0) {
+            return;
+        }
         if (isChannelChange || isBoardChange) {
             this.executeAction(GetDrawBoard, {
                 channelId: nextProps.channelId,
@@ -75,6 +78,10 @@ module.exports = React.createClass({
          * auto change cursor when props change
          */
         _changeBoardWheel(this.props.drawInfo.drawOptions);
+    },
+
+    componentWillUnmount: function() {
+        this.getStore(DrawStore).cleanStore();
     },
 
     /**
@@ -124,6 +131,9 @@ module.exports = React.createClass({
         });
 
         board.addEventListener('mousedown', function(e) {
+            if (self.props.drawInfo.boardNums === 0) {
+                return;
+            }
             prev = _getCanvasMouse(e);
             // to ensure the mouse pointer will not change to default behaviour
             e.preventDefault();
@@ -131,6 +141,9 @@ module.exports = React.createClass({
         });
 
         board.addEventListener('mouseup',function(){
+            if (self.props.drawInfo.boardNums === 0) {
+                return;
+            }
             var drawTempStore = self.getStore(DrawTempStore);
             drawing = false;
             self.executeAction(SaveDrawRecord, {
@@ -145,14 +158,13 @@ module.exports = React.createClass({
             drawing = false;
         });
 
-        // because the componentWillUnmount abnormal, so init store here
-        this.getStore(DrawStore).cleanStore();
-
         // get drawInfo
-        this.executeAction(GetDrawBoard, {
-            channelId: this.props.channelId,
-            boardId: this.props.boardId
-        });
+        if (this.props.drawInfo.boardNums > 0) {
+            this.executeAction(GetDrawBoard, {
+                channelId: this.props.channelId,
+                boardId: this.props.boardId
+            });
+        }
     },
 
     /**
