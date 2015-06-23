@@ -23,15 +23,13 @@ module.exports = function(actionContext, data, callback) {
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
     }).then(function(recordData) {
+        actionContext.dispatch('ON_DRAW_CHANGE', recordData);
         return DrawService.drawAsync(recordData);
     }).then(function(result) {
         if (!result) {
             throw new Error('drawing got failure from server side');
         }
-        return actionContext.dispatch('ON_DRAW_CHANGE', data);
     }).catch(function(err) {
         SharedUtils.printError('drawing.js', 'core', err);
-        return null;
-        // show alert message ?
     }).nodeify(callback);
 };

@@ -12,6 +12,10 @@ var RecordTemp = require('../tempStores/DrawRecordTemp');
 // used to limit the active reocrds number
 var RECORD_ACTIVE_LIMIT = 10;
 
+// define the maximum number of draws can be lost during client drawing
+// NOTE: usually, few missing draws is acceptable under jitter environment.
+var MISSING_DRAWS_MAXIMUM = 3;
+
 /************************************************
  *
  *           Public APIs
@@ -128,7 +132,8 @@ exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers, d
         RecordTemp.getRecordAsync(channelId, boardId, member),
         _ensureAuth(member, channelId),
         function(tempRecord) {
-            if (tempRecord.length !== rawDataNumbers) {
+            var missingDraws = Math.abs(tempRecord.length - rawDataNumbers);
+            if ( missingDraws > MISSING_DRAWS_MAXIMUM) {
                 throw new Error('tempRecord is broken');
             }
             RecordTemp.initDrawStreamAsync(channelId, boardId, member);
