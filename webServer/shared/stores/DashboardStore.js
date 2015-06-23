@@ -5,23 +5,9 @@ var SharedUtils = require('../../../sharedUtils/utils');
 
 var OUTDATED_TIME_IN_MSECOND = 10000;
 
-/**
- * Test data
- */
-var SnapshotError = 'http://goo.gl/K3xfRt';
-var Snapshots = [
-    'https://goo.gl/gNVk1j',
-    'https://goo.gl/agVedj',
-    'https://goo.gl/YqzlWS',
-    'https://goo.gl/0DxoSH',
-    'https://goo.gl/VXPGaZ',
-    'https://goo.gl/00t6Mh'
-];
-
-
 module.exports = CreateStore({
     storeName: 'DashboardStore',
-    
+
     handlers: {
         'SET_DASHBOARD_LAYOUT': 'setLayout'
     },
@@ -55,7 +41,7 @@ module.exports = CreateStore({
      * @param {Object}       state.channels, an array of channel info
      */
     polyfillAsync: function(state) {
-        return Promise.map(state.channels, function(item, index) {
+        return Promise.map(state.channels, function(item) {
             var hostIndex = 0;
             var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
                 if (info.uid === item.channel.host) {
@@ -73,7 +59,7 @@ module.exports = CreateStore({
                 channelName: item.channel.name,
                 hostInfo: members.splice(hostIndex, 1)[0],
                 memberList: members,
-                snapshotUrl: Snapshots[index] || SnapshotError,
+                snapshotUrl: '/app/workspace/' + item.channel.channelId + '/preview',
                 isStarred: item.isStarred,
                 isRtcOn: item.rtcStatus,
                 visitTime: item.visitTime,
