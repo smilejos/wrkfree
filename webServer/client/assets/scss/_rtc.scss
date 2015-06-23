@@ -7,11 +7,30 @@
     left: 550px;
     width: 250px;
     z-index: 10;
+
+    /*
+     * add animation style to make icon twinkle more friendly
+     */
     .icon {
         width: 30px;
         height: 50px;
         margin-left: 110px;
         color: $red-700;
+        animation-name: changeOpacity;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        animation-duration: 0.6s;
+        animation-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860);
+    }
+
+}
+
+@keyframes changeOpacity {
+    0%   { 
+        opacity: 1;
+    }
+    100% { 
+        opacity: 0;
     }
 }
 
