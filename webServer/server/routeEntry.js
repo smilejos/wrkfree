@@ -13,6 +13,7 @@ var SharedUtils = require('../../sharedUtils/utils');
  */
 exports.getDashboardAsync = function(actionContext, routeInfo) {
     var friendStorage = routeInfo.storageManager.getService('Friend');
+    _setUserDashboardLayout(actionContext, routeInfo.user);
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
         HeaderStore: routeInfo.user,
@@ -36,6 +37,7 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
 exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     var storageManager = routeInfo.storageManager;
     var friendStorage = storageManager.getService('Friend');
+    _setUserDashboardLayout(actionContext, routeInfo.user);
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
         HeaderStore: routeInfo.user,
@@ -71,6 +73,20 @@ exports.getSignUpAsync = function(actionContext, routeInfo) {
 
 /**
  * @Author: George_Chen
+ * @Description: to init the user dashboard layout on dashboardStore
+ *
+ * @param {Object}      actionContext, fluxible actionContext
+ * @param {Object}      userInfo, the req.user object in express
+ */
+function _setUserDashboardLayout(actionContext, userInfo) {
+    var DashboardStore = actionContext.getStore('DashboardStore');
+    DashboardStore.setLayout({
+        isDashboardGrid: userInfo.isDashboardGrid
+    });
+}
+
+/**
+ * @Author: George_Chen
  * @Description: polyfill each flux store based on storedata
  *
  * @param {Object}      actionContext, fluxible actionContext
@@ -102,7 +118,6 @@ function _storesPolyfill(actionContext, storeData) {
 function _getChannelStreams(uid, storageManager) {
     var channelStorage = storageManager.getService('Channel');
     return Promise.props({
-        layout: 'grid', // TODO: should be store at userModel
         channels: channelStorage.getAuthChannelsAsync(uid)
     });
 }

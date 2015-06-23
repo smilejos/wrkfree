@@ -103,6 +103,18 @@ exports.resetUnreadNoticeAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for user to set his/her dashboard layout
+ *
+ * @param {Boolean}         data.isDashboardGrid, to indicate layout is grid or not
+ */
+exports.setDashboardLayoutAsync = function(data) {
+    var packet = _setPacket('setDashboardLayoutAsync', null, data);
+    return _request(packet, 'setDashboardLayoutAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: polyfill the user info to local cache
  *
  * @param {Array/Object}          userInfos, can be a user info json or group of userInfos

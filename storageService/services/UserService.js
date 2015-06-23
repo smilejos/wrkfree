@@ -90,6 +90,22 @@ exports.resetUnreadNoticeAsync = function(user) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to set the user's current dashboard layout
+ *
+ * @param {String}          user, the current user id
+ * @param {Boolean}         data.isGrid, to indicate layout is grid or not
+ */
+exports.setDashboardLayoutAsync = function(user, isGrid) {
+    return UserDao.setLayoutAsync(user, isGrid)
+        .catch(function(err) {
+            SharedUtils.printError('UserService', 'setDashboardLayoutAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to find out the information of specific user
  *
  * @param {String/Array}      user, an user id or an array of users

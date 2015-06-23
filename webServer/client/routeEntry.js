@@ -166,9 +166,8 @@ function _getFriendResource(actionContext, userInfo) {
  */
 function _getDashboardResource(actionContext) {
     var dashboardStore = actionContext.getStore(DashboardStore);
-    if (!dashboardStore.isPolyFilled) {
+    if (dashboardStore.isStoreOutdated()) {
         return Promise.props({
-            layout: 'grid', // TODO: should be store at userModel
             channels: ChannelService.findByAuthorizedAsync()
         });
     }

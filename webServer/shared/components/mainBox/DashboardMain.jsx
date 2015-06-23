@@ -4,6 +4,11 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var DashboardStore = require('../../stores/DashboardStore');
 
 /**
+ * actions
+ */
+var SetDashboardLayout = require('../../../client/actions/setDashboardLayout');
+
+/**
  * material UI compoents
  */
 var Toolbar = Mui.Toolbar;
@@ -42,10 +47,9 @@ module.exports = React.createClass({
      * @Author: George_Chen
      * @Description: handle the layout type change while user select
      */
-    _onLayoutChang: function(layoutType) {
-        this.setState({
-            layout: layoutType,
-            channels: this.state.channels
+    _onLayoutChang: function(isGrid) {
+        this.executeAction(SetDashboardLayout, {
+            isDashboardGrid: isGrid
         });
     },
 
@@ -55,7 +59,7 @@ module.exports = React.createClass({
      */
     _generateItems: function() {
         var channels = this.state.channels;
-        if (this.state.layout === 'grid') {
+        if (this.state.isDashboardGrid) {
             return (<ChannelGridLayout channels={channels} />);
         }
         return (<ChannelListLayout channels={channels} />);
@@ -70,9 +74,9 @@ module.exports = React.createClass({
                         <Toolbar>
                             <ToolbarGroup key={0} float="right">
                                 <FontIcon className="fa fa-th-list" 
-                                    onClick={this._onLayoutChang.bind(this, 'list')}/>
+                                    onClick={this._onLayoutChang.bind(this, false)}/>
                                 <FontIcon className="fa fa-th"
-                                    onClick={this._onLayoutChang.bind(this, 'grid')}/>
+                                    onClick={this._onLayoutChang.bind(this, true)}/>
                             </ToolbarGroup>
                         </Toolbar>
                     </div>
