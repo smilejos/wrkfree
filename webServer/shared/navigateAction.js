@@ -1,18 +1,25 @@
 'use strict';
 var ObjectAssign = require('object-assign');
+var MainAppStore = require('./stores/MainAppStore');
+var Promise = require('bluebird');
 
 module.exports = function(actionContext, payload, done) {
-    var routeInfo = actionContext.getRouteInfo();
-    var urlInfo = _getUrlInfo(payload);
-    var args = ObjectAssign(routeInfo, urlInfo);
-    return actionContext.routePolyfillAsync(args)
-        .then(function() {
-            // TODO: should we check polyfill result ?
-            actionContext.dispatch('CHANGE_ROUTE', payload);
-        }).catch(function(err) {
-            return console.log('[navigateAction]', err);
-            // disaptch error route ???
-        }).nodeify(done);
+    var appStore = actionContext.getStore(MainAppStore);
+    if (appStore.isRepeatNavigated(payload)) {
+        return;
+    }
+    return Promise.try(function(){
+        var routeInfo = actionContext.getRouteInfo();
+        var urlInfo = _getUrlInfo(payload);
+        var args = ObjectAssign(routeInfo, urlInfo);
+        appStore.setNavigatingRoute(payload);
+        return actionContext.routePolyfillAsync(args);
+    }).then(function() {
+        actionContext.dispatch('CHANGE_ROUTE', payload);
+    }).catch(function(err) {
+        return console.log('[navigateAction]', err);
+        // disaptch error route ???
+    }).nodeify(done);
 };
 
 /**
