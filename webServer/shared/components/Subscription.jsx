@@ -184,7 +184,7 @@ module.exports = React.createClass({
         var counter = this._getCounter(Channel);
         var conference= this._getConference(Channel);
         return (
-            <div className="Channel" onClick={this._onChannelClick.bind(route)}>
+            <div className="Channel" onClick={this._onChannelClick.bind(this, route)}>
                 <div className="ChannelText">
                     <div className="ChannelName">
                         {Channel.name}    
