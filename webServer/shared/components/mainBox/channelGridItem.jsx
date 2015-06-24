@@ -77,6 +77,15 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: to get fromatted time string by visit timestamp
+     */
+    _getFormattedTime: function() {
+        var date = new Date(this.props.channelInfo.visitTime);
+        return (date.toLocaleDateString() + '  ' + date.getHours() + ':' + date.getMinutes());
+    },
+
     render: function(){
         var info = this.props.channelInfo;
         return (
@@ -89,13 +98,12 @@ module.exports = React.createClass({
                         isRtcOn={info.isRtcOn} />
                     <ChannelHostInfo hostAvatar={info.hostInfo.avatar} />
                     <ChannelSnapshot url={info.snapshotUrl}/>
-                    <ChannelMembers members={info.memberList} />
                     <div className="ChannelTimestamp Right">
                         <IconButton 
                             iconClassName="fa fa-sign-in" 
                             tooltip={'Enter this channel'} 
                             onClick={this._onEnterIconClick}/>
-                        {info.visitTime}
+                        {this._getFormattedTime()}
                     </div>
                 </Paper>
             </div>

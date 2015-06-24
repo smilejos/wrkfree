@@ -124,16 +124,18 @@ exports.addNewMemberAsync = function(host, member, channelId) {
  * @Description: get all authorized channels that user can login
  *
  * @param {String}          member, member's uid
+ * @param {Object}          visitPeriod, the query time period
+ *                          visitPeriod.start, the start time of this period
+ *                          visitPeriod.end, the end time of this period
  */
-exports.getAuthChannelsAsync = function(member) {
-    return MemberDao.findByUidAsync(member, false)
+exports.getAuthChannelsAsync = function(member, visitPeriod) {
+    return MemberDao.findByUidAsync(member, false, visitPeriod)
         .bind(this)
         .map(function(memberDoc) {
             var cid = memberDoc.channelId;
             return Promise.props({
                 channel: ChannelDao.findByChannelAsync(cid, false),
                 isStarred: memberDoc.isStarred,
-                members: this.getMembersAsync(cid),
                 visitTime: memberDoc.lastVisitTime,
                 lastBaord: memberDoc.lastUsedBoard
             });

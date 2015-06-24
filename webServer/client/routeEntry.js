@@ -14,6 +14,7 @@ var WorkSpaceStore = require('../shared/stores/WorkSpaceStore');
 /**
  * socket services
  */
+var UserService = require('./services/userService');
 var FriendService = require('./services/friendService');
 var ChannelService = require('./services/channelService');
 
@@ -167,9 +168,18 @@ function _getFriendResource(actionContext, userInfo) {
 function _getDashboardResource(actionContext) {
     var dashboardStore = actionContext.getStore(DashboardStore);
     if (dashboardStore.isStoreOutdated()) {
-        return Promise.props({
-            channels: ChannelService.findByAuthorizedAsync()
-        });
+        return ChannelService.findByAuthorizedAsync()
+            .map(function(doc) {
+                return UserService.getInfoAsync(doc.channel.host)
+                    .then(function(hostInfo) {
+                        doc.hostInfo = hostInfo;
+                        return doc;
+                    });
+            }).then(function(result) {
+                return {
+                    channels: result
+                };
+            });
     }
     return null;
 }
