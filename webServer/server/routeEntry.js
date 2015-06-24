@@ -117,9 +117,19 @@ function _storesPolyfill(actionContext, storeData) {
  */
 function _getChannelStreams(uid, storageManager) {
     var channelStorage = storageManager.getService('Channel');
-    return Promise.props({
-        channels: channelStorage.getAuthChannelsAsync(uid)
-    });
+    var userStorage = storageManager.getService('User');
+    return channelStorage.getAuthChannelsAsync(uid)
+        .map(function(doc){
+            return userStorage.getUserAsync(doc.channel.host)
+                .then(function(hostInfo){
+                    doc.hostInfo = hostInfo;
+                    return doc;
+                });
+        }).then(function(result){
+            return {
+                channels: result
+            };
+        });
 }
 
 /**
