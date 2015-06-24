@@ -3,26 +3,29 @@ var Promise = require('bluebird');
 var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 
-var OUTDATED_TIME_IN_MSECOND = 10000;
+var OUTDATED_TIME_IN_MSECOND = 30000;
 
 module.exports = CreateStore({
     storeName: 'DashboardStore',
 
     handlers: {
+        'CHANGE_ROUTE': '_onChangeRoute',
         'SET_DASHBOARD_LAYOUT': 'setLayout'
     },
 
     initialize: function() {
         this.isDashboardGrid = true;
-        this.channels = null;
         this.isOutdated = true;
         this.outdatedTimer = null;
+        this.dbName = 'DashboardDB';
+        this.db = this.getContext().getLokiDb(this.dbName);
+        this.db.addCollection(this.dbName).ensureIndex('channelId');
     },
 
     /**
      * @Public API
      * @Author: George_Chen
-     * @Description: 
+     * @Description: set the dashboard layout
      *
      * @param {Object}       state.channels, an array of channel info
      */
@@ -41,37 +44,44 @@ module.exports = CreateStore({
      * @param {Object}       state.channels, an array of channel info
      */
     polyfillAsync: function(state) {
+        var collection = this.db.getCollection(this.dbName);
+        // clean dashboard store before polyfill
+        collection.removeDataOnly();
         return Promise.map(state.channels, function(item) {
-            var hostIndex = 0;
-            var members = SharedUtils.fastArrayMap(item.members.info, function(info, index) {
-                if (info.uid === item.channel.host) {
-                    hostIndex = index;
-                }
-                return {
-                    uid: info.uid,
-                    nickName: info.nickName,
-                    avatar: info.avatar
-                };
-            });
-            // return channel item object
-            return {
+            return _saveDashboardChannel(collection, {
                 channelId: item.channel.channelId,
                 channelName: item.channel.name,
-                hostInfo: members.splice(hostIndex, 1)[0],
-                memberList: members,
+                hostInfo: item.hostInfo,
                 snapshotUrl: '/app/workspace/' + item.channel.channelId + '/preview',
                 isStarred: item.isStarred,
-                isRtcOn: item.rtcStatus,
                 visitTime: item.visitTime,
                 lastBaord: item.lastBaord
-            };
-        }).bind(this).then(function(result) {
+            });
+        }).bind(this).then(function() {
             this._setOutdatedTimer();
-            this.channels = result;
             this.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('DashboardStore', 'polyfillAsync', err);
             return null;
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update the channel visit time when user enter workspace
+     * 
+     * @param {Object}     route, react route object
+     */
+    _onChangeRoute: function(route) {
+        if (!route.params.channelId) {
+            return;
+        }
+        var collection = this.db.getCollection(this.dbName);
+        var query = {
+            channelId: route.params.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.visitTime = Date.now();
         });
     },
 
@@ -82,6 +92,9 @@ module.exports = CreateStore({
     _setOutdatedTimer: function() {
         var self = this;
         self.isOutdated = false;
+        if (typeof window === 'undefined') {
+            return;
+        }
         if (this.outdatedTimer) {
             clearTimeout(this.outdatedTimer);
         }
@@ -100,21 +113,48 @@ module.exports = CreateStore({
     },
 
     getState: function() {
+        var collection = this.db.getCollection(this.dbName);
         return {
             isDashboardGrid: this.isDashboardGrid,
-            channels: this.channels
+            channels: collection.chain().simplesort('visitTime', true).data()
         };
     },
 
     dehydrate: function() {
-        return this.getState();
+        return {
+            isDashboardGrid: this.isDashboardGrid,
+            db: this.db.toJson(),
+            isOutdated: this.isOutdated
+        };
     },
 
     rehydrate: function(state) {
         this.isDashboardGrid = state.isDashboardGrid;
-        this.channels = state.channels;
-        if (SharedUtils.isArray(this.channels)) {
+        this.db.loadJSON(state.db);
+        this.isOutdated = state.isOutdated;
+        if (!state.isOutdated) {
             this._setOutdatedTimer();
         }
     }
 });
+
+/**
+ * @Author: George_Chen
+ * @Description: to save channel item to current store
+ *
+ * @param {Object}      collection, lokijs collection
+ * @param {Object}      doc, the channel summary document
+ */
+function _saveDashboardChannel(collection, doc) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
+        channelName: SharedUtils.argsCheckAsync(doc.channelName, 'alphabet'),
+        hostInfo: doc.hostInfo,
+        snapshotUrl: SharedUtils.argsCheckAsync(doc.snapshotUrl, 'string'),
+        isStarred: SharedUtils.argsCheckAsync(doc.isStarred, 'boolean'),
+        visitTime: SharedUtils.argsCheckAsync(doc.visitTime, 'number'),
+        lastBaord: SharedUtils.argsCheckAsync(doc.lastBaord, 'number'),
+    }).then(function(doc) {
+        return collection.insert(doc);
+    });
+}
