@@ -133,7 +133,7 @@ exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers, d
         _ensureAuth(member, channelId),
         function(tempRecord) {
             var missingDraws = Math.abs(tempRecord.length - rawDataNumbers);
-            if ( missingDraws > MISSING_DRAWS_MAXIMUM) {
+            if (missingDraws > MISSING_DRAWS_MAXIMUM) {
                 throw new Error('tempRecord is broken');
             }
             RecordTemp.initDrawStreamAsync(channelId, boardId, member);
@@ -190,18 +190,21 @@ exports.restoreUndoAsync = function(channelId, boardId, member) {
  * @Author: George_Chen
  * @Description: used to get current board preview image
  *
+ * @param {String}          member, the member uid
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          member, the member uid
  */
-exports.getPreviewImgAsync = function(channelId, boardId, member) {
-    return Promise.props({
-        previewImg: PreviewDao.findByBoardAsync(channelId, boardId),
-        isAuth: _ensureAuth(member, channelId)
-    }).catch(function(err) {
-        SharedUtils.printError('DrawService.js', 'getPreviewAsync', err);
-        return null;
-    });
+exports.getPreviewImgAsync = function(member, channelId, boardId) {
+    return _ensureAuth(member, channelId)
+        .then(function() {
+            if (SharedUtils.isDrawBoardId(boardId)) {
+                return PreviewDao.findByBoardAsync(channelId, boardId);
+            }
+            return PreviewDao.findByChannelLatestAsync(channelId);
+        }).catch(function(err) {
+            SharedUtils.printError('DrawService.js', 'getPreviewAsync', err);
+            return null;
+        });
 };
 
 /**
