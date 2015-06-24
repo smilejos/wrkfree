@@ -10,7 +10,6 @@ var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
  * child components
  */
 var MainBox = require('./mainBox/DashboardMain.jsx');
-var FriendList = require('./rightBox/FriendList.jsx');
 
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
@@ -29,7 +28,6 @@ module.exports = React.createClass({
         return (
             <div onClick={this._onContentClick} >
                 <MainBox />
-                <FriendList />
             </div>
         );
     }

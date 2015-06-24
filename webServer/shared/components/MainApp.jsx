@@ -14,6 +14,7 @@ var EventToaster = require('./EventToaster.jsx');
 var Notifications = require('./common/Notifications.jsx');
 var Hangouts = require('./Hangouts.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
+var FriendList = require('./rightBox/FriendList.jsx');
 
 /**
  * TODO: below is for material-ui 9.0 up
@@ -69,6 +70,7 @@ module.exports = React.createClass({
                 <Webcam />
                 <Subscription />
                 <RouteHandler route={this.state.route}/>
+                <FriendList />
                 <Notifications />
                 <EventToaster />
                 <Hangouts />
