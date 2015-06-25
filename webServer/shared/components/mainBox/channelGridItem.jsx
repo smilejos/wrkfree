@@ -46,29 +46,9 @@ module.exports = React.createClass({
     },
 
     /**
-     * handle mouse over event
-     */
-    _onMouseOver: function() {
-        this.setState({
-            zDepth: 2,
-            isMouseOver: true
-        });
-    },
-
-    /**
-     * handle mouse out event
-     */
-    _onMouseOut: function() {
-        this.setState({
-            zDepth: 0,
-            isMouseOver: false
-        });
-    },
-
-    /**
      * handle event that user click the enter icon
      */
-    _onEnterIconClick: function(channelId) {
+    _onEnterIconClick: function() {
         var info = this.props.channelInfo;
         this.executeAction(NavToBoard, {
             urlNavigator: this.transitionTo,
@@ -86,26 +66,50 @@ module.exports = React.createClass({
         return (date.toLocaleDateString() + '  ' + date.getHours() + ':' + date.getMinutes());
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: Move original summary component ot here
+     */
+    _getChannelSummary: function(info) {
+        return (
+            <div className="ChannelSummary" >
+                <div className="ChannelInfo" >
+                    <div className="ChannelName">
+                        {info.channelName}
+                    </div>
+                    <div className="ChannelHost">
+                        {info.hostInfo.nickName}
+                    </div>
+                </div>
+                <div className="ChannelToolbar" >
+                    <IconButton iconClassName="fa fa-user-plus" />
+                    <IconButton iconClassName="fa fa-tag" />
+                    <IconButton iconClassName="fa fa-star" />
+                </div>
+            </div>
+        );
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: Move original snapshot component ot here
+     */
+    _getChannelSnapshot: function(url) {
+        return (
+            <div className="ChannelSnapshot" onClick={this._onEnterIconClick.bind(this)}>
+                <img className="ChannelSnapshotImg" src={url}/>
+            </div>
+        );
+    },
+
     render: function(){
         var info = this.props.channelInfo;
+        var snapshot = this._getChannelSnapshot(info.snapshotUrl);
+        var summary = this._getChannelSummary(info);
         return (
             <div className="ChannelGridItem" onClick={this._onClick}>
-                <Paper zDepth={this.state.zDepth} rounded={false}
-                    onMouseOver={this._onMouseOver} onMouseOut={this._onMouseOut}>
-                    <ChannelSummary 
-                        channelName={info.channelName}
-                        hostName={info.hostInfo.nickName}
-                        isRtcOn={info.isRtcOn} />
-                    <ChannelHostInfo hostAvatar={info.hostInfo.avatar} />
-                    <ChannelSnapshot url={info.snapshotUrl}/>
-                    <div className="ChannelTimestamp Right">
-                        <IconButton 
-                            iconClassName="fa fa-sign-in" 
-                            tooltip={'Enter this channel'} 
-                            onClick={this._onEnterIconClick}/>
-                        {this._getFormattedTime()}
-                    </div>
-                </Paper>
+                {snapshot}
+                {summary}
             </div>
         );
     }

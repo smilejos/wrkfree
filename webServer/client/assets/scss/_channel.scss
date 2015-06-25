@@ -1,5 +1,5 @@
 $channel-grid-width: 300px;
-$channel-grid-height: 348px;
+$channel-grid-height: 300px;
 $channel-grid-field-height: 45px;
 
 /**
@@ -30,21 +30,71 @@ $channel-grid-field-height: 45px;
  */
 .ChannelGridItem {
     @extend .baseFonts, .baseChannelGridWidth;
+    position: absolute;
     height: $channel-grid-height;
     border-color: $grey-300;
     border-style: solid;
     border-width: 1px;
-    background-color: $grey-100;
-}
+    background-color: #eee;
+    transition: 0.3s;
 
-/**
- * the style of channel summary field
- */
-.ChannelSummary {
-    @extend .baseChannelGridField;
-    background-color:$grey-300;    
-    color: $grey-500;
-    line-height: 20px;
+    /**
+     * the container style of channel drawing snapshot
+     */
+    .ChannelSnapshot {
+        @extend .baseChannelGridWidth;
+        position: absolute;
+        height: 240px;
+        padding: 20px 6px;
+        background-color: #E9F1F6;
+        cursor: pointer;
+    }
+
+    .ChannelSummary {
+        @extend .baseChannelGridField;
+        position: absolute;
+        bottom: 0px;
+        background-color: #fff;
+        color: $grey-500;
+        line-height: 40px;
+        height: 60px;
+        padding: 10px 10px;
+        overflow: hidden;
+        transition: 0.3s;
+
+        .ChannelName {
+            line-height: 20px;
+            font-size: 20px;
+            color: #666;
+        }
+
+        .ChannelHost {
+            line-height: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        .ChannelToolbar {
+            height: 0px;
+            opacity: 0;
+        }
+    }
+
+    &:hover{
+        margin-bottom: 15px;
+        margin-left: 4px;
+        border-bottom: 2px rgba(0, 0, 0, .2);
+        box-shadow: 0 4px 4px 4px rgba(0, 0, 0, .2);    
+
+        .ChannelSummary {
+            height: 100px;
+        }
+
+        .ChannelToolbar {
+            height: 40px;
+            opacity: 1;
+        }
+    }
 }
 
 /**
@@ -53,15 +103,6 @@ $channel-grid-field-height: 45px;
 .ChannelHostInfo {
     @extend .baseChannelGridField;
     color: $grey-700;
-}
-
-/**
- * the container style of channel drawing snapshot
- */
-.ChannelSnapshot {
-    @extend .baseChannelGridWidth;
-    height: 167px;
-    background-color: #FFF;
 }
 
 /**
