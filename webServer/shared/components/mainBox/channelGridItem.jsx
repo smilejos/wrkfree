@@ -46,9 +46,9 @@ module.exports = React.createClass({
     },
 
     /**
-     * handle event that user click the enter icon
+     * handle event that user click workspace snapshot
      */
-    _onEnterIconClick: function() {
+    _onEnter: function() {
         var info = this.props.channelInfo;
         this.executeAction(NavToBoard, {
             urlNavigator: this.transitionTo,
@@ -96,7 +96,7 @@ module.exports = React.createClass({
      */
     _getChannelSnapshot: function(url) {
         return (
-            <div className="ChannelSnapshot" onClick={this._onEnterIconClick.bind(this)}>
+            <div className="ChannelSnapshot" onClick={this._onEnter}>
                 <img className="ChannelSnapshotImg" src={url}/>
             </div>
         );
