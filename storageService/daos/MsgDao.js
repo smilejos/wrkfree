@@ -114,6 +114,8 @@ exports.findChannelsLatestAsync = function(channels) {
             }
         };
         return Model.aggregateAsync(query, group);
+    }).map(function(doc){
+        return DbUtil.transformTimeAsync(doc, 'sentTime');
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'findChannelsLatestAsync', err);
         return null;

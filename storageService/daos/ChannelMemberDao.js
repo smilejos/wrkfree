@@ -121,6 +121,8 @@ exports.findByUidAsync = function(member, is1on1, period) {
             queryCondition.is1on1 = is1on1;
         }
         return _find(queryCondition, queryNums);
+    }).map(function(doc){
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');        
     }).map(function(doc) {
         return DbUtil.transformTimeAsync(doc, 'lastVisitTime');
     }).catch(function(err) {
