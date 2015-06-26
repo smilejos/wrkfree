@@ -12,7 +12,7 @@ var ActionUtils = require('./actionUtils');
  */
 module.exports = function(actionContext, data) {
     return SharedUtils.argsCheckAsync(data.counts, 'number')
-        .then(function(msgCounts){
+        .then(function(msgCounts) {
             if (msgCounts < 0) {
                 throw new Error('not correct message counts');
             }
