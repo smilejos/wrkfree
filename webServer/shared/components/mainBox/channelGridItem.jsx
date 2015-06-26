@@ -21,6 +21,8 @@ var ChannelSummary = require('./channelSummary.jsx');
 var ChannelHostInfo = require('./channelHostInfo.jsx');
 var ChannelMembers = require('./channelMembers.jsx');
 var ChannelSnapshot = require('./channelSnapshot.jsx');
+var UserAvatar = require('../common/userAvatar.jsx');
+var StateIcon = require('../common/stateIcon.jsx');
 
 /**
  * @Author: George_Chen
@@ -46,9 +48,9 @@ module.exports = React.createClass({
     },
 
     /**
-     * handle event that user click the enter icon
+     * handle event that user click workspace snapshot
      */
-    _onEnterIconClick: function() {
+    _onEnter: function() {
         var info = this.props.channelInfo;
         this.executeAction(NavToBoard, {
             urlNavigator: this.transitionTo,
@@ -63,7 +65,7 @@ module.exports = React.createClass({
      */
     _getFormattedTime: function() {
         var date = new Date(this.props.channelInfo.visitTime);
-        return (date.toLocaleDateString() + '  ' + date.getHours() + ':' + date.getMinutes());
+        return date.toLocaleDateString();
     },
 
     /**
@@ -71,6 +73,11 @@ module.exports = React.createClass({
      * @Description: Move original summary component ot here
      */
     _getChannelSummary: function(info) {
+        var hostAvatarStyle = {
+            float: 'right',
+            marginTop: -19,
+            marginRight: 10
+        };
         return (
             <div className="ChannelSummary" >
                 <div className="ChannelInfo" >
@@ -78,13 +85,20 @@ module.exports = React.createClass({
                         {info.channelName}
                     </div>
                     <div className="ChannelHost">
-                        {info.hostInfo.nickName}
+                        {this._getFormattedTime()}
+                        <UserAvatar isCircle avatar={info.hostInfo.avatar} style={hostAvatarStyle}/>
                     </div>
                 </div>
                 <div className="ChannelToolbar" >
-                    <IconButton iconClassName="fa fa-user-plus" />
-                    <IconButton iconClassName="fa fa-tag" />
-                    <IconButton iconClassName="fa fa-star" />
+                    <StateIcon
+                        stateClass="toolIcon" 
+                        iconClass="fa fa-tag"/>
+                    <StateIcon
+                        stateClass="toolIcon" 
+                        iconClass="fa fa-star"/>
+                    <StateIcon
+                        stateClass="toolIcon" 
+                        iconClass="fa fa-share"/>
                 </div>
             </div>
         );
@@ -96,7 +110,7 @@ module.exports = React.createClass({
      */
     _getChannelSnapshot: function(url) {
         return (
-            <div className="ChannelSnapshot" onClick={this._onEnterIconClick.bind(this)}>
+            <div className="ChannelSnapshot" onClick={this._onEnter}>
                 <img className="ChannelSnapshotImg" src={url}/>
             </div>
         );
