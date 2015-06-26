@@ -8,6 +8,7 @@ var HeaderStore = CreateStore({
     handlers: {
         'TOGGLE_QUICKSEARCH': '_toggleQuickSearch',
         'TOGGLE_NOTIFICATION': '_toggleNotification',
+        'UPDATE_HEADER_CONVERSATIONS': '_updateUnreadConversations',
         'ON_NOTIFICATION': '_onNotification'
     },
 
@@ -17,6 +18,17 @@ var HeaderStore = CreateStore({
         this.unreadSubscribdMsgsCounts = 0;
         this.unreadfriendMsgCounts = 0;
         this.unreadNoticeCounts = 0;
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update the status of friendMsg counts
+     *
+     * @param {Number}      data.counts, the unread friendMsg counts
+     */
+    _updateUnreadConversations: function(data) {
+        this.unreadfriendMsgCounts = data.counts;
+        this.emitChange();
     },
 
     _onNotification: function() {
@@ -57,8 +69,6 @@ var HeaderStore = CreateStore({
                 avatar: state.avatar,
                 nickName: state.nickName
             };
-            self.unreadSubscribdMsgsCounts = state.unreadSubscribdMsgsCounts;
-            self.unreadfriendMsgCounts = state.unreadfriendMsgCounts;
             self.unreadNoticeCounts = state.unreadNoticeCounts;
             self.emitChange();
         }).catch(function(err) {
