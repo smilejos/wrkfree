@@ -15,8 +15,8 @@ var HeaderStore = CreateStore({
     initialize: function() {
         this.user = {};
         this.isSearchable = false;
-        this.unreadSubscribdMsgsCounts = 0;
-        this.unreadfriendMsgCounts = 0;
+        this.unreadDiscussions = 0;
+        this.unreadConversations = 0;
         this.unreadNoticeCounts = 0;
     },
 
@@ -27,7 +27,7 @@ var HeaderStore = CreateStore({
      * @param {Number}      data.counts, the unread friendMsg counts
      */
     _updateUnreadConversations: function(data) {
-        this.unreadfriendMsgCounts = data.counts;
+        this.unreadConversations = data.counts;
         this.emitChange();
     },
 
@@ -89,8 +89,8 @@ var HeaderStore = CreateStore({
     getState: function() {
         return {
             userInfo: this.user,
-            unreadSubscribdMsgsCounts: this.unreadSubscribdMsgsCounts,
-            unreadfriendMsgCounts: this.unreadfriendMsgCounts,
+            unreadDiscussions: this.unreadDiscussions,
+            unreadConversations: this.unreadConversations,
             unreadNoticeCounts: this.unreadNoticeCounts,
             isSearchable: this.isSearchable
         };
@@ -102,9 +102,9 @@ var HeaderStore = CreateStore({
 
     rehydrate: function(state) {
         this.user = state.userInfo;
-        this.unreadfriendMsgCounts = state.unreadfriendMsgCounts;
+        this.unreadConversations = state.unreadConversations;
         this.unreadNoticeCounts = state.unreadNoticeCounts;
-        this.unreadSubscribdMsgsCounts = state.unreadSubscribdMsgsCounts;
+        this.unreadDiscussions = state.unreadDiscussions;
     }
 });
 

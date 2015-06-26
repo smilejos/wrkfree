@@ -165,7 +165,7 @@ module.exports = React.createClass({
                     <StateIcon
                         stateClass="leftState" 
                         iconClass="fa fa-bars"
-                        counts={this.state.unreadSubscribdMsgsCounts}
+                        counts={this.state.unreadDiscussions}
                         handler={this._onMenuIconButtonTouchTap} />
                     <div className="headerSearch" >
                         {this._setSearchIcon()}
@@ -187,7 +187,7 @@ module.exports = React.createClass({
                     <StateIcon
                         stateClass="rightState" 
                         iconClass="fa fa-comments"
-                        counts={this.state.unreadfriendMsgCounts}  
+                        counts={this.state.unreadConversations}  
                         handler={this._onInboxToggle} />
                     <UserState avatar={this.state.userInfo.avatar} name={this.state.userInfo.nickName} />
                 </div>
