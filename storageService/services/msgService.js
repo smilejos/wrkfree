@@ -67,15 +67,27 @@ exports.pullAsync = function(user, channelId, timePeriod) {
  * @param {Array}           channels, an array of channelIds
  */
 exports.getLatestAsync = function(user, channels) {
-    return Promise.map(channels, function(channelId) {
-        return _ensureAuth(user, channelId);
-    }).then(function() {
-        return MsgDao.findChannelsLatestAsync(channels);
-    }).catch(function(err) {
-        SharedUtils.printError('msgService.js', 'getLatestAsync', err);
-        return null;
-    });
+    return Promise.join(
+        ChannelMemberDao.findByUidAsync(user, true),
+        MsgDao.findChannelsLatestAsync(channels),
+        function(memberDoc, lastMsgs) {
+            var result = {};
+            var sentTime = 0;
+            SharedUtils.fastArrayMap(lastMsgs, function(msg){
+                result[msg.channelId] = {
+                    lastMessage: msg
+                };
+            });
+            SharedUtils.fastArrayMap(memberDoc, function(doc){
+                if (result[doc.channelId]) {
+                    sentTime = result[doc.channelId].lastMessage.sentTime;
+                    result[doc.channelId].isReaded = (doc.msgSeenTime > sentTime);
+                }
+            });
+            return result;
+        });
 };
+
 
 /**
  * Public API

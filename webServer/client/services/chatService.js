@@ -56,6 +56,19 @@ exports.getChannelMsgAsync = function(data) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get last message on a group of channels
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {Array}           data.channels, an array of channelIds
+ */
+exports.getLastMsgsAsync = function(data) {
+    var packet = _setPacket('getLastMsgsAsync', null, data);
+    return _request(packet, 'getLastMsgsAsync');
+};
+
 /************************************************
  *
  *           internal functions
