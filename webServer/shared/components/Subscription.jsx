@@ -170,7 +170,7 @@ module.exports = React.createClass({
             route = '/app/workspace/'+item.channelId + '?board=1';
             return (
                 <div className="Channel" 
-                    key={'subscribed:'+item.channelId} 
+                    key={item.channelId} 
                     onClick={this._onChannelClick.bind(this, route)}>
                     <div className="ChannelText">
                         <div className="ChannelName">
