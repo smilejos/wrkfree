@@ -5,7 +5,7 @@ var Promise = require('bluebird');
 
 
 module.exports = CreateStore({
-    storeName: 'ChannelNavStore',
+    storeName: 'SubscriptionStore',
 
     handlers: {
         'ON_CHANNEL_CREATE': 'onChannelCreate'
@@ -13,33 +13,13 @@ module.exports = CreateStore({
 
     initialize: function() {
         // test data for channelNav Info
-        this.navInfo = [];
-        this.isActived = false;
-        this.isNameValid = false;        
-
-        // test data for channelNav Info
-        this.navInfo = [{
-            channelId: 'e8075f24e77e220c056ab1926be69cf7',
-            name: 'wrkfree',
-            host: 'GeorgeChen',
-            unreadMsgNumbers: 2,
-            isConferenceExist: false
-        }, {
-            channelId: 'test1234',
-            name: 'Development',
-            host: 'Normanywei',
-            unreadMsgNumbers: 0,
-            isConferenceExist: false
-        }, {
-            channelId: 'test12356789',
-            name: 'UI',
-            host: 'SmileJos',
-            unreadMsgNumbers: 9,
-            isConferenceExist: true
-        }];
-        
+        this.isActived = true;
+        this.isNameValid = false;
         // use "-1" to indicate that no channel create action
         this.createdChannel = -1;
+        this.dbName = 'SubscriptionStore';
+        this.db = this.getContext().getLokiDb(this.dbName);
+        this.db.addCollection(this.dbName).ensureIndex('channelId');
     },
 
     onChannelCreate: function(data) {
@@ -70,26 +50,51 @@ module.exports = CreateStore({
      * @Description: polyfill header infomation
      * NOTE: TODO later
      */
-    polyfillAsync: function() {
-        this.emitChange();
+    polyfillAsync: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        return Promise.map(data.channels, function(info) {
+            return _saveSubscription(collection, info);
+        }).bind(this).then(function() {
+            this.emitChange();
+        });
     },
 
     getState: function() {
+        var collection = this.db.getCollection(this.dbName);
         return {
             createdChannel: this.createdChannel,
             isNameValid: this.isNameValid,
             isActived: this.isActived,
-            navInfo: this.navInfo
+            subscriptions: collection.chain().data()
         };
     },
 
     dehydrate: function() {
-        return this.getState();
+        return {
+            db: this.db.toJson()
+        };
     },
 
     rehydrate: function(state) {
-        this.navInfo = state.navInfo;
-        this.isActived = state.isActived;
-        this.isNameValid = state.isNameValid;
+        this.db.loadJSON(state.db);
     }
 });
+
+/**
+ * @Author: George_Chen
+ * @Description: to save channel item to current store
+ *
+ * @param {Object}      collection, lokijs collection
+ * @param {Object}      doc, the channel summary document
+ */
+function _saveSubscription(collection, doc) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
+        name: SharedUtils.argsCheckAsync(doc.name, 'alphabet'),
+        hostInfo: doc.hostInfo,
+        unreadMsgNumbers: 0,
+        isConferenceExist: false
+    }).then(function(doc) {
+        return collection.insert(doc);
+    });
+}

@@ -164,8 +164,8 @@ module.exports = React.createClass({
      * @Description: handler for Subscription of channels 
      */
     _getChannelList: function(){
-        var navInfo = this.state.navInfo;
-        var channelList = SharedUtils.fastArrayMap(navInfo, function(item){
+        var subscriptions = this.state.subscriptions;
+        var channelList = SharedUtils.fastArrayMap(subscriptions, function(item){
             return this._getChannel(item);
         }.bind(this));
         return (
@@ -190,7 +190,7 @@ module.exports = React.createClass({
                         {Channel.name}    
                     </div>
                     <div className="ChannelHost">
-                        {'@' + Channel.host}
+                        {'@' + Channel.hostInfo.nickName}
                     </div>
                 </div>
                 <div className="Signal">
