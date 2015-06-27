@@ -17,7 +17,8 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
         HeaderStore: routeInfo.user,
-        DashboardStore: _getChannelStreams(routeInfo.user.uid, routeInfo.storageManager)
+        DashboardStore: _getChannelStreams(routeInfo.user.uid, routeInfo.storageManager),
+        SubscriptionStore: _getStarredChannels(routeInfo.user.uid, routeInfo.storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
@@ -41,7 +42,8 @@ exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
         HeaderStore: routeInfo.user,
-        WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager)
+        WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager),
+        SubscriptionStore: _getStarredChannels(routeInfo.user.uid, routeInfo.storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
@@ -119,13 +121,13 @@ function _getChannelStreams(uid, storageManager) {
     var channelStorage = storageManager.getService('Channel');
     var userStorage = storageManager.getService('User');
     return channelStorage.getAuthChannelsAsync(uid)
-        .map(function(doc){
+        .map(function(doc) {
             return userStorage.getUserAsync(doc.channel.host)
-                .then(function(hostInfo){
+                .then(function(hostInfo) {
                     doc.hostInfo = hostInfo;
                     return doc;
                 });
-        }).then(function(result){
+        }).then(function(result) {
             return {
                 channels: result
             };
@@ -153,5 +155,31 @@ function _getWorkSpace(uid, channelId, storageManager) {
                 members: channelStorage.getMembersAsync(channelId),
                 status: channelStorage.getMemberStatusAsync(uid, channelId)
             });
+        });
+}
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for getting user's starred channels as subscription list
+ *
+ * @param {String}      uid, user's id
+ * @param {Object}      storageManager, storageManager instance
+ */
+function _getStarredChannels(uid, storageManager) {
+    var channelStorage = storageManager.getService('Channel');
+    var userStorage = storageManager.getService('User');
+    return channelStorage.getStarredChannelsAsync(uid)
+        .map(function(doc) {
+            return userStorage.getUserAsync(doc.host)
+                .then(function(hostInfo) {
+                    doc.hostInfo = hostInfo;
+                    delete doc.host;
+                    return doc;
+                });
+        }).then(function(result) {
+            return {
+                channels: result
+            };
         });
 }
