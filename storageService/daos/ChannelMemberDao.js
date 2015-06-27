@@ -121,8 +121,8 @@ exports.findByUidAsync = function(member, is1on1, period) {
             queryCondition.is1on1 = is1on1;
         }
         return _find(queryCondition, queryNums);
-    }).map(function(doc){
-        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');        
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).map(function(doc) {
         return DbUtil.transformTimeAsync(doc, 'lastVisitTime');
     }).catch(function(err) {
@@ -147,6 +147,26 @@ exports.findByHostUidAsync = function(host) {
         return _find(condition, 0);
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByHostUidAsync', err);
+        return [];
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to find all channels that he starred
+ *
+ * @param {String}      uid, user's id
+ */
+exports.findByStarredAsync = function(uid) {
+    return Promise.props({
+        member: SharedUtils.argsCheckAsync(uid, 'md5'),
+        isStarred: true,
+        is1on1: false
+    }).then(function(condition) {
+        return _find(condition, 0);
+    }).catch(function(err) {
+        SharedUtils.printError('ChannelMemberDao.js', 'findByStarredAsync', err);
         return [];
     });
 };

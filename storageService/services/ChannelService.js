@@ -148,6 +148,31 @@ exports.getAuthChannelsAsync = function(member, visitPeriod) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to get user's starred channels
+ *
+ * @param {String}          member, member's uid
+ */
+exports.getStarredChannelsAsync = function(member) {
+    return MemberDao.findByStarredAsync(member)
+        .map(function(memberDoc) {
+            return memberDoc.channelId;
+        }).then(function(channels) {
+            return ChannelDao.findByChanelsAsync(channels);
+        }).map(function(channelDoc) {
+            return {
+                channelId: channelDoc.channelId,
+                host: channelDoc.host,
+                name: channelDoc.name
+            };
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'getStarredChannelsAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for asker to get specific channel's infomation
  *
  * @param {String}          channelId, channel id
