@@ -11,6 +11,7 @@ var HeaderStore = require('../stores/HeaderStore');
  */
 var CreateChannel = require('../../client/actions/channel/createChannel');
 var GetUnreadSubscribedMsgCounts = require('../../client/actions/chat/getUnreadSubscribedMsgCounts.js');
+var SetUnreadDiscussions = require('../../client/actions/setUnreadDiscussions.js');
 
 /**
  * child components
@@ -188,6 +189,20 @@ module.exports = React.createClass({
 
     getInitialState: function() {
         return this.getStore(SubscriptionStore).getState();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update the header unread discussion msgs after subscription updated
+     */
+    componentDidUpdate: function() {
+        var totalCounts = 0;
+        SharedUtils.fastArrayMap(this.state.subscriptions, function(item){
+            totalCounts += item.unreadMsgNumbers;
+        });
+        this.executeAction(SetUnreadDiscussions, {
+            counts: totalCounts
+        });
     },
 
     componentDidMount: function() {
