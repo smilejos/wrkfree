@@ -82,3 +82,23 @@ exports.readMsgAsync = function(socket, data) {
             throw err;
         });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for getting last message of channels
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {Array}           data.channels, an array of channelIds
+ */
+exports.getLastMsgsAsync = function(socket, data) {
+    return Promise.map(data.channels, function(cid) {
+        return SharedUtils.argsCheckAsync(cid, 'md5');
+    }).then(function(cids) {
+        var uid = socket.getAuthToken();
+        return MsgStorage.getLatestAsync(uid, cids);
+    }).catch(function(err) {
+        SharedUtils.printError('chatHandler.js', 'getLastMsgsAsync', err);
+        throw err;
+    });
+};
