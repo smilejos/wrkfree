@@ -9,6 +9,8 @@ module.exports = CreateStore({
 
     handlers: {
         'ON_CHANNEL_CREATE': 'onChannelCreate',
+        'ON_OPEN_HANGOUT': '_onOpenHangout',
+        'CHANGE_ROUTE': '_onChangeRoute',
         'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts'
     },
 
@@ -68,15 +70,59 @@ module.exports = CreateStore({
      */
     _updateUnreadSubscribedMsgCounts: function(data) {
         var collection = this.db.getCollection(this.dbName);
-        return Promise.map(data.channelsInfo, function(info){
+        return Promise.map(data.channelsInfo, function(info) {
             var query = {
                 channelId: info.channelId
             };
-            collection.chain().find(query).update(function(obj){
+            collection.chain().find(query).update(function(obj) {
                 obj.unreadMsgNumbers = info.counts;
             });
-        }).bind(this).then(function(){
+        }).bind(this).then(function() {
             this.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update the channel visit time when user enter workspace
+     * 
+     * @param {Object}     route, react route object
+     */
+    _onChangeRoute: function(route) {
+        if (!route.params.channelId) {
+            return;
+        }
+        var collection = this.db.getCollection(this.dbName);
+        this._resetUnreadCounts(collection, {
+            channelId: route.params.channelId
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to reset unread message counts when user open hangout
+     * 
+     * @param {Object}     data.channelId, the channel id
+     */
+    _onOpenHangout: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        this._resetUnreadCounts(collection, {
+            channelId: data.channelId
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to find the target channel and reset its unread message counts
+     * 
+     * @param {Object}     collection, the lokijs collection
+     * @param {Object}     query, the query condition
+     */
+    _resetUnreadCounts: function(collection, query) {
+        var self = this;
+        collection.chain().find(query).update(function(obj) {
+            obj.unreadMsgNumbers = 0;
+            self.emitChange();
         });
     },
 
