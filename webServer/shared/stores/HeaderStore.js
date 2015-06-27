@@ -8,15 +8,27 @@ var HeaderStore = CreateStore({
     handlers: {
         'TOGGLE_QUICKSEARCH': '_toggleQuickSearch',
         'TOGGLE_NOTIFICATION': '_toggleNotification',
+        'UPDATE_HEADER_CONVERSATIONS': '_updateUnreadConversations',
         'ON_NOTIFICATION': '_onNotification'
     },
 
     initialize: function() {
         this.user = {};
         this.isSearchable = false;
-        this.unreadSubscribdMsgsCounts = 0;
-        this.unreadfriendMsgCounts = 0;
+        this.unreadDiscussions = 0;
+        this.unreadConversations = 0;
         this.unreadNoticeCounts = 0;
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update the status of friendMsg counts
+     *
+     * @param {Number}      data.counts, the unread friendMsg counts
+     */
+    _updateUnreadConversations: function(data) {
+        this.unreadConversations = data.counts;
+        this.emitChange();
     },
 
     _onNotification: function() {
@@ -57,8 +69,6 @@ var HeaderStore = CreateStore({
                 avatar: state.avatar,
                 nickName: state.nickName
             };
-            self.unreadSubscribdMsgsCounts = state.unreadSubscribdMsgsCounts;
-            self.unreadfriendMsgCounts = state.unreadfriendMsgCounts;
             self.unreadNoticeCounts = state.unreadNoticeCounts;
             self.emitChange();
         }).catch(function(err) {
@@ -79,8 +89,8 @@ var HeaderStore = CreateStore({
     getState: function() {
         return {
             userInfo: this.user,
-            unreadSubscribdMsgsCounts: this.unreadSubscribdMsgsCounts,
-            unreadfriendMsgCounts: this.unreadfriendMsgCounts,
+            unreadDiscussions: this.unreadDiscussions,
+            unreadConversations: this.unreadConversations,
             unreadNoticeCounts: this.unreadNoticeCounts,
             isSearchable: this.isSearchable
         };
@@ -92,9 +102,9 @@ var HeaderStore = CreateStore({
 
     rehydrate: function(state) {
         this.user = state.userInfo;
-        this.unreadfriendMsgCounts = state.unreadfriendMsgCounts;
+        this.unreadConversations = state.unreadConversations;
         this.unreadNoticeCounts = state.unreadNoticeCounts;
-        this.unreadSubscribdMsgsCounts = state.unreadSubscribdMsgsCounts;
+        this.unreadDiscussions = state.unreadDiscussions;
     }
 });
 
