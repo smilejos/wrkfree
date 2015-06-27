@@ -8,12 +8,13 @@ module.exports = CreateStore({
     storeName: 'SubscriptionStore',
 
     handlers: {
-        'ON_CHANNEL_CREATE': 'onChannelCreate'
+        'ON_CHANNEL_CREATE': 'onChannelCreate',
+        'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts'
     },
 
     initialize: function() {
         // test data for channelNav Info
-        this.isActived = true;
+        this.isActived = false;
         this.isNameValid = false;
         // use "-1" to indicate that no channel create action
         this.createdChannel = -1;
@@ -55,6 +56,26 @@ module.exports = CreateStore({
         return Promise.map(data.channels, function(info) {
             return _saveSubscription(collection, info);
         }).bind(this).then(function() {
+            this.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update unread message counts on current subscribed channels
+     * 
+     * @param {Array}        data.channelsInfo, an array of channel unread message counts info
+     */
+    _updateUnreadSubscribedMsgCounts: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        return Promise.map(data.channelsInfo, function(info){
+            var query = {
+                channelId: info.channelId
+            };
+            collection.chain().find(query).update(function(obj){
+                obj.unreadMsgNumbers = info.counts;
+            });
+        }).bind(this).then(function(){
             this.emitChange();
         });
     },

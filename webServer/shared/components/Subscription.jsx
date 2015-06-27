@@ -10,6 +10,7 @@ var HeaderStore = require('../stores/HeaderStore');
  * actions
  */
 var CreateChannel = require('../../client/actions/channel/createChannel');
+var GetUnreadSubscribedMsgCounts = require('../../client/actions/chat/getUnreadSubscribedMsgCounts.js');
 
 /**
  * child components
@@ -52,9 +53,7 @@ module.exports = React.createClass({
         if (state.createdChannel !== -1) {
             return this._checkCreatedChannel(state.createdChannel);
         }
-        if (state.isActived !== this.state.isActived) {
-            this.setState(state);
-        }
+        this.setState(state);
     },
 
     /**
@@ -78,13 +77,6 @@ module.exports = React.createClass({
             channelId: createdChannel.channelId,
             boardId: 0
         });
-    },
-
-    /**
-     * initialize state of channelNav.jsx
-     */
-    getInitialState: function() {
-        return this.getStore(SubscriptionStore).getState();
     },
 
     _onChannelClick: function(route){
@@ -192,6 +184,14 @@ module.exports = React.createClass({
                 {channelList}
             </div>
         );
+    },
+
+    getInitialState: function() {
+        return this.getStore(SubscriptionStore).getState();
+    },
+
+    componentDidMount: function() {
+        this.executeAction(GetUnreadSubscribedMsgCounts);
     },
 
     render: function() {

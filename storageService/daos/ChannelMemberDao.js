@@ -145,6 +145,8 @@ exports.findByHostUidAsync = function(host) {
         is1on1: false
     }).then(function(condition) {
         return _find(condition, 0);
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByHostUidAsync', err);
         return [];
@@ -165,6 +167,8 @@ exports.findByStarredAsync = function(uid) {
         is1on1: false
     }).then(function(condition) {
         return _find(condition, 0);
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByStarredAsync', err);
         return [];
@@ -186,6 +190,8 @@ exports.findByChannelAsync = function(channelId, is1on1) {
             condition.is1on1 = is1on1;
         }
         return _find(condition, 0);
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByChannelAsync', err);
         return [];
