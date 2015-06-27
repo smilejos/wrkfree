@@ -102,3 +102,19 @@ exports.getLastMsgsAsync = function(socket, data) {
         throw err;
     });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to find unread message counts on user starred(subscribed) channels
+ *       
+ * @param {Object}          socket, the client socket instance
+ */
+exports.getUnreadSubscribedMsgCounts = function(socket) {
+    var uid = socket.getAuthToken();
+    return MsgStorage.getUnreadSubscribedMsgCountsAsync(uid)
+        .catch(function(err) {
+            SharedUtils.printError('chatHandler.js', 'getUnreadSubscribedMsgCounts', err);
+            throw err;
+        });
+};

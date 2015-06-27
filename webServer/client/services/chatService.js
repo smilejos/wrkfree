@@ -69,6 +69,18 @@ exports.getLastMsgsAsync = function(data) {
     return _request(packet, 'getLastMsgsAsync');
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to find unread message counts on user starred(subscribed) channels
+ *       
+ * @param {Object}          socket, the client socket instance
+ */
+exports.getUnreadSubscribedMsgCounts = function() {
+    var packet = _setPacket('getUnreadSubscribedMsgCounts', null);
+    return _request(packet, 'getUnreadSubscribedMsgCounts');
+};
+
 /************************************************
  *
  *           internal functions
