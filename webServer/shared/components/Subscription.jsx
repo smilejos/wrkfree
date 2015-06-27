@@ -165,66 +165,33 @@ module.exports = React.createClass({
      */
     _getChannelList: function(){
         var subscriptions = this.state.subscriptions;
+        var route = '';
         var channelList = SharedUtils.fastArrayMap(subscriptions, function(item){
-            return this._getChannel(item);
+            route = '/app/workspace/'+item.channelId + '?board=1';
+            return (
+                <div className="Channel" 
+                    key={'subscribed:'+item.channelId} 
+                    onClick={this._onChannelClick.bind(this, route)}>
+                    <div className="ChannelText">
+                        <div className="ChannelName">
+                            {item.name}    
+                        </div>
+                        <div className="ChannelHost">
+                            {'@' + item.hostInfo.nickName}
+                        </div>
+                    </div>
+                    <div className="Signal">
+                        {item.isConferenceExist ? <div className="Conference fa fa-users" /> : ''}
+                        {item.unreadMsgNumbers > 0 ? <div className="Counter">{item.unreadMsgNumbers}</div> : '' }
+                    </div>
+                </div>
+            );
         }.bind(this));
         return (
             <div className="ChannelList">
                 {channelList}
             </div>
         );
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: handler for channel content
-     */
-    _getChannel: function(Channel){
-        var route = '/app/workspace/'+Channel.channelId + '?board=1';
-        var counter = this._getCounter(Channel);
-        var conference= this._getConference(Channel);
-        return (
-            <div className="Channel" onClick={this._onChannelClick.bind(this, route)}>
-                <div className="ChannelText">
-                    <div className="ChannelName">
-                        {Channel.name}    
-                    </div>
-                    <div className="ChannelHost">
-                        {'@' + Channel.hostInfo.nickName}
-                    </div>
-                </div>
-                <div className="Signal">
-                    {conference}
-                    {counter}
-                </div>
-            </div>
-        );
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: generate unread message count
-     */
-    _getCounter: function(Channel){
-        if( Channel.unreadMsgNumbers > 0 ) {
-            return (
-                <div className="Counter">
-                    {Channel.unreadMsgNumbers}
-                </div>
-            );
-        }
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: generate channel conference icon
-     */
-    _getConference: function(Channel){
-        if( Channel.isConferenceExist ) {
-            return (
-                <div className="Conference fa fa-users"></div>
-            );
-        }
     },
 
     render: function() {
