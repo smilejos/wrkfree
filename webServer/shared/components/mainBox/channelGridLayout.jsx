@@ -1,11 +1,6 @@
 var React = require('react');
 var ReactGridLayout = require('react-grid-layout');
-
-/**
- * global params
- */
-var GLOBAL_GRID_MAX_COLS = 3;
-var GLOBAL_GRID_ITEM_HEIGHT = 360;
+var SharedUtils = require('../../../../sharedUtils/utils');
 
 /**
  * child components
@@ -29,15 +24,7 @@ var ChannelGridItem = require('./channelGridItem.jsx');
  */
 module.exports = React.createClass({
     render: function(){
-        var listLayout = [];
-        var listContent = this.props.channels.map(function(item, index){
-            listLayout.push({
-                i:index, 
-                x: index%GLOBAL_GRID_MAX_COLS, 
-                y: index%GLOBAL_GRID_MAX_COLS, 
-                w: 1, // the number of colums used by this item
-                h: 1, // the number of row used by this item
-            });
+        var listContent = SharedUtils.fastArrayMap(this.props.channels, function(item, index){
             return (
                 <div key={index}>
                     <ChannelGridItem channelInfo={item} />
@@ -45,14 +32,9 @@ module.exports = React.createClass({
             );
         });
         return (
-            <ReactGridLayout 
-                className="GridLayout"
-                layout={listLayout}
-                cols={GLOBAL_GRID_MAX_COLS} 
-                rowHeight={GLOBAL_GRID_ITEM_HEIGHT}
-                isDraggable={false}>
+            <div> 
                 {listContent}
-            </ReactGridLayout>
+            </div>
         );
     }
 });

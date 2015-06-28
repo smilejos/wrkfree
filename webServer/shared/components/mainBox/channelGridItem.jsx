@@ -105,8 +105,10 @@ module.exports = React.createClass({
         var summary = this._getChannelSummary(info);
         return (
             <div className="ChannelGridItem">
-                {snapshot}
-                {summary}
+                <div className="ChannelGridInsideItem">
+                    {snapshot}
+                    {summary}
+                </div>
             </div>
         );
     }
