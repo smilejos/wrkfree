@@ -3,13 +3,6 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var NavigationMixin = require('react-router').Navigation;
 
 /**
- * material UI compoents
- */
-var Mui = require('material-ui');
-var IconButton = Mui.IconButton;
-var Paper = Mui.Paper;
-
-/**
  * actions
  */
 var NavToBoard = require('../../../client/actions/draw/navToBoard');

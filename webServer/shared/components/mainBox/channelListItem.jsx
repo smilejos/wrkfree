@@ -3,13 +3,6 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var NavigationMixin = require('react-router').Navigation;
 
 /**
- * material UI compoents
- */
-var Mui = require('material-ui');
-var IconButton = Mui.IconButton;
-var Paper = Mui.Paper;
-
-/**
  * actions
  */
 var NavToBoard = require('../../../client/actions/draw/navToBoard');
@@ -17,7 +10,6 @@ var NavToBoard = require('../../../client/actions/draw/navToBoard');
 /**
  * child components
  */
-var ChannelSnapshot = require('./channelSnapshot.jsx');
 var UserAvatar = require('../common/userAvatar.jsx');
 var StateIcon = require('../common/stateIcon.jsx');
 
@@ -51,7 +43,7 @@ module.exports = React.createClass({
     },
 
     /**
-     * @Author: George_Chen
+     * @Author: Jos Tung
      * @Description: to get fromatted time string by visit timestamp
      */
     _getFormattedTime: function() {
