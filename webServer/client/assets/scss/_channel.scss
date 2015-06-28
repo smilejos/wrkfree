@@ -2,6 +2,11 @@ $channel-grid-width: 300px;
 $channel-grid-height: 300px;
 $channel-grid-field-height: 45px;
 
+$channel-list-min-width: 600px;
+$channel-list-max-width: 800px;
+$channel-list-height: 90px;
+$channel-list-field-height: 45px;
+
 /**
  * the base fonts style
  */
@@ -23,6 +28,22 @@ $channel-grid-field-height: 45px;
 .baseChannelGridField {
     @extend .baseFonts, .baseChannelGridWidth;
     height: $channel-grid-field-height;
+}
+
+/**
+ * the base width of channel grid item
+ */
+.baseChannelListWidth {
+    min-width: $channel-list-min-width;
+    max-width: $channel-list-max-width;
+}
+
+/**
+ * the base field of channel grid card
+ */
+.baseChannelListField {
+    @extend .baseFonts, .baseChannelListWidth;
+    height: $channel-list-field-height;
 }
 
 /**
@@ -81,6 +102,8 @@ $channel-grid-field-height: 45px;
             opacity: 0;
             font-size: 16px;
             margin-left: 10px;
+            transition: 0.5s;
+
             .toolIcon {
                 width: 30px;
                 float: left;
@@ -97,7 +120,7 @@ $channel-grid-field-height: 45px;
         margin-left: 4px;
         border-bottom: 2px rgba(0, 0, 0, .2);
         box-shadow: 0 4px 4px 4px rgba(0, 0, 0, .2);    
-
+        
         .ChannelSummary {
             height: 100px;
         }
@@ -109,21 +132,104 @@ $channel-grid-field-height: 45px;
     }
 }
 
-/**
- * the container style of channel host info field
- */
-.ChannelHostInfo {
-    @extend .baseChannelGridField;
-    color: $grey-700;
-}
 
 /**
- * the container style of channel members
+ * the channel list card
  */
-.ChannelMembers {
-    @extend .baseChannelGridField;
-    overflow: hidden;
+.ChannelListItem {
+    @extend .baseFonts, .baseChannelListWidth;
+    position: relative;
+    height: $channel-list-height;
+    margin-bottom: 2px;
+    border-color: $grey-300;
+    border-style: solid;
+    border-width: 1px;
+    background-color: #fff;
+    transition: 0.3s;
+
+    /**
+     * the container style of channel drawing snapshot
+     */
+    .ChannelSnapshot {
+        position: relative;
+        height: $channel-list-height - 2;
+        width: 160px;
+        background-color: $grey-100;
+        cursor: pointer;
+        float: left;
+    }
+
+    .ChannelSummary {
+        @extend .baseChannelListField;
+        position: relative;
+        bottom: 0px;
+        background-color: #fff;
+        color: $grey-500;
+        height: $channel-list-height - 2;
+        padding: 5px 10px;
+        overflow: hidden;
+        transition: 0.3s;
+        float: left;
+
+        .ChannelName {
+            line-height: 20px;
+            font-size: 16px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .ChannelHost {
+            line-height: 28px;
+            font-size: 12px;
+            color: #aaa;
+            margin-left: 10px;
+        }
+
+        .ChannelToolbar {
+            position: relative;
+            height: 0px;
+            opacity: 0;
+            font-size: 16px;
+            margin-left: 10px;
+            transition: 0.3s;
+
+            .toolIcon {
+                width: 30px;
+                float: left;
+                font-size: 16px;
+            }
+
+            .toolIcon:hover {
+                color: $grey-800;
+            }
+        }
+
+        /**
+         * overwrite original avtar style, make it more bigger to fit here style
+         */
+        .UserAvatar {
+            position: absolute;;
+            top: 20px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+        }
+        
+    }
+
+    &:hover{
+        margin-bottom: 15px;
+        margin-left: 4px;
+        border-bottom: 2px rgba(0, 0, 0, .2);
+        box-shadow: 0 4px 4px 4px rgba(0, 0, 0, .2);    
+
+        .ChannelToolbar {
+            height: 30px;
+            opacity: 1;
+        }
+    }
 }
+
 
 /**
  * the img style of channel drawing snapshot
@@ -133,30 +239,4 @@ $channel-grid-field-height: 45px;
     height : auto;
     max-width: 100%;
     max-height: 100%;
-}
-
-/**
- * the style of channel name which belong to channel summary field
- */
-.ChannelTitle {
-    @extend .baseFonts;
-    font-weight: 900;
-    color: $grey-600;
-}
-
-/**
- * the style of channel member avatar
- */
-.MemberAvatar {
-    padding-top: 5px;
-    padding-left: 5px;
-}
-
-/**
- * the style of timestamp that user latest visited
- */
-.ChannelTimestamp {
-    @extend .baseFonts;
-    font-size: 12px;
-    color: $grey-600;
 }

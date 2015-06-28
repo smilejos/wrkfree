@@ -1,16 +1,37 @@
 var React = require('react');
 var ReactGridLayout = require('react-grid-layout');
+var SharedUtils = require('../../../../sharedUtils/utils');
 
-var GLOBAL_LIST_MAX_COLS = 1;
+var ChannelListItem = require('./channelListItem.jsx');
 
 /**
- * TODO:
- * the list layout of channels on dashboard
+ * @Author: Jos Tung
+ * @Description: container of channels list layout on dashboard
+ *
+ * @param {Array}        this.props.channels, an array of channel informations,
+ *  NOTE: each item in channels should include:
+ *      item.channelId,
+ *      item.channelName,
+ *      item.hostName,
+ *      item.hostAvatar,
+ *      item.snapshotUrl,
+ *      item.memberList,
+ *      item.time,
+ *      item.isRtcOn 
  */
 module.exports = React.createClass({
-    render: function() {
+    render: function(){
+        var listContent = SharedUtils.fastArrayMap(this.props.channels, function(item, index){
+            return (
+                <div key={index}>
+                    <ChannelListItem channelInfo={item} />
+                </div>
+            );
+        });
         return (
-            <div></div>
+            <div> 
+                {listContent}
+            </div>
         );
     }
 });

@@ -23,6 +23,9 @@ module.exports = React.createClass({
             paddingTop: 13,
             cursor: 'pointer'
         };
+
+        iconStyle = this.props.style ? this.props.style : iconStyle;
+        
         return (
             <div className={this.props.stateClass} >
                 <span className={this.props.iconClass} onClick={this.props.handler} style={iconStyle} />

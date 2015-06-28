@@ -14,7 +14,7 @@ var UserAvatar = require('../common/userAvatar.jsx');
 var StateIcon = require('../common/stateIcon.jsx');
 
 /**
- * @Author: George_Chen
+ * @Author: Jos Tung
  * @Description: an Channel component to display each user's Channel
  *
  * @param {String}      this.props.channelId, channel's id
@@ -43,7 +43,7 @@ module.exports = React.createClass({
     },
 
     /**
-     * @Author: George_Chen
+     * @Author: Jos Tung
      * @Description: to get fromatted time string by visit timestamp
      */
     _getFormattedTime: function() {
@@ -56,11 +56,11 @@ module.exports = React.createClass({
      * @Description: Move original summary component ot here
      */
     _getChannelSummary: function(info) {
-        var hostAvatarStyle = {
-            float: 'right',
-            marginTop: -19,
-            marginRight: 10
-        };
+        var toolIconStyle = {
+            paddingTop: 5,
+            cursor: 'pointer'
+        }
+
         return (
             <div className="ChannelSummary" >
                 <div className="ChannelInfo" >
@@ -69,20 +69,23 @@ module.exports = React.createClass({
                     </div>
                     <div className="ChannelHost">
                         {this._getFormattedTime()}
-                        <UserAvatar isCircle avatar={info.hostInfo.avatar} style={hostAvatarStyle}/>
                     </div>
                 </div>
                 <div className="ChannelToolbar" >
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-tag"/>
+                        iconClass="fa fa-tag"
+                        style={toolIconStyle} />
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-star"/>
+                        iconClass="fa fa-star"
+                        style={toolIconStyle} />
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-share"/>
+                        iconClass="fa fa-share"
+                        style={toolIconStyle} />
                 </div>
+                <UserAvatar isCircle avatar={info.hostInfo.avatar}/>
             </div>
         );
     },
@@ -104,7 +107,7 @@ module.exports = React.createClass({
         var snapshot = this._getChannelSnapshot(info.snapshotUrl);
         var summary = this._getChannelSummary(info);
         return (
-            <div className="ChannelGridItem">
+            <div className="ChannelListItem">
                 {snapshot}
                 {summary}
             </div>
