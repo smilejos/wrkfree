@@ -13,16 +13,12 @@ var Connections = {};
  * Public API
  * @Author: George_Chen
  * @Description: to release current rtc connection
- *         NOTE: if the target connection is last one, we stop
- *               the local video
  *         
  * @param {String}          id, the connection id
  */
 exports.releaseConnection = function(id) {
     var connection = Connections[id];
-    if (Object.keys(Connections).length === 1 && connection) {
-        connection.stopLocalVideo();
-    }
+    connection.stopLocalVideo();
     if (connection) {
         delete Connections[id];
     }
