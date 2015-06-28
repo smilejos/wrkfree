@@ -9,6 +9,7 @@ var HeaderStore = CreateStore({
         'TOGGLE_QUICKSEARCH': '_toggleQuickSearch',
         'TOGGLE_NOTIFICATION': '_toggleNotification',
         'UPDATE_HEADER_CONVERSATIONS': '_updateUnreadConversations',
+        'UPDATE_HEADER_DISCUSSIONS': '_updateUnreadDisscussions',
         'ON_NOTIFICATION': '_onNotification'
     },
 
@@ -28,6 +29,17 @@ var HeaderStore = CreateStore({
      */
     _updateUnreadConversations: function(data) {
         this.unreadConversations = data.counts;
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update the status of subscribed messages counts
+     *
+     * @param {Number}      data.counts, the unread subscribed msg counts
+     */
+    _updateUnreadDisscussions: function(data) {
+        this.unreadDiscussions = data.counts;
         this.emitChange();
     },
 
