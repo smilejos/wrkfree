@@ -79,8 +79,8 @@ module.exports = React.createClass({
      * @Author: George_Chen
      * @Description: count the unread conversation when friend list updated
      */
-    componentDidUpdate: function(nextState, nextProps) {
-        return Promise.reduce(nextProps.friends, function(total, friendItem){
+    componentDidUpdate: function() {
+        return Promise.reduce(this.state.friends, function(total, friendItem){
             return (friendItem.isMessageReaded ? total : total + 1);
         }, 0).bind(this).then(function(totalUnreads){
             this.executeAction(SetUnreadConverations, {
