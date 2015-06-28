@@ -1,11 +1,12 @@
 $base-dashboard-content-width: 960px;
-$base-dashboard-content-left: 200px;
+$base-dashboard-content-left: 150px;
 
 /**
  * the content layout on dashboard
  */
 .DashboardContentLayout {
     margin-left: $base-dashboard-content-left;
+    padding-bottom: 20px;
 }
 
 /**

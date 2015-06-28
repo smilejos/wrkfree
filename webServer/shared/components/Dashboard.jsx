@@ -89,7 +89,9 @@ module.exports = React.createClass({
                             </ToolbarGroup>
                         </Toolbar>
                     </div>
-                    <div>{this._generateItems()}</div>
+                    <div>
+                        {this._generateItems()}
+                    </div>
                 </div>
             </div>
         );
