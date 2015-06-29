@@ -59,6 +59,7 @@ module.exports = React.createClass({
         if (this.state.stream && this.state.isVideoShown) {
             videoComponent = (
                 <RtcVideo 
+                    isMuted
                     videoId="localVideo"
                     stream={this.state.stream} />
             );
