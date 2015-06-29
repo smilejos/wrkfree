@@ -18,7 +18,30 @@ module.exports = CreateStore({
     handlers: {
         'ON_BOARD_ADD': 'onBoardAdd',
         'ON_DRAW_MODE_CHANGE': 'onDrawModeChange',
-        'ON_CONFERENCE': '_onConference'
+        'ON_CONFERENCE': '_onConference',
+        'CHANGE_ROUTE': '_onChangeRoute'
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to clean store when user not route to "/app/workspace"
+     *
+     * @param {Object}      route, the react-router object
+     */
+    _onChangeRoute: function(route) {
+        if (!route.params.channelId) {
+            this.initialize();
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to check current channel id has been opened as workspace or not
+     *
+     * @param {String}      cid, the channel id
+     */
+    isOpenedChannel: function(cid) {
+        return (this.channel.channelId === cid);
     },
 
     initialize: function() {
