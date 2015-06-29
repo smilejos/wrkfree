@@ -267,6 +267,39 @@ exports.getMemberStatusAsync = function(asker, channelId) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for asker to check starred status on current channel
+ *
+ * @param {String}          asker, asker's uid
+ * @param {String}          channelId, channel id
+ */
+exports.hasStarredAsync = function(asker, channelId) {
+    return MemberDao.isStarredAsync(asker, channelId)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'hasStarredAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for asker to star current channel or not
+ *
+ * @param {String}          asker, asker's uid
+ * @param {String}          channelId, channel id
+ * @param {Boolean}         toStar, indicate to star or not
+ */
+exports.starControlAsync = function(asker, channelId, toStar) {
+    return MemberDao.updateStarredAsync(asker, channelId, toStar)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'starControlAsync', err);
+            return null;
+        });
+};
+
 /************************************************
  *
  *           internal functions

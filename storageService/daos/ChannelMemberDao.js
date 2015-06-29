@@ -373,20 +373,20 @@ exports.updateVisitAsync = function(member, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: update the subscription status of channel member
+ * @Description: update the starred status of channel member
  *
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
  * @param {Boolean}     status, subscribed status
  */
-exports.updateSubscribedAsync = function(member, channelId, status) {
+exports.updateStarredAsync = function(member, channelId, status) {
     return SharedUtils.argsCheckAsync(status, 'boolean')
         .then(function(validStatus) {
             return _update(member, channelId, {
                 isStarred: validStatus
             });
         }).catch(function(err) {
-            SharedUtils.printError('ChannelMemberDao.js', 'updateSubscribedAsync', err);
+            SharedUtils.printError('ChannelMemberDao.js', 'updateStarredAsync', err);
             throw err;
         });
 };
