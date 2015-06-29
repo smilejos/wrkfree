@@ -5,6 +5,7 @@ var SocketUtils = require('./socketUtils');
 var RtcHelper = require('../actions/rtc/rtcHelper');
 var OnConference = require('../actions/rtc/onConference');
 var OnRemoteStream = require('../actions/rtc/onRemoteStream');
+var Promise = require('bluebird');
 
 /**
  * Public API
@@ -133,6 +134,26 @@ exports.hangupConferenceAsync = function(data) {
         }).then(function() {
             return RtcHelper.releaseConnection(data.channelId);
         });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to control rtc media on current channel
+ *       
+ * @param {String}           data.channelId, the channel id
+ * @param {Boolean}          data.isVideo, indicate target media is video or audio
+ * @param {Boolean}          data.isOn, indicate mode is on or not
+ */
+exports.controlMediaAsync = function(data) {
+    return Promise.try(function() {
+        if (!RtcHelper.hasConnection(data.channelId)) {
+            throw new Error('connection is not initialized');
+        }
+        return RtcHelper
+            .getConnection(data.channelId)
+            .controlMedia(data.isVideo, data.isOn);
+    });
 };
 
 /************************************************

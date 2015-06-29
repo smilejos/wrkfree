@@ -255,6 +255,23 @@ rtcConnection.prototype.connectAsync = function(sessionSdps) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to control rtc media on current rtc connection
+ *       
+ * @param {Boolean}          isVideo, indicate target media is video or audio
+ * @param {Boolean}          isOn, indicate mode is on or not
+ */
+rtcConnection.prototype.controlMedia = function(isVideo, isOn) {
+    var webrtc = this.webrtc;
+    if (isVideo) {
+        return (isOn ? webrtc.resumeVideo() : webrtc.pauseVideo());
+    } else {
+        return (isOn ? webrtc.unmute() : webrtc.mute());
+    }
+};
+
+/**
  * @Author: George_Chen
  * @Description: hangup on all connected peers
  *         NOTE: each time we call peer.end(), the peer will be removed
