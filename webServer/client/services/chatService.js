@@ -14,7 +14,13 @@ var RecvNotificationMsg = require('../actions/chat/recvNotificationMsg');
  * @param {Object}          data, the message data from server
  */
 exports.receiveMsg = function(data) {
-    return SocketUtils.execAction(RecvMessage, data, 'receiveMsg');
+    var packet = _setPacket('readMsgAsync', null, {
+        channelId: data.channelId
+    });
+    return _request(packet, 'receiveMsg')
+        .then(function(){
+            return SocketUtils.execAction(RecvMessage, data, 'receiveMsg');
+        });
 };
 
 /**
