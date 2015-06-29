@@ -11,6 +11,7 @@ module.exports = CreateStore({
         'ON_CHANNEL_CREATE': 'onChannelCreate',
         'ON_OPEN_HANGOUT': '_onOpenHangout',
         'CHANGE_ROUTE': '_onChangeRoute',
+        'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
         'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts'
     },
 
@@ -79,6 +80,24 @@ module.exports = CreateStore({
             });
         }).bind(this).then(function() {
             this.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to handle new received notification message
+     * 
+     * @param {Object}     data.channelId, the channel id
+     */
+    _recvNotificationMessage: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.unreadMsgNumbers = obj.unreadMsgNumbers += 1;
+            self.emitChange();
         });
     },
 

@@ -9,7 +9,8 @@ module.exports = CreateStore({
     handlers: {
         'UPDATE_FRIENDS_MESSAGE': '_updateFriendsMessage',
         'UPDATE_1ON1_CHANNELID': '_update1on1ChannelId',
-        'ON_OPEN_HANGOUT': '_updateMessageToReaded'
+        'ON_OPEN_HANGOUT': '_updateMessageToReaded',
+        'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage'
     },
 
     /**
@@ -35,6 +36,25 @@ module.exports = CreateStore({
             });
         }).bind(this).then(function() {
             this.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to handle new received notification message
+     * 
+     * @param {Object}     data.channelId, the channel id
+     */
+    _recvNotificationMessage: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.lastMessage = data;
+            obj.isMessageReaded = false;
+            self.emitChange();
         });
     },
 

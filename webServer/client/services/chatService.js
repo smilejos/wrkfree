@@ -3,6 +3,7 @@ var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var RecvMessage = require('../actions/chat/recvMessage');
+var RecvNotificationMsg = require('../actions/chat/recvNotificationMsg');
 
 /**
  * Public API
@@ -13,7 +14,24 @@ var RecvMessage = require('../actions/chat/recvMessage');
  * @param {Object}          data, the message data from server
  */
 exports.receiveMsg = function(data) {
-    return SocketUtils.execAction(RecvMessage, data, 'receiveMsg');
+    var packet = _setPacket('readMsgAsync', null, {
+        channelId: data.channelId
+    });
+    return _request(packet, 'receiveMsg')
+        .then(function(){
+            return SocketUtils.execAction(RecvMessage, data, 'receiveMsg');
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description:
+ *
+ * @param {Object}          data, the message data from server
+ */
+exports.recvNotificationMsg = function(data) {
+    return SocketUtils.execAction(RecvNotificationMsg, data, 'recvNotificationMsg');
 };
 
 /**
