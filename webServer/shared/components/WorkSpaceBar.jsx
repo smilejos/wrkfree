@@ -5,6 +5,7 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 /**
  * actions
  */
+var ControlMedia = require('../../client/actions/rtc/controlMedia');
 var StartConference = require('../../client/actions/rtc/startConference');
 var HangupConference = require('../../client/actions/rtc/hangupConference');
 var ToggleComponent = require('../../client/actions/toggleComponent');
@@ -38,7 +39,9 @@ module.exports = React.createClass({
         return {
             isConferenceExist: false,
             isConferenceVisible: toggleStore.conferenceVisible,
-            isDiscussionVisible: toggleStore.discussionVisible
+            isDiscussionVisible: toggleStore.discussionVisible,
+            isVideoOn: true,
+            isAudioOn: true
         };
     },
 
@@ -116,6 +119,28 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: control current rtc media (video/audio)
+     *
+     * @param {Boolean}          isVideoMode, indicate target media is video or not
+     */
+    _controlMedia: function(isVideoMode) {
+        var nextState = {};
+        var isModeOn = (isVideoMode ? !this.state.isVideoOn : !this.state.isAudioOn);
+        if (isVideoMode) {
+            nextState.isVideoOn = isModeOn;
+        } else {
+            nextState.isAudioOn = isModeOn;
+        }
+        this.executeAction(ControlMedia, {
+            channelId: this.props.channel.channelId,
+            isVideo: isVideoMode,
+            isOn: isModeOn
+        })
+        this.setState(nextState);
+    },
+
     render: function (){
         var barStyle = {};
         var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
@@ -142,11 +167,13 @@ module.exports = React.createClass({
                     &nbsp;
                     <FloatingActionButton mini secondary
                         disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-video-camera" />
+                        iconClassName="fa fa-video-camera "
+                        onClick={this._controlMedia.bind(this, true)} />
                     &nbsp;
                     <FloatingActionButton mini secondary
                         disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-microphone" />
+                        iconClassName="fa fa-microphone"
+                        onClick={this._controlMedia.bind(this, false)} />
                     &nbsp;
                     <FloatingActionButton mini primary
                         disabled={!this.state.isConferenceExist}
