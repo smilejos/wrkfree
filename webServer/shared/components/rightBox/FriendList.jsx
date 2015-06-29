@@ -17,6 +17,7 @@ var Friend = require('../common/friend.jsx');
  */
 var GetLastMessages = require('../../../client/actions/chat/getLastMessages');
 var SetUnreadConverations = require('../../../client/actions/setUnreadConverations');
+var SubscribeChannelNotification = require('../../../client/actions/channel/subscribeChannelNotification');
 
 /**
  * @Author: George_Chen
@@ -99,6 +100,9 @@ module.exports = React.createClass({
             return SharedUtils.get1on1ChannelId(selfUid, info.uid);
         }).bind(this).then(function(cids){
             this.executeAction(GetLastMessages, {
+                channels: cids
+            });
+            this.executeAction(SubscribeChannelNotification, {
                 channels: cids
             });
         });

@@ -87,9 +87,10 @@ function _getFriendAuthAsync() {
  * @param {Object}        socket, server socket object
  * @param {String}        channelId, channel's id
  */
-function _getNotificationAuthAsync() {
-    // TODO:
-    // check is member and is subscribed or not
+function _getNotificationAuthAsync(socket, channelId) {
+    var channelStorage = StorageManager.getService('Channel');
+    var uid = socket.getAuthToken();
+    return channelStorage.hasStarredAsync(uid, channelId);
 }
 
 /************************************************

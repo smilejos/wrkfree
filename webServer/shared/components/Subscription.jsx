@@ -10,6 +10,7 @@ var HeaderStore = require('../stores/HeaderStore');
  * actions
  */
 var CreateChannel = require('../../client/actions/channel/createChannel');
+var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
 var GetUnreadSubscribedMsgCounts = require('../../client/actions/chat/getUnreadSubscribedMsgCounts.js');
 var SetUnreadDiscussions = require('../../client/actions/setUnreadDiscussions.js');
 
@@ -207,6 +208,12 @@ module.exports = React.createClass({
 
     componentDidMount: function() {
         this.executeAction(GetUnreadSubscribedMsgCounts);
+        var cids = SharedUtils.fastArrayMap(this.state.subscriptions, function(info){
+            return info.channelId;
+        });
+        this.executeAction(SubscribeChannelNotification, {
+            channels: cids
+        });
     },
 
     render: function() {
