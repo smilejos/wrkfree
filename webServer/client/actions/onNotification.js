@@ -23,7 +23,7 @@ module.exports = function(actionContext, data) {
     }).then(function(data) {
         actionContext.dispatch('ON_NOTIFICATION', data);
     }).catch(function(err) {
-        SharedUtils.printError('onNotify.js', 'core', err);
+        SharedUtils.printError('onNotification.js', 'core', err);
     });
 };
 
