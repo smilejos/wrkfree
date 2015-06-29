@@ -73,7 +73,7 @@ module.exports = React.createClass({
         if (!info.lastMessage.message) {
             return (
                 <div className="lastMessage">
-                    <span className="noMessage" >{"conversation-"} </span>
+                    <span className="noMessage" >{"Talk Now!-"} </span>
                     <span className="fa fa-paper-plane-o"/>
                 </div>
             );
