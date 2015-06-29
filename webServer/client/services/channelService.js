@@ -109,6 +109,22 @@ exports.searchAsync = function(data) {
     return _request(packet, 'searchAsync');
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to subscribe channel notifications
+ *
+ * @param {String}        data.channelId, the channel id
+ */
+exports.subscribeNotificationAsync = function(channelId) {
+    var subscribeReq = 'notification:' + channelId;
+    return SocketManager.subscribeAsync(subscribeReq)
+        .catch(function(err) {
+            SharedUtils.printError('channelService.js', 'subscribeNotificationAsync', err);
+            return null;
+        });
+};
+
 /************************************************
  *
  *           internal functions
