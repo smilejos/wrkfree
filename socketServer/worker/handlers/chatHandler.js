@@ -23,6 +23,13 @@ exports.sendMsgAsync = function(socket, data) {
             return MsgStorage.saveAsync(sender, channelId, msg);
         }).then(function(result) {
             var errMsg = 'send message fail';
+            if (result) {
+                socket.global.publish('notification:'+data.channelId, {
+                    clientHandler: 'recvNotificationMsg',
+                    service: 'chat',
+                    params: data
+                });
+            }
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('chatHandler.js', 'sendMsgAsync', err);
