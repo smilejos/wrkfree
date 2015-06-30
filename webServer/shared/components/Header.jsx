@@ -71,7 +71,6 @@ module.exports = React.createClass({
      */
     _onSearchKeyDown: function(e) {
         if (e.keyCode === 27) {
-            this.refs.search.clearValue();
             return this._onSearchCancel();
         }
     },
@@ -81,7 +80,6 @@ module.exports = React.createClass({
      * @Description: focus on search field after click search icon
      */
     _onSearchIconClick: function() {
-        this.refs.search.clearValue();
         this.refs.search.focus();
         this.executeAction(ToggleQuickSearch, {
             isEnabled: true
@@ -96,8 +94,6 @@ module.exports = React.createClass({
      * @Description: handler for user cancel quickSearch
      */
     _onSearchCancel: function() {
-        this.refs.search.clearValue();
-        this.refs.search.blur();
         this.executeAction(ToggleQuickSearch, {
             isEnabled: false
         });
@@ -124,7 +120,6 @@ module.exports = React.createClass({
     _onNoticeToggle: function(){
         this.executeAction(ToggleNotifications);
     },
-
 
     /**
      * @Author: George_Chen
@@ -156,6 +151,13 @@ module.exports = React.createClass({
                 iconClassName="fa fa-times"  
                 onClick={this._onSearchCancel} />
         );
+    },
+
+    componentDidUpdate: function() {
+        if (!this.state.isSearchable) {
+            this.refs.search.clearValue();
+            this.refs.search.blur();
+        }
     },
 
     render: function() {
