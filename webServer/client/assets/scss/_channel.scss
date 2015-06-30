@@ -1,5 +1,5 @@
-$channel-grid-width: 300px;
-$channel-grid-height: 300px;
+$channel-grid-width: 250px;
+$channel-grid-height: 250px;
 $channel-grid-field-height: 45px;
 
 $channel-list-min-width: 600px;
@@ -42,10 +42,11 @@ $channel-list-field-height: 45px;
     margin: 5px 10px;
 
     .ChannelGridInsideItem {
-        @extend .baseFonts, .baseChannelGridWidth;
+        @extend .baseFonts;
         position: absolute;
+        width: $channel-grid-width + 2;
         height: $channel-grid-height;
-        border-color: $grey-300;
+        border-color: $grey-400;
         border-style: solid;
         border-width: 1px;
         background-color: #eee;
