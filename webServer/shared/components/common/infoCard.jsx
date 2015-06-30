@@ -17,6 +17,7 @@ var SendFriendReq = require('../../../client/actions/friend/sendFriendReq');
 var CheckChannelReq = require('../../../client/actions/channel/checkChannelReq');
 var CheckFriendReq = require('../../../client/actions/friend/checkFriendReq');
 var OpenHangout = require('../../../client/actions/openHangout');
+var ToggleQuickSearch = require('../../../client/actions/search/toggleQuickSearch');
 
 /**
  * stores
@@ -76,6 +77,9 @@ module.exports = React.createClass({
                         targetUser: cardInfo.targetUid,
                         channelId: cardInfo.channelId
                     });
+                    this.executeAction(ToggleQuickSearch, {
+                        isEnabled: false
+                    });
                 }
             }
         };
@@ -95,6 +99,9 @@ module.exports = React.createClass({
                     this.executeAction(SendFriendReq, {
                         targetUser: cardInfo.targetUid
                     });
+                    this.executeAction(ToggleQuickSearch, {
+                        isEnabled: false
+                    });
                 }
             }
         };
@@ -109,7 +116,12 @@ module.exports = React.createClass({
             value: 'WorkSpace',
             style: 'fa fa-sign-in',
             handler: function(cardInfo){
-                this.transitionTo('/app/workspace/' + cardInfo.channelId);
+                this.transitionTo('/app/workspace/' + cardInfo.channelId + '?board=1');
+                setTimeout(function(){
+                    this.executeAction(ToggleQuickSearch, {
+                        isEnabled: false
+                    });
+                }.bind(this), 200);
             }
         };
     },
@@ -127,6 +139,9 @@ module.exports = React.createClass({
                 this.executeAction(OpenHangout, {
                     channelId: SharedUtils.get1on1ChannelId(cardInfo.targetUid, selfUid),
                     hangoutTitle: cardInfo.nickName
+                });
+                this.executeAction(ToggleQuickSearch, {
+                    isEnabled: false
                 });
             }
         };
