@@ -6,10 +6,12 @@ $app_drawing_area_height: $app_canvas_height + $app-header-height;
  * the style of drawing area on workspace
  */
 .DrawingArea {
+    position: absolute;
     width: $app_canvas_width;
     height: $app_drawing_area_height;
     background-color: #FFF;
-    margin-left: 200px;
+    left: 50%;
+    margin-left: (($app_canvas_width + $app-infoBox-width) / 2) * -1;
     margin-top: 5%;
 }
 
