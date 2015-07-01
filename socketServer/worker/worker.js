@@ -37,6 +37,78 @@ module.exports.run = function(worker) {
      */
     require('./services/rtcWorker').setSocketWorker(worker);
 
+    /**
+     * @Author: George_Chen
+     * @Description: for handling CTRL+C event
+     */
+    process.on('SIGINT', function() {
+        _workerExit(scServer);
+    });
+
+    /**
+     * @Author: George_Chen
+     * @Description: to do a hot reset on current worker
+     */
+    process.on('SIGUSR2', function() {
+        _workerReset();
+    });
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handling fatal error on worker
+     */
+    worker.on('error', function() {
+        _workerReset();
+    });
+
+    /**
+     * @Author: George_Chen
+     * @Description: reset current worker
+     */
+    function _workerReset() {
+        var sockets = scServer.clients;
+        var socketIds = Object.keys(sockets);
+        SharedUtils.fastArrayMap(socketIds, function(sid) {
+            sockets[sid].disconnect();
+        });
+    }
+
+    /**
+     * @Author: George_Chen
+     * @Description: to do a cold shutdown on current worker
+     *
+     * @param {String}        uid, the uid of current socket
+     * @param {String}        sid, the current socket id
+     * @param {Array}         subscriptions, a array of socket subscriptions
+     */
+    function _workerExit() {
+        var sockets = scServer.clients;
+        var socketIds = Object.keys(sockets);
+        Promise.map(socketIds, function(sid) {
+            var uid = sockets[sid].getAuthToken();
+            var subscriptions = sockets[sid].subscriptions();
+            delete sockets[sid];
+            return _userLeaveAsync(uid, sid, subscriptions);
+        }).then(function() {
+            process.exit(0);
+        });
+    }
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handling user leave mechanism
+     *
+     * @param {String}        uid, the uid of current socket
+     * @param {String}        sid, the current socket id
+     * @param {Array}         subscriptions, a array of socket subscriptions
+     */
+    function _userLeaveAsync(uid, sid, subscriptions) {
+        return Promise.all([
+            UserStorage.userLeaveAsync(uid, sid),
+            _disconnectChannel(sid, subscriptions),
+        ]);
+    }
+
     /*
       In here we handle our incoming realtime connections and listen for events.
     */
@@ -74,14 +146,12 @@ module.exports.run = function(worker) {
         });
 
         socket.on('disconnect', function() {
-            var token = socket.getAuthToken();
+            var uid = socket.getAuthToken();
             var subscriptions = socket.subscriptions();
-            return Promise.all([
-                UserStorage.userLeaveAsync(token, socket.id),
-                _disconnectChannel(socket.id, subscriptions),
-            ]).catch(function(err) {
-                SharedUtils.printError('worker.js', 'disconnect', err);
-            });
+            return _userLeaveAsync(uid, socket.id, subscriptions)
+                .catch(function(err) {
+                    SharedUtils.printError('worker.js', 'disconnect', err);
+                });
         });
     });
 };
