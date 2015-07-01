@@ -39,23 +39,39 @@ module.exports.run = function(worker) {
 
     /**
      * @Author: George_Chen
-     * @Description: to do a hot reset on current worker
-     */
-    process.on('SIGUSR2', function() {
-        var sockets = scServer.clients;
-        var socketIds = Object.keys(sockets);
-        SharedUtils.fastArrayMap(socketIds, function(sid) {
-            sockets[sid].disconnect();
-        });
-    });
-
-    /**
-     * @Author: George_Chen
      * @Description: for handling CTRL+C event
      */
     process.on('SIGINT', function() {
         _workerExit(scServer);
     });
+
+    /**
+     * @Author: George_Chen
+     * @Description: to do a hot reset on current worker
+     */
+    process.on('SIGUSR2', function() {
+        _workerReset();
+    });
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handling fatal error on worker
+     */
+    worker.on('error', function() {
+        _workerReset();
+    });
+
+    /**
+     * @Author: George_Chen
+     * @Description: reset current worker
+     */
+    function _workerReset() {
+        var sockets = scServer.clients;
+        var socketIds = Object.keys(sockets);
+        SharedUtils.fastArrayMap(socketIds, function(sid) {
+            sockets[sid].disconnect();
+        });
+    }
 
     /**
      * @Author: George_Chen
