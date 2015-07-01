@@ -6,35 +6,50 @@ var SharedUtils = require('../../../sharedUtils/utils');
 var HeaderStore = CreateStore({
     storeName: 'HeaderStore',
     handlers: {
-        'ON_NOTIFY': '_onNotify',
-        'ON_MSG_NOTIFY': '_onMsgNotify',
-        'TOGGLE_QUICKSEARCH': '_toggleQuickSearch'
+        'TOGGLE_QUICKSEARCH': '_toggleQuickSearch',
+        'TOGGLE_NOTIFICATION': '_toggleNotification',
+        'UPDATE_HEADER_CONVERSATIONS': '_updateUnreadConversations',
+        'UPDATE_HEADER_DISCUSSIONS': '_updateUnreadDisscussions',
+        'ON_NOTIFICATION': '_onNotification'
     },
 
     initialize: function() {
         this.user = {};
         this.isSearchable = false;
+        this.unreadDiscussions = 0;
+        this.unreadConversations = 0;
+        this.unreadNoticeCounts = 0;
     },
 
     /**
      * @Author: George_Chen
-     * @Description: for updating the notification state
+     * @Description: to update the status of friendMsg counts
      *
-     * @param {Boolean}      hasNotify, notification state
+     * @param {Number}      data.counts, the unread friendMsg counts
      */
-    _onNotify: function(hasNotify) {
-        this.hasNotification = hasNotify;
+    _updateUnreadConversations: function(data) {
+        this.unreadConversations = data.counts;
         this.emitChange();
     },
 
     /**
      * @Author: George_Chen
-     * @Description: for updating the unread message state
+     * @Description: to update the status of subscribed messages counts
      *
-     * @param {Boolean}      hasNotify, notification state
+     * @param {Number}      data.counts, the unread subscribed msg counts
      */
-    _onMsgNotify: function(hasNotify) {
-        this.hasUnreadMsgs = hasNotify;
+    _updateUnreadDisscussions: function(data) {
+        this.unreadDiscussions = data.counts;
+        this.emitChange();
+    },
+
+    _onNotification: function() {
+        ++this.unreadNoticeCounts;
+        this.emitChange();
+    },
+
+    _toggleNotification: function() {
+        this.unreadNoticeCounts = 0;
         this.emitChange();
     },
 
@@ -62,12 +77,11 @@ var HeaderStore = CreateStore({
         var self = this;
         return Promise.try(function() {
             self.user = {
-                uid: state.user.uid,
-                avatar: state.user.avatar,
-                nickName: state.user.nickName
+                uid: state.uid,
+                avatar: state.avatar,
+                nickName: state.nickName
             };
-            self.hasUnreadMsgs = state.hasUnreadMsgs;
-            self.hasNotification = state.hasNotification;
+            self.unreadNoticeCounts = state.unreadNoticeCounts;
             self.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('HeaderStore.js', 'polyfillAsync', err);
@@ -87,8 +101,9 @@ var HeaderStore = CreateStore({
     getState: function() {
         return {
             userInfo: this.user,
-            hasUnreadMsgs: this.hasUnreadMsgs,
-            hasNotification: this.hasNotification,
+            unreadDiscussions: this.unreadDiscussions,
+            unreadConversations: this.unreadConversations,
+            unreadNoticeCounts: this.unreadNoticeCounts,
             isSearchable: this.isSearchable
         };
     },
@@ -99,8 +114,9 @@ var HeaderStore = CreateStore({
 
     rehydrate: function(state) {
         this.user = state.userInfo;
-        this.hasUnreadMsgs = state.hasUnreadMsgs;
-        this.hasNotification = state.hasNotification;
+        this.unreadConversations = state.unreadConversations;
+        this.unreadNoticeCounts = state.unreadNoticeCounts;
+        this.unreadDiscussions = state.unreadDiscussions;
     }
 });
 

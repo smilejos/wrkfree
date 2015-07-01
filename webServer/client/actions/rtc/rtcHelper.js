@@ -13,16 +13,12 @@ var Connections = {};
  * Public API
  * @Author: George_Chen
  * @Description: to release current rtc connection
- *         NOTE: if the target connection is last one, we stop
- *               the local video
  *         
  * @param {String}          id, the connection id
  */
 exports.releaseConnection = function(id) {
     var connection = Connections[id];
-    if (Object.keys(Connections).length === 1 && connection) {
-        connection.stopLocalVideo();
-    }
+    connection.stopLocalVideo();
     if (connection) {
         delete Connections[id];
     }
@@ -256,6 +252,23 @@ rtcConnection.prototype.connectAsync = function(sessionSdps) {
         SharedUtils.printError('rtcHelper.js', 'connectAsync', err);
         throw err;
     });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to control rtc media on current rtc connection
+ *       
+ * @param {Boolean}          isVideo, indicate target media is video or audio
+ * @param {Boolean}          isOn, indicate mode is on or not
+ */
+rtcConnection.prototype.controlMedia = function(isVideo, isOn) {
+    var webrtc = this.webrtc;
+    if (isVideo) {
+        return (isOn ? webrtc.resumeVideo() : webrtc.pauseVideo());
+    } else {
+        return (isOn ? webrtc.unmute() : webrtc.mute());
+    }
 };
 
 /**

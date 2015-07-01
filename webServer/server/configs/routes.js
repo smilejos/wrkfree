@@ -7,6 +7,7 @@ var StorageManager = require('../../../storageService/storageManager');
 
 module.exports = function(server) {
     var auth = require('./middlewares/authorization');
+    var fileHandler = require('./middlewares/fileHandler');
     var userEntry = require('./middlewares/userEntry')(StorageManager);
     var reactRoute = require('./reactRoute');
     var providerParams = require('./passport/params');
@@ -113,6 +114,19 @@ module.exports = function(server) {
         };
         return reactRoute(req, res);
     });
+
+    /**
+     * used to serve channel boards image preview 
+     *     NOTE: we always push latest updated board's preview image
+     */
+    ExpressRouter.get('/app/workspace/:channelId/preview', auth.ensureMember, fileHandler.getPreview, function(req, res) {
+        if (!req.img) {
+            // send image not found jpeg
+            return res.redirect('http://michigancomicscollective.org/assets/img/not-found.png');
+        }
+        res.contentType(req.img.contentType);
+        res.send(req.img.chunks);
+    });    
 
     /**
      * used to check specific "email" is available or not

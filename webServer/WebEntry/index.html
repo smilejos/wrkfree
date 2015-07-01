@@ -5,22 +5,88 @@
     <title>Wrkfree2.0</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/pure/0.5.0/pure-min.css" />
     <style type="text/css">
-        .center {
+        .background {
+            background-image: url('https://farm1.staticflickr.com/550/18674641644_3be1602473_o_d.jpg');
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            background-size: cover;
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        }
+        .mask {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            opacity: 0.2;
+            z-index: 2;
+        }
+        .header-menu {
+            position: fixed;
+            top: 0px;
+            width: 100%;
+            height: 50px;
+            z-index: 3;
+            color: #FFF;
+        }
+        .header-menu .header-title {
+            position: absolute;
+            top:8px;
+            right: 240px;
+            font-family: fantasy;
+            font-size: 28px;
+            z-index: 3;
+        }
+        .header-menu .header-menu-tools {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+        }
+        .header-menu-tools .facebook {
+            background-color: #3A5795;
+            color: #FFF;
+        }
+        .header-menu-tools .google {
+            background-color: #DD4B39;
+            color: #FFF;
+        }
+        .solagn {
+            position: absolute;
+            white-space: pre-line;
+            top: 14%;
+            width: 800px;
             text-align: center;
+            left: 50%;
+            margin-left: -400px;
+            color: #FFF;
+            font-size: 36px;
+            z-index: 3;
         }
     </style>
 </head>
 <body>
-    <div class="center">
-        <div class="pure-menu pure-menu-horizontal pure-menu-scrollable">
-            <a href="/auth/facebook/" class="pure-menu-link pure-menu-heading">Facebook</a>
-            <a href="/auth/google/" class="pure-menu-link pure-menu-heading">Google</a>
-            <a href="/app/dashboard" class="pure-menu-link pure-menu-heading">Dashboard</a>
-            <a href="/app/channel/ch123" class="pure-menu-link pure-menu-heading">Channel</a>
-        </div>
-        <img src="assets/imgs/sampleCover.jpg">
+    <div class="background">
+        <div class="mask"/>
     </div>
-    <footer class="center"><img src="assets/imgs/sampleLogo.jpg" width="200"></footer>
+    <div class="header-menu">
+        <div class="header-title">
+            Wrkfree
+        </div>
+        <div class="header-menu-tools">
+            <a class="pure-button facebook" href="/auth/facebook/">
+                facebook
+            </a>
+            &nbsp;
+            <a class="pure-button google" href="/auth/google/">
+                google+
+            </a>
+        </div>
+    </div>
+    <div class="solagn">
+        Work with your ideas and people
+    </div>
     <script type="text/javascript" src="https://localhost:35729/livereload.js"></script>
 </body>
 </html>

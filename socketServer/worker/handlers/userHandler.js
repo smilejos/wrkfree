@@ -65,6 +65,41 @@ exports.getNotificationsAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to reset unread notice counts on header;
+ *
+ * @param {Object}          socket, the client socket instance
+ */
+exports.resetUnreadNoticeAsync = function(socket) {
+    var uid = socket.getAuthToken();
+    return UserStorage.resetUnreadNoticeAsync(uid)
+        .catch(function(err) {
+            SharedUtils.printError('userHandler.js', 'resetUnreadNoticeAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to set his/her dashboard layout
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {Boolean}         data.isDashboardGrid, to indicate layout is grid or not
+ */
+exports.setDashboardLayoutAsync = function(socket, data) {
+    return SharedUtils.argsCheckAsync(data.isDashboardGrid, 'boolean')
+        .then(function(isGrid) {
+            var uid = socket.getAuthToken();
+            return UserStorage.setDashboardLayoutAsync(uid, isGrid);
+        }).catch(function(err) {
+            SharedUtils.printError('userHandler.js', 'resetUnreadNoticeAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: handle the request of searching users
  *
  * @param {Object}          socket, the client socket instance

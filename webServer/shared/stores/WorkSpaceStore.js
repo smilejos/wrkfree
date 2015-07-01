@@ -18,7 +18,30 @@ module.exports = CreateStore({
     handlers: {
         'ON_BOARD_ADD': 'onBoardAdd',
         'ON_DRAW_MODE_CHANGE': 'onDrawModeChange',
-        'ON_CONFERENCE': '_onConference'
+        'ON_CONFERENCE': '_onConference',
+        'CHANGE_ROUTE': '_onChangeRoute'
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to clean store when user not route to "/app/workspace"
+     *
+     * @param {Object}      route, the react-router object
+     */
+    _onChangeRoute: function(route) {
+        if (!route.params.channelId) {
+            this.initialize();
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to check current channel id has been opened as workspace or not
+     *
+     * @param {String}      cid, the channel id
+     */
+    isOpenedChannel: function(cid) {
+        return (this.channel.channelId === cid);
     },
 
     initialize: function() {
@@ -37,7 +60,6 @@ module.exports = CreateStore({
         this.rtc = {
             onConferenceCall: false
         };
-        this.newBoardTip = false;
         this.rtcTimeout = null;
     },
 
@@ -78,10 +100,7 @@ module.exports = CreateStore({
      */
     onBoardAdd: function(data) {
         this.draw.boardNums = data.boardId + 1;
-        this.newBoardTip = !data.isCreator;
-        if (!data.isCreator) {
-            this.emitChange();
-        }
+        this.emitChange();
     },
 
     /**
@@ -144,11 +163,8 @@ module.exports = CreateStore({
             members: this.members,
             rtc: this.rtc,
             draw: this.draw,
-            status: this.status,
-            newBoardTip: !!this.newBoardTip // pass it by value
+            status: this.status
         };
-        // clean the board added tips
-        this.newBoardTip = false;
         return state;
     },
 

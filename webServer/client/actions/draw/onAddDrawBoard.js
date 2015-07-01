@@ -2,6 +2,8 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
+var ActionUtils = require('../actionUtils');
+var NavToBoard = require('./navToBoard');
 
 /**
  * @Public API
@@ -27,9 +29,21 @@ module.exports = function(actionContext, data, callback) {
             channelId: validData.channelId,
             boardId: validData.newBoardId
         });
+    }).then(function() {
+        var boardIndex = data.newBoardId + 1;
+        return ActionUtils.showInfoEvent(
+            'Drawing',
+            'new board [' + boardIndex + '] is has been created!',
+            'switch to new board',
+            function(navitator) {
+                actionContext.executeAction(NavToBoard, {
+                    urlNavigator: navitator,
+                    channelId: data.channelId,
+                    boardId: data.newBoardId
+                });
+            });
     }).catch(function(err) {
         SharedUtils.printError('onAddDrawBoard.js', 'core', err);
-        return null;
-        // show alert message ?
+        ActionUtils.showWarningEvt('Drawing', 'handle remote board added event fail');
     }).nodeify(callback);
 };

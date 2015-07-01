@@ -12,6 +12,10 @@ var RecordTemp = require('../tempStores/DrawRecordTemp');
 // used to limit the active reocrds number
 var RECORD_ACTIVE_LIMIT = 10;
 
+// define the maximum number of draws can be lost during client drawing
+// NOTE: usually, few missing draws is acceptable under jitter environment.
+var MISSING_DRAWS_MAXIMUM = 3;
+
 /************************************************
  *
  *           Public APIs
@@ -128,7 +132,8 @@ exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers, d
         RecordTemp.getRecordAsync(channelId, boardId, member),
         _ensureAuth(member, channelId),
         function(tempRecord) {
-            if (tempRecord.length !== rawDataNumbers) {
+            var missingDraws = Math.abs(tempRecord.length - rawDataNumbers);
+            if (missingDraws > MISSING_DRAWS_MAXIMUM) {
                 throw new Error('tempRecord is broken');
             }
             RecordTemp.initDrawStreamAsync(channelId, boardId, member);
@@ -185,18 +190,21 @@ exports.restoreUndoAsync = function(channelId, boardId, member) {
  * @Author: George_Chen
  * @Description: used to get current board preview image
  *
+ * @param {String}          member, the member uid
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          member, the member uid
  */
-exports.getPreviewImgAsync = function(channelId, boardId, member) {
-    return Promise.props({
-        previewImg: PreviewDao.findByBoardAsync(channelId, boardId),
-        isAuth: _ensureAuth(member, channelId)
-    }).catch(function(err) {
-        SharedUtils.printError('DrawService.js', 'getPreviewAsync', err);
-        return null;
-    });
+exports.getPreviewImgAsync = function(member, channelId, boardId) {
+    return _ensureAuth(member, channelId)
+        .then(function() {
+            if (SharedUtils.isDrawBoardId(boardId)) {
+                return PreviewDao.findByBoardAsync(channelId, boardId);
+            }
+            return PreviewDao.findByChannelLatestAsync(channelId);
+        }).catch(function(err) {
+            SharedUtils.printError('DrawService.js', 'getPreviewAsync', err);
+            return null;
+        });
 };
 
 /**

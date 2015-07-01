@@ -93,6 +93,27 @@ exports.findByBoardAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to find the channel board preview document with latest updated
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.findByChannelLatestAsync = function(channelId) {
+    return Promise.props({
+        channelId: SharedUtils.argsCheckAsync(channelId, 'md5')
+    }).then(function(condition) {
+        var sortOrder = DbUtil.getSort('updatedTime', 'descending');
+        return Model.findOneAsync(condition, null, {
+            sort: sortOrder
+        });
+    }).catch(function(err) {
+        SharedUtils.printError('DrawPreviewDao.js', 'findByBoardAsync', err);
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: used to check board preview document is exist or not
  *         NOTE: timestamp is optional, if we want to find outdated preview document
  *               is exist or not

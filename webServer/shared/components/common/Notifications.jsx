@@ -63,17 +63,43 @@ var Notification = React.createClass({
  * @param {Object}      this.props.info, the notice info
  */
 var Notices = React.createClass({
+    getInitialState: function() {
+        return {
+           isTimeVisible : true 
+        };
+    },
+    /**
+     * @Author: George_Chen
+     * @Description: handler for hiding timestamp
+     */
+    _hideTimestamp: function() {
+        this.setState({
+            isTimeVisible: false
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: handler for show timestamp
+     */
+    _showTimestamp: function() {
+        this.setState({
+            isTimeVisible: true
+        });
+    },
+
     render: function(){
         var info = this.props.info;
         var isReq = info.isReq;
         var noticeContent = '';
+        info.isTimeVisible = this.state.isTimeVisible;
         if (info.isNotification) {
             noticeContent = (<NormalNotice info={info} />);
         } else {
             noticeContent = (isReq ? <ReqNotice info={info} /> : <RespNotice info={info} />);
         }
         return (
-            <div className="Notice">
+            <div className="Notice" onMouseOver={this._hideTimestamp} onMouseOut={this._showTimestamp} >
                 <div className="NoticeSender">
                     <UserAvatar avatar={this.props.info.sender.avatar} isCircle={true} />
                 </div>

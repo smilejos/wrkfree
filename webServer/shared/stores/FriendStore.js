@@ -2,16 +2,105 @@
 var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 var Promise = require('bluebird');
-var FriendViewName = 'friendView';
 
 module.exports = CreateStore({
     storeName: 'FriendStore',
 
+    handlers: {
+        'UPDATE_FRIENDS_MESSAGE': '_updateFriendsMessage',
+        'UPDATE_1ON1_CHANNELID': '_update1on1ChannelId',
+        'ON_OPEN_HANGOUT': '_updateMessageToReaded',
+        'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage'
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to update the last talk message on specific friend
+     *         NOTE: based on the channel id of each message, 
+     *               we can know who own this message.
+     *
+     * @param {Array}      data.msgsData, an array of last talk messages
+     */
+    _updateFriendsMessage: function(data) {
+        if (data.msgsData.length === 0) {
+            return;
+        }
+        var collection = this.db.getCollection(this.dbName);
+        return Promise.map(data.msgsData, function(friendMsgData) {
+            var query = {
+                channelId: friendMsgData.lastMessage.channelId
+            };
+            collection.chain().find(query).update(function(obj) {
+                obj.lastMessage = friendMsgData.lastMessage;
+                obj.isMessageReaded = friendMsgData.isReaded;
+            });
+        }).bind(this).then(function() {
+            this.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to handle new received notification message
+     * 
+     * @param {Object}     data.channelId, the channel id
+     */
+    _recvNotificationMessage: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.lastMessage = data;
+            obj.isMessageReaded = false;
+            self.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update the 1on1 channel id for each friend item
+     *
+     * @param {String}      data.uid, friend uid
+     * @param {String}      data.channelId, the 1on1 channelId
+     */
+    _update1on1ChannelId: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var query = {
+            uid: data.uid
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.channelId = data.channelId;
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update the last talk message is readed or not on 
+     *               specific friend item
+     *
+     * @param {String}      data.channelId, the 1on1 channelId
+     */
+    _updateMessageToReaded: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.isMessageReaded = true;
+            self.emitChange();
+        });
+    },
+
     initialize: function() {
+        this.isPolyFilled = false;
         this.dbName = 'FriendDB';
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
-        collection.ensureIndex('nickName');
+        collection.ensureIndex('uid');
+        collection.ensureIndex('channelId');
     },
 
     /**
@@ -26,7 +115,7 @@ module.exports = CreateStore({
         return Promise.map(friendList, function(friendInfo) {
             return _impportFriend(collection, friendInfo);
         }).bind(this).then(function() {
-            _getFriendView(collection);
+            this.isPolyFilled = true;
             return this.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('FriendStore.js', 'polyfillAsync', err);
@@ -37,16 +126,27 @@ module.exports = CreateStore({
     /**
      * @Public API
      * @Author: George_Chen
-     * @Description: update friend state
+     * @Description: to get friend list
+     *         NOTE: here we sort by different criteria
      */
-    updateStatus: function() {
-        // TODO: used to update friends online, avatar, nickName ...
-    },
-
     getState: function() {
         var collection = this.db.getCollection(this.dbName);
+        var sortMethod = function(obj1, obj2) {
+            // sort by message is readed status
+            if (!obj1.isMessageReaded && obj2.isMessageReaded) return -1;
+            if (obj1.isMessageReaded && !obj2.isMessageReaded) return 1;
+            // sort by online status
+            if (obj1.isOnline && !obj2.isOnline) return -1;
+            if (!obj1.isOnline && obj2.isOnline) return 1;
+            // sort by lastMessage sentTime
+            if (obj1.lastMessage && obj1.lastMessage.sentTime > obj2.lastMessage.sentTime) return -1;
+            if (obj1.lastMessage && obj1.lastMessage.sentTime < obj2.lastMessage.sentTime) return 1;
+            // sort by nickName
+            if (obj1.nickName < obj2.nickName) return -1;
+            if (obj1.nickName > obj2.nickName) return 1;
+        };
         return {
-            friends: _getFriendView(collection).data()
+            friends: collection.chain().sort(sortMethod).data()
         };
     },
 
@@ -89,8 +189,7 @@ module.exports = CreateStore({
      *         NOTE: return true, only if friendView has been inited
      */
     hasPolyfilled: function() {
-        var collection = this.db.getCollection(this.dbName);
-        return !!collection.getDynamicView(FriendViewName);
+        return this.isPolyFilled;
     },
 
     /**
@@ -99,7 +198,10 @@ module.exports = CreateStore({
      * @Description: dehydrate mechanism will be called by fluxible framework
      */
     dehydrate: function() {
-        return this.db.toJson();
+        return {
+            db: this.db.toJson(),
+            isPolyFilled: this.isPolyFilled
+        };
     },
 
     /**
@@ -109,8 +211,9 @@ module.exports = CreateStore({
      *
      * @param {String}      serializedDB, the stringify DB returned by "dehydrate"
      */
-    rehydrate: function(serializedDB) {
-        this.db.loadJSON(serializedDB);
+    rehydrate: function(state) {
+        this.isPolyFilled = state.isPolyFilled;
+        this.db.loadJSON(state.db);
     }
 });
 
@@ -124,31 +227,14 @@ module.exports = CreateStore({
 function _impportFriend(collection, doc) {
     return Promise.props({
         uid: SharedUtils.argsCheckAsync(doc.uid, 'md5'),
+        channelId: '',
         avatar: SharedUtils.argsCheckAsync(doc.avatar, 'avatar'),
         nickName: SharedUtils.argsCheckAsync(doc.nickName, 'nickName'),
         group: SharedUtils.argsCheckAsync(doc.group, 'string'),
-        isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean')
-    }).then(function(drawDoc) {
-        return collection.insert(drawDoc);
+        isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean'),
+        lastMessage: doc.lastMessage || '',
+        isMessageReaded: true
+    }).then(function(doc) {
+        return collection.insert(doc);
     });
-}
-
-/**
- * @Author: George_Chen
- * @Description: used to get friend view
- *         NOTE: sort by online status
- *
- * @param {Object}      collection, lokijs collection
- */
-function _getFriendView(collection) {
-    var friendView = collection.getDynamicView(FriendViewName);
-    if (!friendView) {
-        friendView = collection.addDynamicView(FriendViewName);
-        friendView.applyFind({}).applySort(function(obj1, obj2) {
-            if (obj1.isOnline && obj2.isOnline) return 0;
-            if (obj1.isOnline && !obj2.isOnline) return 1;
-            if (!obj1.isOnline && obj2.isOnline) return -1;
-        });
-    }
-    return friendView;
 }

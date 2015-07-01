@@ -124,22 +124,49 @@ exports.addNewMemberAsync = function(host, member, channelId) {
  * @Description: get all authorized channels that user can login
  *
  * @param {String}          member, member's uid
+ * @param {Object}          visitPeriod, the query time period
+ *                          visitPeriod.start, the start time of this period
+ *                          visitPeriod.end, the end time of this period
  */
-exports.getAuthChannelsAsync = function(member) {
-    return MemberDao.findByUidAsync(member, false)
+exports.getAuthChannelsAsync = function(member, visitPeriod) {
+    return MemberDao.findByUidAsync(member, false, visitPeriod)
         .bind(this)
         .map(function(memberDoc) {
             var cid = memberDoc.channelId;
             return Promise.props({
                 channel: ChannelDao.findByChannelAsync(cid, false),
                 isStarred: memberDoc.isStarred,
-                members: this.getMembersAsync(cid),
                 visitTime: memberDoc.lastVisitTime,
                 lastBaord: memberDoc.lastUsedBoard
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getAuthChannelsAsync', err);
             return [];
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get user's starred channels
+ *
+ * @param {String}          member, member's uid
+ */
+exports.getStarredChannelsAsync = function(member) {
+    return MemberDao.findByStarredAsync(member)
+        .map(function(memberDoc) {
+            return memberDoc.channelId;
+        }).then(function(channels) {
+            return ChannelDao.findByChanelsAsync(channels);
+        }).map(function(channelDoc) {
+            return {
+                channelId: channelDoc.channelId,
+                host: channelDoc.host,
+                name: channelDoc.name
+            };
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'getStarredChannelsAsync', err);
+            return null;
         });
 };
 
@@ -236,6 +263,39 @@ exports.getMemberStatusAsync = function(asker, channelId) {
     return MemberDao.findMemberAsync(asker, channelId)
         .catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getMemberStatusAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for asker to check starred status on current channel
+ *
+ * @param {String}          asker, asker's uid
+ * @param {String}          channelId, channel id
+ */
+exports.hasStarredAsync = function(asker, channelId) {
+    return MemberDao.isStarredAsync(asker, channelId)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'hasStarredAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for asker to star current channel or not
+ *
+ * @param {String}          asker, asker's uid
+ * @param {String}          channelId, channel id
+ * @param {Boolean}         toStar, indicate to star or not
+ */
+exports.starControlAsync = function(asker, channelId, toStar) {
+    return MemberDao.updateStarredAsync(asker, channelId, toStar)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'starControlAsync', err);
             return null;
         });
 };

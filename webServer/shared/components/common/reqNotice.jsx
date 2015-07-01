@@ -70,6 +70,7 @@ module.exports = React.createClass({
                 <NoticeMessage message={message}
                     title={this.props.info.sender.nickName}
                     date={new Date(this.props.info.updatedTime)}
+                    isTimeVisible={this.props.info.isTimeVisible}
                     emphasis={this.props.info.extraInfo.name} />
                 <div className="NoticeAction">
                     <div className="action action-accept"

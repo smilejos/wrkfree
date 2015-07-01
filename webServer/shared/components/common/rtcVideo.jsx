@@ -24,7 +24,7 @@ module.exports = React.createClass({
                 <video 
                     width={videoWidth} 
                     id={this.props.videoId}
-                    muted />
+                    muted={!!this.props.isMuted} />
             </div>
         );
     }

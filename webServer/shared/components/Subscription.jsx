@@ -3,13 +3,16 @@ var Router = require('react-router');
 var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../sharedUtils/utils');
-var ChannelNavStore = require('../stores/ChannelNavStore');
+var SubscriptionStore = require('../stores/SubscriptionStore');
 var HeaderStore = require('../stores/HeaderStore');
 
 /**
  * actions
  */
 var CreateChannel = require('../../client/actions/channel/createChannel');
+var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
+var GetUnreadSubscribedMsgCounts = require('../../client/actions/chat/getUnreadSubscribedMsgCounts.js');
+var SetUnreadDiscussions = require('../../client/actions/setUnreadDiscussions.js');
 
 /**
  * child components
@@ -40,7 +43,7 @@ module.exports = React.createClass({
     mixins: [Router.Navigation, Router.State, FluxibleMixin],
     statics: {
         storeListeners: {
-            'onStoreChange': [ChannelNavStore]
+            'onStoreChange': [SubscriptionStore]
         }
     },
 
@@ -48,12 +51,9 @@ module.exports = React.createClass({
      * handler for channelNavStore change
      */
     onStoreChange: function() {
-        var state = this.getStore(ChannelNavStore).getState();
+        var state = this.getStore(SubscriptionStore).getState();
         if (state.createdChannel !== -1) {
             return this._checkCreatedChannel(state.createdChannel);
-        }
-        if (state.isActived !== this.state.isActived) {
-            this.refs.channelNav.toggle();
         }
         this.setState(state);
     },
@@ -81,39 +81,9 @@ module.exports = React.createClass({
         });
     },
 
-    /**
-     * initialize state of channelNav.jsx
-     */
-    getInitialState: function() {
-        return this.getStore(ChannelNavStore).getState();
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for user select item in channel navigation bar
-     *
-     * @param {Object}        e, react's mouse event
-     * @param {Number}        selectedIndex, the index of navMenu item that is selected
-     * @param {Object}        item, the selected item of navMenu
-     */
-    _onChannelNavSelect: function(e, selectedIndex, item) {
+    _onChannelClick: function(route){
         this.executeAction(ToggleChannelNav, {});
-        this.transitionTo(item.route);
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for handling which item in menu is selected
-     *
-     * @param {Array}        navMenu, current contents of navMenu
-     */
-    _getSelectedIndex: function(navMenu) {
-        for (var i=0;i<=navMenu.length-1;++i) {
-            if (navMenu[i].route && this.isActive(navMenu[i].route)) {
-                return i;
-            }
-        }
-        return 0;
+        this.transitionTo(route);
     },
 
     /**
@@ -163,9 +133,9 @@ module.exports = React.createClass({
     _getNavHeader: function() {
         var isNameValid = this.state.isNameValid;
         return (
-            <div className="ChannelNavHeader">
+            <div className="SubscriptionChannelsHeader">
                 {'Create Cannel'}
-                <div className="ChannelNavHeaderContent" >
+                <div className="SubscriptionChannelsContent" >
                     <TextField 
                         hintText="channel name" 
                         ref={'channelName'}
@@ -183,28 +153,77 @@ module.exports = React.createClass({
         );
     },
 
-    render: function() {
-        var header = this._getNavHeader();
-        var navInfo = this.state.navInfo;
-        var navMenu = SharedUtils.fastArrayMap(navInfo, function(item){
-            return {
-                route: '/app/workspace/'+item.channelId + '?board=1',
-                text: item.channelName + ' @'+item.hostName
-            };
-        });
-        navMenu.unshift({
-            type: Mui.MenuItem.Types.SUBHEADER,
-            text: 'CHANNELS'
-        });
+    /**
+     * @Author: Jos Tung
+     * @Description: handler for Subscription of channels 
+     */
+    _getChannelList: function(){
+        var subscriptions = this.state.subscriptions;
+        var route = '';
+        var channelList = SharedUtils.fastArrayMap(subscriptions, function(item){
+            route = '/app/workspace/'+item.channelId + '?board=1';
+            return (
+                <div className="Channel" 
+                    key={item.channelId} 
+                    onClick={this._onChannelClick.bind(this, route)}>
+                    <div className="ChannelText">
+                        <div className="ChannelName">
+                            {item.name}    
+                        </div>
+                        <div className="ChannelHost">
+                            {'@' + item.hostInfo.nickName}
+                        </div>
+                    </div>
+                    <div className="Signal">
+                        {item.isConferenceExist ? <div className="Conference fa fa-users" /> : ''}
+                        {item.unreadMsgNumbers > 0 ? <div className="Counter">{item.unreadMsgNumbers}</div> : '' }
+                    </div>
+                </div>
+            );
+        }.bind(this));
         return (
-            <div className="ChannelNav leftNavBox">
-            <LeftNav 
-                ref={'channelNav'}
-                docked={this.state.isActived}
-                menuItems={navMenu}
-                header={header}
-                selectedIndex={this._getSelectedIndex(navMenu)}
-                onChange={this._onChannelNavSelect} />
+            <div className="ChannelList">
+                {channelList}
+            </div>
+        );
+    },
+
+    getInitialState: function() {
+        return this.getStore(SubscriptionStore).getState();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update the header unread discussion msgs after subscription updated
+     */
+    componentDidUpdate: function() {
+        var totalCounts = 0;
+        SharedUtils.fastArrayMap(this.state.subscriptions, function(item){
+            totalCounts += item.unreadMsgNumbers;
+        });
+        this.executeAction(SetUnreadDiscussions, {
+            counts: totalCounts
+        });
+    },
+
+    componentDidMount: function() {
+        this.executeAction(GetUnreadSubscribedMsgCounts);
+        var cids = SharedUtils.fastArrayMap(this.state.subscriptions, function(info){
+            return info.channelId;
+        });
+        this.executeAction(SubscribeChannelNotification, {
+            channels: cids
+        });
+    },
+
+    render: function() {
+        var Header = this._getNavHeader();
+        var ChannelList = this._getChannelList();
+        var style = "SubscriptionChannels" + ( this.state.isActived ? " SubscriptionChannelsShow" : " SubscriptionChannelsHide" );
+        return (
+            <div className={style}>
+                {Header}
+                {ChannelList}
             </div>
         );
     }

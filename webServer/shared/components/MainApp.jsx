@@ -8,11 +8,13 @@ var MainAppStore = require('../stores/MainAppStore');
  * child components
  */
 var Header = require('./Header.jsx');
-var ChannelNav = require('./ChannelNav.jsx');
+var Subscription = require('./Subscription.jsx');
 var Webcam = require('./Webcam.jsx');
 var EventToaster = require('./EventToaster.jsx');
 var Notifications = require('./common/Notifications.jsx');
 var Hangouts = require('./Hangouts.jsx');
+var QuickSearch = require('./QuickSearch.jsx');
+var FriendList = require('./rightBox/FriendList.jsx');
 
 /**
  * TODO: below is for material-ui 9.0 up
@@ -66,11 +68,13 @@ module.exports = React.createClass({
             <div>
                 <Header />
                 <Webcam />
-                <ChannelNav />
+                <Subscription />
                 <RouteHandler route={this.state.route}/>
+                <FriendList />
                 <Notifications />
                 <EventToaster />
                 <Hangouts />
+                <QuickSearch />
             </div>
         );
     }

@@ -7,6 +7,7 @@ var SharedUtils = require('../../sharedUtils/utils');
 var ObjectAssign = require('object-assign');
 
 var BOARD_NUM_MAXIMU = 100;
+var AUTH_CHANNEL_QUERY_NUMBER = 10;
 
 /************************************************
  *
@@ -102,16 +103,28 @@ exports.deleteByChannelAsync = function(channelId) {
  *
  * NOTE: if type is not "public" or "private", then type restriction will not added
  *
- * @param {String}      member, member's id
+ * @param {String}          member, member's id
+ * @param {Boolean}         is1on1, to find 1on1 channels or not
+ * @param {Object}          period, the query time period
+ *                          period.start, the start time of this period
+ *                          period.end, the end time of this period
  */
-exports.findByUidAsync = function(member, is1on1) {
+exports.findByUidAsync = function(member, is1on1, period) {
+    var visitTimePeriod = period || {};
+    var queryNums = (!!visitTimePeriod.start ? 0 : AUTH_CHANNEL_QUERY_NUMBER);
     return Promise.props({
         member: SharedUtils.argsCheckAsync(member, 'md5')
     }).then(function(condition) {
+        return DbUtil.getTimeCondAsync(condition, 'lastVisitTime', visitTimePeriod);
+    }).then(function(queryCondition) {
         if (SharedUtils.isBoolean(is1on1)) {
-            condition.is1on1 = is1on1;
+            queryCondition.is1on1 = is1on1;
         }
-        return _find(false, condition);
+        return _find(queryCondition, queryNums);
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'lastVisitTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByUidAsync', err);
         return [];
@@ -131,9 +144,33 @@ exports.findByHostUidAsync = function(host) {
         isHost: true,
         is1on1: false
     }).then(function(condition) {
-        return _find(false, condition);
+        return _find(condition, 0);
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByHostUidAsync', err);
+        return [];
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to find all channels that he starred
+ *
+ * @param {String}      uid, user's id
+ */
+exports.findByStarredAsync = function(uid) {
+    return Promise.props({
+        member: SharedUtils.argsCheckAsync(uid, 'md5'),
+        isStarred: true,
+        is1on1: false
+    }).then(function(condition) {
+        return _find(condition, 0);
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
+    }).catch(function(err) {
+        SharedUtils.printError('ChannelMemberDao.js', 'findByStarredAsync', err);
         return [];
     });
 };
@@ -152,7 +189,9 @@ exports.findByChannelAsync = function(channelId, is1on1) {
         if (SharedUtils.isBoolean(is1on1)) {
             condition.is1on1 = is1on1;
         }
-        return _find(false, condition);
+        return _find(condition, 0);
+    }).map(function(doc) {
+        return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByChannelAsync', err);
         return [];
@@ -175,7 +214,7 @@ exports.findMemberAsync = function(member, channelId, is1on1) {
         if (SharedUtils.isBoolean(is1on1)) {
             condition.is1on1 = is1on1;
         }
-        return _find(true, condition);
+        return _find(condition, 1);
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findMemberAsync', err);
         return null;
@@ -334,20 +373,20 @@ exports.updateVisitAsync = function(member, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: update the subscription status of channel member
+ * @Description: update the starred status of channel member
  *
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
  * @param {Boolean}     status, subscribed status
  */
-exports.updateSubscribedAsync = function(member, channelId, status) {
+exports.updateStarredAsync = function(member, channelId, status) {
     return SharedUtils.argsCheckAsync(status, 'boolean')
         .then(function(validStatus) {
             return _update(member, channelId, {
                 isStarred: validStatus
             });
         }).catch(function(err) {
-            SharedUtils.printError('ChannelMemberDao.js', 'updateSubscribedAsync', err);
+            SharedUtils.printError('ChannelMemberDao.js', 'updateStarredAsync', err);
             throw err;
         });
 };
@@ -421,13 +460,17 @@ function _update(member, channelId, info) {
  * @Author: George_Chen
  * @Description: an low-level implementation of find operation
  *
- * @param {Boolean}         isFindOne, use "findOne" or "find" based on this flag
- * @param {Object}          condition, the mongoose query condition
- * @param {String}          selectFields, used to inform mongoose which fields should be taken
+ * @param {Object}      condition, mongoose query condition
+ * @param {Number}      limitNum, the number of documents will be queried
+ * @param {Object}      selectField, the field of msg doc will be queried
  */
-function _find(isFindOne, condition, selectFields) {
-    var fields = (selectFields ? selectFields : DbUtil.selectOriginDoc());
+function _find(condition, limitNum, selectField) {
+    var fields = (selectField ? selectField : DbUtil.selectOriginDoc());
+    var sortOrder = DbUtil.getSort('lastVisitTime', 'descending');
+    var isFindOne = (limitNum === 1);
     return (isFindOne ? Model.findOne(condition, fields) : Model.find(condition, fields))
+        .sort(sortOrder)
+        .limit(limitNum)
         .lean()
         .execAsync();
 }

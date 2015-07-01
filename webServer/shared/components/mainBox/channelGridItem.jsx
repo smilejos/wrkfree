@@ -3,13 +3,6 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var NavigationMixin = require('react-router').Navigation;
 
 /**
- * material UI compoents
- */
-var Mui = require('material-ui');
-var IconButton = Mui.IconButton;
-var Paper = Mui.Paper;
-
-/**
  * actions
  */
 var NavToBoard = require('../../../client/actions/draw/navToBoard');
@@ -17,10 +10,8 @@ var NavToBoard = require('../../../client/actions/draw/navToBoard');
 /**
  * child components
  */
-var ChannelSummary = require('./channelSummary.jsx');
-var ChannelHostInfo = require('./channelHostInfo.jsx');
-var ChannelMembers = require('./channelMembers.jsx');
-var ChannelSnapshot = require('./channelSnapshot.jsx');
+var UserAvatar = require('../common/userAvatar.jsx');
+var StateIcon = require('../common/stateIcon.jsx');
 
 /**
  * @Author: George_Chen
@@ -39,36 +30,10 @@ var ChannelSnapshot = require('./channelSnapshot.jsx');
 module.exports = React.createClass({
     mixins: [FluxibleMixin, NavigationMixin],
 
-    getInitialState: function() {
-        return {
-           zDepth: 0
-        };
-    },
-
     /**
-     * handle mouse over event
+     * handle event that user click workspace snapshot
      */
-    _onMouseOver: function() {
-        this.setState({
-            zDepth: 2,
-            isMouseOver: true
-        });
-    },
-
-    /**
-     * handle mouse out event
-     */
-    _onMouseOut: function() {
-        this.setState({
-            zDepth: 0,
-            isMouseOver: false
-        });
-    },
-
-    /**
-     * handle event that user click the enter icon
-     */
-    _onEnterIconClick: function(channelId) {
+    _onEnter: function() {
         var info = this.props.channelInfo;
         this.executeAction(NavToBoard, {
             urlNavigator: this.transitionTo,
@@ -77,27 +42,73 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: to get fromatted time string by visit timestamp
+     */
+    _getFormattedTime: function() {
+        var date = new Date(this.props.channelInfo.visitTime);
+        return date.toLocaleDateString();
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: Move original summary component ot here
+     */
+    _getChannelSummary: function(info) {
+        var hostAvatarStyle = {
+            float: 'right',
+            marginTop: -19,
+            marginRight: 10
+        };
+        return (
+            <div className="ChannelSummary" >
+                <div className="ChannelInfo" >
+                    <div className="ChannelName">
+                        {info.channelName}
+                    </div>
+                    <div className="ChannelHost">
+                        {this._getFormattedTime()}
+                        <UserAvatar isCircle avatar={info.hostInfo.avatar} style={hostAvatarStyle}/>
+                    </div>
+                </div>
+                <div className="ChannelToolbar" >
+                    <StateIcon
+                        stateClass="toolIcon" 
+                        iconClass="fa fa-tag"/>
+                    <StateIcon
+                        stateClass="toolIcon" 
+                        iconClass="fa fa-star"/>
+                    <StateIcon
+                        stateClass="toolIcon" 
+                        iconClass="fa fa-share"/>
+                </div>
+            </div>
+        );
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: Move original snapshot component ot here
+     */
+    _getChannelSnapshot: function(url) {
+        return (
+            <div className="ChannelSnapshot" onClick={this._onEnter}>
+                <img className="ChannelSnapshotImg" src={url}/>
+            </div>
+        );
+    },
+
     render: function(){
         var info = this.props.channelInfo;
+        var snapshot = this._getChannelSnapshot(info.snapshotUrl);
+        var summary = this._getChannelSummary(info);
         return (
-            <div className="ChannelGridItem" onClick={this._onClick}>
-                <Paper zDepth={this.state.zDepth} rounded={false}
-                    onMouseOver={this._onMouseOver} onMouseOut={this._onMouseOut}>
-                    <ChannelSummary 
-                        channelName={info.channelName}
-                        hostName={info.hostInfo.nickName}
-                        isRtcOn={info.isRtcOn} />
-                    <ChannelHostInfo hostAvatar={info.hostInfo.avatar} />
-                    <ChannelSnapshot url={info.snapshotUrl}/>
-                    <ChannelMembers members={info.memberList} />
-                    <div className="ChannelTimestamp Right">
-                        <IconButton 
-                            iconClassName="fa fa-sign-in" 
-                            tooltip={'Enter this channel'} 
-                            onClick={this._onEnterIconClick}/>
-                        {info.visitTime}
-                    </div>
-                </Paper>
+            <div className="ChannelGridItem">
+                <div className="ChannelGridInsideItem">
+                    {snapshot}
+                    {summary}
+                </div>
             </div>
         );
     }

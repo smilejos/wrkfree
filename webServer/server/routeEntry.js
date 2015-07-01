@@ -13,16 +13,12 @@ var SharedUtils = require('../../sharedUtils/utils');
  */
 exports.getDashboardAsync = function(actionContext, routeInfo) {
     var friendStorage = routeInfo.storageManager.getService('Friend');
-    // temp test data for header store
-    var headerState = {
-        user: routeInfo.user,
-        hasUnreadMsgs: false,
-        hasNotification: false
-    };
+    _setUserDashboardLayout(actionContext, routeInfo.user);
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
-        HeaderStore: headerState,
-        DashboardStore: _getChannelStreams(routeInfo.user.uid, routeInfo.storageManager)
+        HeaderStore: routeInfo.user,
+        DashboardStore: _getChannelStreams(routeInfo.user.uid, routeInfo.storageManager),
+        SubscriptionStore: _getStarredChannels(routeInfo.user.uid, routeInfo.storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
@@ -42,17 +38,12 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
 exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     var storageManager = routeInfo.storageManager;
     var friendStorage = storageManager.getService('Friend');
-    // temp test data for header store
-    var headerState = {
-        user: routeInfo.user,
-        hasUnreadMsgs: false,
-        hasNotification: false
-    };
-
+    _setUserDashboardLayout(actionContext, routeInfo.user);
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
-        HeaderStore: headerState,
-        WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager)
+        HeaderStore: routeInfo.user,
+        WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager),
+        SubscriptionStore: _getStarredChannels(routeInfo.user.uid, routeInfo.storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
@@ -81,6 +72,20 @@ exports.getSignUpAsync = function(actionContext, routeInfo) {
         return {};
     });
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: to init the user dashboard layout on dashboardStore
+ *
+ * @param {Object}      actionContext, fluxible actionContext
+ * @param {Object}      userInfo, the req.user object in express
+ */
+function _setUserDashboardLayout(actionContext, userInfo) {
+    var DashboardStore = actionContext.getStore('DashboardStore');
+    DashboardStore.setLayout({
+        isDashboardGrid: userInfo.isDashboardGrid
+    });
+}
 
 /**
  * @Author: George_Chen
@@ -114,10 +119,19 @@ function _storesPolyfill(actionContext, storeData) {
  */
 function _getChannelStreams(uid, storageManager) {
     var channelStorage = storageManager.getService('Channel');
-    return Promise.props({
-        layout: 'grid', // TODO: should be store at userModel
-        channels: channelStorage.getAuthChannelsAsync(uid)
-    });
+    var userStorage = storageManager.getService('User');
+    return channelStorage.getAuthChannelsAsync(uid)
+        .map(function(doc) {
+            return userStorage.getUserAsync(doc.channel.host)
+                .then(function(hostInfo) {
+                    doc.hostInfo = hostInfo;
+                    return doc;
+                });
+        }).then(function(result) {
+            return {
+                channels: result
+            };
+        });
 }
 
 /**
@@ -141,5 +155,31 @@ function _getWorkSpace(uid, channelId, storageManager) {
                 members: channelStorage.getMembersAsync(channelId),
                 status: channelStorage.getMemberStatusAsync(uid, channelId)
             });
+        });
+}
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for getting user's starred channels as subscription list
+ *
+ * @param {String}      uid, user's id
+ * @param {Object}      storageManager, storageManager instance
+ */
+function _getStarredChannels(uid, storageManager) {
+    var channelStorage = storageManager.getService('Channel');
+    var userStorage = storageManager.getService('User');
+    return channelStorage.getStarredChannelsAsync(uid)
+        .map(function(doc) {
+            return userStorage.getUserAsync(doc.host)
+                .then(function(hostInfo) {
+                    doc.hostInfo = hostInfo;
+                    delete doc.host;
+                    return doc;
+                });
+        }).then(function(result) {
+            return {
+                channels: result
+            };
         });
 }

@@ -1,4 +1,5 @@
 var React = require('react');
+var Router = require('react-router');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
 var SharedUtils = require('../../../sharedUtils/utils');
 
@@ -93,7 +94,7 @@ module.exports = React.createClass({
  * @param {Function}    this.props.actionHandler, the handler of extra-action
  */
 var EventMessage = React.createClass({
-    mixins: [FluxibleMixin],
+    mixins: [FluxibleMixin, Router.Navigation],
 
     /**
      * @Author: George_Chen
@@ -108,7 +109,7 @@ var EventMessage = React.createClass({
         return (
             <IconButton 
                 iconClassName="fa fa-angle-double-right"
-                onClick={fn}
+                onClick={fn.bind(null, this.transitionTo)}
                 tooltip={label} />
         );
     },

@@ -1,6 +1,11 @@
-$channel-grid-width: 300px;
-$channel-grid-height: 348px;
+$channel-grid-width: 250px;
+$channel-grid-height: 250px;
 $channel-grid-field-height: 45px;
+
+$channel-list-min-width: 600px;
+$channel-list-max-width: 800px;
+$channel-list-height: 90px;
+$channel-list-field-height: 45px;
 
 /**
  * the base fonts style
@@ -29,48 +34,199 @@ $channel-grid-field-height: 45px;
  * the channel grid card
  */
 .ChannelGridItem {
-    @extend .baseFonts, .baseChannelGridWidth;
-    height: $channel-grid-height;
+    position: relative;
+    height: $channel-grid-height + 20;
+    width: $channel-grid-width + 20;
+    background-color: $color-background_2;
+    float: left;
+    margin: 5px 10px;
+
+    .ChannelGridInsideItem {
+        @extend .baseFonts;
+        position: absolute;
+        width: $channel-grid-width + 2;
+        height: $channel-grid-height;
+        border-color: $grey-400;
+        border-style: solid;
+        border-width: 1px;
+        background-color: #eee;
+        transition: 0.3s;    
+        margin: 10px 10px;
+
+        /**
+         * the container style of channel drawing snapshot
+         */
+        .ChannelSnapshot {
+            @extend .baseChannelGridWidth;
+            position: absolute;
+            height: 240px;
+            padding: 20px 6px;
+            background-color: $grey-100;
+            cursor: pointer;
+        }
+
+        .ChannelSummary {
+            @extend .baseChannelGridField;
+            position: absolute;
+            bottom: 0px;
+            background-color: #fff;
+            color: $grey-500;
+            line-height: 40px;
+            height: 60px;
+            padding: 10px 10px;
+            overflow: hidden;
+            transition: 0.3s;
+
+            .ChannelName {
+                line-height: 20px;
+                font-size: 16px;
+                color: #666;
+                margin-left: 10px;
+            }
+
+            .ChannelHost {
+                line-height: 28px;
+                font-size: 12px;
+                color: #aaa;
+                margin-left: 10px;
+            }
+
+            .ChannelToolbar {
+                height: 0px;
+                opacity: 0;
+                font-size: 16px;
+                margin-left: 10px;
+                transition: 0.5s;
+
+                .toolIcon {
+                    width: 30px;
+                    float: left;
+                    font-size: 16px;
+                }
+                .toolIcon:hover {
+                    color: $grey-800;
+                }
+            }
+        }
+
+        &:hover{
+            margin-bottom: 14px;
+            margin-left: 15px;
+            border-bottom: 2px rgba(0, 0, 0, .2);
+            box-shadow: 0 4px 4px 4px rgba(0, 0, 0, .2);    
+            
+            .ChannelSummary {
+                height: 100px;
+            }
+
+            .ChannelToolbar {
+                height: 40px;
+                opacity: 1;
+            }
+        }
+    }
+}
+
+/**
+ * the channel list card
+ */
+.ChannelListItem {
+    @extend .baseFonts;
+    position: relative;
+    margin-left: 10px;
+    margin-right: 100px;
+    height: $channel-list-height;
+    min-width: 400px;
+    margin-bottom: 2px;
     border-color: $grey-300;
     border-style: solid;
     border-width: 1px;
-    background-color: $grey-100;
+    background-color: #fff;
+    transition: 0.3s;
+
+    /**
+     * the container style of channel drawing snapshot
+     */
+    .ChannelSnapshot {
+        position: absolute;
+        height: $channel-list-height - 2;
+        width: 160px;
+        background-color: $grey-100;
+        cursor: pointer;
+        float: left;
+    }
+
+    .ChannelSummary {
+        position: absolute;
+        left: 160px;
+        right: 0px;
+        bottom: 0px;
+        background-color: #fff;
+        color: $grey-500;
+        height: $channel-list-height - 2;
+        padding: 5px 10px;
+        overflow: hidden;
+        transition: 0.3s;
+        float: left;
+
+        .ChannelName {
+            line-height: 20px;
+            font-size: 16px;
+            color: #666;
+            margin-left: 10px;
+        }
+
+        .ChannelHost {
+            line-height: 28px;
+            font-size: 12px;
+            color: #aaa;
+            margin-left: 10px;
+        }
+
+        .ChannelToolbar {
+            position: relative;
+            height: 0px;
+            opacity: 0;
+            font-size: 16px;
+            margin-left: 10px;
+            transition: 0.3s;
+
+            .toolIcon {
+                width: 30px;
+                float: left;
+                font-size: 16px;
+            }
+
+            .toolIcon:hover {
+                color: $grey-800;
+            }
+        }
+
+        /**
+         * overwrite original avtar style, make it more bigger to fit here style
+         */
+        .UserAvatar {
+            position: absolute;;
+            top: 20px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+        }
+    }
+
+    &:hover{
+        margin-bottom: 15px;
+        margin-left: 14px;
+        border-bottom: 2px rgba(0, 0, 0, .2);
+        box-shadow: 0 4px 4px 4px rgba(0, 0, 0, .2);    
+
+        .ChannelToolbar {
+            height: 30px;
+            opacity: 1;
+        }
+    }
 }
 
-/**
- * the style of channel summary field
- */
-.ChannelSummary {
-    @extend .baseChannelGridField;
-    background-color:$grey-300;    
-    color: $grey-500;
-    line-height: 20px;
-}
-
-/**
- * the container style of channel host info field
- */
-.ChannelHostInfo {
-    @extend .baseChannelGridField;
-    color: $grey-700;
-}
-
-/**
- * the container style of channel drawing snapshot
- */
-.ChannelSnapshot {
-    @extend .baseChannelGridWidth;
-    height: 167px;
-    background-color: #FFF;
-}
-
-/**
- * the container style of channel members
- */
-.ChannelMembers {
-    @extend .baseChannelGridField;
-    overflow: hidden;
-}
 
 /**
  * the img style of channel drawing snapshot
@@ -80,30 +236,4 @@ $channel-grid-field-height: 45px;
     height : auto;
     max-width: 100%;
     max-height: 100%;
-}
-
-/**
- * the style of channel name which belong to channel summary field
- */
-.ChannelTitle {
-    @extend .baseFonts;
-    font-weight: 900;
-    color: $grey-600;
-}
-
-/**
- * the style of channel member avatar
- */
-.MemberAvatar {
-    padding-top: 5px;
-    padding-left: 5px;
-}
-
-/**
- * the style of timestamp that user latest visited
- */
-.ChannelTimestamp {
-    @extend .baseFonts;
-    font-size: 12px;
-    color: $grey-600;
 }

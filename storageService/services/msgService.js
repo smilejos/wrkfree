@@ -67,14 +67,48 @@ exports.pullAsync = function(user, channelId, timePeriod) {
  * @param {Array}           channels, an array of channelIds
  */
 exports.getLatestAsync = function(user, channels) {
-    return Promise.map(channels, function(channelId) {
-        return _ensureAuth(user, channelId);
-    }).then(function() {
-        return MsgDao.findChannelsLatestAsync(channels);
-    }).catch(function(err) {
-        SharedUtils.printError('msgService.js', 'getLatestAsync', err);
-        return null;
-    });
+    return Promise.join(
+        ChannelMemberDao.findByUidAsync(user, true),
+        MsgDao.findChannelsLatestAsync(channels),
+        function(memberDoc, lastMsgs) {
+            var result = {};
+            var sentTime = 0;
+            SharedUtils.fastArrayMap(lastMsgs, function(msg) {
+                result[msg.channelId] = {
+                    lastMessage: msg
+                };
+            });
+            SharedUtils.fastArrayMap(memberDoc, function(doc) {
+                if (result[doc.channelId]) {
+                    sentTime = result[doc.channelId].lastMessage.sentTime;
+                    result[doc.channelId].isReaded = (doc.msgSeenTime > sentTime);
+                }
+            });
+            return result;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to find unread message counts on user starred(subscribed) channels
+ *
+ * @param {String}          user, user uid
+ */
+exports.getUnreadSubscribedMsgCountsAsync = function(user) {
+    return ChannelMemberDao.findByStarredAsync(user, false)
+        .then(function(memberDocs) {
+            var userMsgSeenTime = {};
+            SharedUtils.fastArrayMap(memberDocs, function(doc) {
+                userMsgSeenTime[doc.channelId] = doc.msgSeenTime;
+            });
+            return userMsgSeenTime;
+        }).then(function(seenTime) {
+            return MsgDao.countUnreadByChannelsAsync(seenTime);
+        }).catch(function(err) {
+            SharedUtils.printError('msgService.js', 'getUnreadSubscribedMsgCountsAsync', err);
+            return null;
+        });
 };
 
 /**

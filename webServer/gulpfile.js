@@ -5,6 +5,7 @@ var compass = require('gulp-compass');
 var minifyCSS = require('gulp-minify-css');
 var connect = require('gulp-connect');
 var net = require('net');
+var del = require('del');
 
 /**
  * check the runtime environment
@@ -131,11 +132,15 @@ gulp.task('compass', function() {
  * Gulp Task
  * @Author: George_Chen
  * @Description: use webpack to build web client app
+ *         NOTE: clean the './build/protected/*' before build procedure
  */
 gulp.task('build', function() {
-    return gulp.src(paths.main)
-        .pipe(webpack(webpackConfig))
-        .pipe(gulp.dest(paths.destDir));
+    // here we use a globbing pattern to match everything inside the `/build/protected/` folder
+    del(paths.destDir + '/**/*', function(){
+        return gulp.src(paths.main)
+            .pipe(webpack(webpackConfig))
+            .pipe(gulp.dest(paths.destDir));
+    });
 });
 
 /**
