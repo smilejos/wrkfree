@@ -51,6 +51,35 @@ module.exports.run = function(worker) {
 
     /**
      * @Author: George_Chen
+     * @Description: for handling CTRL+C event
+     */
+    process.on('SIGINT', function() {
+        _workerExit(scServer);
+    });
+
+    /**
+     * @Author: George_Chen
+     * @Description: to do a cold shutdown on current worker
+     *
+     * @param {String}        uid, the uid of current socket
+     * @param {String}        sid, the current socket id
+     * @param {Array}         subscriptions, a array of socket subscriptions
+     */
+    function _workerExit() {
+        var sockets = scServer.clients;
+        var socketIds = Object.keys(sockets);
+        Promise.map(socketIds, function(sid) {
+            var uid = sockets[sid].getAuthToken();
+            var subscriptions = sockets[sid].subscriptions();
+            delete sockets[sid];
+            return _userLeaveAsync(uid, sid, subscriptions);
+        }).then(function() {
+            process.exit(0);
+        });
+    }
+
+    /**
+     * @Author: George_Chen
      * @Description: for handling user leave mechanism
      *
      * @param {String}        uid, the uid of current socket
