@@ -37,6 +37,33 @@ module.exports.run = function(worker) {
      */
     require('./services/rtcWorker').setSocketWorker(worker);
 
+    /**
+     * @Author: George_Chen
+     * @Description: to do a hot reset on current worker
+     */
+    process.on('SIGUSR2', function() {
+        var sockets = scServer.clients;
+        var socketIds = Object.keys(sockets);
+        SharedUtils.fastArrayMap(socketIds, function(sid) {
+            sockets[sid].disconnect();
+        });
+    });
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handling user leave mechanism
+     *
+     * @param {String}        uid, the uid of current socket
+     * @param {String}        sid, the current socket id
+     * @param {Array}         subscriptions, a array of socket subscriptions
+     */
+    function _userLeaveAsync(uid, sid, subscriptions) {
+        return Promise.all([
+            UserStorage.userLeaveAsync(uid, sid),
+            _disconnectChannel(sid, subscriptions),
+        ]);
+    }
+
     /*
       In here we handle our incoming realtime connections and listen for events.
     */
@@ -74,14 +101,12 @@ module.exports.run = function(worker) {
         });
 
         socket.on('disconnect', function() {
-            var token = socket.getAuthToken();
+            var uid = socket.getAuthToken();
             var subscriptions = socket.subscriptions();
-            return Promise.all([
-                UserStorage.userLeaveAsync(token, socket.id),
-                _disconnectChannel(socket.id, subscriptions),
-            ]).catch(function(err) {
-                SharedUtils.printError('worker.js', 'disconnect', err);
-            });
+            return _userLeaveAsync(uid, socket.id, subscriptions)
+                .catch(function(err) {
+                    SharedUtils.printError('worker.js', 'disconnect', err);
+                });
         });
     });
 };

@@ -39,3 +39,14 @@ var socketCluster = new SocketCluster({
 socketCluster.on('workerStart', function(workerInfo){
     Workers.push(workerInfo.pid);
 });
+
+// soft shutdown
+process.on('SIGUSR2', function(){
+    return Promise.map(Workers, function(pid){
+        return process.kill(pid, 'SIGUSR2');
+    }).delay(3000).then(function(){
+        socketCluster.killWorkers();
+        socketCluster.killStores();
+        process.exit(0);
+    });
+});
