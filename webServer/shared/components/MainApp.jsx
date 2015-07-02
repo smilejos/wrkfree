@@ -63,6 +63,14 @@ module.exports = React.createClass({
     // },
     
     render: function(){
+        if (this.state.route.path === '/app/signup') {
+            return (
+                <div>
+                    <div className="Header" />
+                    <RouteHandler route={this.state.route}/>
+                </div>
+            );
+        }
         // RouteHandler will take care of Routes while url change
         return (
             <div>
