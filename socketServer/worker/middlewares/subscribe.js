@@ -74,11 +74,12 @@ function _getChannelAuthAsync(socket, channelId) {
  * @Author: George_Chen
  * @Description: to check asker can subscribe to target user's activities or not
  * @param {Object}        socket, server socket object
- * @param {String}        targetUid, target user's id 
+ * @param {String}        friendUid, friend's uid
  */
-function _getFriendAuthAsync() {
-    // TODO:
-    // check is friends or not
+function _getFriendAuthAsync(socket, friendUid) {
+    var friendStorage = StorageManager.getService('Friend');
+    var uid = socket.getAuthToken();
+    return friendStorage.hasFriendshipAsync(uid, friendUid);
 }
 
 /**
