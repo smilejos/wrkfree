@@ -1,6 +1,7 @@
 'use strict';
 var SharedUtils = require('../../../sharedUtils/utils');
 var HeaderStore = require('../../shared/stores/HeaderStore');
+var SignupService = require('../services/signupService');
 
 /**
  * @Public API
@@ -24,6 +25,8 @@ module.exports = function(actionContext, data, callback) {
     };
     return headerStore.polyfillAsync(state)
         .then(function() {
+            return SignupService.initSocketAsync();
+        }).then(function(){
             return data.transitionHandler(data.nextRoute);
         }).catch(function(err) {
             SharedUtils.printError('completeSignup.js', 'core', err);
