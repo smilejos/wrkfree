@@ -99,12 +99,14 @@ module.exports = React.createClass({
         return Promise.map(this.state.friends, function(info){
             return SharedUtils.get1on1ChannelId(selfUid, info.uid);
         }).bind(this).then(function(cids){
-            this.executeAction(GetLastMessages, {
-                channels: cids
-            });
-            this.executeAction(SubscribeChannelNotification, {
-                channels: cids
-            });
+            if (cids.length > 0) {
+                this.executeAction(GetLastMessages, {
+                    channels: cids
+                });
+                this.executeAction(SubscribeChannelNotification, {
+                    channels: cids
+                });
+            }
         });
     },
     
