@@ -18,6 +18,7 @@ var Friend = require('../common/friend.jsx');
 var GetLastMessages = require('../../../client/actions/chat/getLastMessages');
 var SetUnreadConverations = require('../../../client/actions/setUnreadConverations');
 var SubscribeChannelNotification = require('../../../client/actions/channel/subscribeChannelNotification');
+var TrackFriendActivity = require('../../../client/actions/friend/trackFriendActivity');
 
 /**
  * @Author: George_Chen
@@ -97,8 +98,15 @@ module.exports = React.createClass({
     componentDidMount: function() {
         var selfUid = this.state.selfUid;
         return Promise.map(this.state.friends, function(info){
-            return SharedUtils.get1on1ChannelId(selfUid, info.uid);
-        }).bind(this).then(function(cids){
+            return info.uid;
+        }).bind(this).then(function(uids){
+            this.executeAction(TrackFriendActivity, {
+                friendUids: uids
+            });
+            return uids;
+        }).map(function(uid){
+            return SharedUtils.get1on1ChannelId(selfUid, uid);
+        }).then(function(cids){
             if (cids.length > 0) {
                 this.executeAction(GetLastMessages, {
                     channels: cids
