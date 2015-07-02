@@ -207,13 +207,15 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function() {
-        this.executeAction(GetUnreadSubscribedMsgCounts);
         var cids = SharedUtils.fastArrayMap(this.state.subscriptions, function(info){
             return info.channelId;
         });
-        this.executeAction(SubscribeChannelNotification, {
-            channels: cids
-        });
+        if (cids.length > 0) {
+            this.executeAction(GetUnreadSubscribedMsgCounts);
+            this.executeAction(SubscribeChannelNotification, {
+                channels: cids
+            });
+        }
     },
 
     render: function() {
