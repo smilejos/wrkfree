@@ -284,7 +284,7 @@ function _getCanvasMouse(canvasEvent){
     // app-header-height = 50px defined in css
     var headerHeight = 50;
     return {
-        x: canvasEvent.pageX - board.offsetLeft,
-        y: canvasEvent.pageY - headerHeight - board.offsetTop
+        x: canvasEvent.pageX - board.parentElement.offsetLeft,
+        y: canvasEvent.pageY - headerHeight - board.parentElement.offsetTop
     };
 }
