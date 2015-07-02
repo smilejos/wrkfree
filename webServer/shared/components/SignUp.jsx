@@ -109,7 +109,7 @@ module.exports = React.createClass({
             <div className="bodyBox pure-u-1 Center" >
                 <div className="SignupForm">
                     <Paper zDepth={1} >
-                        <img src="/assets/imgs/sampleSignup.jpg" className="SignupFormCover" />
+                        <img src="https://farm1.staticflickr.com/354/19342635705_4e51838570_z_d.jpg" className="SignupFormCover" />
                         <div className="SignupSlogan" >{"Let's work here"}</div>
                         <TextInput
                             iconClass="fa fa-envelope-o"
