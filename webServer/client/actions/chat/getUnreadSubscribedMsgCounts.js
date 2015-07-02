@@ -1,17 +1,15 @@
 'use strict';
-var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var ChatService = require('../../services/chatService');
 
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: 
+ * @Description: to get the unread subscribed message counts on starred channels
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {Array}      data.channels, a array of channel ids
  */
-module.exports = function(actionContext, data) {
+module.exports = function(actionContext) {
     return ChatService.getUnreadSubscribedMsgCounts()
         .then(function(result){
             if (!result) {
@@ -21,7 +19,7 @@ module.exports = function(actionContext, data) {
                 channelsInfo: result
             });
         }).catch(function(err) {
-            SharedUtils.printError('recvMessage.js', 'core', err);
+            SharedUtils.printError('getUnreadSubscribedMsgCounts.js', 'core', err);
             return null;
         });
 };
