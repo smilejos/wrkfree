@@ -9,6 +9,7 @@ module.exports = CreateStore({
     handlers: {
         'UPDATE_FRIENDS_MESSAGE': '_updateFriendsMessage',
         'UPDATE_1ON1_CHANNELID': '_update1on1ChannelId',
+        'UPDATE_FRIEND_STATUS': '_updateFriendStatus',
         'ON_OPEN_HANGOUT': '_updateMessageToReaded',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage'
     },
@@ -72,6 +73,25 @@ module.exports = CreateStore({
         };
         collection.chain().find(query).update(function(obj) {
             obj.channelId = data.channelId;
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update the online status of current friend
+     *
+     * @param {String}      data.uid, friend uid
+     * @param {String}      data.isOnline, friend online status
+     */
+    _updateFriendStatus: function(data) {
+        var self = this;
+        var collection = this.db.getCollection(this.dbName);
+        var query = {
+            uid: data.uid
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.isOnline = data.isOnline;
+            self.emitChange();
         });
     },
 
