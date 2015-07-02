@@ -48,7 +48,7 @@ exports.getFriendListAsync = function(candidate, asker) {
  * @param {String}      user2, the user2's uid
  */
 exports.addFriendshipAsync = function(user1, user2) {
-    return _hasFriendshipAsync(user1, user2)
+    return exports.hasFriendshipAsync(user1, user2)
         .then(function(areFriends) {
             if (areFriends) {
                 throw new Error('friendship already exist');
@@ -84,7 +84,7 @@ exports.addFriendshipAsync = function(user1, user2) {
  * @param {String}      user2, the user2's uid
  */
 exports.delFriendshipAsync = function(user1, user2) {
-    return _hasFriendshipAsync(user1, user2)
+    return exports.hasFriendshipAsync(user1, user2)
         .then(function(areFriends) {
             if (!areFriends) {
                 throw new Error('friendship not exist');
@@ -100,24 +100,14 @@ exports.delFriendshipAsync = function(user1, user2) {
 };
 
 /**
- * TODO:
- * exports.isFriendReqSent
- */
-
-/************************************************
- *
- *           internal functions
- *
- ************************************************/
-
-/**
+ * Public API
  * @Author: George_Chen
  * @Description: check user1 and user2 have friendship or not
  *
  * @param {String}      user1, the user1's uid
  * @param {String}      user2, the user2's uid
  */
-function _hasFriendshipAsync(user1, user2) {
+exports.hasFriendshipAsync = function(user1, user2) {
     return Promise.join(
         FriendDao.isFriendExistAsync(user1, user2),
         FriendDao.isFriendExistAsync(user2, user1),
@@ -130,7 +120,13 @@ function _hasFriendshipAsync(user1, user2) {
             SharedUtils.printError('FriendService', 'checkFriendshipAsync', err);
             throw err;
         });
-}
+};
+
+/************************************************
+ *
+ *           internal functions
+ *
+ ************************************************/
 
 /**
  * @Author: George_Chen
