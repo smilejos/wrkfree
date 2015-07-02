@@ -103,10 +103,12 @@ module.exports.run = function(worker) {
      * @param {Array}         subscriptions, a array of socket subscriptions
      */
     function _userLeaveAsync(uid, sid, subscriptions) {
-        return Promise.all([
+        return Promise.join(
             UserStorage.userLeaveAsync(uid, sid),
             _disconnectChannel(sid, subscriptions),
-        ]);
+            function(isLeft) {
+                return isLeft;
+            });
     }
 
     /*
@@ -115,7 +117,10 @@ module.exports.run = function(worker) {
     scServer.on('connection', function(socket) {
         var token = socket.getAuthToken();
         if (token) {
-            UserStorage.userEnterAsync(token, socket.id);
+            UserStorage.userEnterAsync(token, socket.id)
+                .then(function() {
+                    return _publishUserOnlineStatus(socket, token, true);
+                });
         }
 
         socket.on('auth', function(cookieStr, callback) {
@@ -129,7 +134,10 @@ module.exports.run = function(worker) {
                 if (isAuth) {
                     // configure uid as token
                     socket.setAuthToken(uid);
-                    return UserStorage.userEnterAsync(uid, socket.id);
+                    return UserStorage.userEnterAsync(uid, socket.id)
+                        .then(function() {
+                            return _publishUserOnlineStatus(socket, uid, true);
+                        });
                 }
                 throw new Error('cookie auth fail');
             }).catch(function(err) {
@@ -149,7 +157,11 @@ module.exports.run = function(worker) {
             var uid = socket.getAuthToken();
             var subscriptions = socket.subscriptions();
             return _userLeaveAsync(uid, socket.id, subscriptions)
-                .catch(function(err) {
+                .then(function(isUserLeft) {
+                    if (isUserLeft === 1) {
+                        return _publishUserOnlineStatus(socket, uid, false);
+                    }
+                }).catch(function(err) {
                     SharedUtils.printError('worker.js', 'disconnect', err);
                 });
         });
@@ -236,4 +248,23 @@ function _configPublishOut(server) {
     server.addMiddleware(type, middleware.filterSelf);
     server.addMiddleware(type, middleware.filterByUids);
     server.addMiddleware(type, middleware.sendToTarget);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to configure the publish-out related middlewares
+ *
+ * @param {Object}        server, the socket server instance
+ * @param {String}        from, the socket server instance
+ * @param {Boolean}       isUserOnline, the socket server instance
+ */
+function _publishUserOnlineStatus(socket, from, isUserOnline) {
+    socket.global.publish('activity:' + from, {
+        clientHandler: 'updateFriendStatus',
+        service: 'friend',
+        params: {
+            isOnline: isUserOnline,
+            uid: from
+        }
+    });
 }
