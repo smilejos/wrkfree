@@ -21,6 +21,7 @@ var ToggleStore = require('../stores/ToggleStore');
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 var FloatingActionButton = Mui.FloatingActionButton;
+var Colors = Mui.Styles.Colors;
 
 /**
  * workspace tool bar, now just a template
@@ -41,7 +42,13 @@ module.exports = React.createClass({
             isConferenceVisible: toggleStore.conferenceVisible,
             isDiscussionVisible: toggleStore.discussionVisible,
             isVideoOn: true,
-            isAudioOn: true
+            isAudioOn: true,
+            defaultIconStyle: {
+                color: Colors.grey500
+            },
+            starIconStyle: {
+                color: Colors.amber500
+            }
         };
     },
 
@@ -143,6 +150,7 @@ module.exports = React.createClass({
 
     render: function (){
         var barStyle = {};
+        var starIconStyle = this.state.defaultIconStyle;
         var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
         var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         if (this.props.onConferenceCall) {
@@ -150,14 +158,17 @@ module.exports = React.createClass({
                 'backgroundColor': '#000'
             };
         }
+        if (this.props.status.isStarred) {
+            starIconStyle = this.state.starIconStyle;
+        }
         return (
             <div className="footer" style={barStyle} >
                 <div className="pure-u-1-3">
                     <IconButton iconClassName="fa fa-home"
+                                iconStyle={this.state.defaultIconStyle}
                                 onClick={this._onLeave} />
-                    <IconButton iconClassName="fa fa-user-plus" />
-                    <IconButton iconClassName="fa fa-tag" />
-                    <IconButton iconClassName="fa fa-star" />
+                    <IconButton iconClassName="fa fa-star" 
+                                iconStyle={starIconStyle} />
                 </div>
                 <div className="pure-u-1-3">
                     <FloatingActionButton mini secondary
