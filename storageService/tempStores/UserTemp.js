@@ -28,7 +28,7 @@ var RedisClient = Redis.createClient(
 exports.isUserOnlineAsync = function(candidate) {
     return SharedUtils.argsCheckAsync(candidate, 'md5')
         .then(function(candidateUid) {
-            return RedisClient.sismemberAsync(candidateUid, GLOBAL_OnlineUserKey);
+            return RedisClient.sismemberAsync(GLOBAL_OnlineUserKey, candidateUid);
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'isUserOnlineAsync', err);
             return null;
