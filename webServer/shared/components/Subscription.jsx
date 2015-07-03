@@ -13,12 +13,13 @@ var CreateChannel = require('../../client/actions/channel/createChannel');
 var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
 var GetUnreadSubscribedMsgCounts = require('../../client/actions/chat/getUnreadSubscribedMsgCounts.js');
 var SetUnreadDiscussions = require('../../client/actions/setUnreadDiscussions.js');
+var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var NavToBoard = require('../../client/actions/draw/navToBoard');
 
 /**
  * child components
  */
-var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
-var NavToBoard = require('../../client/actions/draw/navToBoard');
+var SubscribedChannel = require('./SubscribedChannel.jsx');
 
 /**
  * material UI compoents
@@ -79,11 +80,6 @@ module.exports = React.createClass({
             channelId: createdChannel.channelId,
             boardId: 0
         });
-    },
-
-    _onChannelClick: function(route){
-        this.executeAction(ToggleChannelNav, {});
-        this.transitionTo(route);
     },
 
     /**
@@ -159,28 +155,17 @@ module.exports = React.createClass({
      */
     _getChannelList: function(){
         var subscriptions = this.state.subscriptions;
-        var route = '';
         var channelList = SharedUtils.fastArrayMap(subscriptions, function(item){
-            route = '/app/workspace/'+item.channelId + '?board=1';
             return (
-                <div className="Channel" 
-                    key={item.channelId} 
-                    onClick={this._onChannelClick.bind(this, route)}>
-                    <div className="ChannelText">
-                        <div className="ChannelName">
-                            {item.name}    
-                        </div>
-                        <div className="ChannelHost">
-                            {'@' + item.hostInfo.nickName}
-                        </div>
-                    </div>
-                    <div className="Signal">
-                        {item.isConferenceExist ? <div className="Conference fa fa-users" /> : ''}
-                        {item.unreadMsgNumbers > 0 ? <div className="Counter">{item.unreadMsgNumbers}</div> : '' }
-                    </div>
-                </div>
+                <SubscribedChannel 
+                    key={item.channelId}
+                    channelId={item.channelId}
+                    name={item.name}
+                    hostInfo={item.hostInfo}
+                    unreadMsgNumbers={item.unreadMsgNumbers}
+                    isConferenceExist={item.isConferenceExist} />
             );
-        }.bind(this));
+        });
         return (
             <div className="ChannelList">
                 {channelList}
