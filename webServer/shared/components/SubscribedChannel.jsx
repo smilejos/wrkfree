@@ -32,6 +32,11 @@ module.exports = React.createClass({
         });
     },
 
+    componentWillUnmount: function() {
+        // TODO: when user stop starred channel, the item will be umounted, 
+        //       then we should unsubscribe it !
+    },
+
     render: function() {
         return (
             <div className="Channel" 
