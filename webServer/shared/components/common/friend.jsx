@@ -107,7 +107,7 @@ module.exports = React.createClass({
             friendUid: uid
         });
         this.executeAction(TrackFriendActivity, {
-            friendUids: [uid]
+            friendUid: uid
         });
         this.executeAction(SubscribeChannelNotification, {
             channels: [cid]
