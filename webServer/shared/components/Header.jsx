@@ -45,7 +45,11 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
-        return this.getStore(HeaderStore).getState();
+        var state = this.getStore(HeaderStore).getState();
+        state.iconButtonStyle = {
+            color: '#FFF'
+        };
+        return state;
     },
 
     onStoreChange: function() {
@@ -134,6 +138,7 @@ module.exports = React.createClass({
                 iconClassName="fa fa-search" 
                 tooltip="Search things " 
                 touch={true} 
+                iconStyle={this.state.iconButtonStyle}
                 onClick={this._onSearchIconClick} />
         );
     },
@@ -149,6 +154,7 @@ module.exports = React.createClass({
         return (
             <IconButton 
                 iconClassName="fa fa-times"  
+                iconStyle={this.state.iconButtonStyle}
                 onClick={this._onSearchCancel} />
         );
     },
