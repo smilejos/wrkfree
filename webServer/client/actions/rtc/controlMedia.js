@@ -23,6 +23,6 @@ module.exports = function(actionContext, data) {
         return RtcService.controlMediaAsync(reqData);
     }).catch(function(err) {
         SharedUtils.printError('controlMedia.js', 'core', err);
-        ActionUtils.showWarningEvt('RTC', 'control rtc media fail');
+        ActionUtils.showWarningEvent('RTC', 'control rtc media fail');
     });
 };

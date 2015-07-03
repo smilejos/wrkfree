@@ -38,6 +38,6 @@ module.exports = function(actionContext, data, callback) {
         ActionUtils.showSuccessEvent('Drawing', 'add new board successfully');
     }).catch(function(err) {
         SharedUtils.printError('addDrawBoard.js', 'core', err);
-        ActionUtils.showWarningEvt('Drawing', 'add draw board fail');
+        ActionUtils.showWarningEvent('Drawing', 'add draw board fail');
     }).nodeify(callback);
 };

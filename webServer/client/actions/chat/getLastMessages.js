@@ -35,6 +35,6 @@ module.exports = function(actionContext, data) {
         });
     }).catch(function(err) {
         SharedUtils.printError('getLastMessages.js', 'core', err);
-        ActionUtils.showWarningEvt('Chat', 'fail to get last message');
+        ActionUtils.showWarningEvent('Chat', 'fail to get last message');
     });
 };
