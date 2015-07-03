@@ -35,7 +35,7 @@ exports.showInfoEvent = function(title, message, actionTips, actionHandler) {
  * @Author: George_Chen
  * @Description: show warning toast event.
  */
-exports.showWarningEvt = function(title, message, actionTips, actionHandler) {
+exports.showWarningEvent = function(title, message, actionTips, actionHandler) {
     return _toastEvent('warning', title, message, actionTips, actionHandler);
 };
 

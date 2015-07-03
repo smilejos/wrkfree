@@ -43,7 +43,7 @@ module.exports = function(actionContext, data) {
  * @param {String}      targets, fail subscribed channels 
  */
 function _failRetryHandler(actionContext, targets) {
-    ActionUtils.showWarningEvt(
+    ActionUtils.showWarningEvent(
         'notifications',
         'subscribe starred channels fail',
         'retry',

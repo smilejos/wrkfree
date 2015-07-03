@@ -42,7 +42,7 @@ module.exports = function(actionContext, data) {
  * @param {String}      targetFriends, fail subscribed friends 
  */
 function _failRetryHandler(actionContext, targetFriends) {
-    ActionUtils.showWarningEvt(
+    ActionUtils.showWarningEvent(
         'friends',
         'subscribe friend activities fail',
         'retry',
