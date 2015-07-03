@@ -196,10 +196,10 @@ function _handleResp(socket, reqId, uid, target, isPermitted, type, extraInfo) {
                 throw new Error('not auth to response');
             }
             if (type === 'channel' && isPermitted) {
-                return ChannelStorage.addNewMemberAsync(uid, target, extraInfo);
+                return _addChannelMember(uid, target, extraInfo, socket);
             }
             if (type === 'friend' && isPermitted) {
-                return FriendStorage.addFriendshipAsync(uid, target);
+                return _addFriendship(uid, target, socket);
             }
             return true;
         }).then(function(result) {
@@ -212,6 +212,70 @@ function _handleResp(socket, reqId, uid, target, isPermitted, type, extraInfo) {
 
 /**
  * @Author: George_Chen
+ * @Description: add new channel member and publish info to that member
+ *
+ * @param {String}          host, the uid of host
+ * @param {String}          newMember, the uid of newMember
+ * @param {String}          cid, the channel id
+ * @param {Object}          socket, the client socket instance
+ */
+function _addChannelMember(host, newMember, cid, socket) {
+    return Promise.join(
+        ChannelStorage.addNewMemberAsync(host, newMember, cid),
+        ChannelStorage.getChannelInfoAsync(cid),
+        function(result, channelInfo) {
+            if (!result) {
+                throw new Error('add chanel member fail');
+            }
+            _publishToUser(socket, newMember, {
+                service: 'channel',
+                clientHandler: 'onChannelAdded',
+                params: channelInfo.basicInfo
+            });
+            return result;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: add friendship and publish info to friend owner
+ *
+ * @param {String}          user1, the uid of user1
+ * @param {String}          user2, the uid of user2
+ * @param {Object}          socket, the client socket instance
+ */
+function _addFriendship(user1, user2, socket) {
+    return FriendStorage.addFriendshipAsync(user1, user2)
+        .map(function(info) {
+            if (!info) {
+                throw new Error('add friend fail');
+            }
+            var target = info.friendOwner;
+            delete info.friendOwner;
+            _publishToUser(socket, target, {
+                service: 'friend',
+                clientHandler: 'onFriendAdded',
+                params: info
+            });
+            return info;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a simple function to publish data to target user's channel
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          uid, the uid of target
+ * @param {Object}          data, the formatted published data
+ */
+function _publishToUser(socket, uid, data) {
+    var userChannel = 'user:' + uid;
+    return socket.global.publish(userChannel, data);
+}
+
+/**
+ * @Author: George_Chen
  * @Description: to push new notification data to target
  *
  * @param {Object}          socket, the client socket instance
@@ -219,10 +283,9 @@ function _handleResp(socket, reqId, uid, target, isPermitted, type, extraInfo) {
  * @param {Object}          data, the notification data
  */
 function _notifyTarget(socket, target, data) {
-    var targetChannel = 'user:' + target;
     data.isNotification = false;
     data.updatedTime = Date.now();
-    socket.global.publish(targetChannel, {
+    return _publishToUser(socket, target, {
         service: 'user',
         clientHandler: 'onNotification',
         params: data
