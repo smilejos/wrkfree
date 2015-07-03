@@ -114,6 +114,10 @@ module.exports = React.createClass({
         });
     },
 
+    componentWillUnmount: function() {
+        // TODO: when delete friend, we should untrack and unsubscribe him/her
+    },
+
     render: function(){
         var info = this.props.info;
         var stateColor = (info.isOnline ? "onlineState" : "offlineState");
