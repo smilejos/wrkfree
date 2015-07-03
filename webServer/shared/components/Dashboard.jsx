@@ -1,5 +1,4 @@
 var React = require('react');
-var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var DashboardStore = require('../stores/DashboardStore');
 
@@ -8,13 +7,6 @@ var DashboardStore = require('../stores/DashboardStore');
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var SetDashboardLayout = require('../../client/actions/setDashboardLayout');
-
-/**
- * material UI compoents
- */
-var Toolbar = Mui.Toolbar;
-var ToolbarGroup = Mui.ToolbarGroup;
-var FontIcon = Mui.FontIcon;
 
 /**
  * child components
