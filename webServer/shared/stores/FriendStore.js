@@ -9,9 +9,28 @@ module.exports = CreateStore({
     handlers: {
         'UPDATE_FRIENDS_MESSAGE': '_updateFriendsMessage',
         'UPDATE_1ON1_CHANNELID': '_update1on1ChannelId',
-        'UPDATE_FRIEND_STATUS': '_updateFriendStatus',
         'ON_OPEN_HANGOUT': '_updateMessageToReaded',
+        'ON_FRIEND_ADDED': '_onFriendAdded',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage'
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handle new frirend added event
+     *
+     * @param {String}      data.uid, friend uid
+     * @param {String}      data.channelId, 1on1 channel id to friend
+     * @param {String}      data.avatar, friend avatar
+     * @param {String}      data.nickName, friend nickName
+     * @param {String}      data.group, the group of friend
+     * @param {Boolean}     data.isOnline, friend online status
+     */
+    _onFriendAdded: function(freindInfo) {
+        var collection = this.db.getCollection(this.dbName);
+        return _impportFriend(collection, freindInfo)
+            .bind(this).then(function() {
+                return this.emitChange();
+            });
     },
 
     /**
