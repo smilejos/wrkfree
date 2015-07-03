@@ -27,7 +27,7 @@ module.exports = CreateStore({
      */
     _onFriendAdded: function(freindInfo) {
         var collection = this.db.getCollection(this.dbName);
-        return _impportFriend(collection, freindInfo)
+        return _importFriend(collection, freindInfo)
             .bind(this).then(function() {
                 return this.emitChange();
             });
@@ -152,7 +152,7 @@ module.exports = CreateStore({
     polyfillAsync: function(friendList) {
         var collection = this.db.getCollection(this.dbName);
         return Promise.map(friendList, function(friendInfo) {
-            return _impportFriend(collection, friendInfo);
+            return _importFriend(collection, friendInfo);
         }).bind(this).then(function() {
             this.isPolyFilled = true;
             return this.emitChange();
@@ -263,7 +263,7 @@ module.exports = CreateStore({
  * @param {Object}      collection, lokijs collection
  * @param {Object}      doc, the message document
  */
-function _impportFriend(collection, doc) {
+function _importFriend(collection, doc) {
     return Promise.props({
         uid: SharedUtils.argsCheckAsync(doc.uid, 'md5'),
         channelId: '',
