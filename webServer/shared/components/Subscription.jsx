@@ -10,7 +10,6 @@ var HeaderStore = require('../stores/HeaderStore');
  * actions
  */
 var CreateChannel = require('../../client/actions/channel/createChannel');
-var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
 var GetUnreadSubscribedMsgCounts = require('../../client/actions/chat/getUnreadSubscribedMsgCounts.js');
 var SetUnreadDiscussions = require('../../client/actions/setUnreadDiscussions.js');
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
@@ -197,9 +196,6 @@ module.exports = React.createClass({
         });
         if (cids.length > 0) {
             this.executeAction(GetUnreadSubscribedMsgCounts);
-            this.executeAction(SubscribeChannelNotification, {
-                channels: cids
-            });
         }
     },
 

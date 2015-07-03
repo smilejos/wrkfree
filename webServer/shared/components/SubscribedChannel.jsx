@@ -7,6 +7,7 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
  */
 var NavToBoard = require('../../client/actions/draw/navToBoard');
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
 
 
 module.exports = React.createClass({
@@ -22,6 +23,12 @@ module.exports = React.createClass({
             urlNavigator: this.transitionTo,
             channelId: this.props.channelId,
             boardId: 0
+        });
+    },
+
+    componentDidMount: function() {
+        this.executeAction(SubscribeChannelNotification, {
+            channels: [this.props.channelId]
         });
     },
 
