@@ -10,6 +10,7 @@ module.exports = CreateStore({
     handlers: {
         'ON_CHANNEL_CREATE': 'onChannelCreate',
         'ON_OPEN_HANGOUT': '_onOpenHangout',
+        'ON_CHANNEL_ADDED': '_onChannelAdded',
         'CHANGE_ROUTE': '_onChangeRoute',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
         'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts'
@@ -61,6 +62,24 @@ module.exports = CreateStore({
         }).bind(this).then(function() {
             this.emitChange();
         });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update currently added channel on subscription list
+     * 
+     * @param {Object}     data.channelInfo, the info of added channel
+     */
+    _onChannelAdded: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var info = data.channelInfo;
+        if (!info.isStarred) {
+            return;
+        }
+        return _saveSubscription(collection, info)
+            .bind(this).then(function() {
+                this.emitChange();
+            });
     },
 
     /**

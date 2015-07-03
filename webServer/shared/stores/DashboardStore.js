@@ -10,7 +10,8 @@ module.exports = CreateStore({
 
     handlers: {
         'CHANGE_ROUTE': '_onChangeRoute',
-        'SET_DASHBOARD_LAYOUT': 'setLayout'
+        'SET_DASHBOARD_LAYOUT': 'setLayout',
+        'ON_CHANNEL_ADDED': '_onChannelAdded'
     },
 
     initialize: function() {
@@ -52,7 +53,7 @@ module.exports = CreateStore({
                 channelId: item.channel.channelId,
                 channelName: item.channel.name,
                 hostInfo: item.hostInfo,
-                snapshotUrl: '/app/workspace/' + item.channel.channelId + '/preview',
+                snapshotUrl: _getSnapshotUrl(item.channel.channelId),
                 isStarred: item.isStarred,
                 visitTime: item.visitTime,
                 lastBaord: item.lastBaord
@@ -63,6 +64,28 @@ module.exports = CreateStore({
         }).catch(function(err) {
             SharedUtils.printError('DashboardStore', 'polyfillAsync', err);
             return null;
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update currently added channel on dashboard
+     * 
+     * @param {Object}     data.channelInfo, the info of added channel
+     */
+    _onChannelAdded: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var info = data.channelInfo;
+        return _saveDashboardChannel(collection, {
+            channelId: info.channelId,
+            channelName: info.name,
+            hostInfo: info.hostInfo,
+            snapshotUrl: _getSnapshotUrl(info.channelId),
+            isStarred: info.isStarred,
+            visitTime: info.visitTime,
+            lastBaord: 0
+        }).bind(this).then(function() {
+            this.emitChange();
         });
     },
 
@@ -157,4 +180,14 @@ function _saveDashboardChannel(collection, doc) {
     }).then(function(doc) {
         return collection.insert(doc);
     });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to generate channel snapshot url
+ *
+ * @param {String}      cid, the channel id
+ */
+function _getSnapshotUrl(cid) {
+    return '/app/workspace/' + cid + '/preview';
 }
