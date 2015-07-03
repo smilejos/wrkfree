@@ -2,6 +2,19 @@
 var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
+var OnChannelAdded = require('../actions/channel/onChannelAdded');
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for handling new channel added event
+ *         NOTE: server sent this event when channel host permit client's channel request
+ *
+ * @param {Object}        data, the data is channel info document stored in db
+ */
+exports.onChannelAdded = function(data) {
+    SocketUtils.execAction(OnChannelAdded, data, 'onChannelAdded');
+};
 
 /**
  * Public API
