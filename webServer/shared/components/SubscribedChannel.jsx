@@ -28,7 +28,7 @@ module.exports = React.createClass({
 
     componentDidMount: function() {
         this.executeAction(SubscribeChannelNotification, {
-            channels: [this.props.channelId]
+            channelId: this.props.channelId
         });
     },
 
