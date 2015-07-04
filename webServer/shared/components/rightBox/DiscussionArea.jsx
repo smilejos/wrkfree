@@ -68,6 +68,8 @@ var DiscussionArea = React.createClass({
         var channelId = this._getChannelId();
         this._pullLatestMessages(channelId);
 
+        // Add scroll event listener to control reload message action.
+        // We also use isReloading to avoid user duplicate reload message.
         container.addEventListener('scroll',function(e){
             if( e.srcElement.scrollTop == 0 && !this.state.isReloading) {
                 this._pullOlderMessages();
