@@ -138,6 +138,19 @@ exports.subscribeNotificationAsync = function(channelId) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for client to star or unstar channel
+ *
+ * @param {String}        data.channelId, the channel id
+ * @param {Boolean}       data.toStar, indicate to star channel or not
+ */
+exports.starContrlAsync = function(data) {
+    var packet = _setPacket('starContrlAsync', null, data);
+    return _request(packet, 'starContrlAsync');
+};
+
 /************************************************
  *
  *           internal functions
