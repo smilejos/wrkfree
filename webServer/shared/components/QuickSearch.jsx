@@ -56,16 +56,14 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        var classSet = React.addons.classSet;
-        var styleSet = {
-            QuickSearch: this.state.isEnabled,
-            hide: !this.state.isEnabled,
-            Center: true
-        };
+        var searchClass = 'QuickSearch Center';
+        if (!this.state.isEnabled) {
+            searchClass = 'hide Center';
+        }
         var users = this.state.results.users;
         var channels = this.state.results.channels;
         return (
-            <div className={classSet(styleSet)} >
+            <div className={searchClass} >
                 <SearchResults itemList={channels} type="Channels" />
                 <SearchResults itemList={users} type="Users" />
             </div>
