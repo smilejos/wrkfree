@@ -11,7 +11,8 @@ module.exports = CreateStore({
         'UPDATE_1ON1_CHANNELID': '_update1on1ChannelId',
         'ON_OPEN_HANGOUT': '_updateMessageToReaded',
         'ON_FRIEND_ADDED': '_onFriendAdded',
-        'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage'
+        'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
+        'RECV_MESSAGE': '_recvMessage'
     },
 
     /**
@@ -31,6 +32,31 @@ module.exports = CreateStore({
             .bind(this).then(function() {
                 return this.emitChange();
             });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: if received message belong 1on1 channel, update it on friend list
+     *
+     * @param {String}      data.from, message sender uid
+     * @param {String}      data.channelId, message channel id
+     * @param {String}      data.message, message content
+     */
+    _recvMessage: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.lastMessage = {
+                channelId: data.channelId,
+                message: data.message,
+                from: data.from,
+                sentTime: Date.now()
+            };
+            self.emitChange();
+        });
     },
 
     /**
