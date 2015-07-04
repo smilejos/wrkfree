@@ -3,6 +3,19 @@ var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var UpdateFriendStatus = require('../actions/friend/updateFriendStatus');
+var OnfriendAdded = require('../actions/friend/onFriendAdded');
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for handling new friend added event
+ *         NOTE: server sent this event when friendship created
+ *
+ * @param {Object}        data, the data is friend document stored in db
+ */
+exports.onFriendAdded = function(data) {
+    SocketUtils.execAction(OnfriendAdded, data, 'onFriendAdded');
+};
 
 /**
  * Public API
