@@ -16,6 +16,7 @@
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    transition: 0.2s;
     .MsgContent {
         padding: 10px 2px 5px 2px;
         border-bottom-style: solid;
@@ -38,4 +39,14 @@
             text-align: right;
         }
     }
+}
+
+.ReloadImg {
+    text-align: center;
+    padding: 5px 0px;
+    border-bottom-style: solid;
+    border-bottom-color: #eee;
+    border-bottom-width: 1px;
+    transition: 0.2;
+    opacity: 0;
 }

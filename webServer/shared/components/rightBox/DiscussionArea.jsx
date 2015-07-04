@@ -39,7 +39,12 @@ var DiscussionArea = React.createClass({
      */    
     componentDidUpdate: function(nextProps, nextState){
         var container = document.getElementById("MsgContainer");
-        container.scrollTop = container.scrollHeight;
+
+        // if channel is not "reload message"
+        // we don't auto scroll to bottom. 
+        if( container.scrollTop != 0) {
+            container.scrollTop = container.scrollHeight;    
+        }
     },
 
     /**
@@ -47,6 +52,8 @@ var DiscussionArea = React.createClass({
      * @Description: only switch between different channels will trigger _pullLatestMessages
      */
     componentWillReceiveProps: function(nextProps) {
+        var container = document.getElementById("MsgContainer");
+        container.scrollTop = container.scrollHeight;
         if (this.props.channelId !== nextProps.channelId) {            
             this._pullLatestMessages(nextProps.channelId);
         }
@@ -57,8 +64,18 @@ var DiscussionArea = React.createClass({
      * @Description: start to load channel messages from server
      */
     componentDidMount: function(){
+        var container = document.getElementById("MsgContainer");
         var channelId = this._getChannelId();
         this._pullLatestMessages(channelId);
+
+        container.addEventListener('scroll',function(e){
+            if( e.srcElement.scrollTop == 0 && !this.state.isReloading) {
+                this._pullOlderMessages();
+                this.setState({ 
+                    isReloading: true
+                });
+            }
+        }.bind(this));
     },
 
     getInitialState: function() {
@@ -66,7 +83,7 @@ var DiscussionArea = React.createClass({
     },
 
     onStoreChange: function(){
-        var state = this._getStateFromStores();
+        var state = this._getStateFromStores;
         this.setState(state);
     },
 
@@ -101,7 +118,7 @@ var DiscussionArea = React.createClass({
     },
 
     /**
-     * @Author: George_Chen
+     * @Author: Jos Tung
      * @Description: used to trigger pullMessages action
      *         NOTE: specify timePeriod.start or timePeriod.end 
      *               can restrict message documents queried from server
@@ -110,10 +127,20 @@ var DiscussionArea = React.createClass({
      * @param {Object}      timePeriod, the time period object, [optional]
      */
     _pullMessages: function(cid, timePeriod){
-        this.executeAction(PullMessagesAction, {
-            channelId: cid,
-            period: timePeriod || {}
-        });
+
+        // we use setTimeout to display "reload" effect
+        // we can remark it after introduce to all guys, 
+        setTimeout(function(){
+            this.executeAction(PullMessagesAction, {
+                channelId: cid,
+                period: timePeriod || {}
+            });
+        }.bind(this), 3000);
+
+        // this.executeAction(PullMessagesAction, {
+        //     channelId: cid,
+        //     period: timePeriod || {}
+        // });
     },
 
     /**
@@ -140,14 +167,17 @@ var DiscussionArea = React.createClass({
 
     _getStateFromStores: function () {
         return { 
-            messageList : this.getStore(MessageStore).getMessages(this._getChannelId()) 
+            messageList : this.getStore(MessageStore).getMessages(this._getChannelId()),
+            isReloading : false
         };
     },
 
     render: function(){
+        console.log('isReloading', this.state.isReloading);
         return (
             <div className="DiscussionArea" style={this.props.inlineStyle} >
-                <MessageList data={this.state.messageList} />
+                <ReloadImg isReload={this.state.isReloading} />
+                <MessageList data={this.state.messageList} isReload={this.state.isReloading} />
                 <div className="DiscussionInput" >
                     <TextField 
                         hintText="say something ..." 
@@ -160,13 +190,32 @@ var DiscussionArea = React.createClass({
     }
 });
 
+var ReloadImg = React.createClass({
+    render: function(){
+        var iconStyle = {
+            fontSize: 30
+        }
+        var divStyle = {
+            opacity: this.props.isReload ? 1 : 0
+        }
+        return ( 
+            <div className="ReloadImg" style={divStyle}>
+                <span className="fa fa-spinner fa-spin" style={iconStyle} />
+            </div> 
+        );
+    }
+});
+
 var MessageList = React.createClass({
     render: function(){
+        var inlineStyle = {
+            top: this.props.isReload ? 40 : 0
+        }
         var _MessageList = this.props.data.map( function( message ){
             return <Message key={message.sentTime} data={message} />;
         });
         return ( 
-            <div className="MsgContainer" id="MsgContainer">
+            <div className="MsgContainer" id="MsgContainer" style={inlineStyle}>
                 {_MessageList}
             </div> 
         );
