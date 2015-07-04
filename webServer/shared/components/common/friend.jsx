@@ -110,7 +110,7 @@ module.exports = React.createClass({
             friendUid: uid
         });
         this.executeAction(SubscribeChannelNotification, {
-            channels: [cid]
+            channelId: cid
         });
     },
 
