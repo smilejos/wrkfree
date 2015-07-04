@@ -131,18 +131,13 @@ var DiscussionArea = React.createClass({
     _pullMessages: function(cid, timePeriod){
 
         // we use setTimeout to display "reload" effect
-        // we can remark it after introduce to all guys, 
+        // we can remove setTimeout after introduce to all guys, 
         setTimeout(function(){
             this.executeAction(PullMessagesAction, {
                 channelId: cid,
                 period: timePeriod || {}
             });
         }.bind(this), 3000);
-
-        // this.executeAction(PullMessagesAction, {
-        //     channelId: cid,
-        //     period: timePeriod || {}
-        // });
     },
 
     /**
