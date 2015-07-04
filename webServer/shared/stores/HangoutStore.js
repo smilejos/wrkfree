@@ -53,7 +53,9 @@ module.exports = CreateStore({
         if (!this.isHangoutExist(data.channelId)) {
             this.hangouts.push(data.channelId);
             this.hangoutsInfo[data.channelId] = data;
-            this.emitChange();
+            setImmediate(function(){
+                this.emitChange();
+            }.bind(this));
         }
     },
 
