@@ -17,12 +17,10 @@ var QuickSearch = require('./QuickSearch.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
 
 /**
- * TODO: below is for material-ui 9.0 up
- * material-ui 
+ * below is for material-ui 9.0 up
  */
-// var Mui = require('material-ui');
-// var ThemeManager = new Mui.Styles.ThemeManager();
-// var Colors = Mui.Styles.Colors;
+var Mui = require('material-ui');
+var ThemeManager = new Mui.Styles.ThemeManager();
 
 module.exports = React.createClass({
     /**
@@ -49,18 +47,18 @@ module.exports = React.createClass({
     },
 
     // Important!
-    // TODO: below is for material-ui 9.0 up
-    // childContextTypes: {
-    //     muiTheme: React.PropTypes.object
-    // },
+    // below is for material-ui 9.0 up
+    childContextTypes: {
+        muiTheme: React.PropTypes.object
+    },
 
     // Important!
-    // TODO: below is for material-ui 9.0 up
-    // getChildContext: function() { 
-    //     return {
-    //         muiTheme: ThemeManager.getCurrentTheme()
-    //     };
-    // },
+    // below is for material-ui 9.0 up
+    getChildContext: function() { 
+        return {
+            muiTheme: ThemeManager.getCurrentTheme()
+        };
+    },
     
     render: function(){
         if (this.state.route.path === '/app/signup') {
