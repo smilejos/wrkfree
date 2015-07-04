@@ -1,5 +1,4 @@
 var React = require('react');
-var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var DashboardStore = require('../stores/DashboardStore');
 
@@ -10,17 +9,11 @@ var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var SetDashboardLayout = require('../../client/actions/setDashboardLayout');
 
 /**
- * material UI compoents
- */
-var Toolbar = Mui.Toolbar;
-var ToolbarGroup = Mui.ToolbarGroup;
-var FontIcon = Mui.FontIcon;
-
-/**
  * child components
  */
- var ChannelGridLayout = require('./mainBox/channelGridLayout.jsx');
- var ChannelListLayout = require('./mainBox/channelListLayout.jsx');
+var ChannelGridLayout = require('./mainBox/channelGridLayout.jsx');
+var ChannelListLayout = require('./mainBox/channelListLayout.jsx');
+var StateIcon = require('./common/stateIcon.jsx');
 
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
@@ -76,20 +69,21 @@ module.exports = React.createClass({
     },
 
     render: function() {
+        var isGrid = this.state.isDashboardGrid;
         return (
-            <div className="mainBox DashboardMain " onClick={this._onContentClick}>
+            <div className="mainBox" onClick={this._onContentClick}>
                 <div className="DashboardContentLayout">
                     <div className="DashboardToolBar" >
-                        <Toolbar>
-                            <ToolbarGroup key={0} float="right">
-                                <FontIcon className="fa fa-th-list" 
-                                    onClick={this._onLayoutChang.bind(this, false)}/>
-                                <FontIcon className="fa fa-th"
-                                    onClick={this._onLayoutChang.bind(this, true)}/>
-                            </ToolbarGroup>
-                        </Toolbar>
+                        <StateIcon
+                            stateClass={isGrid ? "toolIcon" : "toolIcon active"} 
+                            iconClass="fa fa-th-list"
+                            handler={this._onLayoutChang.bind(this, false)} />
+                        <StateIcon
+                            stateClass={isGrid ? "toolIcon active" : "toolIcon"} 
+                            iconClass="fa fa-th"
+                            handler={this._onLayoutChang.bind(this, true)} />
                     </div>
-                    <div>
+                    <div className="DashboardItems" >
                         {this._generateItems()}
                     </div>
                 </div>
