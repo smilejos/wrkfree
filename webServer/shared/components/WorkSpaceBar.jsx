@@ -9,6 +9,8 @@ var ControlMedia = require('../../client/actions/rtc/controlMedia');
 var StartConference = require('../../client/actions/rtc/startConference');
 var HangupConference = require('../../client/actions/rtc/hangupConference');
 var ToggleComponent = require('../../client/actions/toggleComponent');
+var StarChannel = require('../../client/actions/channel/starChannel');
+
 /**
  * stores
  */
@@ -82,6 +84,19 @@ module.exports = React.createClass({
      */
     _onLeave: function () {
         this.transitionTo('/app/dashboard');
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for user to star current workspace channel
+     */
+    _starChannel: function() {
+        this.executeAction(StarChannel, {
+            channelId: this.props.channel.channelId,
+            name: this.props.channel.name,
+            host: this.props.channel.host,
+            toStar: !this.props.status.isStarred
+        });
     },
 
     /**
@@ -168,7 +183,8 @@ module.exports = React.createClass({
                                 iconStyle={this.state.defaultIconStyle}
                                 onClick={this._onLeave} />
                     <IconButton iconClassName="fa fa-star" 
-                                iconStyle={starIconStyle} />
+                                iconStyle={starIconStyle}
+                                onClick={this._starChannel} />
                 </div>
                 <div className="pure-u-1-3">
                     <FloatingActionButton mini secondary
