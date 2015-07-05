@@ -79,14 +79,17 @@ module.exports = React.createClass({
      * @Author: George_Chen
      * @Description: count the unread conversation when friend list updated
      */
-    componentDidUpdate: function() {
-        return Promise.reduce(this.state.friends, function(total, friendItem){
-            return (friendItem.isMessageReaded ? total : total + 1);
-        }, 0).bind(this).then(function(totalUnreads){
-            this.executeAction(SetUnreadConverations, {
-                counts: totalUnreads
+    componentDidUpdate: function(prevProps, prevState) {
+        // this ensure the update unreadConversations is not triggered by timeVisible
+        if (prevState.isTimeVisible === this.state.isTimeVisible) {
+            return Promise.reduce(this.state.friends, function(total, friendItem){
+                return (friendItem.isMessageReaded ? total : total + 1);
+            }, 0).bind(this).then(function(totalUnreads){
+                this.executeAction(SetUnreadConverations, {
+                    counts: totalUnreads
+                });
             });
-        });
+        }
     },
 
     /**
@@ -118,8 +121,8 @@ module.exports = React.createClass({
         });
         return (
             <div className={this.state.isVisible ? 'FriendsShow' : 'Friends'}
-                onMouseOver={this._showTime.bind(this, true)} 
-                onMouseOut={this._showTime.bind(this, false)} >
+                onMouseEnter={this._showTime.bind(this, true)} 
+                onMouseLeave={this._showTime.bind(this, false)} >
                 {friendList}
             </div>
         );
