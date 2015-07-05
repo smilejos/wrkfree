@@ -34,5 +34,11 @@ $dashboard-toolbar-height: 30px;
     }
     .DashboardItems {
         margin-top: $dashboard-toolbar-height;
+        .DashboardGridLayout {
+            padding-top: 0px;
+        }
+        .DashboardListLayout {
+            padding-top: 15px;
+        }
     }
 }
