@@ -8,10 +8,13 @@ var ActionUtils = require('../actionUtils');
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: action for channel create 
+ * @Description: for controling channel star functionality
  * 
- * @param {Object}      actionContext, the fluxible's action context
- * @param {String}      data.name, target channel name
+ * @param {Object}          actionContext, the fluxible's action context
+ * @param {String}          data.channelId, channel id
+ * @param {String}          data.name, the channel name
+ * @param {String}          data.host, host uid
+ * @param {Boolean}         data.toStar, to indicate star or not 
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
