@@ -99,7 +99,7 @@ var Notices = React.createClass({
             noticeContent = (isReq ? <ReqNotice info={info} /> : <RespNotice info={info} />);
         }
         return (
-            <div className="Notice" onMouseOver={this._hideTimestamp} onMouseOut={this._showTimestamp} >
+            <div className="Notice" onMouseEnter={this._hideTimestamp} onMouseLeave={this._showTimestamp} >
                 <div className="NoticeSender">
                     <UserAvatar avatar={this.props.info.sender.avatar} isCircle={true} />
                 </div>
