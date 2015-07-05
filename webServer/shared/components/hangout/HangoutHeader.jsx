@@ -2,7 +2,7 @@ var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var Router = require('react-router');
 
-var NavToBoard = require('../../../client/actions/draw/navToBoard');
+var EnterWorkspace = require('../../../client/actions/enterWorkspace');
 var CloseHangout = require('../../../client/actions/closeHangout');
 var ResizeHangout = require('../../../client/actions/resizeHangout');
 
@@ -63,10 +63,9 @@ module.exports = React.createClass({
 
     // TODO: a experimental feature, 
     _switchWorkSpace: function() {
-        this.executeAction(NavToBoard, {
+        this.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
-            channelId: this.props.channelId,
-            boardId: 0
+            channelId: this.props.channelId
         });
         this._close();
     },

@@ -6,7 +6,7 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 /**
  * actions
  */
-var NavToBoard = require('../../../client/actions/draw/navToBoard');
+ var EnterWorkspace = require('../../../client/actions/enterWorkspace');
 var OpenHangout = require('../../../client/actions/openHangout');
 
 /**
@@ -28,10 +28,9 @@ module.exports = React.createClass({
      * @Description: handler for navigating to target workspace
      */
     _openWorkSpace: function() {
-        this.executeAction(NavToBoard, {
+        this.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
-            channelId: this.props.info.extraInfo.channelId,
-            boardId: 0
+            channelId: this.props.info.extraInfo.channelId
         });
     },
     
