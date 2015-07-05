@@ -20,7 +20,7 @@ module.exports = function(actionContext, data) {
             var navigator = data.urlNavigator;
             var boardIndex = bid + 1;
             if (!SharedUtils.isFunction(data.urlNavigator)) {
-                throw new Error('');
+                throw new Error('get url navigator fail');
             }
             navigator('/app/workspace/' + cid + '?board=' + boardIndex);
         }).catch(function(err) {

@@ -162,6 +162,19 @@ exports.getDrawBoardAsync = function(data) {
     return _request(packet, 'getPreviewInfoAsync');
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to get latest updated draw board id
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ */
+exports.getLatestBoardIdAsync = function(data) {
+    var packet = _setPacket('getLatestBoardIdAsync', null, data);
+    return _request(packet, 'getLatestBoardIdAsync');
+};
+
 /************************************************
  *
  *           internal functions
