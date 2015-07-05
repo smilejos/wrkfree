@@ -67,7 +67,7 @@ module.exports = React.createClass({
                     <div className="ChannelName">
                         {info.channelName}
                     </div>
-                    <div className="ChannelHost">
+                    <div className="visitedInfo">
                         {this._getFormattedTime()}
                     </div>
                 </div>
