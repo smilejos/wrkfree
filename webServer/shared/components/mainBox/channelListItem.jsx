@@ -12,6 +12,7 @@ var NavToBoard = require('../../../client/actions/draw/navToBoard');
  */
 var UserAvatar = require('../common/userAvatar.jsx');
 var StateIcon = require('../common/stateIcon.jsx');
+var Colors = require('material-ui').Styles.Colors
 
 /**
  * @Author: Jos Tung
@@ -56,11 +57,10 @@ module.exports = React.createClass({
      * @Description: Move original summary component ot here
      */
     _getChannelSummary: function(info) {
-        var toolIconStyle = {
-            paddingTop: 5,
-            cursor: 'pointer'
+        var starIconStyle = {};
+        if (info.isStarred) {
+            starIconStyle.color = Colors.yellow600;
         }
-
         return (
             <div className="ChannelSummary" >
                 <div className="ChannelInfo" >
@@ -75,15 +75,15 @@ module.exports = React.createClass({
                     <StateIcon
                         stateClass="toolIcon" 
                         iconClass="fa fa-tag"
-                        style={toolIconStyle} />
+                        style={{}} />
                     <StateIcon
                         stateClass="toolIcon" 
                         iconClass="fa fa-star"
-                        style={toolIconStyle} />
+                        style={starIconStyle} />
                     <StateIcon
                         stateClass="toolIcon" 
                         iconClass="fa fa-share"
-                        style={toolIconStyle} />
+                        style={{}} />
                 </div>
                 <UserAvatar isCircle avatar={info.hostInfo.avatar}/>
             </div>
