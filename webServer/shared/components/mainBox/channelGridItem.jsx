@@ -1,6 +1,7 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
 var NavigationMixin = require('react-router').Navigation;
+var Colors = require('material-ui').Styles.Colors
 
 /**
  * actions
@@ -61,6 +62,10 @@ module.exports = React.createClass({
             marginTop: -19,
             marginRight: 10
         };
+        var starIconStyle = {};
+        if (info.isStarred) {
+            starIconStyle.color = Colors.yellow600;
+        }
         return (
             <div className="ChannelSummary" >
                 <div className="ChannelInfo" >
@@ -75,13 +80,16 @@ module.exports = React.createClass({
                 <div className="ChannelToolbar" >
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-tag"/>
+                        iconClass="fa fa-tag"
+                        style={{}} />
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-star"/>
+                        iconClass="fa fa-star"
+                        style={starIconStyle} />
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-share"/>
+                        iconClass="fa fa-share"
+                        style={{}} />
                 </div>
             </div>
         );
