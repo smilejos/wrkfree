@@ -13,7 +13,8 @@ module.exports = CreateStore({
         'ON_CHANNEL_ADDED': '_onChannelAdded',
         'CHANGE_ROUTE': '_onChangeRoute',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
-        'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts'
+        'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts',
+        'UPDATE_CHANNEL_STAR': '_updateChannelStar'
     },
 
     initialize: function() {
@@ -96,6 +97,29 @@ module.exports = CreateStore({
             };
             collection.chain().find(query).update(function(obj) {
                 obj.unreadMsgNumbers = info.counts;
+            });
+        }).bind(this).then(function() {
+            this.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update subscription list when user star or unstar channel
+     *
+     * @param {String}      data.channelId, the channel id
+     * @param {String}      data.name, the channel name
+     * @param {Object}      data.hostInfo, the channel host info
+     * @param {String}      data.toStar, current channel starred staus
+     */
+    _updateChannelStar: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        return Promise.try(function() {
+            if (data.toStar) {
+                return _saveSubscription(collection, data);
+            }
+            collection.removeWhere(function(obj) {
+                return (obj.channelId === data.channelId);
             });
         }).bind(this).then(function() {
             this.emitChange();
