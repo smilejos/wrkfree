@@ -211,18 +211,16 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        var classSet = React.addons.classSet;
         var cardInfo = this.state;
         var coverImgSrc = this._getCoverImgUrl(cardInfo.avatar);
         var infoType = (cardInfo.type === 'user' ? 'user' : 'channel');
         var btnType = (cardInfo.isKnown ? 'allowed' : 'request');
         var btnInfo = this._getBtnInfo(infoType, btnType);
-        var cardStyle = {
-            'button-request': !cardInfo.isKnown,
-            'button-allowed': cardInfo.isKnown,
-            'pure-button-disabled': (!cardInfo.isKnown && cardInfo.isReqSent),
-            'pure-button': true,
-        };
+        var btnClass = 'pure-button button-allowed';
+        if (!cardInfo.isKnown) {
+            btnClass = 'pure-button button-request';
+            btnClass = (cardInfo.isReqSent ? btnClass + ' pure-button-disabled' : btnClass );
+        }
         return (
             <div className="InfoCard" >
                 <Paper zDepth={1} rounded={false} >
@@ -231,7 +229,7 @@ module.exports = React.createClass({
                         <div>{'@'+cardInfo.nickName}</div>
                         {this._setExtraInfo()}
                     </Paper>
-                    <button className={classSet(cardStyle)}
+                    <button className={btnClass}
                             onClick={btnInfo.handler.bind(this, cardInfo)} >
                         <i className={btnInfo.style}></i>
                         &nbsp;
