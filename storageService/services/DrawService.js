@@ -256,6 +256,27 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to find out latest updated board on channel.
+ *         NOTE: we currently find this board by latest draw record
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.getLatestBoardIdAsync = function(channelId) {
+    return RecordDao.findLatestByChannelAsync(channelId)
+        .then(function(record) {
+            if (!record) {
+                return 0;
+            }
+            return record.boardId;
+        }).catch(function(err) {
+            SharedUtils.printError('DrawService.js', 'getLatestBoardIdAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: used to update the base Image on current draw board
  *         NOTE: base image is the snapshot of all archived draw records
  *

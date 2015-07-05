@@ -195,3 +195,27 @@ exports.getDrawBoardAsync = function(socket, data) {
             throw err;
         });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to get latest updated draw board id
+ *         NOTE: it's useful for user to navigate to this board
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ */
+exports.getLatestBoardIdAsync = function(socket, data) {
+    return SharedUtils.argsCheckAsync(data.channelId, 'md5')
+        .then(function(cid){
+            return DrawStorage.getLatestBoardIdAsync(cid);
+        }).then(function(result){
+            if (result === null) {
+                throw new Error('get latest draw board id fail');
+            }
+            return result;
+        }).catch(function(err) {
+            SharedUtils.printError('drawHandler.js', 'getLatestBoardIdAsync', err);
+            throw err;
+        });
+};
