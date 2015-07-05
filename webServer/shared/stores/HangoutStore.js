@@ -21,7 +21,9 @@ module.exports = CreateStore({
         'ON_CONFERENCE': '_onCall',
         'CHANGE_ROUTE': '_onChangeRoute',
         'ON_CONFERENCE_START': '_onConferenceStart',
-        'ON_CONFERENCE_END': '_onConferenceEnd'
+        'ON_CONFERENCE_END': '_onConferenceEnd',
+        'UPDATE_HANGOUT_TWINKLE': '_updateHangoutTwinkle',
+        'UPDATE_HANGOUT_FOCUS': '_updateHangoutFocus'
     },
 
     initialize: function() {
@@ -51,7 +53,9 @@ module.exports = CreateStore({
         if (!this.isHangoutExist(data.channelId)) {
             this.hangouts.push(data.channelId);
             this.hangoutsInfo[data.channelId] = data;
-            this.emitChange();
+            setImmediate(function(){
+                this.emitChange();
+            }.bind(this));
         }
     },
 
@@ -105,6 +109,34 @@ module.exports = CreateStore({
     _onConferenceEnd: function(data) {
         if (this.isHangoutExist(data.channelId)) {
             this.hangoutsInfo[data.channelId].hasConference = false;
+            this.emitChange();
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for updating twinkled state of current hangout
+     *
+     * @param {String}     data.channelId, channel id
+     * @param {Boolean}    data.isTwinkled, indicate twinkled state of hangout
+     */
+    _updateHangoutTwinkle: function(data) {
+        if (this.isHangoutExist(data.channelId)) {
+            this.hangoutsInfo[data.channelId].isTwinkled = data.isTwinkled;
+            this.emitChange();
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for updating focused state of current hangout
+     *
+     * @param {String}     data.channelId, channel id
+     * @param {Boolean}    data.onFocused, indicate focus hangout input or not
+     */
+    _updateHangoutFocus: function(data) {
+        if (this.isHangoutExist(data.channelId)) {
+            this.hangoutsInfo[data.channelId].onFocused = data.onFocused;
             this.emitChange();
         }
     },

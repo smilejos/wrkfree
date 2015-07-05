@@ -31,19 +31,29 @@ var HANGOUT_MESSAGE_LIST_HEIGHT = 275;
  * @param {Number}      this.props.bottomOffset, the hangout bottom offset
  */
 module.exports = React.createClass({
+
+    /**
+     * @Author: George_Chen
+     * @Description: focus current hangout input when hangout content has been clicked
+     */
+    _onContentClick: function() {
+        this.refs.hangoutInput.focusInput();
+    },
+
     render: function() {
         var hangoutStyle = {
             'right': HANGOUT_WIDTH + this.props.hangoutIndex * HANGOUT_INTERVAL_WIDTH,
             'height': (this.props.isCompressed ? HANGOUT_HEADER_HEIGHT : HANGOUT_HEIGHT ),
             'bottom': this.props.bottomOffset
         };
+        var spaceClass = (this.props.isTwinkled ? 'HangoutSpace onTwinkle' : 'HangoutSpace');
         return (
-            <div className="HangoutSpace" style={hangoutStyle} >
+            <div className={spaceClass} style={hangoutStyle} >
                 <HangoutHeader 
                     title={this.props.title} 
                     isCompressed={this.props.isCompressed}
                     channelId={this.props.channelId} />
-                <div style={{'visibility': (this.props.isCompressed ? 'hidden': 'visible')}}>
+                <div style={{'visibility': (this.props.isCompressed ? 'hidden': 'visible')}} onClick={this._onContentClick} >
                     <HangoutConference
                         conferenceHeight={HANGOUT_CONFERENCE_AREA_HEIGHT}
                         hasConference={this.props.hasConference}
@@ -53,8 +63,10 @@ module.exports = React.createClass({
                         conferenceHeight={HANGOUT_CONFERENCE_AREA_HEIGHT}
                         messagesHeight={HANGOUT_MESSAGE_LIST_HEIGHT}
                         hasConference={this.props.hasConference}
+                        onFocused={this.props.onFocused}
                         channelId={this.props.channelId} />
                     <HangoutInput 
+                        ref="hangoutInput"
                         self={this.props.self}
                         hasConference={this.props.hasConference}
                         onCall={this.props.onCall}

@@ -13,6 +13,8 @@ var TextField = Mui.TextField;
 var StartConference = require('../../../client/actions/rtc/startConference');
 var HangupConference = require('../../../client/actions/rtc/hangupConference');
 var SendMessageAction = require('../../../client/actions/chat/sendMessage');
+var UpdateHangoutTwinkle = require('../../../client/actions/updateHangoutTwinkle');
+var FocusHangout = require('../../../client/actions/focusHangout');
 
 var PHONE_ICON_ONCALL_COLOR = '#43A047';
 var PHONE_ICON_NORMAL_COLOR = '#333';
@@ -69,6 +71,38 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: handler when message input has been focused or blured
+     * 
+     * @param {Boolean}      onInputFocused, indicate message input is focused or blured
+     */
+    _onInputFocused: function(onInputFocused) {
+        this.executeAction(FocusHangout, {
+            channelId: this.props.channelId,
+            onFocused: onInputFocused
+        });
+        if (onInputFocused) {
+            this.executeAction(UpdateHangoutTwinkle, {
+                channelId: this.props.channelId,
+                isTwinkled: false
+            });
+        }
+    },
+
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: focusing current message input area
+     */
+    focusInput: function() {
+        this.refs.msgInput.focus();
+    },
+
+    componentDidMount: function() {
+        this.focusInput();
+    },
+
     render: function() {
         var rtcIconClass = (this.props.hasConference ? 'fa fa-tty' : 'fa fa-phone');
         var rtcHandler = (this.props.hasConference ? this._hangupCall : this._rtcCall);
@@ -91,6 +125,8 @@ module.exports = React.createClass({
                 <div className="hangoutTextField" >
                     <TextField 
                         hintText="send message ..." 
+                        onFocus={this._onInputFocused.bind(this, true)}
+                        onBlur={this._onInputFocused.bind(this, false)}
                         onKeyDown={this._handleKeyDown} 
                         getValue={this._getMessage}
                         ref="msgInput" />
