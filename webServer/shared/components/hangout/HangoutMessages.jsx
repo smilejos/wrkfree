@@ -146,6 +146,7 @@ module.exports = React.createClass({
         var list = SharedUtils.fastArrayMap(this.state.messages, function(msgItem){
             return (
                 <HangoutMsg
+                    key={msgItem.sentTime}
                     avatar={selfUid === msgItem.from ? '' : msgItem.avatar}
                     content={msgItem.message} />
             );
