@@ -5,6 +5,10 @@ var HistoryLocation = Router.HistoryLocation;
 var Promise = require('bluebird');
 var FluxibleComponent = require('fluxible/addons/FluxibleComponent');
 
+// define global Promise, 
+// this will cause Fluxible to use bluebird as its PromiseLib
+window.Promise = Promise;
+
 /**
  * setup configurations for client
  */
