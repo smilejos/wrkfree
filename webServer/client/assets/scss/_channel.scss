@@ -152,7 +152,7 @@ $channel-list-field-height: 45px;
     .ChannelSnapshot {
         position: absolute;
         height: $channel-list-height - 2;
-        width: 160px;
+        width: 120px;
         background-color: $grey-100;
         cursor: pointer;
         float: left;
@@ -160,7 +160,7 @@ $channel-list-field-height: 45px;
 
     .ChannelSummary {
         position: absolute;
-        left: 160px;
+        left: 130px;
         right: 0px;
         bottom: 0px;
         background-color: #fff;
