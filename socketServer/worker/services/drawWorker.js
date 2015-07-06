@@ -4,6 +4,12 @@ var SharedUtils = require('../../../sharedUtils/utils');
 var CanvasService = require('./canvasService');
 var StorageManager = require('../../../storageService/storageManager');
 var DrawStorage = StorageManager.getService('Draw');
+var ChannelStorage = StorageManager.getService('Channel');
+
+/**
+ * the worker object of socket cluster
+ */
+var SocketWorker = null;
 
 /**
  * the work queue object based on redis,
@@ -28,6 +34,20 @@ var Scheduler = {};
  *           Public APIs
  *
  ************************************************/
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: set the worker instance to current rtcWorker 
+ *
+ * @param {Object}          worker, worker of socketCluster
+ */
+exports.setSocketWorker = function(worker) {
+    if (!worker) {
+        return console.log('worker is not correctly set');
+    }
+    SocketWorker = worker;
+};
 
 /**
  * Public API
@@ -155,13 +175,40 @@ Queue.process(QUEUE_TYPE, function(job, done) {
             return DrawStorage.getBoardInfoAsync(channelId, boardId, user);
         }).then(function(data) {
             return (data ? _drawAndUpdate(data.board, data.reocrds, true) : null);
-        }).then(function() {
+        }).then(function(result) {
+            if (result) {
+                _notifyMembers(channelId, boardId);
+            }
             return done();
         }).catch(function(err) {
             SharedUtils.printError('drawWorker.js', 'Queue.process', err);
             return done(err);
         });
 });
+
+/**
+ * @Author: George_Chen
+ * @Description: notify channel online members that draw preview has been updated
+ *
+ * @param {String}          cid, the channel id
+ * @param {String}          bid, the board id
+ */
+function _notifyMembers(cid, bid) {
+    return ChannelStorage.getOnlineMembersAsync(cid)
+        .map(function(member) {
+            var userChannel = 'user:' + member;
+            SocketWorker.global.publish(userChannel, {
+                service: 'draw',
+                clientHandler: 'onPreviewUpdated',
+                params: {
+                    channelId: cid,
+                    boardId: bid
+                }
+            });
+        }).catch(function(err) {
+            SharedUtils.printError('drawWorker.js', '_notifyMembers', err);
+        });
+}
 
 /**
  * @Author: George_Chen
