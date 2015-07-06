@@ -36,6 +36,7 @@ module.exports.run = function(worker) {
      * configure rtc worker
      */
     require('./services/rtcWorker').setSocketWorker(worker);
+    require('./services/drawWorker').setSocketWorker(worker);
 
     /**
      * @Author: George_Chen

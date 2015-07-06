@@ -8,6 +8,14 @@ var OnCleanDrawBoard = require('../actions/draw/onCleanDrawBoard');
 var OnDrawUndo = require('../actions/draw/onDrawUndo');
 var OnDrawRedo = require('../actions/draw/onDrawRedo');
 var OnAddDrawBoard = require('../actions/draw/onAddDrawBoard');
+var OnPreviewUpdated = require('../actions/draw/onPreviewUpdated');
+
+/**
+ * handler for handling event that draw board preview updated
+ */
+exports.onPreviewUpdated = function(data) {
+    return SocketUtils.execAction(OnPreviewUpdated, data, 'OnPreviewUpdated');
+};
 
 /**
  * handler for handling remote drawer drawing
