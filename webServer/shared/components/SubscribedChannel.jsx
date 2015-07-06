@@ -5,7 +5,7 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 /**
  * actions
  */
-var NavToBoard = require('../../client/actions/draw/navToBoard');
+var EnterWorkspace = require('../../client/actions/enterWorkspace');
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
 
@@ -19,10 +19,9 @@ module.exports = React.createClass({
      */
     _enterWorkspace: function() {
         this.executeAction(ToggleChannelNav, {});
-        this.executeAction(NavToBoard, {
+        this.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
-            channelId: this.props.channelId,
-            boardId: 0
+            channelId: this.props.channelId
         });
     },
 

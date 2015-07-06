@@ -5,7 +5,7 @@ var NavigationMixin = require('react-router').Navigation;
 /**
  * actions
  */
-var NavToBoard = require('../../../client/actions/draw/navToBoard');
+var EnterWorkspace = require('../../../client/actions/enterWorkspace');
 
 /**
  * child components
@@ -36,10 +36,9 @@ module.exports = React.createClass({
      */
     _onEnter: function() {
         var info = this.props.channelInfo;
-        this.executeAction(NavToBoard, {
+        this.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
-            channelId: info.channelId,
-            boardId: info.lastBaord
+            channelId: info.channelId
         });
     },
 
