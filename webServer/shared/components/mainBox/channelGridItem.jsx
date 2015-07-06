@@ -13,6 +13,7 @@ var EnterWorkspace = require('../../../client/actions/enterWorkspace');
  */
 var UserAvatar = require('../common/userAvatar.jsx');
 var StateIcon = require('../common/stateIcon.jsx');
+var BoardPreview = require('../common/boardPreview.jsx');
 
 /**
  * @Author: George_Chen
@@ -94,26 +95,17 @@ module.exports = React.createClass({
         );
     },
 
-    /**
-     * @Author: Jos Tung
-     * @Description: Move original snapshot component ot here
-     */
-    _getChannelSnapshot: function(url) {
-        return (
-            <div className="ChannelSnapshot" onClick={this._onEnter}>
-                <img className="ChannelSnapshotImg" src={url}/>
-            </div>
-        );
-    },
-
     render: function(){
         var info = this.props.channelInfo;
-        var snapshot = this._getChannelSnapshot(info.snapshotUrl);
         var summary = this._getChannelSummary(info);
         return (
             <div className="ChannelGridItem">
                 <div className="ChannelGridInsideItem">
-                    {snapshot}
+                    <BoardPreview isGrid={true}
+                        channelId={info.channelId}
+                        clickHandler={this._onEnter}
+                        previewClass="ChannelSnapshot"
+                        imgClass="ChannelSnapshotImg" />
                     {summary}
                 </div>
             </div>
