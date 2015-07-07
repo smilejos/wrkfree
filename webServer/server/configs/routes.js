@@ -120,7 +120,7 @@ module.exports = function(server) {
      *     NOTE: we always push latest updated board's preview image
      */
     ExpressRouter.get('/app/workspace/:channelId/preview', auth.ensureMember, fileHandler.getPreview, function(req, res) {
-        if (!req.img) {
+        if (!req.img || req.img.chunks.length === 0) {
             // send image not found jpeg
             return res.redirect('http://michigancomicscollective.org/assets/img/not-found.png');
         }
