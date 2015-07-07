@@ -4,6 +4,8 @@ var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
 var MemberDao = require('../daos/ChannelMemberDao');
+var BoardDao = require('../daos/DrawBoardDao');
+var PreviewDao = require('../daos/DrawPreviewDao');
 var UserTemp = require('../tempStores/UserTemp');
 var FriendDao = require('../daos/FriendDao');
 var FriendTemp = require('../tempStores/FriendTemp');
@@ -143,6 +145,19 @@ function _create1on1Channel(user1, user2) {
             }
             return Promise.map([user1, user2], function(member) {
                 return MemberDao.add1on1Async(member, doc.channelId);
+            }).map(function(result) {
+                if (!result) {
+                    throw new Error('1on1 member doc create fail');
+                }
+                return result;
+            }).then(function(info) {
+                var cid = info[0].channelId;
+                return Promise.join(
+                    PreviewDao.saveAsync(cid, 0),
+                    BoardDao.saveAsync(cid, 0),
+                    function() {
+                        return info;
+                    });
             });
         });
 }
