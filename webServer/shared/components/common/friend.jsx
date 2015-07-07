@@ -6,7 +6,7 @@ var SharedUtils = require('../../../../sharedUtils/utils');
  * actions
  */
 var OpenHangout = require('../../../client/actions/openHangout');
-var Update1on1ChannelId = require('../../../client/actions/friend/Update1on1ChannelId');
+var Update1on1ChannelId = require('../../../client/actions/friend/update1on1ChannelId');
 var SubscribeChannelNotification = require('../../../client/actions/channel/subscribeChannelNotification');
 var TrackFriendActivity = require('../../../client/actions/friend/trackFriendActivity');
 
