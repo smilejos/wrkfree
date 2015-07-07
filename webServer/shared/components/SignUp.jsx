@@ -140,6 +140,7 @@ module.exports = React.createClass({
                             onClick={this._onSubmit} 
                             style={{'width':'240px'}} />
                     </div>
+                    <br/>
                 </Paper>
             </div>
         );
