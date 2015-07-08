@@ -55,7 +55,6 @@ module.exports = React.createClass({
      * @Description: start to load channel messages from server
      */
     componentDidMount: function(){
-        console.log( 'componentDidMount');
         var container = React.findDOMNode(this.refs.messages);
         this._pullLatestMessages(this.props.channelId);
 
@@ -72,7 +71,6 @@ module.exports = React.createClass({
     },
 
     componentDidUpdate: function(prevProps, prevState) {
-        console.log( 'componentDidUpdate');
         var currentLastMsg = this.state.messages[this.state.messages.length-1];
         var prevLastMsg = prevState.messages[prevState.messages.length-1];
         // initial component update
@@ -162,7 +160,6 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
-        console.log( 'getInitialState');
         return {
             messages: [],
             isReloading : false
@@ -184,8 +181,6 @@ module.exports = React.createClass({
                     content={msgItem.message} />
             );
         });
-
-        console.log( 'this.state.isReloading', this.state.isReloading);
         return (
             <div className="hangoutMessages" style={contentStyle} ref="messages">
                 {reloadImg}
