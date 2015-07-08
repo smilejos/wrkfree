@@ -16,12 +16,23 @@ var QUEUE_TYPE = Params.workQueueType;
 var NOTIFICATION_DELAY = Params.notificationDelayInMSecond;
 var NOTIFICATION_TIMEOUT = Params.notificationTimeoutInMSecond;
 
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
+
 /**
  * the work queue object based on redis,
  */
 var Kue = require('kue');
 var Queue = Kue.createQueue({
-    jobEvents: false
+    jobEvents: false,
+    redis: {
+        host: DbConfigs.cacheEnv.global.host,
+        port: DbConfigs.cacheEnv.global.port,
+        options: DbConfigs.cacheEnv.global.options,
+        db: 3,
+    }
 });
 var _GetJobAsync = Promise.promisify(Kue.Job.get);
 
