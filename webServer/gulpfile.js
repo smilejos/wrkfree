@@ -10,7 +10,7 @@ var del = require('del');
 /**
  * check the runtime environment
  */
-var env = process.env.NODE_ENV || 'dev';
+var env = process.env.NODE_ENV || 'development';
 
 /************************************************
  *
@@ -80,10 +80,15 @@ webpackConfig = {
         // since lokijs will require('fs') on browser environment
         fs: "empty"
     },
+    // plugins: [
+    //     new webpack.ProvidePlugin({
+    //         "Promise": "bluebird"
+    //     })
+    // ],
     stats: {
         colors: true
     },
-    watch: (env === 'dev'),
+    watch: (env === 'development'),
     keepalive: true
 };
 
@@ -205,8 +210,8 @@ gulp.task('copy', function() {
  *
  ************************************************/
 
-gulp.task('prod', ['build', 'compass', 'copy']);
+gulp.task('production', ['build', 'compass', 'copy']);
 
-gulp.task('dev', ['build', 'compass', 'copy', 'nodemon', 'livereload']);
+gulp.task('development', ['build', 'compass', 'copy', 'nodemon', 'livereload']);
 
 gulp.task('default', [env]);

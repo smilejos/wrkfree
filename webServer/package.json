@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "gulp",
-    "start": "NODE_ENV=prod gulp"
+    "start": "NODE_ENV=production gulp"
   },
   "dependencies": {
     "attachmediastream": "~1.2.0",
