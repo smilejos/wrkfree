@@ -11,6 +11,12 @@ var Passport = require('passport');
 var Session = require('express-session');
 var RedisStore = require('connect-redis')(Session);
 
+var Configs = require('../../../configs/config');
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
+
 /************************************************
  *
  *          Express Configuration
@@ -35,8 +41,8 @@ module.exports = function(server) {
             secure: false
         },
         store: new RedisStore({
-            host: '127.0.0.1',
-            port: 6379,
+            host: DbConfigs.cacheEnv.global.host,
+            port: DbConfigs.cacheEnv.global.port,
             ttl: 604800, //redis session ttl in seconds (one week)
             prefix: 'sess:'
         }),

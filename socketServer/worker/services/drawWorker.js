@@ -11,11 +11,23 @@ var ChannelStorage = StorageManager.getService('Channel');
  */
 var SocketWorker = null;
 
+var Configs = require('../../../configs/config');
+var DbConfigs = Configs.get().db;
+if (!DbConfigs) {
+    throw new Error('DB configurations broken');
+}
+
 /**
  * the work queue object based on redis,
  */
 var Queue = require('kue').createQueue({
-    disableSearch: true
+    jobEvents: false,
+    redis: {
+        host: DbConfigs.cacheEnv.global.host,
+        port: DbConfigs.cacheEnv.global.port,
+        options: DbConfigs.cacheEnv.global.options,
+        db: 2,
+    }
 });
 
 var QUEUE_TYPE = 'draw';
