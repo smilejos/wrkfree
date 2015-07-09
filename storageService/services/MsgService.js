@@ -29,7 +29,7 @@ exports.saveAsync = function(sender, channelId, msg) {
         }
         return ChannelMemberDao.updateMsgAsync(sender, channelId);
     }).catch(function(err) {
-        SharedUtils.printError('msgService.js', 'saveAsync', err);
+        SharedUtils.printError('MsgService.js', 'saveAsync', err);
         return null;
     });
 };
@@ -53,7 +53,7 @@ exports.pullAsync = function(user, channelId, timePeriod) {
         ChannelMemberDao.updateMsgAsync(user, channelId);
         return data.messages;
     }).catch(function(err) {
-        SharedUtils.printError('msgService.js', 'pullAsync', err);
+        SharedUtils.printError('MsgService.js', 'pullAsync', err);
         return null;
     });
 };
@@ -106,7 +106,7 @@ exports.getUnreadSubscribedMsgCountsAsync = function(user) {
         }).then(function(seenTime) {
             return MsgDao.countUnreadByChannelsAsync(seenTime);
         }).catch(function(err) {
-            SharedUtils.printError('msgService.js', 'getUnreadSubscribedMsgCountsAsync', err);
+            SharedUtils.printError('MsgService.js', 'getUnreadSubscribedMsgCountsAsync', err);
             return null;
         });
 };
@@ -126,7 +126,7 @@ exports.readAckAsync = function(user, channelId) {
     }).then(function(data) {
         return data.ackResult;
     }).catch(function(err) {
-        SharedUtils.printError('msgService.js', 'readAckAsync', err);
+        SharedUtils.printError('MsgService.js', 'readAckAsync', err);
         return null;
     });
 };
