@@ -4,6 +4,8 @@ var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
 var MemberDao = require('../daos/ChannelMemberDao');
+var BoardDao = require('../daos/DrawBoardDao');
+var PreviewDao = require('../daos/DrawPreviewDao');
 var UserTemp = require('../tempStores/UserTemp');
 var FriendDao = require('../daos/FriendDao');
 var FriendTemp = require('../tempStores/FriendTemp');
@@ -48,7 +50,7 @@ exports.getFriendListAsync = function(candidate, asker) {
  * @param {String}      user2, the user2's uid
  */
 exports.addFriendshipAsync = function(user1, user2) {
-    return _hasFriendshipAsync(user1, user2)
+    return exports.hasFriendshipAsync(user1, user2)
         .then(function(areFriends) {
             if (areFriends) {
                 throw new Error('friendship already exist');
@@ -84,7 +86,7 @@ exports.addFriendshipAsync = function(user1, user2) {
  * @param {String}      user2, the user2's uid
  */
 exports.delFriendshipAsync = function(user1, user2) {
-    return _hasFriendshipAsync(user1, user2)
+    return exports.hasFriendshipAsync(user1, user2)
         .then(function(areFriends) {
             if (!areFriends) {
                 throw new Error('friendship not exist');
@@ -100,24 +102,14 @@ exports.delFriendshipAsync = function(user1, user2) {
 };
 
 /**
- * TODO:
- * exports.isFriendReqSent
- */
-
-/************************************************
- *
- *           internal functions
- *
- ************************************************/
-
-/**
+ * Public API
  * @Author: George_Chen
  * @Description: check user1 and user2 have friendship or not
  *
  * @param {String}      user1, the user1's uid
  * @param {String}      user2, the user2's uid
  */
-function _hasFriendshipAsync(user1, user2) {
+exports.hasFriendshipAsync = function(user1, user2) {
     return Promise.join(
         FriendDao.isFriendExistAsync(user1, user2),
         FriendDao.isFriendExistAsync(user2, user1),
@@ -130,7 +122,13 @@ function _hasFriendshipAsync(user1, user2) {
             SharedUtils.printError('FriendService', 'checkFriendshipAsync', err);
             throw err;
         });
-}
+};
+
+/************************************************
+ *
+ *           internal functions
+ *
+ ************************************************/
 
 /**
  * @Author: George_Chen
@@ -147,6 +145,19 @@ function _create1on1Channel(user1, user2) {
             }
             return Promise.map([user1, user2], function(member) {
                 return MemberDao.add1on1Async(member, doc.channelId);
+            }).map(function(result) {
+                if (!result) {
+                    throw new Error('1on1 member doc create fail');
+                }
+                return result;
+            }).then(function(info) {
+                var cid = info[0].channelId;
+                return Promise.join(
+                    PreviewDao.saveAsync(cid, 0),
+                    BoardDao.saveAsync(cid, 0),
+                    function() {
+                        return info;
+                    });
             });
         });
 }

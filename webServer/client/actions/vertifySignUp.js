@@ -21,6 +21,8 @@ var EmailQuery = null;
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, item, callback) {
+    // workaround for rendering signup page fail
+    if (typeof window === 'undefined') return;
     return Promise.try(function() {
         if (item.type === 'email') {
             return _isEmailUsed(item.fieldValue);

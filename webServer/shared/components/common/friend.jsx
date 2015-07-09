@@ -1,11 +1,14 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var SharedUtils = require('../../../../sharedUtils/utils');
 
 /**
  * actions
  */
 var OpenHangout = require('../../../client/actions/openHangout');
-var Update1on1ChannelId = require('../../../client/actions/friend/Update1on1ChannelId');
+var Update1on1ChannelId = require('../../../client/actions/friend/update1on1ChannelId');
+var SubscribeChannelNotification = require('../../../client/actions/channel/subscribeChannelNotification');
+var TrackFriendActivity = require('../../../client/actions/friend/trackFriendActivity');
 
 /**
  * child components
@@ -98,9 +101,21 @@ module.exports = React.createClass({
      *         NOTE: only update each item has been mounted
      */
     componentDidMount: function() {
+        var uid = this.props.info.uid;
+        var cid = SharedUtils.get1on1ChannelId(this.props.self, uid);
         this.executeAction(Update1on1ChannelId, {
-            friendUid: this.props.info.uid
+            friendUid: uid
         });
+        this.executeAction(TrackFriendActivity, {
+            friendUid: uid
+        });
+        this.executeAction(SubscribeChannelNotification, {
+            channelId: cid
+        });
+    },
+
+    componentWillUnmount: function() {
+        // TODO: when delete friend, we should untrack and unsubscribe him/her
     },
 
     render: function(){

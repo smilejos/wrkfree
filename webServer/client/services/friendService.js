@@ -2,6 +2,32 @@
 var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
+var UpdateFriendStatus = require('../actions/friend/updateFriendStatus');
+var OnfriendAdded = require('../actions/friend/onFriendAdded');
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for handling new friend added event
+ *         NOTE: server sent this event when friendship created
+ *
+ * @param {Object}        data, the data is friend document stored in db
+ */
+exports.onFriendAdded = function(data) {
+    SocketUtils.execAction(OnfriendAdded, data, 'onFriendAdded');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: handling friend status changed sent from server
+ *
+ * @param {String}          data.uid, user's id
+ * @param {Boolean}         data.isOnline, the online status of friend
+ */
+exports.updateFriendStatus = function(data) {
+    SocketUtils.execAction(UpdateFriendStatus, data, 'updateFriendStatus');
+};
 
 /**
  * Public API
@@ -15,6 +41,22 @@ exports.getFriendListAsync = function(uid) {
         candidate: uid
     });
     return _request(packet, 'getFriendListAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for subscribing friend's activity channel 
+ *
+ * @param {String}          uid, user's id
+ */
+exports.subscribeActivityAsync = function(uid) {
+    var subscribeReq = 'activity:' + uid;
+    return SocketManager.subscribeAsync(subscribeReq)
+        .catch(function(err) {
+            SharedUtils.printError('friendService.js', 'subscribeActivityAsync', err);
+            return null;
+        });
 };
 
 /************************************************

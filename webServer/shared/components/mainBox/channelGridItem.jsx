@@ -1,17 +1,19 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
 var NavigationMixin = require('react-router').Navigation;
+var Colors = require('material-ui').Styles.Colors
 
 /**
  * actions
  */
-var NavToBoard = require('../../../client/actions/draw/navToBoard');
+var EnterWorkspace = require('../../../client/actions/enterWorkspace');
 
 /**
  * child components
  */
 var UserAvatar = require('../common/userAvatar.jsx');
 var StateIcon = require('../common/stateIcon.jsx');
+var BoardPreview = require('../common/boardPreview.jsx');
 
 /**
  * @Author: George_Chen
@@ -35,10 +37,9 @@ module.exports = React.createClass({
      */
     _onEnter: function() {
         var info = this.props.channelInfo;
-        this.executeAction(NavToBoard, {
+        this.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
-            channelId: info.channelId,
-            boardId: info.lastBaord
+            channelId: info.channelId
         });
     },
 
@@ -61,13 +62,17 @@ module.exports = React.createClass({
             marginTop: -19,
             marginRight: 10
         };
+        var starIconStyle = {};
+        if (info.isStarred) {
+            starIconStyle.color = Colors.yellow600;
+        }
         return (
             <div className="ChannelSummary" >
                 <div className="ChannelInfo" >
                     <div className="ChannelName">
                         {info.channelName}
                     </div>
-                    <div className="ChannelHost">
+                    <div className="visitedInfo">
                         {this._getFormattedTime()}
                         <UserAvatar isCircle avatar={info.hostInfo.avatar} style={hostAvatarStyle}/>
                     </div>
@@ -75,38 +80,32 @@ module.exports = React.createClass({
                 <div className="ChannelToolbar" >
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-tag"/>
+                        iconClass="fa fa-tag"
+                        style={{}} />
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-star"/>
+                        iconClass="fa fa-star"
+                        style={starIconStyle} />
                     <StateIcon
                         stateClass="toolIcon" 
-                        iconClass="fa fa-share"/>
+                        iconClass="fa fa-share"
+                        style={{}} />
                 </div>
-            </div>
-        );
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: Move original snapshot component ot here
-     */
-    _getChannelSnapshot: function(url) {
-        return (
-            <div className="ChannelSnapshot" onClick={this._onEnter}>
-                <img className="ChannelSnapshotImg" src={url}/>
             </div>
         );
     },
 
     render: function(){
         var info = this.props.channelInfo;
-        var snapshot = this._getChannelSnapshot(info.snapshotUrl);
         var summary = this._getChannelSummary(info);
         return (
             <div className="ChannelGridItem">
                 <div className="ChannelGridInsideItem">
-                    {snapshot}
+                    <BoardPreview isGrid={true}
+                        channelId={info.channelId}
+                        clickHandler={this._onEnter}
+                        previewClass="ChannelSnapshot"
+                        imgClass="ChannelSnapshotImg" />
                     {summary}
                 </div>
             </div>

@@ -19,7 +19,22 @@ module.exports = CreateStore({
         'ON_BOARD_ADD': 'onBoardAdd',
         'ON_DRAW_MODE_CHANGE': 'onDrawModeChange',
         'ON_CONFERENCE': '_onConference',
-        'CHANGE_ROUTE': '_onChangeRoute'
+        'CHANGE_ROUTE': '_onChangeRoute',
+        'UPDATE_CHANNEL_STAR': '_updateChannelStar'
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to update starred status of workspace channel
+     *
+     * @param {String}      data.channelId, the channel id
+     * @param {String}      data.toStar, current channel starred staus
+     */
+    _updateChannelStar: function(data) {
+        if (data.channelId === this.channel.channelId) {
+            this.status.isStarred = data.toStar;
+            this.emitChange();
+        }
     },
 
     /**
@@ -83,7 +98,7 @@ module.exports = CreateStore({
      * @param {drawOptions}  drawOptions = { mode, lineCap, lineWidth, strokeStyle }
      */
     onDrawModeChange: function(data) {
-        for( var prop in data) {
+        for (var prop in data) {
             this.draw.drawOptions[prop] = data[prop];
         }
         this.emitChange();
@@ -117,7 +132,7 @@ module.exports = CreateStore({
             if (this.rtcTimeout) {
                 clearTimeout(this.rtcTimeout);
             }
-            this.rtcTimeout = setTimeout(function(){
+            this.rtcTimeout = setTimeout(function() {
                 self.rtc.onConferenceCall = false;
                 self.emitChange();
             }, RTC_CANCEL_TIMEOUT_IN_MSECOND);

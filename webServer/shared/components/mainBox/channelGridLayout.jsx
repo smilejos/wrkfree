@@ -32,7 +32,7 @@ module.exports = React.createClass({
             );
         });
         return (
-            <div> 
+            <div className="DashboardGridLayout" > 
                 {listContent}
             </div>
         );

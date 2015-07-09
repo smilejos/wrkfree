@@ -8,6 +8,14 @@ var OnCleanDrawBoard = require('../actions/draw/onCleanDrawBoard');
 var OnDrawUndo = require('../actions/draw/onDrawUndo');
 var OnDrawRedo = require('../actions/draw/onDrawRedo');
 var OnAddDrawBoard = require('../actions/draw/onAddDrawBoard');
+var OnPreviewUpdated = require('../actions/draw/onPreviewUpdated');
+
+/**
+ * handler for handling event that draw board preview updated
+ */
+exports.onPreviewUpdated = function(data) {
+    return SocketUtils.execAction(OnPreviewUpdated, data, 'OnPreviewUpdated');
+};
 
 /**
  * handler for handling remote drawer drawing
@@ -160,6 +168,19 @@ exports.drawRedoAsync = function(data) {
 exports.getDrawBoardAsync = function(data) {
     var packet = _setPacket('getDrawBoardAsync', null, data);
     return _request(packet, 'getPreviewInfoAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to get latest updated draw board id
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ */
+exports.getLatestBoardIdAsync = function(data) {
+    var packet = _setPacket('getLatestBoardIdAsync', null, data);
+    return _request(packet, 'getLatestBoardIdAsync');
 };
 
 /************************************************

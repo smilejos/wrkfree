@@ -10,13 +10,10 @@ var React = require('react');
   */
 var UserAvatar = React.createClass({
     render: function(){
-        var classSet = React.addons.classSet;
-        var imgSet = {
-            circle: this.props.isCircle
-        };
+        var isCircle = this.props.isCircle;
         return (
             <div className="UserAvatar" onClick={this.props.onAvatarClick} style={this.props.style} >
-                <img className={classSet(imgSet)} src={this.props.avatar}/>
+                <img className={isCircle ? 'circle' : ''} src={this.props.avatar}/>
             </div>
         );
     }

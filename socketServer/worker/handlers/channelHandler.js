@@ -177,40 +177,28 @@ exports.searchAsync = function(socket, data) {
 };
 
 /**
- * TODO:
  * Public API
  * @Author: George_Chen
  * @Description: to handle channel star control
  *
  * @param {String}          data.channelId, channel id
- * @param {Boolean}         data.isStarred, to indicate star or not 
+ * @param {Boolean}         data.toStar, to indicate star or not 
  */
-exports.starCtrl = function(socket, data) {
-    console.log(socket, data);
-};
-
-/**
- * TODO:
- * Public API
- * @Author: George_Chen
- * @Description: to handle channel passport request
- * NOTE: user should query a passport when he is not part of channel member
- *
- * @param {String}          data.channelId, channel id
- */
-exports.reqPassport = function(socket, data) {
-    console.log(socket, data);
-};
-
-/**
- * TODO:
- * Public API
- * @Author: George_Chen
- * @Description: to handle response of channel passport request
- * NOTE: channel host will response passport requestes from users
- *
- * @param {String}          data.channelId, channel id
- */
-exports.respPassport = function(socket, data) {
-    console.log(socket, data);
+exports.starContrlAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.toStar, 'boolean'),
+        function(cid, toStar) {
+            return ChannelStorage.getAuthAsync(uid, cid)
+                .then(function(isAuth) {
+                    if (!isAuth) {
+                        throw new Error('get Auth fail');
+                    }
+                    return ChannelStorage.starControlAsync(uid, cid, toStar);
+                });
+        }).catch(function(err) {
+            SharedUtils.printError('channelHandler.js', 'starContrlAsync', err);
+            throw new Error('star channel fail');
+        });
 };

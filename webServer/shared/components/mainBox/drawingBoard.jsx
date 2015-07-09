@@ -62,7 +62,7 @@ module.exports = React.createClass({
         var isChannelChange = (prevCid !== nextProps.channelId);
         var isBoardChange = (prevBid !== nextProps.boardId);
         if (isChannelChange) {
-            this.getStore(DrawStore).cleanStore();
+            this._cleanBoard();
         }
         if (nextProps.drawInfo.boardNums === 0) {
             return;
@@ -81,7 +81,7 @@ module.exports = React.createClass({
     },
 
     componentWillUnmount: function() {
-        this.getStore(DrawStore).cleanStore();
+        this._cleanBoard();
     },
 
     /**
@@ -204,6 +204,16 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
+     * @Description: do a full clean on current draw board
+     */
+    _cleanBoard: function() {
+        var boardCanvas = React.findDOMNode(this.refs.mainCanvas);
+        this.getStore(DrawStore).cleanStore();
+        DrawUtils.cleanCanvas(boardCanvas);
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: for update board base image internally on client side
      *         NOTE: use internal canvas to generate new base image
      *
@@ -232,7 +242,7 @@ module.exports = React.createClass({
     render: function(){
         return (
             <div className="DrawingArea" >
-                <canvas width={BOARD_WIDTH} height={BOARD_HEIGHT} id="DrawBoard"></canvas>
+                <canvas width={BOARD_WIDTH} height={BOARD_HEIGHT} ref="mainCanvas" id="DrawBoard"></canvas>
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
@@ -284,7 +294,7 @@ function _getCanvasMouse(canvasEvent){
     // app-header-height = 50px defined in css
     var headerHeight = 50;
     return {
-        x: canvasEvent.pageX - board.offsetLeft,
-        y: canvasEvent.pageY - headerHeight - board.offsetTop
+        x: canvasEvent.pageX - board.parentElement.offsetLeft,
+        y: canvasEvent.pageY - headerHeight - board.parentElement.offsetTop
     };
 }

@@ -1,24 +1,44 @@
 $base-dashboard-content-width: 960px;
 $base-dashboard-content-left: 150px;
+$dashboard-toolbar-height: 30px;
 
 /**
  * the content layout on dashboard
  */
 .DashboardContentLayout {
-    margin-left: $base-dashboard-content-left;
-    padding-bottom: 20px;
-}
+    position: relative;
+    left: 10%;
+    padding-top: 3%;
 
-/**
- * the style of toolbar on dashboard
- */
-.DashboardToolBar {
-    margin-right: 15px;
-}
-
-/**
- * the style of grid layout
- */
-.GridLayout {
-    overflow: scroll;
+    /**
+     * the style of toolbar on dashboard
+     */    
+    .DashboardToolBar {
+        position: absolute;
+        right: 5%;
+        margin-bottom: 10px;
+        height: $dashboard-toolbar-height;
+        .toolIcon {
+            float: left;
+            width: 30px;
+            padding-left: 10px;
+            font-size: 18px;
+            color: $grey-500;
+        }
+        .active {
+            color: $grey-700;
+        }
+        .toolIcon:hover {
+            color: $grey-700;
+        }
+    }
+    .DashboardItems {
+        margin-top: $dashboard-toolbar-height;
+        .DashboardGridLayout {
+            padding-top: 0px;
+        }
+        .DashboardListLayout {
+            padding-top: 15px;
+        }
+    }
 }

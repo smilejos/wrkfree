@@ -11,6 +11,7 @@ var MessageStore = require('../../stores/MessageStore');
  * actions
  */
 var PullMessagesAction = require('../../../client/actions/chat/pullMessages');
+var UpdateHangoutTwinkle = require('../../../client/actions/updateHangoutTwinkle');
 
 /**
  * child components
@@ -64,6 +65,13 @@ module.exports = React.createClass({
         }
         // new incoming message
         if (currentLastMsg.sentTime > prevLastMsg.sentTime) {
+            // if hangout is current not focused, then twinkle the hangout container
+            if (!this.props.onFocused) {
+                this.executeAction(UpdateHangoutTwinkle, {
+                    channelId: this.props.channelId,
+                    isTwinkled: true
+                });
+            }
             return this._scrollToBottom();
         }
     },
@@ -138,6 +146,7 @@ module.exports = React.createClass({
         var list = SharedUtils.fastArrayMap(this.state.messages, function(msgItem){
             return (
                 <HangoutMsg
+                    key={msgItem.sentTime}
                     avatar={selfUid === msgItem.from ? '' : msgItem.avatar}
                     content={msgItem.message} />
             );

@@ -2,6 +2,8 @@
 var Promise = require('bluebird');
 var ChannelService = require('../../services/channelService');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var OnChannelAdded = require('./onChannelAdded');
+var ActionUtils = require('../actionUtils');
 
 /**
  * @Public API
@@ -16,15 +18,17 @@ module.exports = function(actionContext, data) {
         name: SharedUtils.argsCheckAsync(data.name, 'string'),
     }).then(function(reqData) {
         return ChannelService.createAsync(reqData);
-    }).then(function(result) {
-        if (!result) {
+    }).then(function(info) {
+        if (!info) {
             throw new Error('create channel fail');
         }
         actionContext.dispatch('ON_CHANNEL_CREATE', {
-            channelInfo: result
+            channelInfo: info
         });
+        actionContext.executeAction(OnChannelAdded, info);
     }).catch(function(err) {
         SharedUtils.printError('createChannel.js', 'core', err);
+        ActionUtils.showErrorEvent('Channel', 'create channel fail');
         actionContext.dispatch('ON_CHANNEL_CREATE', {
             channelInfo: null
         });

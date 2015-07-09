@@ -1,5 +1,7 @@
 'use strict';
 var SocketCluster = require('socketcluster').SocketCluster;
+var Promise = require('bluebird');
+var Workers = [];
 
 var socketCluster = new SocketCluster({
     workers: 1, // Number of worker processes
@@ -28,6 +30,23 @@ var socketCluster = new SocketCluster({
      */
     socketEventLimit: 100,
 
+    rebootOnSignal: false,
+
     // Whether or not to reboot the worker in case it crashes (defaults to true)
     rebootWorkerOnCrash: true
+});
+
+socketCluster.on('workerStart', function(workerInfo){
+    Workers.push(workerInfo.pid);
+});
+
+// soft shutdown
+process.on('SIGUSR2', function(){
+    return Promise.map(Workers, function(pid){
+        return process.kill(pid, 'SIGUSR2');
+    }).delay(3000).then(function(){
+        socketCluster.killWorkers();
+        socketCluster.killStores();
+        process.exit(0);
+    });
 });

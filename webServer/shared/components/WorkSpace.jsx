@@ -47,6 +47,7 @@ module.exports = React.createClass({
                 <WorkSpaceBar 
                     onConferenceCall={this.state.rtc.onConferenceCall}
                     members={membersInfo} 
+                    status={this.state.status}
                     channel={channelInfo} />
             </div>
         );

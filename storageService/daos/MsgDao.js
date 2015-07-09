@@ -115,6 +115,7 @@ exports.findChannelsLatestAsync = function(channels) {
         };
         return Model.aggregateAsync(query, group);
     }).map(function(doc) {
+        delete doc._id;
         return DbUtil.transformTimeAsync(doc, 'sentTime');
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'findChannelsLatestAsync', err);
@@ -136,6 +137,9 @@ exports.findChannelsLatestAsync = function(channels) {
  */
 exports.countUnreadByChannelsAsync = function(userMsgSeenTime) {
     var channels = Object.keys(userMsgSeenTime);
+    if (channels.length === 0) {
+        return [];
+    }
     return Promise.map(channels, function(cid) {
         return SharedUtils.argsCheckAsync(cid, 'md5');
     }).then(function(cids) {

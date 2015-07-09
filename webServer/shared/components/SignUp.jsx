@@ -106,43 +106,42 @@ module.exports = React.createClass({
         var defaultInfo = this.state.info;
         var isCompleted = this._isSignupComplete();
         return (
-            <div className="bodyBox pure-u-1 Center" >
-                <div className="SignupForm">
-                    <Paper zDepth={1} >
-                        <img src="/assets/imgs/sampleSignup.jpg" className="SignupFormCover" />
-                        <div className="SignupSlogan" >{"Let's work here"}</div>
-                        <TextInput
-                            iconClass="fa fa-envelope-o"
-                            status={this.state.status.email}
-                            handleChange={this._handleChange}
-                            value={defaultInfo.email}
-                            field={'email'} />
-                        <TextInput
-                            iconClass="fa fa-child"
-                            status={this.state.status.givenName}
-                            handleChange={this._handleChange}
-                            value={defaultInfo.givenName}
-                            field={'givenName'} />
-                        <TextInput
-                            iconClass="fa fa-home"
-                            status={this.state.status.familyName}
-                            handleChange={this._handleChange}
-                            value={defaultInfo.familyName}
-                            field={'familyName'} />
-                        <SelectInput 
-                            options={['male', 'female']}
-                            handleChange={this._handleChange}
-                            value={defaultInfo.gender}
-                            field={'gender'} />
-                        <div><RaisedButton 
-                                label="Sign Up Now" 
-                                secondary={isCompleted}  
-                                disabled={!isCompleted}
-                                onClick={this._onSubmit} 
-                                style={{'width':'240px'}} />
-                        </div>
-                    </Paper>
-                </div>
+            <div className="SignupForm">
+                <Paper zDepth={1} >
+                    <img src="https://farm1.staticflickr.com/354/19342635705_4e51838570_z_d.jpg" className="SignupFormCover" />
+                    <div className="SignupSlogan" >{"Let's work here"}</div>
+                    <TextInput
+                        iconClass="fa fa-envelope-o"
+                        status={this.state.status.email}
+                        handleChange={this._handleChange}
+                        value={defaultInfo.email}
+                        field={'email'} />
+                    <TextInput
+                        iconClass="fa fa-child"
+                        status={this.state.status.givenName}
+                        handleChange={this._handleChange}
+                        value={defaultInfo.givenName}
+                        field={'givenName'} />
+                    <TextInput
+                        iconClass="fa fa-home"
+                        status={this.state.status.familyName}
+                        handleChange={this._handleChange}
+                        value={defaultInfo.familyName}
+                        field={'familyName'} />
+                    <SelectInput 
+                        options={['male', 'female']}
+                        handleChange={this._handleChange}
+                        value={defaultInfo.gender}
+                        field={'gender'} />
+                    <div><RaisedButton 
+                            label="Sign Up Now" 
+                            secondary={isCompleted}  
+                            disabled={!isCompleted}
+                            onClick={this._onSubmit} 
+                            style={{'width':'240px'}} />
+                    </div>
+                    <br/>
+                </Paper>
             </div>
         );
     }

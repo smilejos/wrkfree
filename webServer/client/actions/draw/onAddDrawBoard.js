@@ -44,6 +44,6 @@ module.exports = function(actionContext, data, callback) {
             });
     }).catch(function(err) {
         SharedUtils.printError('onAddDrawBoard.js', 'core', err);
-        ActionUtils.showWarningEvt('Drawing', 'handle remote board added event fail');
+        ActionUtils.showWarningEvent('Drawing', 'handle remote board added event fail');
     }).nodeify(callback);
 };

@@ -9,6 +9,8 @@ var ControlMedia = require('../../client/actions/rtc/controlMedia');
 var StartConference = require('../../client/actions/rtc/startConference');
 var HangupConference = require('../../client/actions/rtc/hangupConference');
 var ToggleComponent = require('../../client/actions/toggleComponent');
+var StarChannel = require('../../client/actions/channel/starChannel');
+
 /**
  * stores
  */
@@ -21,6 +23,7 @@ var ToggleStore = require('../stores/ToggleStore');
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 var FloatingActionButton = Mui.FloatingActionButton;
+var Colors = Mui.Styles.Colors;
 
 /**
  * workspace tool bar, now just a template
@@ -41,7 +44,13 @@ module.exports = React.createClass({
             isConferenceVisible: toggleStore.conferenceVisible,
             isDiscussionVisible: toggleStore.discussionVisible,
             isVideoOn: true,
-            isAudioOn: true
+            isAudioOn: true,
+            defaultIconStyle: {
+                color: Colors.grey500
+            },
+            starIconStyle: {
+                color: Colors.amber500
+            }
         };
     },
 
@@ -75,6 +84,19 @@ module.exports = React.createClass({
      */
     _onLeave: function () {
         this.transitionTo('/app/dashboard');
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for user to star current workspace channel
+     */
+    _starChannel: function() {
+        this.executeAction(StarChannel, {
+            channelId: this.props.channel.channelId,
+            name: this.props.channel.name,
+            host: this.props.channel.host,
+            toStar: !this.props.status.isStarred
+        });
     },
 
     /**
@@ -143,6 +165,7 @@ module.exports = React.createClass({
 
     render: function (){
         var barStyle = {};
+        var starIconStyle = this.state.defaultIconStyle;
         var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
         var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         if (this.props.onConferenceCall) {
@@ -150,14 +173,18 @@ module.exports = React.createClass({
                 'backgroundColor': '#000'
             };
         }
+        if (this.props.status.isStarred) {
+            starIconStyle = this.state.starIconStyle;
+        }
         return (
             <div className="footer" style={barStyle} >
                 <div className="pure-u-1-3">
                     <IconButton iconClassName="fa fa-home"
+                                iconStyle={this.state.defaultIconStyle}
                                 onClick={this._onLeave} />
-                    <IconButton iconClassName="fa fa-user-plus" />
-                    <IconButton iconClassName="fa fa-tag" />
-                    <IconButton iconClassName="fa fa-star" />
+                    <IconButton iconClassName="fa fa-star" 
+                                iconStyle={starIconStyle}
+                                onClick={this._starChannel} />
                 </div>
                 <div className="pure-u-1-3">
                     <FloatingActionButton mini secondary

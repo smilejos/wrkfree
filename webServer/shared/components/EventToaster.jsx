@@ -159,8 +159,8 @@ var EventMessage = React.createClass({
         return (
             <div className={eventClass} style={eventStyle}>
                 <div className="event-icon"
-                    onMouseOver={this._onMouseIconOver}
-                    onMouseOut={this._onMouseIconOut} >
+                    onMouseEnter={this._onMouseIconOver}
+                    onMouseLeave={this._onMouseIconOut} >
                     <i className={this.state.iconStyle} 
                         onClick={this._onClose} />
                 </div>

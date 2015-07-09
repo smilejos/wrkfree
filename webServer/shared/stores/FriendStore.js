@@ -10,7 +10,53 @@ module.exports = CreateStore({
         'UPDATE_FRIENDS_MESSAGE': '_updateFriendsMessage',
         'UPDATE_1ON1_CHANNELID': '_update1on1ChannelId',
         'ON_OPEN_HANGOUT': '_updateMessageToReaded',
-        'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage'
+        'ON_FRIEND_ADDED': '_onFriendAdded',
+        'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
+        'RECV_MESSAGE': '_recvMessage'
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for handle new frirend added event
+     *
+     * @param {String}      data.uid, friend uid
+     * @param {String}      data.channelId, 1on1 channel id to friend
+     * @param {String}      data.avatar, friend avatar
+     * @param {String}      data.nickName, friend nickName
+     * @param {String}      data.group, the group of friend
+     * @param {Boolean}     data.isOnline, friend online status
+     */
+    _onFriendAdded: function(freindInfo) {
+        var collection = this.db.getCollection(this.dbName);
+        return _importFriend(collection, freindInfo)
+            .bind(this).then(function() {
+                return this.emitChange();
+            });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: if received message belong 1on1 channel, update it on friend list
+     *
+     * @param {String}      data.from, message sender uid
+     * @param {String}      data.channelId, message channel id
+     * @param {String}      data.message, message content
+     */
+    _recvMessage: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.lastMessage = {
+                channelId: data.channelId,
+                message: data.message,
+                from: data.from,
+                sentTime: Date.now()
+            };
+            self.emitChange();
+        });
     },
 
     /**
@@ -77,6 +123,25 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
+     * @Description: to update the online status of current friend
+     *
+     * @param {String}      data.uid, friend uid
+     * @param {String}      data.isOnline, friend online status
+     */
+    _updateFriendStatus: function(data) {
+        var self = this;
+        var collection = this.db.getCollection(this.dbName);
+        var query = {
+            uid: data.uid
+        };
+        collection.chain().find(query).update(function(obj) {
+            obj.isOnline = data.isOnline;
+            self.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: to update the last talk message is readed or not on 
      *               specific friend item
      *
@@ -113,7 +178,7 @@ module.exports = CreateStore({
     polyfillAsync: function(friendList) {
         var collection = this.db.getCollection(this.dbName);
         return Promise.map(friendList, function(friendInfo) {
-            return _impportFriend(collection, friendInfo);
+            return _importFriend(collection, friendInfo);
         }).bind(this).then(function() {
             this.isPolyFilled = true;
             return this.emitChange();
@@ -224,7 +289,7 @@ module.exports = CreateStore({
  * @param {Object}      collection, lokijs collection
  * @param {Object}      doc, the message document
  */
-function _impportFriend(collection, doc) {
+function _importFriend(collection, doc) {
     return Promise.props({
         uid: SharedUtils.argsCheckAsync(doc.uid, 'md5'),
         channelId: '',
