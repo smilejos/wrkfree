@@ -25,18 +25,18 @@
         "dbEngine": "mongodb",
         "cacheEngine": "redis",
         "dbEnv": {
-            "host": "mongodb://127.0.0.1:27017/",
+            "host": "mongodb://db:27017/",
             "dbName": "wrkfree"
         },
         "cacheEnv": {
             "local": {
-                "host": "127.0.0.1",
+                "host": "cache",
                 "port": 6379,
                 "options": {},
                 "ttl": 3
             },
             "global": {
-                "host": "127.0.0.1",
+                "host": "cache",
                 "port": 6379,
                 "options": {},
                 "ttl": 3
