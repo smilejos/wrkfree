@@ -24,6 +24,11 @@ var UserEntry = {};
  */
 UserEntry.oAuthLogin = function(req, res, next) {
     return Passport.authenticate(req.provider, function(err, user) {
+        if (err) {
+            SharedUtils.printError('userEntry.js', 'oAuthLogin', err);
+            return res.end();
+        }
+        if (!user) return res.end();
         return UserStorage.oAuthLoginAsync(user.id, req.provider)
             .then(function(info) {
                 if (!info) {
