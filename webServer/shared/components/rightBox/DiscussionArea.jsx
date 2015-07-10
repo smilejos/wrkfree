@@ -15,10 +15,10 @@ var PullMessagesAction = require('../../../client/actions/chat/pullMessages');
 var UserAvatar = require('../common/userAvatar.jsx');
 
 /**
- * material ui components
+ * Material-ui circle progress
  */
-var Mui = require('material-ui');
-var TextField = Mui.TextField;
+var CircularProgress = require('material-ui').CircularProgress;
+var TextField = require('material-ui').TextField;
 
  /**
  * @Author: Jos Tung
@@ -129,15 +129,12 @@ var DiscussionArea = React.createClass({
      * @param {Object}      timePeriod, the time period object, [optional]
      */
     _pullMessages: function(cid, timePeriod){
-
-        // we use setTimeout to display "reload" effect
-        // we can remove setTimeout after introduce to all guys, 
         setTimeout(function(){
             this.executeAction(PullMessagesAction, {
                 channelId: cid,
                 period: timePeriod || {}
             });
-        }.bind(this), 3000);
+        }.bind(this), 500);
     },
 
     /**
@@ -164,17 +161,16 @@ var DiscussionArea = React.createClass({
 
     _getStateFromStores: function () {
         return { 
-            messageList : this.getStore(MessageStore).getMessages(this._getChannelId()),
+            messages : this.getStore(MessageStore).getMessages(this._getChannelId()),
             isReloading : false
         };
     },
 
     render: function(){
-        console.log('isReloading', this.state.isReloading);
         return (
             <div className="DiscussionArea" style={this.props.inlineStyle} >
                 <ReloadImg isReload={this.state.isReloading} />
-                <MessageList data={this.state.messageList} isReload={this.state.isReloading} />
+                <MessageList data={this.state.messages} isReload={this.state.isReloading} />
                 <div className="DiscussionInput" >
                     <TextField 
                         hintText="say something ..." 
@@ -189,15 +185,12 @@ var DiscussionArea = React.createClass({
 
 var ReloadImg = React.createClass({
     render: function(){
-        var iconStyle = {
-            fontSize: 30
-        }
         var divStyle = {
             opacity: this.props.isReload ? 1 : 0
         }
         return ( 
             <div className="ReloadImg" style={divStyle}>
-                <span className="fa fa-spinner fa-spin" style={iconStyle} />
+                <CircularProgress size={0.4}  color={'#888'} />
             </div> 
         );
     }
@@ -208,12 +201,12 @@ var MessageList = React.createClass({
         var inlineStyle = {
             top: this.props.isReload ? 40 : 0
         }
-        var _MessageList = this.props.data.map( function( message ){
+        var Messages = this.props.data.map( function( message ){
             return <Message key={message.sentTime} data={message} />;
         });
         return ( 
             <div className="MsgContainer" id="MsgContainer" style={inlineStyle}>
-                {_MessageList}
+                {Messages}
             </div> 
         );
     }

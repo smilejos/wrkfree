@@ -1,6 +1,7 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var CircularProgress = require('material-ui').CircularProgress;
 
 /**
  * stores
@@ -44,7 +45,8 @@ module.exports = React.createClass({
 
     _onMessageUpdate: function() {
         this.setState({
-            messages: this._getStoreMessages()
+            messages: this._getStoreMessages(),
+            isReloading : false
         });
     },
 
@@ -53,7 +55,19 @@ module.exports = React.createClass({
      * @Description: start to load channel messages from server
      */
     componentDidMount: function(){
+        var container = React.findDOMNode(this.refs.messages);
         this._pullLatestMessages(this.props.channelId);
+
+        // Add scroll event listener to control reload message action.
+        // We also use isReloading to avoid user duplicate reload message.
+        container.addEventListener('scroll',function(e){
+            if( e.srcElement.scrollTop == 0 && !this.state.isReloading) {
+                this._pullOlderMessages();
+                this.setState({ 
+                    isReloading: true
+                });
+            }
+        }.bind(this));
     },
 
     componentDidUpdate: function(prevProps, prevState) {
@@ -125,20 +139,36 @@ module.exports = React.createClass({
      * @param {Object}      timePeriod, the time period object, [optional]
      */
     _pullMessages: function(cid, timePeriod){
-        this.executeAction(PullMessagesAction, {
-            channelId: cid,
-            period: timePeriod || {}
-        });
+        setTimeout(function(){
+            this.executeAction(PullMessagesAction, {
+                channelId: cid,
+                period: timePeriod || {}
+            });
+        }.bind(this), 500);
+    },
+
+    _getReloadImg: function(){
+        var divStyle = {
+            height: this.state.isReloading ? 60 : 0,
+            opacity: this.state.isReloading ? 1 : 0
+        }
+        return ( 
+            <div className="ReloadImg" style={divStyle}>
+                <CircularProgress size={0.4}  color={'#888'} />
+            </div> 
+        );
     },
 
     getInitialState: function() {
         return {
-            messages: [] 
+            messages: [],
+            isReloading : false
         };
     },
 
     render: function() {
         var selfUid = this.props.self;
+        var reloadImg = this._getReloadImg();
         var contentStyle ={
             'top': (this.props.hasConference ? this.props.conferenceHeight : 0),
             'height': (this.props.hasConference ? 125 : this.props.messagesHeight),
@@ -152,7 +182,8 @@ module.exports = React.createClass({
             );
         });
         return (
-            <div className="hangoutMessages" style={contentStyle}>
+            <div className="hangoutMessages" style={contentStyle} ref="messages">
+                {reloadImg}
                 {list}
             </div>
         );
@@ -198,3 +229,4 @@ var HangoutMsg = React.createClass({
         );
     }
 });
+

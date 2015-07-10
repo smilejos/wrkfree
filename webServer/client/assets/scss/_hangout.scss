@@ -45,6 +45,7 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
         width: $hangout-space-width;
         height: $hangout-space-height;
         background-color: $grey-100;
+        border: 1px solid #ccc;
         z-index: 3;
         .hangoutHeader {
             position:relative;
@@ -80,6 +81,7 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
         .hangoutMessages {
             height: $hangout-messages-height;
             overflow: scroll;
+
             .message {
                 .messageAvatar {
                     width: 60px;
@@ -149,6 +151,7 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
         }
         .hangoutInputBar {
             height: 40px;
+            border-top: 1px solid #ccc;
             opacity: 0.8;
             .hangoutRtcIcon {
                 float: left;
