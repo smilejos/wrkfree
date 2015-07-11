@@ -218,7 +218,7 @@ var UserState = React.createClass({
      * @Description: handle the user avatar click mechanism
      */
     _onAvatarClick: function() {
-        location.assign('https://localhost/app/logout');
+        location.assign('/app/logout');
     },
 
     render: function() {
