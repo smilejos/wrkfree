@@ -25,11 +25,11 @@ RUN apt-get install -y \
         build-essential \
         g++
 
-COPY ./run.sh /
+# setup NODE_ENV for production
+ENV NODE_ENV=production
 
-RUN chmod 755 /run.sh
-
-# websocket server is listen to 3000, so we expose it
+# websocket server is listen to 3050, so we expose it
 EXPOSE 3050
 
-ENTRYPOINT ["/run.sh"]
+# user should start process directly by the docker command-line
+# e.g. node /workspace/wrkfree2.0/socketServer/server.js

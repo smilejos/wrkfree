@@ -16,11 +16,11 @@ RUN curl --silent --location https://deb.nodesource.com/setup_0.12 | sudo bash -
 
 RUN apt-get install -y nodejs
 
-COPY ./run.sh /
-
-RUN chmod 755 /run.sh
+# setup NODE_ENV for production
+ENV NODE_ENV=production
 
 # web server is listen to 3000, so we expose it
 EXPOSE 3000
 
-ENTRYPOINT ["/run.sh"]
+# user should start process directly by the docker command-line
+# e.g. node /workspace/wrkfree2.0/webServer/server/server.js
