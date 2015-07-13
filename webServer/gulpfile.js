@@ -2,6 +2,8 @@ var gulp = require('gulp');
 var webpack = require('gulp-webpack');
 var nodemon = require('gulp-nodemon');
 var compass = require('gulp-compass');
+var uglify = require('gulp-uglify');
+var gulpif = require('gulp-if');
 var minifyCSS = require('gulp-minify-css');
 var connect = require('gulp-connect');
 var net = require('net');
@@ -144,6 +146,7 @@ gulp.task('build', function() {
     del(paths.destDir + '/**/*', function(){
         return gulp.src(paths.main)
             .pipe(webpack(webpackConfig))
+            .pipe(gulpif(env === 'production', uglify()))
             .pipe(gulp.dest(paths.destDir));
     });
 });
