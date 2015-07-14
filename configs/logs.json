@@ -1,0 +1,85 @@
+{
+    "development": {
+        "SOCKET": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                },
+                {
+                    "level":"info",
+                    "type": "file",
+                    "path": "../logs/socketServer.log"
+                }
+            ]
+        },
+        "WEB": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                },
+                {
+                    "level":"info",
+                    "type": "file",
+                    "path": "../logs/webServer.log"
+                }
+            ]
+        },
+        "STORAGE": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                },
+                {
+                    "level":"info",
+                    "type": "file",
+                    "path": "../logs/storageService.log"
+                }
+            ]
+        }
+    },
+
+    "production": {
+        "SOCKET": {
+            "settings": [
+                {
+                    "level":"info",
+                    "type": "console"
+                },
+                {
+                    "level":"warn",
+                    "type": "file",
+                    "path": "../logs/socketServer.log"
+                }
+            ]
+        },
+        "WEB": {
+            "settings": [
+                {
+                    "level":"info",
+                    "type": "console"
+                },
+                {
+                    "level":"warn",
+                    "type": "file",
+                    "path": "../logs/webServer.log"
+                }
+            ]
+        },
+        "STORAGE": {
+            "settings": [
+                {
+                    "level":"info",
+                    "type": "console"
+                },
+                {
+                    "level":"warn",
+                    "type": "file",
+                    "path": "../logs/storageService.log"
+                }
+            ]
+        }
+    }
+}
