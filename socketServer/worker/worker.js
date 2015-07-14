@@ -9,6 +9,11 @@ var Env = process.env.NODE_ENV || 'development';
 var Configs = require('../../configs/config');
 Configs.import('params', require('../../configs/parameters.json'));
 Configs.import('db', require('../../configs/db.json')[Env]);
+Configs.import('logs', require('../../configs/logs.json')[Env]);
+
+var LogUtils = require('../../sharedUtils/LogUtils');
+var LogCategory = 'SOCKET';
+LogUtils.init(Configs.get().logs);
 
 var StorageManager = require('../../storageService/storageManager');
 // intialize db resource before internal modules
