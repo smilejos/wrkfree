@@ -62,7 +62,7 @@ exports.addBoardAsync = function(channelId, boardId, member) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
                 error: err
-            }, 'error in DrawService.delBoardAsync()');
+            }, 'error in DrawService.addBoardAsync()');
             return null;
         });
 };
