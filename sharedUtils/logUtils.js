@@ -40,7 +40,9 @@ exports.init = function(configs) {
  */
 exports.debug = function(category, meta, msg) {
     var logger = _getLogger(category);
-    return logger.debug(meta, msg);
+    // if category is not defined, the original "console" module not support ".debug"
+    // so we must transform to another log module -> logger.info
+    return (logger.debug ? logger.debug(meta, msg) : logger.info(meta, msg));
 };
 
 /**
