@@ -48,21 +48,33 @@ exports.drawAsync = function(socket, data) {
  * @param {Object}          data.drawOptions, the draw options for this record
  */
 exports.saveRecordAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, chunksLength, drawOptions) {
-            var uid = socket.getAuthToken();
-            // enqueue a preview image update job
-            DrawWorker.setUpdateSchedule(cid, bid, uid);
             return DrawStorage.saveRecordAsync(cid, bid, uid, chunksLength, drawOptions);
         }).then(function(result) {
-            var errMsg = 'save draw record fail';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (!result) {
+                throw new Error('save draw record fail');
+            }
+            // enqueue a preview image update job
+            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            return result;
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'saveRecordAsync', err);
+            // inform other members the latest draw saving failure
+            socket.global.publish('channel:' + data.channelId, {
+                service: 'draw',
+                clientHandler: 'onSaveDrawRecord',
+                socketId: socket.id,
+                params: {
+                    channelId: data.channelId,
+                    boardId: data.boardId
+                }
+            });
             throw err;
         });
 };
@@ -207,9 +219,9 @@ exports.getDrawBoardAsync = function(socket, data) {
  */
 exports.getLatestBoardIdAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
-        .then(function(cid){
+        .then(function(cid) {
             return DrawStorage.getLatestBoardIdAsync(cid);
-        }).then(function(result){
+        }).then(function(result) {
             if (result === null) {
                 throw new Error('get latest draw board id fail');
             }
