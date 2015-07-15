@@ -51,7 +51,7 @@
                 {
                     "level":"warn",
                     "type": "file",
-                    "path": "../logs/socketServer.log"
+                    "path": "/workspace/wrkfree2.0/logs/socketServer.log"
                 }
             ]
         },
@@ -64,7 +64,7 @@
                 {
                     "level":"warn",
                     "type": "file",
-                    "path": "../logs/webServer.log"
+                    "path": "/workspace/wrkfree2.0/logs/webServer.log"
                 }
             ]
         },
@@ -77,7 +77,7 @@
                 {
                     "level":"warn",
                     "type": "file",
-                    "path": "../logs/storageService.log"
+                    "path": "/workspace/wrkfree2.0/logs/storageService.log"
                 }
             ]
         }
