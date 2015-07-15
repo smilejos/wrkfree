@@ -9,7 +9,8 @@ module.exports = CreateStore({
     handlers: {
         'ON_DRAW_RECEIVE': 'onDrawReceive',
         'ON_DRAW_CHANGE': 'onDrawChange',
-        'ON_RECORD_SAVE': 'onRecordSave'
+        'ON_RECORD_SAVE': '_onTempDrawClean',
+        'ON_BOARD_CLEAN': '_onTempDrawClean'
     },
 
     initialize: function() {
@@ -51,12 +52,12 @@ module.exports = CreateStore({
     /**
      * Public API
      * @Author: George_Chen
-     * @Description: for handling new draw record save event
+     * @Description: for cleaning temp draws
      *
      * @param {String}          data.channelId, the channel id
      * @param {Number}          data.boardId, the draw board id
      */
-    onRecordSave: function(data) {
+    _onTempDrawClean: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         this.tempDraws[drawViewId] = null;
         this.tempDrawOptions[drawViewId] = null;
