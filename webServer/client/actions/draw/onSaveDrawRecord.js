@@ -38,6 +38,8 @@ module.exports = function(actionContext, data, callback) {
         });
     }).catch(function(err) {
         SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
+        // TODO:
+        // what if channel id and board id is null ?
         _rePullBoardInfo(actionContext, data.channelId, data.boardId);
         return null;
     }).nodeify(callback);
