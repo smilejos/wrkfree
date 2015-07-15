@@ -11,7 +11,7 @@ Configs.import('params', require('../../configs/parameters.json'));
 Configs.import('db', require('../../configs/db.json')[Env]);
 Configs.import('logs', require('../../configs/logs.json')[Env]);
 
-var LogUtils = require('../../sharedUtils/LogUtils');
+var LogUtils = require('../../sharedUtils/logUtils');
 var LogCategory = 'SOCKET';
 LogUtils.init(Configs.get().logs);
 
