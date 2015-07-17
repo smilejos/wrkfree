@@ -30,14 +30,14 @@ var RedisClient = Redis.createClient(
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          drawer, drawer's uid
+ * @param {String}          clientId, the draw client sid
  * @param {Array}           rawData, the record raw data          
  */
-exports.streamRecordAsync = function(channelId, boardId, drawer, rawData) {
+exports.streamRecordAsync = function(channelId, boardId, clientId, rawData) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(drawer, 'md5'),
+        SharedUtils.argsCheckAsync(clientId, 'string'),
         DrawUtils.checkDrawChunksAsync(rawData),
         function(cid, bid, uid, chunks) {
             var streamKey = _getStreamKey(cid, bid, uid);
@@ -63,13 +63,13 @@ exports.streamRecordAsync = function(channelId, boardId, drawer, rawData) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          drawer, drawer's uid
+ * @param {String}          clientId, the draw client sid
  */
-exports.getRecordAsync = function(channelId, boardId, drawer) {
+exports.getRecordAsync = function(channelId, boardId, clientId) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(drawer, 'md5'),
+        SharedUtils.argsCheckAsync(clientId, 'string'),
         function(cid, bid, uid) {
             var streamKey = _getStreamKey(cid, bid, uid);
             return RedisClient.lrangeAsync(streamKey, 0, RECORD_DATA_LIMIT);
