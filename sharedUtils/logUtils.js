@@ -115,5 +115,17 @@ function _setLogStream(info) {
             stream: process.stdout
         };
     }
+    // the loggly stream
+    if (info.type === 'loggly') {
+        var Bunyan2Loggly = require('bunyan-loggly').Bunyan2Loggly;
+        return {
+            type: 'raw',
+            level: info.level,
+            stream: new Bunyan2Loggly({
+                token: info.token,
+                subdomain: info.subdomain
+            })
+        };
+    }
     return info;
 }
