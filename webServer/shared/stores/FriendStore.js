@@ -7,6 +7,7 @@ module.exports = CreateStore({
     storeName: 'FriendStore',
 
     handlers: {
+        'UPDATE_FRIEND_STATUS': '_updateFriendStatus',
         'UPDATE_FRIENDS_MESSAGE': '_updateFriendsMessage',
         'UPDATE_1ON1_CHANNELID': '_update1on1ChannelId',
         'ON_OPEN_HANGOUT': '_updateMessageToReaded',
