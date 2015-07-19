@@ -22,6 +22,7 @@ var GetDrawBoardAction = require('./getDrawBoard');
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
+    var clientId = 'local';
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -37,12 +38,16 @@ module.exports = function(actionContext, data, callback) {
         return actionContext.dispatch('ON_RECORD_SAVE', {
             channelId: data.channelId,
             boardId: data.boardId,
-            record: drawTempStore.getDraws(data.channelId, data.boardId),
+            record: drawTempStore.getDraws(data.channelId, data.boardId, clientId),
             drawOptions: _cloneOptions(data.drawOptions)
         });
     }).catch(function(err) {
         SharedUtils.printError('saveDrawRecord.js', 'core', err);
-        _rePullBoardInfo(actionContext, data.channelId, data.boardId);
+        actionContext.dispatch('CLEAN_FAILURE_DRAW', {
+            channelId: data.channelId,
+            boardId: data.boardId,
+            clientId: clientId
+        });
         return null;
         // show alert message ?
     }).nodeify(callback);
@@ -63,22 +68,4 @@ function _cloneOptions(options) {
         copy[prop] = options[prop];
     });
     return copy;
-}
-
-/**
- * @Author: George_Chen
- * @Description: this is used when error happen during save draw records
- * 
- * @param {Object}      actionContext, the fluxible's action context
- * @param {String}      cid, target channel id
- * @param {Number}      bid, target board id
- */
-function _rePullBoardInfo(actionContext, cid, bid) {
-    var data = {
-        channelId: cid,
-        boardId: bid
-    };
-    // not sure drawer should trigger board clean or not
-    actionContext.dispatch('ON_BOARD_CLEAN', data);
-    actionContext.executeAction(GetDrawBoardAction, data);
 }

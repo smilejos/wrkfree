@@ -24,6 +24,9 @@ exports.drawAsync = function(socket, data) {
         function(cid, bid, chunks) {
             return DrawStorage.streamRecordDataAsync(cid, bid, socket.id, chunks);
         }).then(function(result) {
+            if (result) {
+                data.clientId = socket.id;
+            }
             var errMsg = 'drawing fail';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
@@ -58,6 +61,7 @@ exports.saveRecordAsync = function(socket, data) {
             if (!result) {
                 throw new Error('save draw record fail');
             }
+            data.clientId = socket.id;
             // enqueue a preview image update job
             var uid = socket.getAuthToken();
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
@@ -71,7 +75,8 @@ exports.saveRecordAsync = function(socket, data) {
                 socketId: socket.id,
                 params: {
                     channelId: data.channelId,
-                    boardId: data.boardId
+                    boardId: data.boardId,
+                    clientId: socket.id
                 }
             });
             throw err;

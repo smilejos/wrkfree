@@ -23,7 +23,8 @@ module.exports = function(actionContext, data, callback) {
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
     }).then(function(recordData) {
-        actionContext.dispatch('ON_DRAW_CHANGE', recordData);
+        data.clientId = 'local';
+        actionContext.dispatch('ON_DRAW_CHANGE', data);
         return DrawService.drawAsync(recordData);
     }).then(function(result) {
         if (!result) {
