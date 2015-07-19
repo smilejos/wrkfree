@@ -4,7 +4,8 @@
   "private": true,
   "dependencies": {
     "bluebird": "^2.9.9",
-    "crypto-browserify": "3.2.5",
-    "bunyan": "~1.4.0"
+    "bunyan": "~1.4.0",
+    "bunyan-loggly": "0.0.5",
+    "crypto-browserify": "3.2.5"
   }
 }

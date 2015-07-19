@@ -49,9 +49,10 @@
                     "type": "console"
                 },
                 {
-                    "level":"warn",
-                    "type": "file",
-                    "path": "/workspace/wrkfree2.0/logs/socketServer.log"
+                    "level": "info",
+                    "type": "loggly",
+                    "token": "3526c2f0-9d88-4287-bc45-60127deaaa2e",
+                    "subdomain": "wrkfree"
                 }
             ]
         },
@@ -62,9 +63,10 @@
                     "type": "console"
                 },
                 {
-                    "level":"warn",
-                    "type": "file",
-                    "path": "/workspace/wrkfree2.0/logs/webServer.log"
+                    "level": "info",
+                    "type": "loggly",
+                    "token": "3526c2f0-9d88-4287-bc45-60127deaaa2e",
+                    "subdomain": "wrkfree"
                 }
             ]
         },
