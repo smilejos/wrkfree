@@ -38,6 +38,7 @@ module.exports = function(actionContext, data, callback) {
         return actionContext.dispatch('ON_RECORD_SAVE', {
             channelId: data.channelId,
             boardId: data.boardId,
+            clientId: clientId,
             record: drawTempStore.getDraws(data.channelId, data.boardId, clientId),
             drawOptions: _cloneOptions(data.drawOptions)
         });
