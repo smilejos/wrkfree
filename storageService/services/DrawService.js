@@ -125,13 +125,13 @@ exports.cleanBoardAsync = function(channelId, boardId, member) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          member, the member uid
+ * @param {String}          clientId, the client sid
  * @param {Array}           rawData, the rawData of draw record
  */
-exports.streamRecordDataAsync = function(channelId, boardId, member, rawData) {
+exports.streamRecordDataAsync = function(channelId, boardId, clientId, rawData) {
     var logMsg = 'channel [' + channelId + '] has been drawing on board [' + boardId + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    return RecordTemp.streamRecordAsync(channelId, boardId, member, rawData)
+    return RecordTemp.streamRecordAsync(channelId, boardId, clientId, rawData)
         .catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
@@ -150,17 +150,15 @@ exports.streamRecordDataAsync = function(channelId, boardId, member, rawData) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          member, the member uid
+ * @param {String}          clientId, the draw client sid
  * @param {Number}          rawDataNumbers, the number of rawData
  * @param {Object}          drawOptions, the draw options of current record
  */
-exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers, drawOptions) {
+exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers, drawOptions) {
     var logMsg = 'channel [' + channelId + '] save record on board [' + boardId + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    return Promise.join(
-        RecordTemp.getRecordAsync(channelId, boardId, member),
-        _ensureAuth(member, channelId),
-        function(tempRecord) {
+    return RecordTemp.getRecordAsync(channelId, boardId, clientId)
+        .then(function(tempRecord) {
             var missingDraws = Math.abs(tempRecord.length - rawDataNumbers);
             if (missingDraws > 0) {
                 LogUtils.warn(LogCategory, {
@@ -172,10 +170,10 @@ exports.saveRecordAsync = function(channelId, boardId, member, rawDataNumbers, d
                 LogUtils.warn(LogCategory, null, 'save record fail with missingDraws: ' + missingDraws);
                 return null;
             }
-            RecordTemp.initDrawStreamAsync(channelId, boardId, member);
+            RecordTemp.initDrawStreamAsync(channelId, boardId, clientId);
             return _saveRecord(channelId, boardId, tempRecord, drawOptions);
         }).catch(function(err) {
-            RecordTemp.initDrawStreamAsync(channelId, boardId, member);
+            RecordTemp.initDrawStreamAsync(channelId, boardId, clientId);
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
                 error: err

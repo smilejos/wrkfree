@@ -22,9 +22,11 @@ exports.drawAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         DrawUtils.checkDrawChunksAsync(data.chunks),
         function(cid, bid, chunks) {
-            var uid = socket.getAuthToken();
-            return DrawStorage.streamRecordDataAsync(cid, bid, uid, chunks);
+            return DrawStorage.streamRecordDataAsync(cid, bid, socket.id, chunks);
         }).then(function(result) {
+            if (result) {
+                data.clientId = socket.id;
+            }
             var errMsg = 'drawing fail';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
@@ -48,19 +50,20 @@ exports.drawAsync = function(socket, data) {
  * @param {Object}          data.drawOptions, the draw options for this record
  */
 exports.saveRecordAsync = function(socket, data) {
-    var uid = socket.getAuthToken();
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, chunksLength, drawOptions) {
-            return DrawStorage.saveRecordAsync(cid, bid, uid, chunksLength, drawOptions);
+            return DrawStorage.saveRecordAsync(cid, bid, socket.id, chunksLength, drawOptions);
         }).then(function(result) {
             if (!result) {
                 throw new Error('save draw record fail');
             }
+            data.clientId = socket.id;
             // enqueue a preview image update job
+            var uid = socket.getAuthToken();
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
@@ -72,7 +75,8 @@ exports.saveRecordAsync = function(socket, data) {
                 socketId: socket.id,
                 params: {
                     channelId: data.channelId,
-                    boardId: data.boardId
+                    boardId: data.boardId,
+                    clientId: socket.id
                 }
             });
             throw err;

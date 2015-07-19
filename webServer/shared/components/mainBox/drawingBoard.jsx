@@ -145,11 +145,12 @@ module.exports = React.createClass({
                 return;
             }
             var drawTempStore = self.getStore(DrawTempStore);
+            var clientId = 'local';
             drawing = false;
             self.executeAction(SaveDrawRecord, {
                 channelId: self.props.channelId,
                 boardId: self.props.boardId,
-                chunksNum: drawTempStore.getDraws(self.props.channelId, self.props.boardId).length,
+                chunksNum: drawTempStore.getDraws(self.props.channelId, self.props.boardId, clientId).length,
                 drawOptions: self.props.drawInfo.drawOptions
             });
         });

@@ -10,12 +10,13 @@ module.exports = CreateStore({
         'ON_DRAW_RECEIVE': 'onDrawReceive',
         'ON_DRAW_CHANGE': 'onDrawChange',
         'ON_RECORD_SAVE': '_onTempDrawClean',
-        'ON_BOARD_CLEAN': '_onTempDrawClean'
+        'CLEAN_FAILURE_DRAW': '_onTempDrawClean'
     },
 
     initialize: function() {
         this.tempDraws = {};
         this.tempDrawOptions = {};
+        this.lastDraw = {};
     },
 
     /**
@@ -25,10 +26,16 @@ module.exports = CreateStore({
      *
      * @param {String}      data.channelId, target channel id
      * @param {Number}      data.boardId, target board id
+     * @param {String}      data.clientId, the draw client sid
      * @param {Array}       data.chunks, the rawData of draw record
      * @param {Object}      data.drawOptions, the draw related options
      */
     onDrawChange: function(data) {
+        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
+        this.lastDraw[drawViewId] = {
+            chunks: data.chunks,
+            drawOptions: data.drawOptions
+        };
         this._onReceive(data);
         this.emitChange();
     },
@@ -42,6 +49,7 @@ module.exports = CreateStore({
      *
      * @param {String}      data.channelId, target channel id
      * @param {Number}      data.boardId, target board id
+     * @param {String}      data.clientId, the draw client sid
      * @param {Array}       data.chunks, the rawData of draw record
      * @param {Object}      data.drawOptions, the draw related options
      */
@@ -59,8 +67,9 @@ module.exports = CreateStore({
      */
     _onTempDrawClean: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        this.tempDraws[drawViewId] = null;
-        this.tempDrawOptions[drawViewId] = null;
+        var tempDrawId = drawViewId + data.clientId;
+        this.tempDraws[tempDrawId] = null;
+        this.tempDrawOptions[tempDrawId] = null;
     },
 
     /**
@@ -73,11 +82,7 @@ module.exports = CreateStore({
      */
     getLastDraw: function(channelId, boardId) {
         var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
-        var index = this.tempDraws[drawViewId].length - 1;
-        return {
-            chunks: this.tempDraws[drawViewId][index],
-            drawOptions: this.tempDrawOptions[drawViewId]
-        };
+        return this.lastDraw[drawViewId];
     },
 
     /**
@@ -87,10 +92,12 @@ module.exports = CreateStore({
      *
      * @param {String}          data.channelId, the channel id
      * @param {Number}          data.boardId, the draw board id
+     * @param {String}          data.clientId, the draw client id
      */
-    getDraws: function(channelId, boardId) {
+    getDraws: function(channelId, boardId, clientId) {
         var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
-        return this.tempDraws[drawViewId];
+        var tempDrawId = drawViewId + clientId;
+        return this.tempDraws[tempDrawId];
     },
 
     /**
@@ -99,15 +106,17 @@ module.exports = CreateStore({
      *
      * @param {String}      data.channelId, target channel id
      * @param {Number}      data.boardId, target board id
+     * @param {String}      data.clientId, the draw client id
      * @param {Array}       data.chunks, the rawData of draw record
      * @param {Object}      data.drawOptions, the draw related options
      */
     _onReceive: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        if (!SharedUtils.isArray(this.tempDraws[drawViewId])) {
-            this.tempDraws[drawViewId] = [];
+        var tempDrawId = drawViewId + data.clientId;
+        if (!SharedUtils.isArray(this.tempDraws[tempDrawId])) {
+            this.tempDraws[tempDrawId] = [];
         }
-        this.tempDraws[drawViewId].push(data.chunks);
-        this.tempDrawOptions[drawViewId] = data.drawOptions;
+        this.tempDraws[tempDrawId].push(data.chunks);
+        this.tempDrawOptions[tempDrawId] = data.drawOptions;
     }
 });
