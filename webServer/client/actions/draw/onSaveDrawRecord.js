@@ -34,6 +34,7 @@ module.exports = function(actionContext, data, callback) {
         return actionContext.dispatch('ON_RECORD_SAVE', {
             channelId: data.channelId,
             boardId: data.boardId,
+            clientId: data.clientId,
             record: tempRecord,
             drawOptions: data.drawOptions
         });
