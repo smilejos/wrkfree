@@ -39,8 +39,8 @@ exports.streamRecordAsync = function(channelId, boardId, clientId, rawData) {
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
         SharedUtils.argsCheckAsync(clientId, 'string'),
         DrawUtils.checkDrawChunksAsync(rawData),
-        function(cid, bid, uid, chunks) {
-            var streamKey = _getStreamKey(cid, bid, uid);
+        function(cid, bid, sid, chunks) {
+            var streamKey = _getStreamKey(cid, bid, sid);
             return Promise.props({
                 pushLength: RedisClient.rpushAsync(streamKey, _serializeChunks(chunks)),
                 ttlResult: RedisClient.expireAsync(streamKey, RECORD_STREAM_EXPIRE_TIME_IN_SECONDS)
@@ -70,8 +70,8 @@ exports.getRecordAsync = function(channelId, boardId, clientId) {
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
         SharedUtils.argsCheckAsync(clientId, 'string'),
-        function(cid, bid, uid) {
-            var streamKey = _getStreamKey(cid, bid, uid);
+        function(cid, bid, sid) {
+            var streamKey = _getStreamKey(cid, bid, sid);
             return RedisClient.lrangeAsync(streamKey, 0, RECORD_DATA_LIMIT);
         }).map(function(chunks) {
             return _deserializeChunks(chunks);
@@ -88,15 +88,15 @@ exports.getRecordAsync = function(channelId, boardId, clientId) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          drawer, drawer's uid
+ * @param {String}          clientId, the draw client sid
  */
-exports.initDrawStreamAsync = function(channelId, boardId, drawer) {
+exports.initDrawStreamAsync = function(channelId, boardId, clientId) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(drawer, 'md5'),
-        function(cid, bid, uid) {
-            var streamKey = _getStreamKey(cid, bid, uid);
+        SharedUtils.argsCheckAsync(clientId, 'string'),
+        function(cid, bid, sid) {
+            var streamKey = _getStreamKey(cid, bid, sid);
             return RedisClient.delAsync(streamKey);
         }).catch(function(err) {
             SharedUtils.printError('DrawTemp.js', 'getRecordAsync', err);
