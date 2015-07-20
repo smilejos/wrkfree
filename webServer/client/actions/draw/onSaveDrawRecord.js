@@ -6,9 +6,9 @@ var DrawTempStore = require('../../../shared/stores/DrawTempStore');
 var Configs = require('../../../../configs/config');
 // define the maximum number of draws can be lost during client drawing
 // NOTE: usually, few missing draws is acceptable under jitter environment.
-var MISSING_DRAWS_MAXIMUM = Configs.get().params.draw.missingDrawLimit;
+var MISSING_DRAWS_LIMIT = Configs.get().params.draw.missingDrawLimit;
 
-if (!SharedUtils.isNumber(MISSING_DRAWS_MAXIMUM)) {
+if (!SharedUtils.isNumber(MISSING_DRAWS_LIMIT)) {
     throw new Error('draw parameters missing');
 }
 
@@ -38,7 +38,7 @@ module.exports = function(actionContext, data, callback) {
         var drawTempStore = actionContext.getStore(DrawTempStore);
         var tempRecord = drawTempStore.getDraws(validData.channelId, validData.boardId, validData.clientId);
         var missingDraws = Math.abs(tempRecord.length - validData.chunksNum);
-        if (missingDraws > MISSING_DRAWS_MAXIMUM) {
+        if (missingDraws > MISSING_DRAWS_LIMIT) {
             throw new Error('record is broken');
         }
         return actionContext.dispatch('ON_RECORD_SAVE', {
