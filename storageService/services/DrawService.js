@@ -155,7 +155,7 @@ exports.streamRecordDataAsync = function(channelId, boardId, clientId, rawData) 
  * @param {Object}          drawOptions, the draw options of current record
  */
 exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers, drawOptions) {
-    var logMsg = 'channel [' + channelId + '] save record on board [' + boardId + ']';
+    var logMsg = 'channel [' + channelId + '] save record on board [' + boardId + '] by [' + clientId + ']';
     LogUtils.info(LogCategory, null, logMsg);
     return RecordTemp.getRecordAsync(channelId, boardId, clientId)
         .then(function(tempRecord) {
@@ -166,12 +166,14 @@ exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers,
                     clientRecordLen: rawDataNumbers
                 }, 'some record missing ');
             }
+            RecordTemp.initDrawStreamAsync(channelId, boardId, clientId);
             if (missingDraws > MISSING_DRAWS_MAXIMUM) {
                 LogUtils.warn(LogCategory, null, 'save record fail with missingDraws: ' + missingDraws);
                 return null;
+            } else {
+                LogUtils.info(LogCategory, null, 'start save new record on channel [' + channelId + '] [' + boardId + ']');
+                return _saveRecord(channelId, boardId, tempRecord, drawOptions);
             }
-            RecordTemp.initDrawStreamAsync(channelId, boardId, clientId);
-            return _saveRecord(channelId, boardId, tempRecord, drawOptions);
         }).catch(function(err) {
             RecordTemp.initDrawStreamAsync(channelId, boardId, clientId);
             LogUtils.error(LogCategory, {
