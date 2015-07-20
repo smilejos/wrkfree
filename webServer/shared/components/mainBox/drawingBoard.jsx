@@ -21,6 +21,7 @@ var Drawing = require('../../../client/actions/draw/drawing');
 var SaveDrawRecord = require('../../../client/actions/draw/saveDrawRecord');
 var GetDrawBoard = require('../../../client/actions/draw/getDrawBoard');
 var UpdateBaseImage = require('../../../client/actions/draw/updateBaseImage');
+var SaveSingleDraw = require('../../../client/actions/draw/saveSingleDraw');
 
 /**
  * stores
@@ -117,11 +118,26 @@ module.exports = React.createClass({
         function _completeDraw() {
             var drawTempStore = self.getStore(DrawTempStore);
             var clientId = 'local';
+            var currentDraw = drawTempStore.getDraws(self.props.channelId, self.props.boardId, clientId);
             drawing = false;
-            self.executeAction(SaveDrawRecord, {
+            if (SharedUtils.isArray(currentDraw)) {
+                return self.executeAction(SaveDrawRecord, {
+                    channelId: self.props.channelId,
+                    boardId: self.props.boardId,
+                    chunksNum: currentDraw.length,
+                    drawOptions: self.props.drawInfo.drawOptions
+                });
+            }
+            // means user draw at the same position, so trigger different action
+            self.executeAction(SaveSingleDraw, {
                 channelId: self.props.channelId,
                 boardId: self.props.boardId,
-                chunksNum: drawTempStore.getDraws(self.props.channelId, self.props.boardId, clientId).length,
+                chunks: {
+                    fromX: prev.x,
+                    fromY: prev.y,
+                    toX: prev.x + 0.1,
+                    toY: prev.y + 0.1
+                },
                 drawOptions: self.props.drawInfo.drawOptions
             });
         }
@@ -277,10 +293,10 @@ function _changeBoardWheel(drawOptions) {
     var ctx = cursorGenerator.getContext('2d');
     var centerX = cursorGenerator.width/2;
     var centerY = cursorGenerator.height/2;
-    
+    var arcRadius = (drawOptions.mode == "pen" ? drawOptions.lineWidth/2 : drawOptions.lineWidth/2 - 1.5);
     ctx.globalAlpha = drawOptions.mode == "pen" ? 1 : 0.2;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, (drawOptions.lineWidth/2), 0, 2 * Math.PI, false);
+    ctx.arc(centerX, centerY, arcRadius, 0, 2 * Math.PI, false);
     ctx.fillStyle = drawOptions.strokeStyle;
     ctx.fill();
 
