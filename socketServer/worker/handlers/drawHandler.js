@@ -86,6 +86,34 @@ exports.saveRecordAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for user to save record when drawing on the same point
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardId, the draw board id
+ * @param {Array}           data.chunks, the raw chunks of current drawing
+ * @param {Object}          data.drawOptions, the draw options for this record
+ */
+exports.saveSingleDrawAsync = function(socket, data) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        DrawUtils.checkDrawChunksAsync(data.chunks),
+        SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
+        function(cid, bid, chunks, drawOptions) {
+            return DrawStorage.saveSingleDrawAsync(cid, bid, chunks, drawOptions);
+        }).then(function(result) {
+            var errMsg = 'failure on saving single draw';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            SharedUtils.printError('drawHandler.js', 'saveSingleDrawAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: user can use this function to generate a clean board draw record
  *               on current board, then board will be cleaned at same time
  * @param {Object}          socket, the client socket instance

@@ -192,6 +192,32 @@ exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers,
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for user to save record when drawing on the same point
+ *
+ * @param {String}          channelId, the channel id
+ * @param {Number}          boardId, the draw board id
+ * @param {Array}           rawData, the raw chunks of current drawing
+ * @param {Object}          drawOptions, the draw options for this record
+ */
+exports.saveSingleDrawAsync = function(channelId, boardId, rawData, drawOptions) {
+    var logMsg = 'channel [' + channelId + '] save single draw on board [' + boardId + ']';
+    LogUtils.info(LogCategory, null, logMsg);
+    return Promise.try(function() {
+        return [rawData];
+    }).then(function(drawRecord) {
+        return _saveRecord(channelId, boardId, drawRecord, drawOptions);
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            args: SharedUtils.getArgs(arguments),
+            error: err
+        }, 'error in DrawService.saveSingleDrawAsync()');
+        return null;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for member to undo the latest draw record on board
  *
  * @param {String}          channelId, channel id
