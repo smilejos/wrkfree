@@ -109,6 +109,22 @@ module.exports = React.createClass({
          * first time init for mouse cursor
          */
         _changeBoardWheel(this.props.drawInfo.drawOptions);
+
+        /**
+         * @Author: George_Chen
+         * @Description: used to complete and save current draw
+         */
+        function _completeDraw() {
+            var drawTempStore = self.getStore(DrawTempStore);
+            var clientId = 'local';
+            drawing = false;
+            self.executeAction(SaveDrawRecord, {
+                channelId: self.props.channelId,
+                boardId: self.props.boardId,
+                chunksNum: drawTempStore.getDraws(self.props.channelId, self.props.boardId, clientId).length,
+                drawOptions: self.props.drawInfo.drawOptions
+            });
+        }
         
         board.addEventListener('mousemove',function(e){
             if (!drawing) {
@@ -144,19 +160,15 @@ module.exports = React.createClass({
             if (self.props.drawInfo.boardNums === 0) {
                 return;
             }
-            var drawTempStore = self.getStore(DrawTempStore);
-            var clientId = 'local';
-            drawing = false;
-            self.executeAction(SaveDrawRecord, {
-                channelId: self.props.channelId,
-                boardId: self.props.boardId,
-                chunksNum: drawTempStore.getDraws(self.props.channelId, self.props.boardId, clientId).length,
-                drawOptions: self.props.drawInfo.drawOptions
-            });
+            if (drawing) {
+                _completeDraw();
+            }
         });
 
         board.addEventListener('mouseleave',function(){
-            drawing = false;
+            if (drawing) {
+                _completeDraw();
+            }
         });
 
         // get drawInfo
