@@ -5,9 +5,13 @@ var SharedUtils = require('../../../sharedUtils/utils');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
 var LokiUtils = require('../../../sharedUtils/lokiUtils');
 
-// TODO: we should store this parameter to a global params file
+var Configs = require('../../../configs/config');
 // used to limit the active reocrds number
-var RECORD_ACTIVE_LIMIT = 10;
+var RECORD_ACTIVE_LIMIT = Configs.get().params.draw.activeRecordLimit;
+
+if (!SharedUtils.isNumber(RECORD_ACTIVE_LIMIT)) {
+    throw new Error('draw parameters missing');
+}
 
 module.exports = CreateStore({
     storeName: 'DrawStore',

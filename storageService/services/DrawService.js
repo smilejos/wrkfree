@@ -10,13 +10,18 @@ var BoardDao = require('../daos/DrawBoardDao');
 var PreviewDao = require('../daos/DrawPreviewDao');
 var RecordTemp = require('../tempStores/DrawRecordTemp');
 
-// TODO: we should store this parameter to a global params file
-// used to limit the active reocrds number
-var RECORD_ACTIVE_LIMIT = 10;
+var Configs = require('../../configs/config');
 
 // define the maximum number of draws can be lost during client drawing
 // NOTE: usually, few missing draws is acceptable under jitter environment.
-var MISSING_DRAWS_MAXIMUM = 3;
+var MISSING_DRAWS_MAXIMUM = Configs.get().params.draw.missingDrawLimit;
+
+// used to limit the active reocrds number
+var RECORD_ACTIVE_LIMIT = Configs.get().params.draw.activeRecordLimit;
+
+if (!SharedUtils.isNumber(MISSING_DRAWS_MAXIMUM) || !SharedUtils.isNumber(RECORD_ACTIVE_LIMIT)) {
+    throw new Error('draw parameters missing');
+}
 
 /************************************************
  *
