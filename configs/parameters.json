@@ -3,7 +3,9 @@
         "boardWidth": 900,
         "boardHeight": 500,
         "missingDrawLimit": 3,
-        "activeRecordLimit": 10
+        "activeRecordLimit": 10,
+        "activeDrawsLimit": 200,
+        "activeDrawsExpiration": 2
     },
     "rtc": {
         "workQueueType": "rtc",

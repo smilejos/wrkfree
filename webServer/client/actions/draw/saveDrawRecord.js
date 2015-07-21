@@ -39,7 +39,7 @@ module.exports = function(actionContext, data, callback) {
             channelId: data.channelId,
             boardId: data.boardId,
             clientId: clientId,
-            record: drawTempStore.getDraws(data.channelId, data.boardId, clientId),
+            record: drawTempStore.getLocalDraws(data.channelId, data.boardId),
             drawOptions: _cloneOptions(data.drawOptions)
         });
     }).catch(function(err) {

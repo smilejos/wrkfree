@@ -10,7 +10,11 @@ var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var Configs = require('../../../../configs/config');
 var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
 var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
-if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
+var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
+
+if (!SharedUtils.isNumber(BOARD_WIDTH) || 
+    !SharedUtils.isNumber(BOARD_HEIGHT) || 
+    !SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT)) {
     throw new Error('error while on getting draw related params');
 }
 
@@ -117,14 +121,13 @@ module.exports = React.createClass({
          */
         function _completeDraw() {
             var drawTempStore = self.getStore(DrawTempStore);
-            var clientId = 'local';
-            var currentDraw = drawTempStore.getDraws(self.props.channelId, self.props.boardId, clientId);
+            var localDraws = drawTempStore.getLocalDraws(self.props.channelId, self.props.boardId);
             drawing = false;
-            if (SharedUtils.isArray(currentDraw)) {
+            if (SharedUtils.isArray(localDraws)) {
                 return self.executeAction(SaveDrawRecord, {
                     channelId: self.props.channelId,
                     boardId: self.props.boardId,
-                    chunksNum: currentDraw.length,
+                    chunksNum: localDraws.length,
                     drawOptions: self.props.drawInfo.drawOptions
                 });
             }
@@ -145,6 +148,13 @@ module.exports = React.createClass({
         board.addEventListener('mousemove',function(e){
             if (!drawing) {
                 return;
+            }
+            var cid = self.props.channelId;
+            var bid = self.props.boardId;
+            var localDraws = self.getStore(DrawTempStore).getLocalDraws(cid, bid);
+            if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
+                drawing = false;
+                return _completeDraw();
             }
             var position = _getCanvasMouse(e);
             // trigger the drawing action

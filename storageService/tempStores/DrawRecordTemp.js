@@ -10,10 +10,16 @@ if (!DbConfigs) {
     throw new Error('DB configurations broken');
 }
 
-// TODO: these args should be put at a params configured files
-var RECORD_DATA_LIMIT = 300;
-// if no streams arrived within 2 second, stream raw data will be expired
-var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = 2;
+// to indicate how many draws can be saved as draw record
+var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
+
+// if no streams arrived within expriation time, stream raw data will be expired
+var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = Configs.get().params.draw.activeDrawsExpiration;
+
+if (!SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT) || 
+    !SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT)) {
+    throw new Error('error while on getting draw related params');
+}
 
 /**
  * stream record data should be put at local scope
@@ -46,7 +52,7 @@ exports.streamRecordAsync = function(channelId, boardId, clientId, rawData) {
                 ttlResult: RedisClient.expireAsync(streamKey, RECORD_STREAM_EXPIRE_TIME_IN_SECONDS)
             });
         }).then(function(data) {
-            if (data.pushLength > RECORD_DATA_LIMIT) {
+            if (data.pushLength > ACTIVED_DRAWS_LIMIT) {
                 throw new Error('record stream exceed limit');
             }
             return (data.pushLength > 0 ? true : null);
@@ -72,7 +78,7 @@ exports.getRecordAsync = function(channelId, boardId, clientId) {
         SharedUtils.argsCheckAsync(clientId, 'string'),
         function(cid, bid, sid) {
             var streamKey = _getStreamKey(cid, bid, sid);
-            return RedisClient.lrangeAsync(streamKey, 0, RECORD_DATA_LIMIT);
+            return RedisClient.lrangeAsync(streamKey, 0, ACTIVED_DRAWS_LIMIT);
         }).map(function(chunks) {
             return _deserializeChunks(chunks);
         }).catch(function(err) {
