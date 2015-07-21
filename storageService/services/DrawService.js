@@ -135,7 +135,7 @@ exports.cleanBoardAsync = function(channelId, boardId, member) {
  */
 exports.streamRecordDataAsync = function(channelId, boardId, clientId, rawData) {
     var logMsg = 'channel [' + channelId + '] has been drawing on board [' + boardId + ']';
-    LogUtils.info(LogCategory, null, logMsg);
+    LogUtils.debug(LogCategory, null, logMsg);
     return RecordTemp.streamRecordAsync(channelId, boardId, clientId, rawData)
         .catch(function(err) {
             LogUtils.error(LogCategory, {
