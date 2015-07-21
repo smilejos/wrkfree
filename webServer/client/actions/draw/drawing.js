@@ -3,6 +3,20 @@ var Promise = require('bluebird');
 var DrawService = require('../../services/drawService');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
+var DrawTempStore = require('../../../shared/stores/DrawTempStore');
+var ActionUtils = require('../actionUtils');
+
+/**
+ * load configs
+ */
+var Configs = require('../../../../configs/config');
+var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
+
+if (!SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT)) {
+    throw new Error('error while on getting draw related params');
+}
+
+var WARNING_DRAWS_LIMIT = (ACTIVED_DRAWS_LIMIT / 2);
 
 /**
  * @Public API
@@ -17,13 +31,20 @@ var DrawUtils = require('../../../../sharedUtils/drawUtils');
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
+    data.clientId = 'local';
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
     }).then(function(recordData) {
-        data.clientId = 'local';
+        var tempStore = actionContext.getStore(DrawTempStore);
+        var draws = tempStore.getDraws(data.channelId, data.boardId, data.clientId);
+        if (draws && draws.length === (ACTIVED_DRAWS_LIMIT - 1)) {
+            ActionUtils.showErrorEvent('Drawing', 'stop drawing');
+        } else if (draws && draws.length === WARNING_DRAWS_LIMIT) {
+            ActionUtils.showWarningEvent('Drawing', 'Too many draws at the same time');
+        }
         actionContext.dispatch('ON_DRAW_CHANGE', data);
         return DrawService.drawAsync(recordData);
     }).then(function(result) {
@@ -32,5 +53,6 @@ module.exports = function(actionContext, data, callback) {
         }
     }).catch(function(err) {
         SharedUtils.printError('drawing.js', 'core', err);
+        ActionUtils.showErrorEvent('Drawing', 'current draws abnormal');
     }).nodeify(callback);
 };
