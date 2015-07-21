@@ -121,7 +121,7 @@ module.exports = React.createClass({
          */
         function _completeDraw() {
             var drawTempStore = self.getStore(DrawTempStore);
-            var localDraws = drawTempStore.getDraws(self.props.channelId, self.props.boardId, 'local');
+            var localDraws = drawTempStore.getLocalDraws(self.props.channelId, self.props.boardId);
             drawing = false;
             if (SharedUtils.isArray(localDraws)) {
                 return self.executeAction(SaveDrawRecord, {
@@ -151,7 +151,7 @@ module.exports = React.createClass({
             }
             var cid = self.props.channelId;
             var bid = self.props.boardId;
-            var localDraws = self.getStore(DrawTempStore).getDraws(cid, bid, 'local');
+            var localDraws = self.getStore(DrawTempStore).getLocalDraws(cid, bid);
             if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
                 drawing = false;
                 return _completeDraw();

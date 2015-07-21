@@ -31,7 +31,6 @@ var WARNING_DRAWS_LIMIT = (ACTIVED_DRAWS_LIMIT / 2);
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
-    data.clientId = 'local';
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -39,12 +38,13 @@ module.exports = function(actionContext, data, callback) {
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
     }).then(function(recordData) {
         var tempStore = actionContext.getStore(DrawTempStore);
-        var draws = tempStore.getDraws(data.channelId, data.boardId, data.clientId);
+        var draws = tempStore.getLocalDraws(data.channelId, data.boardId);
         if (draws && draws.length === (ACTIVED_DRAWS_LIMIT - 1)) {
             ActionUtils.showErrorEvent('Drawing', 'stop drawing');
         } else if (draws && draws.length === WARNING_DRAWS_LIMIT) {
             ActionUtils.showWarningEvent('Drawing', 'Too many draws at the same time');
         }
+        data.clientId = 'local';
         actionContext.dispatch('ON_DRAW_CHANGE', data);
         return DrawService.drawAsync(recordData);
     }).then(function(result) {

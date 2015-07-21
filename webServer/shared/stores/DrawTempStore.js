@@ -88,6 +88,18 @@ module.exports = CreateStore({
     /**
      * Public API
      * @Author: George_Chen
+     * @Description: sugar syntax for getting local draws
+     *
+     * @param {String}          data.channelId, the channel id
+     * @param {Number}          data.boardId, the draw board id
+     */
+    getLocalDraws: function(channelId, boardId) {
+        return this.getDraws(channelId, boardId, 'local');
+    },
+
+    /**
+     * Public API
+     * @Author: George_Chen
      * @Description: to get all temp draws on current board
      *
      * @param {String}          data.channelId, the channel id
