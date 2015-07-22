@@ -19,6 +19,7 @@ module.exports = function(actionContext, data, callback) {
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number')
     }).then(function(validData) {
         var cleanDoc = DrawUtils.generateCleanRecord(validData.channelId, validData.boardId);
+        cleanDoc.isUpdated = false;
         return actionContext.dispatch('ON_RECORD_SAVE', cleanDoc);
     }).catch(function(err) {
         SharedUtils.printError('onCleanDrawBoard.js', 'core', err);

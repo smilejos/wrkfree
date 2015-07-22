@@ -46,7 +46,8 @@ module.exports = function(actionContext, data, callback) {
             boardId: data.boardId,
             clientId: data.clientId,
             record: tempRecord,
-            drawOptions: data.drawOptions
+            drawOptions: data.drawOptions,
+            isUpdated: true
         });
     }).catch(function(err) {
         SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
