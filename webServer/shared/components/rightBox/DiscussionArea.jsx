@@ -201,12 +201,12 @@ var MessageList = React.createClass({
         var inlineStyle = {
             top: this.props.isReload ? 40 : 0
         }
-        var Messages = this.props.data.map( function( message ){
+        var messages = this.props.data.map( function( message ){
             return <Message key={message.sentTime} data={message} />;
         });
         return ( 
             <div className="MsgContainer" id="MsgContainer" style={inlineStyle}>
-                {Messages}
+                {messages}
             </div> 
         );
     }
@@ -214,48 +214,25 @@ var MessageList = React.createClass({
 
 var Message = React.createClass({
     render: function(){
+        var sentTime = new Date(this.props.data.sentTime);
+        var timeNotation = sentTime.getHours() >=12 ? 'pm' : 'am';
+        console.log('sentTime', sentTime);
         return (
             <div className="MsgContent">
                 <div className="pure-u-5-24">
                     <UserAvatar avatar={this.props.data.avatar} isCircle={true} />
                 </div>
                 <div className="pure-u-18-24">
-                    <MsgHead sender={this.props.data.nickName}/>
-                    <MsgText message={this.props.data.message}/>
-                    <MsgTime time={this.props.data.sentTime}/>
+                    <div className="MsgSender">  
+                        {this.props.data.nickName}
+                    </div>
+                    <div className="MsgText">  
+                        {this.props.data.message}
+                    </div>
+                    <div className="MsgTime">  
+                        {sentTime.getHours()%12+':'+sentTime.getMinutes()+' '+timeNotation}
+                    </div>
                 </div>
-            </div>
-        );
-    }
-});
-
-var MsgHead = React.createClass({
-    render: function(){
-        return (
-            <div className="MsgSender">  
-                {this.props.sender}
-            </div>
-        );
-    }
-});
-
-var MsgText = React.createClass({
-    render: function(){
-        return (
-            <div className="MsgText">  
-                {this.props.message}
-            </div>
-        );
-    }
-});
-
-var MsgTime = React.createClass({
-    render: function(){
-        var d = new Date(this.props.time);
-        var timeNotation = (d.getHours()>=12) ? 'pm' : 'am'
-        return (
-            <div className="MsgTime">  
-                {d.getHours()%12+':'+d.getMinutes()+' '+timeNotation}
             </div>
         );
     }

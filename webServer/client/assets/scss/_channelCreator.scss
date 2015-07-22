@@ -1,0 +1,44 @@
+/**
+ * @Author: Jos Tung
+ * @Description: this style for channel creator component using in ChannelCreator.jsx
+ *  Note: we only put a 280x200 div to display channel creator
+ */
+.ChannelCreator {
+    position: fixed;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14;
+    line-height: 20px;
+    color: #666;
+    padding: 10px;
+    top: 0px;
+    right: 200px;
+    width: 280px;
+    height: 150px;
+    transition: 0.4s;
+    visibility: hidden;
+    opacity: 0;
+    background: #fff;
+    border-bottom: 1px rgba(0, 0, 0, .2);
+    box-shadow: 0 2px 2px 2px rgba(0, 0, 0, .2);
+    z-index: 4;
+
+    .ChannelHead {
+        position: relative;
+        height: 60px;
+        width: 260px;
+        padding: 10px 2px;
+    }
+
+    .ChannelButton
+    {
+        position: relative;
+        height: 40px;
+        text-align: center;
+    }
+}
+
+.ChannelCreatorShow {
+    top: 50px;
+    opacity: 1;
+    visibility: visible;
+}

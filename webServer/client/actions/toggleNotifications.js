@@ -18,7 +18,7 @@ module.exports = function(actionContext, data) {
     var store = actionContext.getStore(NotificationStore);
     return Promise.try(function() {
         if (SharedUtils.isBoolean(data.isVisible)) {
-            return data.isVisible;
+            return data.isActive;
         }
         return !store.isNotificationShown();
     }).then(function(toggleState) {
@@ -54,7 +54,7 @@ function _resetUnreadNotice(actionContext, toggleState) {
             SharedUtils.printError('toggleNotifications.js', '_resetUnreadNotice', err);
         }
         actionContext.dispatch('TOGGLE_NOTIFICATION', {
-            isVisible: toggleState
+            isActive: toggleState
         });
     });
 }

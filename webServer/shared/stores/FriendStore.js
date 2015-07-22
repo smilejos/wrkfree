@@ -160,7 +160,25 @@ module.exports = CreateStore({
         });
     },
 
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: used to show or hide channelNav bar
+     * NOTE: if is "isOpen" is invalid, we will change "actived" state different from current
+     * 
+     * @param {Boolean}        isOpen, to indicate channelNav bar should open or not
+     */
+    toggleAsync: function(isOpen) {
+        var self = this;
+        return Promise.try(function() {
+            self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
+            self.emitChange();
+        });
+    },
+
+
     initialize: function() {
+        this.isActive = false;
         this.isPolyFilled = false;
         this.dbName = 'FriendDB';
         this.db = this.getContext().getLokiDb(this.dbName);
@@ -212,6 +230,7 @@ module.exports = CreateStore({
             if (obj1.nickName > obj2.nickName) return 1;
         };
         return {
+            isActive: this.isActive,
             friends: collection.chain().sort(sortMethod).data()
         };
     },
