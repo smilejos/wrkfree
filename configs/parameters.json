@@ -5,7 +5,8 @@
         "missingDrawLimit": 3,
         "activeRecordLimit": 10,
         "activeDrawsLimit": 200,
-        "activeDrawsExpiration": 2
+        "activeDrawsExpiration": 2,
+        "delayForUpdatePreview": 3000
     },
     "rtc": {
         "workQueueType": "rtc",
