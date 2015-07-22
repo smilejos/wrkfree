@@ -17,13 +17,13 @@ module.exports = CreateStore({
     storeName: 'DrawStore',
 
     handlers: {
-        'ON_RECORD_SAVE': 'onRecordSave',
-        'ON_BOARD_POLYFILL': 'onPolyfill',
-        'ON_BOARD_ADD': 'onBoardAdd',
-        'ON_BOARD_CLEAN': 'onBoardClean',
-        'ON_DRAW_UNDO': 'onRecordUndo',
-        'ON_DRAW_REDO': 'onRecordRedo',
-        'ON_UPDATE_DRAWIMG': 'onUpdateBaseImg',
+        'ON_RECORD_SAVE': '_onRecordSave',
+        'ON_BOARD_POLYFILL': '_onPolyfill',
+        'ON_BOARD_ADD': '_onBoardAdd',
+        'ON_BOARD_CLEAN': '_onBoardClean',
+        'ON_DRAW_UNDO': '_onRecordUndo',
+        'ON_DRAW_REDO': '_onRecordRedo',
+        'ON_UPDATE_DRAWIMG': '_onUpdateBaseImg',
         'CLEAN_FAILURE_DRAW': '_cleanFailureDraw'
     },
 
@@ -52,7 +52,7 @@ module.exports = CreateStore({
      * @param {String}          data.channelId, the channel id
      * @param {Number}          data.boardId, the draw board id
      */
-    onBoardAdd: function(data) {
+    _onBoardAdd: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
         this.baseImgs[drawViewId] = null;
@@ -67,7 +67,7 @@ module.exports = CreateStore({
      *
      * @param {Object}      record, drawRecord document
      */
-    onRecordSave: function(record) {
+    _onRecordSave: function(record) {
         var collection = this.db.getCollection(this.dbName);
         var self = this;
         // remove all undo records on current board
@@ -97,7 +97,7 @@ module.exports = CreateStore({
      * @param {String}          data.channelId, the channel id
      * @param {Number}          data.boardId, the draw board id
      */
-    onRecordUndo: function(data) {
+    _onRecordUndo: function(data) {
         var cid = data.channelId;
         var bid = data.boardId;
         var collection = this.db.getCollection(this.dbName);
@@ -123,7 +123,7 @@ module.exports = CreateStore({
      * @param {String}          data.channelId, the channel id
      * @param {Number}          data.boardId, the draw board id
      */
-    onRecordRedo: function(data) {
+    _onRecordRedo: function(data) {
         var cid = data.channelId;
         var bid = data.boardId;
         var collection = this.db.getCollection(this.dbName);
@@ -151,7 +151,7 @@ module.exports = CreateStore({
      * @param {Object}      data.boardInfo.baseImg, draw board base image
      * @param {Array}       data.boardInfo.records, draw board records
      */
-    onPolyfill: function(data) {
+    _onPolyfill: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
         this.baseImgs[drawViewId] = _getImgDataURL(data.boardInfo.baseImg);
@@ -176,7 +176,7 @@ module.exports = CreateStore({
      * @param {String}      data.imgDataUrl, the image data url
      * @param {Array}       data.outdatedDocs, outdated drawRecord docs
      */
-    onUpdateBaseImg: function(data) {
+    _onUpdateBaseImg: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
         this.baseImgs[drawViewId] = data.imgDataUrl;
@@ -193,7 +193,7 @@ module.exports = CreateStore({
      * @param {String}      data.channelId, target channel id
      * @param {Number}      data.boardId, target board id
      */
-    onBoardClean: function(data) {
+    _onBoardClean: function(data) {
         var collection = this.db.getCollection(this.dbName);
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var removeTargets = _getDrawView(collection, data.channelId, data.boardId).data();
