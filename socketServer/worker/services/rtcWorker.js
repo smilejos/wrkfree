@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var RtcStorage = StorageManager.getService('Rtc');
+var KueUtils = require('./kueUtils');
 
 /**
  * setup rtc params
@@ -16,25 +17,10 @@ var QUEUE_TYPE = Params.workQueueType;
 var NOTIFICATION_DELAY = Params.notificationDelayInMSecond;
 var NOTIFICATION_TIMEOUT = Params.notificationTimeoutInMSecond;
 
-var DbConfigs = Configs.get().db;
-if (!DbConfigs) {
-    throw new Error('DB configurations broken');
-}
-
 /**
  * the work queue object based on redis,
  */
-var Kue = require('kue');
-var Queue = Kue.createQueue({
-    jobEvents: false,
-    redis: {
-        host: DbConfigs.cacheEnv.global.host,
-        port: DbConfigs.cacheEnv.global.port,
-        options: DbConfigs.cacheEnv.global.options,
-        db: 3,
-    }
-});
-var _GetJobAsync = Promise.promisify(Kue.Job.get);
+var Queue = KueUtils.getKue();
 
 /**
  * the worker object of socket cluster
@@ -111,21 +97,6 @@ function _notifyConference(cid, session) {
 
 /**
  * @Author: George_Chen
- * @Description: to remove completed or failed job from kue
- *
- * @param {Number}          jobId, the kue's job id
- */
-function _removeJob(jobId) {
-    return _GetJobAsync(jobId)
-        .then(function(job) {
-            job.remove(function(err) {
-                if (err) throw err;
-            });
-        });
-}
-
-/**
- * @Author: George_Chen
  * @Description: to enqueue new rtc job to kue
  *
  * @param {Object}          jobInfo, the infomation of kue job
@@ -163,17 +134,4 @@ Queue.process(QUEUE_TYPE, function(job, done) {
         }).then(function(isRepeat) {
             return (isRepeat ? _enqueueAsync(job.data) : false);
         }).nodeify(done);
-});
-
-Queue.on('job complete', function(id) {
-    return _removeJob(id)
-        .catch(function(err) {
-            SharedUtils.printError('rtcWorker.js', 'Queue-jobComplete', err);
-        });
-}).on('job failed', function(id, failReason) {
-    SharedUtils.printError('rtcWorker.js', 'Queue-failed', new Error(failReason));
-    return _removeJob(id)
-        .catch(function(err) {
-            SharedUtils.printError('rtcWorker.js', 'Queue-failed', err);
-        });
 });

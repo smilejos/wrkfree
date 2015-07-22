@@ -5,30 +5,14 @@ var CanvasService = require('./canvasService');
 var StorageManager = require('../../../storageService/storageManager');
 var DrawStorage = StorageManager.getService('Draw');
 var ChannelStorage = StorageManager.getService('Channel');
-
-/**
- * the worker object of socket cluster
- */
-var SocketWorker = null;
+var KueUtils = require('./kueUtils');
 
 var Configs = require('../../../configs/config');
-var DbConfigs = Configs.get().db;
-if (!DbConfigs) {
-    throw new Error('DB configurations broken');
-}
 
 /**
  * the work queue object based on redis,
  */
-var Queue = require('kue').createQueue({
-    jobEvents: false,
-    redis: {
-        host: DbConfigs.cacheEnv.global.host,
-        port: DbConfigs.cacheEnv.global.port,
-        options: DbConfigs.cacheEnv.global.options,
-        db: 2,
-    }
-});
+var Queue = KueUtils.getKue();
 
 var QUEUE_TYPE = 'draw';
 
@@ -41,6 +25,10 @@ var SCHEDULE_BUFFER_TIME_IN_MILISECONDS = 3000;
 // used to store the info of scheduled jobs
 var Scheduler = {};
 
+/**
+ * the worker object of socket cluster
+ */
+var SocketWorker = null;
 /************************************************
  *
  *           Public APIs
