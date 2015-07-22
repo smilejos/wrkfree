@@ -31,7 +31,8 @@ module.exports = function(actionContext, data) {
             channelId: data.channelId,
             boardId: data.boardId,
             record: [data.chunks],
-            drawOptions: _cloneOptions(data.drawOptions)
+            drawOptions: _cloneOptions(data.drawOptions),
+            isUpdated: false
         });
     }).catch(function(err) {
         SharedUtils.printError('saveSingleDraw.js', 'core', err);

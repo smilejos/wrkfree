@@ -69,7 +69,10 @@ module.exports = CreateStore({
         return _saveRecord(collection, record)
             .then(function() {
                 self._ensureArchived(record.channelId, record.boardId);
-                self.emitChange();
+                // is record has not updated on canvas, then trigger emitChange
+                if (!record.isUpdated) {
+                    self.emitChange();
+                }
             }).catch(function(err) {
                 SharedUtils.printError('DrawStore.js', 'onRecordSave', err);
                 return null;

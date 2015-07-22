@@ -25,6 +25,7 @@ module.exports = function(actionContext, data, callback) {
             throw new Error('clean draw board fail from server side');
         }
         var cleanDoc = DrawUtils.generateCleanRecord(data.channelId, data.boardId);
+        cleanDoc.isUpdated = false;
         return actionContext.dispatch('ON_RECORD_SAVE', cleanDoc);
     }).catch(function(err) {
         SharedUtils.printError('cleanDrawBoard.js', 'core', err);
