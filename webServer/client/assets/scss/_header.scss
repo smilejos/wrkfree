@@ -1,6 +1,6 @@
 $header-main-color: #FFF;
-$header-left-state-color: #FFF;
-$header-right-state-color: #144766;
+$header-state-color: #144766;
+$header-active-state-color: #fff;
 
 $header-user-state-width: 135px;
 
@@ -51,7 +51,6 @@ $header-user-state-width: 135px;
         .leftState {
             @extend .baseCounterContainer;       
             padding-left: 15px; 
-            color: $header-left-state-color;
             float: left;
             position: relative;
             .counter {
@@ -92,7 +91,6 @@ $header-user-state-width: 135px;
             @extend .baseCounterContainer;
             position: relative;
             float: left;
-            color: $header-right-state-color;
             .counter {
                 @extend .baseCounter;
                 position: absolute;
@@ -103,5 +101,13 @@ $header-user-state-width: 135px;
         .rightState:hover {
             color: #0d2f44;
         }
+    }
+
+    .fa {
+         color: $header-state-color;
+    }
+    
+    .active {
+        color: $header-active-state-color;
     }
 }

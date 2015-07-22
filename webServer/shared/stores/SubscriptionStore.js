@@ -8,7 +8,6 @@ module.exports = CreateStore({
     storeName: 'SubscriptionStore',
 
     handlers: {
-        'ON_CHANNEL_CREATE': 'onChannelCreate',
         'ON_OPEN_HANGOUT': '_onOpenHangout',
         'ON_CHANNEL_ADDED': '_onChannelAdded',
         'CHANGE_ROUTE': '_onChangeRoute',
@@ -19,18 +18,11 @@ module.exports = CreateStore({
 
     initialize: function() {
         // test data for channelNav Info
-        this.isActived = false;
-        this.isNameValid = false;
+        this.isActive = false;
         // use "-1" to indicate that no channel create action
-        this.createdChannel = -1;
         this.dbName = 'SubscriptionStore';
         this.db = this.getContext().getLokiDb(this.dbName);
         this.db.addCollection(this.dbName).ensureIndex('channelId');
-    },
-
-    onChannelCreate: function(data) {
-        this.createdChannel = data.channelInfo;
-        this.emitChange();
     },
 
     /**
@@ -43,9 +35,10 @@ module.exports = CreateStore({
      */
     toggleAsync: function(isOpen) {
         var self = this;
+        console.log('toggleAsync');
         return Promise.try(function() {
             self.createdChannel = -1;
-            self.isActived = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActived);
+            self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
             self.emitChange();
         });
     },
@@ -191,9 +184,7 @@ module.exports = CreateStore({
     getState: function() {
         var collection = this.db.getCollection(this.dbName);
         return {
-            createdChannel: this.createdChannel,
-            isNameValid: this.isNameValid,
-            isActived: this.isActived,
+            isActive: this.isActive,
             subscriptions: collection.chain().data()
         };
     },

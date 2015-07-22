@@ -1,15 +1,21 @@
 var React = require('react');
 var Router = require('react-router');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
-var HeaderStore = require('../stores/HeaderStore');
 
+var HeaderStore = require('../stores/HeaderStore');
+var SubscriptionStore = require('../stores/SubscriptionStore');
+var ChannelCreatorStore = require('../stores/ChannelCreatorStore');
+var NotificationStore = require('../stores/NotificationStore');
+var FriendStore = require('../stores/FriendStore');
 /**
  * actions
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var ToggleComponent = require('../../client/actions/toggleComponent');
+var ToggleFriendList = require('../../client/actions/toggleFriendList');
 var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
 var ToggleNotifications = require('../../client/actions/toggleNotifications');
+var ToggleChannelCreator = require('../../client/actions/toggleChannelCreator');
 var QuickSearchAction = require('../../client/actions/search/quickSearch');
 
 /**
@@ -40,20 +46,34 @@ module.exports = React.createClass({
     mixins: [Router.Navigation, FluxibleMixin],
     statics: {
         storeListeners: {
-            'onStoreChange': [HeaderStore]
+            'onStoreChange': [HeaderStore],
+            'onIconStateChange': [SubscriptionStore, ChannelCreatorStore, NotificationStore, FriendStore]
         }
     },
 
     getInitialState: function() {
         var state = this.getStore(HeaderStore).getState();
-        state.iconButtonStyle = {
-            color: '#FFF'
-        };
+        state.isChannelListActive = false;
+        state.isChannelCreatorActive = false;
+        state.isNotificationActive = false;
+        state.isFriendListActive = false;
+        state.isPersonalActive = false;
         return state;
     },
 
     onStoreChange: function() {
         var state = this.getStore(HeaderStore).getState();
+        this.setState(state);
+    },
+
+    onIconStateChange: function() {
+        var state = {
+            isChannelListActive : this.getStore(SubscriptionStore).getState().isActive,
+            isChannelCreatorActive : this.getStore(ChannelCreatorStore).getState().isActive,
+            isNotificationActive : this.getStore(NotificationStore).getState().isActive,
+            isFriendListActive : this.getStore(FriendStore).getState().isActive
+            //isPersonalActive : this.getStore(SubscriptionStore).getState().isActive,
+        }
         this.setState(state);
     },
 
@@ -116,13 +136,15 @@ module.exports = React.createClass({
     },
 
     _onInboxToggle: function(){
-        this.executeAction(ToggleComponent, {
-            param: 'friendVisiable'
-        });
+        this.executeAction(ToggleFriendList);
     },
 
     _onNoticeToggle: function(){
         this.executeAction(ToggleNotifications);
+    },
+
+    _onChannelCreatorToggle: function(){
+        this.executeAction(ToggleChannelCreator);
     },
 
     /**
@@ -134,12 +156,10 @@ module.exports = React.createClass({
             return '';
         }
         return (
-            <IconButton 
-                iconClassName="fa fa-search" 
-                tooltip="Search things " 
-                touch={true} 
-                iconStyle={this.state.iconButtonStyle}
-                onClick={this._onSearchIconClick} />
+            <StateIcon 
+                stateClass="leftState" 
+                iconClass="fa fa-search"
+                handler={this._onSearchIconClick} />
         );
     },
 
@@ -152,10 +172,10 @@ module.exports = React.createClass({
             return '';
         }
         return (
-            <IconButton 
-                iconClassName="fa fa-times"  
-                iconStyle={this.state.iconButtonStyle}
-                onClick={this._onSearchCancel} />
+            <StateIcon 
+                stateClass="leftState" 
+                iconClass="fa fa-times"
+                handler={this._onSearchCancel} />
         );
     },
 
@@ -172,29 +192,31 @@ module.exports = React.createClass({
                 <div className="headerLeftMenu">
                     <StateIcon
                         stateClass="leftState" 
-                        iconClass="fa fa-bars"
+                        iconClass={this.state.isChannelListActive ? "fa fa-bars active" : "fa fa-bars"}
                         counts={this.state.unreadDiscussions}
                         handler={this._onMenuIconButtonTouchTap} />
-                    <div className="headerSearch" >
-                        {this._setSearchIcon()}
-                        <TextField 
-                            hintText="search channels, users, ...." 
-                            ref="search"
-                            onClick={this._onSearchIconClick}
-                            onChange={this._onSearchChange}
-                            onKeyDown={this._onSearchKeyDown} />
-                        {this._setCancelIcon()}
-                    </div>
+                    {this._setSearchIcon()}
+                    <TextField 
+                        hintText="search channels, users, ...." 
+                        ref="search"
+                        onClick={this._onSearchIconClick}
+                        onChange={this._onSearchChange}
+                        onKeyDown={this._onSearchKeyDown} />
+                    {this._setCancelIcon()}
                 </div>
                 <div className="headerRightMenu" >
                     <StateIcon
                         stateClass="rightState" 
-                        iconClass="fa fa-bell"
+                        iconClass={this.state.isChannelCreatorActive ? "fa fa-plus active" : "fa fa-plus"} 
+                        handler={this._onChannelCreatorToggle} />
+                    <StateIcon
+                        stateClass="rightState" 
+                        iconClass={this.state.isNotificationActive ? "fa fa-bell active" : "fa fa-bell"}
                         counts={this.state.unreadNoticeCounts} 
                         handler={this._onNoticeToggle} />
                     <StateIcon
                         stateClass="rightState" 
-                        iconClass="fa fa-comments"
+                        iconClass={this.state.isFriendListActive ? "fa fa-comments active" : "fa fa-comments"}
                         counts={this.state.unreadConversations}  
                         handler={this._onInboxToggle} />
                     <UserState avatar={this.state.userInfo.avatar} name={this.state.userInfo.nickName} />
