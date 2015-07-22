@@ -7,8 +7,6 @@ var DrawStorage = StorageManager.getService('Draw');
 var ChannelStorage = StorageManager.getService('Channel');
 var KueUtils = require('./kueUtils');
 
-var Configs = require('../../../configs/config');
-
 /**
  * the work queue object based on redis,
  */
@@ -16,11 +14,14 @@ var Queue = KueUtils.getKue();
 
 var QUEUE_TYPE = 'draw';
 
+var Configs = require('../../../configs/config');
 /**
- * TODO: we should store this parameter to a global params file
  * used to buffer preview image update request,
  */
-var SCHEDULE_BUFFER_TIME_IN_MILISECONDS = 3000;
+var SCHEDULE_DELAYED_TIME_IN_MILISECONDS = Configs.get().params.draw.delayForUpdatePreview;
+if (!SharedUtils.isNumber(SCHEDULE_DELAYED_TIME_IN_MILISECONDS)) {
+    throw new Error('error on getting draw schedule time');
+}
 
 // used to store the info of scheduled jobs
 var Scheduler = {};
@@ -68,7 +69,7 @@ exports.setUpdateSchedule = function(channelId, boardId, user) {
                 uid: user,
                 sentTime: Scheduler[scheduleId]
             });
-        }, SCHEDULE_BUFFER_TIME_IN_MILISECONDS);
+        }, SCHEDULE_DELAYED_TIME_IN_MILISECONDS);
     }
     Scheduler[scheduleId] = Date.now();
 };
