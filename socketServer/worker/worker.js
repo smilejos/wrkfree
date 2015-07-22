@@ -9,6 +9,11 @@ var Env = process.env.NODE_ENV || 'development';
 var Configs = require('../../configs/config');
 Configs.import('params', require('../../configs/parameters.json'));
 Configs.import('db', require('../../configs/db.json')[Env]);
+Configs.import('logs', require('../../configs/logs.json')[Env]);
+
+var LogUtils = require('../../sharedUtils/logUtils');
+var LogCategory = 'SOCKET';
+LogUtils.init(Configs.get().logs);
 
 var StorageManager = require('../../storageService/storageManager');
 // intialize db resource before internal modules
@@ -61,6 +66,7 @@ module.exports.run = function(worker) {
      *               before force stop container
      */
     process.on('SIGTERM', function() {
+        LogUtils.warn(LogCategory, {}, 'SYSTEM EVENT [SIGTERM] !');
         _workerReset();
     });
 
@@ -69,6 +75,7 @@ module.exports.run = function(worker) {
      * @Description: for handling fatal error on worker
      */
     worker.on('error', function() {
+        LogUtils.error(LogCategory, {}, 'SYSTEM ERROR !');
         _workerReset();
     });
 
@@ -77,6 +84,7 @@ module.exports.run = function(worker) {
      * @Description: reset current worker
      */
     function _workerReset() {
+        LogUtils.warn(LogCategory, {}, 'worker reset!');
         var sockets = scServer.clients;
         var socketIds = Object.keys(sockets);
         SharedUtils.fastArrayMap(socketIds, function(sid) {
@@ -93,6 +101,7 @@ module.exports.run = function(worker) {
      * @param {Array}         subscriptions, a array of socket subscriptions
      */
     function _workerExit() {
+        LogUtils.warn(LogCategory, {}, 'worker shutdown!');
         var sockets = scServer.clients;
         var socketIds = Object.keys(sockets);
         Promise.map(socketIds, function(sid) {
@@ -114,6 +123,9 @@ module.exports.run = function(worker) {
      * @param {Array}         subscriptions, a array of socket subscriptions
      */
     function _userLeaveAsync(uid, sid, subscriptions) {
+        LogUtils.info(LogCategory, {
+            socketId: sid
+        }, 'user [' + uid + '] leave ...');
         return Promise.join(
             UserStorage.userLeaveAsync(uid, sid),
             _disconnectChannel(sid, subscriptions),
@@ -126,8 +138,12 @@ module.exports.run = function(worker) {
       In here we handle our incoming realtime connections and listen for events.
     */
     scServer.on('connection', function(socket) {
+        LogUtils.info(LogCategory, null, 'socket [' + socket.id + '] connecting ...');
         var token = socket.getAuthToken();
         if (token) {
+            LogUtils.info(LogCategory, {
+                socketId: socket.id
+            }, 'user [' + token + '] enter ...');
             UserStorage.userEnterAsync(token, socket.id)
                 .then(function() {
                     return _publishUserOnlineStatus(socket, token, true);
@@ -135,6 +151,7 @@ module.exports.run = function(worker) {
         }
 
         socket.on('auth', function(cookieStr, callback) {
+            LogUtils.info(LogCategory, null, 'socket [' + socket.id + '] auth ...');
             return Promise.try(function() {
                 var cookie = Cookie.parse(cookieStr);
                 return [
@@ -143,6 +160,7 @@ module.exports.run = function(worker) {
                 ];
             }).spread(function(uid, isAuth) {
                 if (isAuth) {
+                    LogUtils.info(LogCategory, {user: uid}, 'socket [' + socket.id + '] get auth ...');
                     // configure uid as token
                     socket.setAuthToken(uid);
                     return UserStorage.userEnterAsync(uid, socket.id)
@@ -150,14 +168,22 @@ module.exports.run = function(worker) {
                             return _publishUserOnlineStatus(socket, uid, true);
                         });
                 }
-                throw new Error('cookie auth fail');
+                LogUtils.warn(LogCategory, null, 'socket [' + socket.id + '] authentication fail');
+                throw new Error('authentication fail');
             }).catch(function(err) {
-                SharedUtils.printError('worker.js', 'event-auth', err);
-                throw new Error('authentication fail').toString();
+                var errMsg = err.toString();
+                if (errMsg !== 'authentication fail') {
+                    LogUtils.error(LogCategory, {
+                        cookie: cookieStr,
+                        error: err
+                    }, 'error in socket auth');
+                }
+                throw errMsg;
             }).nodeify(callback);
         });
 
         socket.on('req', function(data, res) {
+            LogUtils.debug(LogCategory, {reqData: data}, 'request from socket [' + socket.id + ']');
             return Dispatcher(socket, data)
                 .then(function(result) {
                     return res(result.error, result.data);
@@ -165,6 +191,7 @@ module.exports.run = function(worker) {
         });
 
         socket.on('disconnect', function() {
+            LogUtils.info(LogCategory, {user: uid}, 'socket [' + socket.id + '] disconnect ...');
             var uid = socket.getAuthToken();
             var subscriptions = socket.subscriptions();
             return _userLeaveAsync(uid, socket.id, subscriptions)
@@ -173,7 +200,10 @@ module.exports.run = function(worker) {
                         return _publishUserOnlineStatus(socket, uid, false);
                     }
                 }).catch(function(err) {
-                    SharedUtils.printError('worker.js', 'disconnect', err);
+                    LogUtils.error(LogCategory, {
+                        user: uid,
+                        error: err
+                    }, 'error in socket disconnect ...');
                 });
         });
     });
@@ -270,6 +300,7 @@ function _configPublishOut(server) {
  * @param {Boolean}       isUserOnline, the socket server instance
  */
 function _publishUserOnlineStatus(socket, from, isUserOnline) {
+    LogUtils.info(LogCategory, {online: isUserOnline}, 'inform user ['+from+'] status');
     socket.global.publish('activity:' + from, {
         clientHandler: 'updateFriendStatus',
         service: 'friend',

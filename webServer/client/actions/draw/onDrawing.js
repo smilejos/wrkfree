@@ -20,6 +20,7 @@ module.exports = function(actionContext, data, callback) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number'),
+        clientId: SharedUtils.argsCheckAsync(data.clientId, 'string'),
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
     }).then(function(recordData) {

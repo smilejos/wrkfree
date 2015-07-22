@@ -4,6 +4,7 @@ var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var OnDrawing = require('../actions/draw/onDrawing');
 var OnSaveDrawRecord = require('../actions/draw/onSaveDrawRecord');
+var OnSaveSingleDraw = require('../actions/draw/onSaveSingleDraw');
 var OnCleanDrawBoard = require('../actions/draw/onCleanDrawBoard');
 var OnDrawUndo = require('../actions/draw/onDrawUndo');
 var OnDrawRedo = require('../actions/draw/onDrawRedo');
@@ -57,6 +58,29 @@ exports.onDrawRedo = function(data) {
  */
 exports.onCleanDrawBoard = function(data) {
     return SocketUtils.execAction(OnCleanDrawBoard, data, 'onCleanDrawBoard');
+};
+
+/**
+ * handler for handling remote drawer save single draw recrod
+ */
+exports.onSaveSingleDraw = function(data) {
+    return SocketUtils.execAction(OnSaveSingleDraw, data, 'onSaveSingleDraw');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: publish the single draw and save as a record
+ *       
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardId, the draw board id
+ * @param {Array}           data.chunks, the raw chunks of current drawing
+ * @param {Object}          data.drawOptions, the draw options for this record
+ */
+exports.saveSingleDrawAsync = function(data) {
+    var channel = SocketUtils.setChannelReq(data.channelId);
+    var packet = _setPacket('saveSingleDrawAsync', 'onSaveSingleDraw', data);
+    return _publish(channel, packet, 'saveSingleDrawAsync');
 };
 
 /**
@@ -189,16 +213,16 @@ exports.getLatestBoardIdAsync = function(data) {
  *
  ************************************************/
 
- /**
-  * @Author: George_Chen
-  * @Description: a sugar sytanx function for handling socekt request
-  *              events on drawService
-  *         NOTE: caller is just for print error log; if error happen,
-  *              we can know the root cause from which caller
-  *       
-  * @param {Object}          packet, the packet for request
-  * @param {String}          caller, the caller function name
-  */
+/**
+ * @Author: George_Chen
+ * @Description: a sugar sytanx function for handling socekt request
+ *              events on drawService
+ *         NOTE: caller is just for print error log; if error happen,
+ *              we can know the root cause from which caller
+ *       
+ * @param {Object}          packet, the packet for request
+ * @param {String}          caller, the caller function name
+ */
 function _request(packet, caller) {
     return SocketManager.requestAsync(packet)
         .catch(function(err) {

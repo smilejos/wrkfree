@@ -10,10 +10,16 @@ if (!DbConfigs) {
     throw new Error('DB configurations broken');
 }
 
-// TODO: these args should be put at a params configured files
-var RECORD_DATA_LIMIT = 300;
-// if no streams arrived within 2 second, stream raw data will be expired
-var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = 2;
+// to indicate how many draws can be saved as draw record
+var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
+
+// if no streams arrived within expriation time, stream raw data will be expired
+var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = Configs.get().params.draw.activeDrawsExpiration;
+
+if (!SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT) || 
+    !SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT)) {
+    throw new Error('error while on getting draw related params');
+}
 
 /**
  * stream record data should be put at local scope
@@ -30,23 +36,23 @@ var RedisClient = Redis.createClient(
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          drawer, drawer's uid
+ * @param {String}          clientId, the draw client sid
  * @param {Array}           rawData, the record raw data          
  */
-exports.streamRecordAsync = function(channelId, boardId, drawer, rawData) {
+exports.streamRecordAsync = function(channelId, boardId, clientId, rawData) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(drawer, 'md5'),
+        SharedUtils.argsCheckAsync(clientId, 'string'),
         DrawUtils.checkDrawChunksAsync(rawData),
-        function(cid, bid, uid, chunks) {
-            var streamKey = _getStreamKey(cid, bid, uid);
+        function(cid, bid, sid, chunks) {
+            var streamKey = _getStreamKey(cid, bid, sid);
             return Promise.props({
                 pushLength: RedisClient.rpushAsync(streamKey, _serializeChunks(chunks)),
                 ttlResult: RedisClient.expireAsync(streamKey, RECORD_STREAM_EXPIRE_TIME_IN_SECONDS)
             });
         }).then(function(data) {
-            if (data.pushLength > RECORD_DATA_LIMIT) {
+            if (data.pushLength > ACTIVED_DRAWS_LIMIT) {
                 throw new Error('record stream exceed limit');
             }
             return (data.pushLength > 0 ? true : null);
@@ -63,16 +69,16 @@ exports.streamRecordAsync = function(channelId, boardId, drawer, rawData) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          drawer, drawer's uid
+ * @param {String}          clientId, the draw client sid
  */
-exports.getRecordAsync = function(channelId, boardId, drawer) {
+exports.getRecordAsync = function(channelId, boardId, clientId) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(drawer, 'md5'),
-        function(cid, bid, uid) {
-            var streamKey = _getStreamKey(cid, bid, uid);
-            return RedisClient.lrangeAsync(streamKey, 0, RECORD_DATA_LIMIT);
+        SharedUtils.argsCheckAsync(clientId, 'string'),
+        function(cid, bid, sid) {
+            var streamKey = _getStreamKey(cid, bid, sid);
+            return RedisClient.lrangeAsync(streamKey, 0, ACTIVED_DRAWS_LIMIT);
         }).map(function(chunks) {
             return _deserializeChunks(chunks);
         }).catch(function(err) {
@@ -88,15 +94,15 @@ exports.getRecordAsync = function(channelId, boardId, drawer) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          drawer, drawer's uid
+ * @param {String}          clientId, the draw client sid
  */
-exports.initDrawStreamAsync = function(channelId, boardId, drawer) {
+exports.initDrawStreamAsync = function(channelId, boardId, clientId) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(drawer, 'md5'),
-        function(cid, bid, uid) {
-            var streamKey = _getStreamKey(cid, bid, uid);
+        SharedUtils.argsCheckAsync(clientId, 'string'),
+        function(cid, bid, sid) {
+            var streamKey = _getStreamKey(cid, bid, sid);
             return RedisClient.delAsync(streamKey);
         }).catch(function(err) {
             SharedUtils.printError('DrawTemp.js', 'getRecordAsync', err);

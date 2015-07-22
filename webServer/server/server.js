@@ -9,6 +9,11 @@ var Env = process.env.NODE_ENV || 'development';
 var Configs = require('../../configs/config');
 Configs.import('params', require('../../configs/parameters.json'));
 Configs.import('db', require('../../configs/db.json')[Env]);
+Configs.import('logs', require('../../configs/logs.json')[Env]);
+
+var LogUtils = require('../../sharedUtils/logUtils');
+var LogCategory = 'WEB';
+LogUtils.init(Configs.get().logs);
 
 // needed when we get the ".jsx" files
 require('node-jsx').install({
@@ -30,6 +35,8 @@ require('./configs/express')(server);
 require('./configs/routes')(server);
 
 server.listen(port);
+
+LogUtils.info(LogCategory, {listenPort: port}, 'web server start !');
 
 /**
  * send an signal to gulp dev server to trigger livereload

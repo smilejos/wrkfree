@@ -1,0 +1,87 @@
+{
+    "development": {
+        "SOCKET": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                },
+                {
+                    "level":"info",
+                    "type": "file",
+                    "path": "../logs/socketServer.log"
+                }
+            ]
+        },
+        "WEB": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                },
+                {
+                    "level":"info",
+                    "type": "file",
+                    "path": "../logs/webServer.log"
+                }
+            ]
+        },
+        "STORAGE": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                },
+                {
+                    "level":"info",
+                    "type": "file",
+                    "path": "../logs/storageService.log"
+                }
+            ]
+        }
+    },
+
+    "production": {
+        "SOCKET": {
+            "settings": [
+                {
+                    "level":"info",
+                    "type": "console"
+                },
+                {
+                    "level": "info",
+                    "type": "loggly",
+                    "token": "3526c2f0-9d88-4287-bc45-60127deaaa2e",
+                    "subdomain": "wrkfree"
+                }
+            ]
+        },
+        "WEB": {
+            "settings": [
+                {
+                    "level":"info",
+                    "type": "console"
+                },
+                {
+                    "level": "info",
+                    "type": "loggly",
+                    "token": "3526c2f0-9d88-4287-bc45-60127deaaa2e",
+                    "subdomain": "wrkfree"
+                }
+            ]
+        },
+        "STORAGE": {
+            "settings": [
+                {
+                    "level":"info",
+                    "type": "console"
+                },
+                {
+                    "level":"warn",
+                    "type": "file",
+                    "path": "/workspace/wrkfree2.0/logs/storageService.log"
+                }
+            ]
+        }
+    }
+}

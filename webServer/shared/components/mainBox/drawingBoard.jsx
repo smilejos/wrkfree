@@ -10,7 +10,11 @@ var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var Configs = require('../../../../configs/config');
 var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
 var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
-if (!SharedUtils.isNumber(BOARD_WIDTH) || !SharedUtils.isNumber(BOARD_HEIGHT)) {
+var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
+
+if (!SharedUtils.isNumber(BOARD_WIDTH) || 
+    !SharedUtils.isNumber(BOARD_HEIGHT) || 
+    !SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT)) {
     throw new Error('error while on getting draw related params');
 }
 
@@ -21,6 +25,7 @@ var Drawing = require('../../../client/actions/draw/drawing');
 var SaveDrawRecord = require('../../../client/actions/draw/saveDrawRecord');
 var GetDrawBoard = require('../../../client/actions/draw/getDrawBoard');
 var UpdateBaseImage = require('../../../client/actions/draw/updateBaseImage');
+var SaveSingleDraw = require('../../../client/actions/draw/saveSingleDraw');
 
 /**
  * stores
@@ -109,10 +114,47 @@ module.exports = React.createClass({
          * first time init for mouse cursor
          */
         _changeBoardWheel(this.props.drawInfo.drawOptions);
+
+        /**
+         * @Author: George_Chen
+         * @Description: used to complete and save current draw
+         */
+        function _completeDraw() {
+            var drawTempStore = self.getStore(DrawTempStore);
+            var localDraws = drawTempStore.getLocalDraws(self.props.channelId, self.props.boardId);
+            drawing = false;
+            if (SharedUtils.isArray(localDraws)) {
+                return self.executeAction(SaveDrawRecord, {
+                    channelId: self.props.channelId,
+                    boardId: self.props.boardId,
+                    chunksNum: localDraws.length,
+                    drawOptions: self.props.drawInfo.drawOptions
+                });
+            }
+            // means user draw at the same position, so trigger different action
+            self.executeAction(SaveSingleDraw, {
+                channelId: self.props.channelId,
+                boardId: self.props.boardId,
+                chunks: {
+                    fromX: prev.x,
+                    fromY: prev.y,
+                    toX: prev.x + 0.1,
+                    toY: prev.y + 0.1
+                },
+                drawOptions: self.props.drawInfo.drawOptions
+            });
+        }
         
         board.addEventListener('mousemove',function(e){
             if (!drawing) {
                 return;
+            }
+            var cid = self.props.channelId;
+            var bid = self.props.boardId;
+            var localDraws = self.getStore(DrawTempStore).getLocalDraws(cid, bid);
+            if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
+                drawing = false;
+                return _completeDraw();
             }
             var position = _getCanvasMouse(e);
             // trigger the drawing action
@@ -144,18 +186,15 @@ module.exports = React.createClass({
             if (self.props.drawInfo.boardNums === 0) {
                 return;
             }
-            var drawTempStore = self.getStore(DrawTempStore);
-            drawing = false;
-            self.executeAction(SaveDrawRecord, {
-                channelId: self.props.channelId,
-                boardId: self.props.boardId,
-                chunksNum: drawTempStore.getDraws(self.props.channelId, self.props.boardId).length,
-                drawOptions: self.props.drawInfo.drawOptions
-            });
+            if (drawing) {
+                _completeDraw();
+            }
         });
 
         board.addEventListener('mouseleave',function(){
-            drawing = false;
+            if (drawing) {
+                _completeDraw();
+            }
         });
 
         // get drawInfo
@@ -264,10 +303,10 @@ function _changeBoardWheel(drawOptions) {
     var ctx = cursorGenerator.getContext('2d');
     var centerX = cursorGenerator.width/2;
     var centerY = cursorGenerator.height/2;
-    
+    var arcRadius = (drawOptions.mode == "pen" ? drawOptions.lineWidth/2 : drawOptions.lineWidth/2 - 1.5);
     ctx.globalAlpha = drawOptions.mode == "pen" ? 1 : 0.2;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, (drawOptions.lineWidth/2), 0, 2 * Math.PI, false);
+    ctx.arc(centerX, centerY, arcRadius, 0, 2 * Math.PI, false);
     ctx.fillStyle = drawOptions.strokeStyle;
     ctx.fill();
 

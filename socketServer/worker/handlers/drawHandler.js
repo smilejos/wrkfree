@@ -22,9 +22,11 @@ exports.drawAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         DrawUtils.checkDrawChunksAsync(data.chunks),
         function(cid, bid, chunks) {
-            var uid = socket.getAuthToken();
-            return DrawStorage.streamRecordDataAsync(cid, bid, uid, chunks);
+            return DrawStorage.streamRecordDataAsync(cid, bid, socket.id, chunks);
         }).then(function(result) {
+            if (result) {
+                data.clientId = socket.id;
+            }
             var errMsg = 'drawing fail';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
@@ -54,15 +56,57 @@ exports.saveRecordAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, chunksLength, drawOptions) {
-            var uid = socket.getAuthToken();
-            // enqueue a preview image update job
-            DrawWorker.setUpdateSchedule(cid, bid, uid);
-            return DrawStorage.saveRecordAsync(cid, bid, uid, chunksLength, drawOptions);
+            return DrawStorage.saveRecordAsync(cid, bid, socket.id, chunksLength, drawOptions);
         }).then(function(result) {
-            var errMsg = 'save draw record fail';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (!result) {
+                throw new Error('save draw record fail');
+            }
+            data.clientId = socket.id;
+            // enqueue a preview image update job
+            var uid = socket.getAuthToken();
+            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            return result;
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'saveRecordAsync', err);
+            // inform other members the latest draw saving failure
+            socket.global.publish('channel:' + data.channelId, {
+                service: 'draw',
+                clientHandler: 'onSaveDrawRecord',
+                socketId: socket.id,
+                params: {
+                    channelId: data.channelId,
+                    boardId: data.boardId,
+                    clientId: socket.id
+                }
+            });
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to save record when drawing on the same point
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardId, the draw board id
+ * @param {Array}           data.chunks, the raw chunks of current drawing
+ * @param {Object}          data.drawOptions, the draw options for this record
+ */
+exports.saveSingleDrawAsync = function(socket, data) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        DrawUtils.checkDrawChunksAsync(data.chunks),
+        SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
+        function(cid, bid, chunks, drawOptions) {
+            return DrawStorage.saveSingleDrawAsync(cid, bid, chunks, drawOptions);
+        }).then(function(result) {
+            var errMsg = 'failure on saving single draw';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            SharedUtils.printError('drawHandler.js', 'saveSingleDrawAsync', err);
             throw err;
         });
 };
@@ -207,9 +251,9 @@ exports.getDrawBoardAsync = function(socket, data) {
  */
 exports.getLatestBoardIdAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
-        .then(function(cid){
+        .then(function(cid) {
             return DrawStorage.getLatestBoardIdAsync(cid);
-        }).then(function(result){
+        }).then(function(result) {
             if (result === null) {
                 throw new Error('get latest draw board id fail');
             }
