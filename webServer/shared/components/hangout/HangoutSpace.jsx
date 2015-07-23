@@ -11,11 +11,11 @@ var HangoutConference = require('./HangoutConference.jsx');
 var HangoutInput = require('./HangoutInput.jsx');
 
 var HANGOUT_WIDTH = 260;
-var HANGOUT_HEIGHT = 350;
+var HANGOUT_HEIGHT = 360;
 var HANGOUT_INTERVAL_WIDTH = 270;
 var HANGOUT_HEADER_HEIGHT = 30;
 var HANGOUT_CONFERENCE_AREA_HEIGHT = 150;
-var HANGOUT_MESSAGE_LIST_HEIGHT = 275;
+var HANGOUT_MESSAGE_LIST_HEIGHT = 280;
 
 
 /**
