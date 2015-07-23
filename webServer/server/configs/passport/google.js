@@ -13,6 +13,11 @@ module.exports = new GoogleStrategy({
     clientSecret: OAuthConfigs.clientSecret,
     callbackURL: OAuthConfigs.callbackURL
 }, function(accessToken, refreshToken, profile, done) {
+    LogUtils.info(LogCategory, null, 'oauth login receive info from google');
+    if (!profile) {
+        LogUtils.warn(LogCategory, null, 'user profile missing');
+        return done(new Error('fail to auth on google'));
+    }
     var userInfo = {
         id: profile.id,
         familyName: profile.name.familyName,

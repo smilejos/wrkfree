@@ -1,6 +1,8 @@
 'use strict';
 var FacebookStrategy = require('passport-facebook').Strategy;
 var OAuthConfigs = require('./params').getOAuth('facebook');
+var LogUtils = require('../../../../sharedUtils/logUtils');
+var LogCategory = 'WEB';
 
 /************************************************
  *
@@ -13,6 +15,11 @@ module.exports = new FacebookStrategy({
     clientSecret: OAuthConfigs.clientSecret,
     callbackURL: OAuthConfigs.callbackURL
 }, function(accessToken, refreshToken, profile, done) {
+    LogUtils.info(LogCategory, null, 'oauth login receive info from facebook');
+    if (!profile) {
+        LogUtils.warn(LogCategory, null, 'user profile missing');
+        return done(new Error('fail to auth on facebook'));
+    }
     var userInfo = {
         id: profile.id,
         familyName: profile.name.familyName,
