@@ -216,7 +216,6 @@ var Message = React.createClass({
     render: function(){
         var sentTime = new Date(this.props.data.sentTime);
         var timeNotation = sentTime.getHours() >=12 ? 'pm' : 'am';
-        console.log('sentTime', sentTime);
         return (
             <div className="MsgContent">
                 <div className="pure-u-5-24">

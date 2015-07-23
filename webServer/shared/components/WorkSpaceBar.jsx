@@ -169,6 +169,19 @@ module.exports = React.createClass({
         this.setState(nextState);
     },
 
+    componentWillReceiveProps: function(nextProps) {
+        var isChannelChange = (this.props.channel.channelId !== nextProps.channel.channelId);
+        if (isChannelChange && this.state.isConferenceExist) {
+            this._hangupConference();
+        }
+    },
+
+    componentWillUnmount: function() {
+        if (this.state.isConferenceExist) {
+            this._hangupConference();
+        }
+    },
+
     render: function (){
         var barStyle = {};
         var starIconStyle = this.state.defaultIconStyle;

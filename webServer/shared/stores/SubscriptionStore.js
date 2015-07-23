@@ -35,7 +35,6 @@ module.exports = CreateStore({
      */
     toggleAsync: function(isOpen) {
         var self = this;
-        console.log('toggleAsync');
         return Promise.try(function() {
             self.createdChannel = -1;
             self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
