@@ -24,6 +24,7 @@ var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 var FloatingActionButton = Mui.FloatingActionButton;
 var Colors = Mui.Styles.Colors;
+var FontIcon = Mui.FontIcon;
 
 /**
  * workspace tool bar, now just a template
@@ -117,6 +118,11 @@ module.exports = React.createClass({
         this.executeAction(HangupConference, {
             channelId: this.props.channel.channelId
         });
+        // reset video and audio back to default
+        this.setState({
+            isVideoOn: true,
+            isAudioOn: true,
+        });
     },
 
     /**
@@ -176,6 +182,12 @@ module.exports = React.createClass({
         if (this.props.status.isStarred) {
             starIconStyle = this.state.starIconStyle;
         }
+        var conferenceIconStyle = {
+            color: this.state.isConferenceExist ? 'rgba(0,0,0,0.3)' : '#FFF'
+        };
+        var ctrlIconStyle = {
+            color: this.state.isConferenceExist ? '#FFF' : 'rgba(0,0,0,0.3)'
+        };
         return (
             <div className="footer" style={barStyle} >
                 <div className="pure-u-1-3">
@@ -189,23 +201,35 @@ module.exports = React.createClass({
                 <div className="pure-u-1-3">
                     <FloatingActionButton mini secondary
                         disabled={this.state.isConferenceExist}
-                        iconClassName="fa fa-users" 
-                        onClick={this._startConference} />
+                        onClick={this._startConference} >
+                        <i className="material-icons" style={conferenceIconStyle}>
+                            {'people'}
+                        </i>
+                    </FloatingActionButton>
                     &nbsp;
                     <FloatingActionButton mini secondary
                         disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-video-camera "
-                        onClick={this._controlMedia.bind(this, true)} />
+                        onClick={this._controlMedia.bind(this, true)} >
+                        <i className="material-icons" style={ctrlIconStyle}>
+                            {this.state.isVideoOn ? 'videocam_off' : 'videocam'}
+                        </i>
+                    </FloatingActionButton>
                     &nbsp;
                     <FloatingActionButton mini secondary
                         disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-microphone"
-                        onClick={this._controlMedia.bind(this, false)} />
+                        onClick={this._controlMedia.bind(this, false)} >
+                        <i className="material-icons" style={ctrlIconStyle}>
+                            {this.state.isAudioOn ? 'mic_off' : 'mic'}
+                        </i>
+                    </FloatingActionButton>
                     &nbsp;
                     <FloatingActionButton mini primary
                         disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-tty" 
-                        onClick={this._hangupConference} />
+                        onClick={this._hangupConference}>
+                        <i className="material-icons" style={ctrlIconStyle}>
+                            {'call_end'}
+                        </i>
+                    </FloatingActionButton>
                 </div>
                 <div className="rightControl" >
                     <div className={switchVieoStyle} onClick={this._switchVideo}>Video</div>
