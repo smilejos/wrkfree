@@ -2,6 +2,8 @@
 var Passport = require('passport');
 var ExpressRouter = require('express').Router();
 var SharedUtils = require('../../../sharedUtils/utils');
+var LogUtils = require('../../../sharedUtils/logUtils');
+var LogCategory = 'WEB';
 var StorageManager = require('../../../storageService/storageManager');
 
 
@@ -46,6 +48,9 @@ module.exports = function(server) {
      * rendering user signup page
      */
     ExpressRouter.get('/app/signup', userEntry.authToSignup, function(req, res) {
+        LogUtils.info(LogCategory, {
+            method: req.method,
+        }, 'new user attempt to signIn');
         req.routeInfo = {
             userInfo: req.user || {}
         };
@@ -58,15 +63,22 @@ module.exports = function(server) {
     ExpressRouter.post('/app/signup', userEntry.authToSignup, userEntry.create, function(req, res) {
         var result = {
             error: req.error,
-            route: req.nextRoute,
-
+            route: req.nextRoute
         };
         if (!req.error) {
+            LogUtils.info(LogCategory, {
+                method: req.method,
+                uid: req.user.uid
+            }, 'user complete signIn');
             result.user = {
                 uid: req.user.uid,
                 nickName: req.user.nickName,
                 avatar: req.user.avatar
             };
+        } else {
+            LogUtils.warn(LogCategory, {
+                method: req.method
+            }, 'user fail to signIn');
         }
         res.json(result);
         res.end('');
@@ -76,6 +88,10 @@ module.exports = function(server) {
      * handling logout
      */
     ExpressRouter.get('/app/logout', function(req, res) {
+        LogUtils.info(LogCategory, {
+            method: req.method,
+            uid: req.user.uid
+        }, 'user signOut');
         req.session.destroy(function(err) {
             if (err) {
                 SharedUtils.printError('routes', '/app/logout', err);
@@ -96,6 +112,10 @@ module.exports = function(server) {
     });
 
     ExpressRouter.get('/app/dashboard', function(req, res) {
+        LogUtils.info(LogCategory, {
+            method: req.method,
+            uid: req.user.uid
+        }, 'enter dashboard [' + req.url + ']');
         req.routeInfo = {
             user: req.user,
             storageManager: StorageManager
@@ -107,6 +127,11 @@ module.exports = function(server) {
         if (!req.query.board) {
             return res.redirect('/app/workspace/' + req.params.channelId + '?board=1');
         }
+        LogUtils.info(LogCategory, {
+            method: req.method,
+            uid: req.user.uid,
+            cid: req.params.channelId
+        }, 'enter channel [' + req.url + ']');
         req.routeInfo = {
             user: req.user,
             channelId: req.params.channelId,
@@ -120,13 +145,18 @@ module.exports = function(server) {
      *     NOTE: we always push latest updated board's preview image
      */
     ExpressRouter.get('/app/workspace/:channelId/preview', auth.ensureMember, fileHandler.getPreview, function(req, res) {
+        LogUtils.debug(LogCategory, {
+            method: req.method,
+            uid: req.user.uid,
+            cid: req.params.channelId
+        }, 'get channel preview image');
         if (!req.img || req.img.chunks.length === 0) {
             // send image not found jpeg
             return res.redirect('http://michigancomicscollective.org/assets/img/not-found.png');
         }
         res.contentType(req.img.contentType);
         res.send(req.img.chunks);
-    });    
+    });
 
     /**
      * used to check specific "email" is available or not
@@ -149,6 +179,11 @@ module.exports = function(server) {
      *     the nginx will take care of files under "protected", which is an internal location
      */
     ExpressRouter.get('/app/build/*', function(req, res) {
+        LogUtils.debug(LogCategory, {
+            method: req.method,
+            uid: req.user.uid,
+            url: req.url
+        }, 'get provision files');
         res.setHeader('X-Accel-Redirect', req.url.replace('/app/build/', '/protected/'));
         res.end();
     });
@@ -157,6 +192,10 @@ module.exports = function(server) {
      * for handling not found route request
      */
     ExpressRouter.use(function(req, res) {
-        res.send(404);
+        LogUtils.debug(LogCategory, {
+            url: req.url,
+            uid: req.user.uid
+        }, 'not supported route');
+        res.sendStatus(404);
     });
 };
