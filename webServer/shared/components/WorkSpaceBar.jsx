@@ -203,7 +203,7 @@ module.exports = React.createClass({
                         disabled={this.state.isConferenceExist}
                         onClick={this._startConference} >
                         <i className="material-icons" style={conferenceIconStyle}>
-                            {'people'}
+                            {'settings_phone'}
                         </i>
                     </FloatingActionButton>
                     &nbsp;
