@@ -9,7 +9,12 @@ var OnRemoteStream = require('../actions/rtc/onRemoteStream');
 var Promise = require('bluebird');
 
 var SessionsTimeout = {};
-var RTC_CANCEL_TIMEOUT_IN_MSECOND = 3000;
+
+var Configs = require('../../../configs/config');
+var RTC_CANCEL_TIMEOUT_IN_MSECOND = Configs.get().params.rtc.sessionCancelInMScend;
+if (!SharedUtils.isNumber(RTC_CANCEL_TIMEOUT_IN_MSECOND)) {
+    throw new Error('get rtc parameters error');
+}
 
 /**
  * Public API

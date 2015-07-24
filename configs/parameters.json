@@ -6,11 +6,19 @@
         "activeRecordLimit": 10,
         "activeDrawsLimit": 200,
         "activeDrawsExpiration": 2,
-        "delayForUpdatePreview": 3000
+        "delayForUpdatePreview": 3000,
+        "drawOptions": {
+            "mode": "pen",
+            "lineCap": "round",
+            "lineWidth": "10",
+            "strokeStyle": "#000",
+            "palette": false
+        }
     },
     "rtc": {
         "workQueueType": "rtc",
-        "sessionTimeoutInSecond": 100,
+        "sessionTimeoutInSecond": 30,
+        "sessionCancelInMScend": 3000,
         "notificationTimeoutInMSecond": 3000,
         "notificationDelayInMSecond": 2000
     }
