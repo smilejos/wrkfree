@@ -127,7 +127,7 @@ function _enqueueAsync(jobInfo, delay) {
  */
 Queue.process(QUEUE_TYPE, function(job, done) {
     var cid = job.data.cid;
-    return RtcStorage.getSessionAsync(cid, true)
+    return RtcStorage.getSessionAsync(cid)
         .then(function(session) {
             var shouldNotify = (session && session.clients.length > 0);
             return (shouldNotify ? _notifyConference(cid, session) : false);
