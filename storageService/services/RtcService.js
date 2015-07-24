@@ -1,7 +1,6 @@
 'use strict';
 var SessionTemp = require('../tempStores/RtcSessionTemp');
 var SharedUtils = require('../../sharedUtils/utils');
-var Promise = require('bluebird');
 
 /**
  * Public API
@@ -94,17 +93,15 @@ exports.delClientAsync = function(channelId, socketId) {
  * Public API
  * @Author: George_Chen
  * @Description: get rtc session descriptions from channel
- *         NOTE: use "isKeepAlive" to extend the session ttl
  *
  * @param {String}      channelId, channel id
- * @param {Boolean}     isKeepAlive, indicate keep session alive or not
  */
-exports.getSessionAsync = function(channelId, isKeepAlive) {
-    var ttlSession = (isKeepAlive ? SessionTemp.ttlAsync : function() {});
-    return Promise.join(
-        SessionTemp.getAsync(channelId),
-        ttlSession(channelId),
-        function(session) {
+exports.getSessionAsync = function(channelId) {
+    return SessionTemp.getAsync(channelId)
+        .then(function(session){
+            if (session && session.clients.length > 1) {
+                SessionTemp.ttlAsync(channelId);
+            }
             return session;
         }).catch(function(err) {
             SharedUtils.printError('RtcService.js', 'getSessionAsync', err);

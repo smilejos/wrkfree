@@ -4,8 +4,17 @@ var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var RtcHelper = require('../actions/rtc/rtcHelper');
 var OnConference = require('../actions/rtc/onConference');
+var OnConferenceStop = require('../actions/rtc/onConferenceStop');
 var OnRemoteStream = require('../actions/rtc/onRemoteStream');
 var Promise = require('bluebird');
+
+var SessionsTimeout = {};
+
+var Configs = require('../../../configs/config');
+var RTC_CANCEL_TIMEOUT_IN_MSECOND = Configs.get().params.rtc.sessionCancelInMScend;
+if (!SharedUtils.isNumber(RTC_CANCEL_TIMEOUT_IN_MSECOND)) {
+    throw new Error('get rtc parameters error');
+}
 
 /**
  * Public API
@@ -39,6 +48,9 @@ exports.onSignaling = function(data) {
  * @param {Array}           data.clients, clients in conference
  */
 exports.onConference = function(data) {
+    _trackConference({
+        channelId: data.channelId
+    });
     if (!RtcHelper.hasConnection(data.channelId)) {
         return SocketUtils.execAction(OnConference, data, 'onConference');
     }
@@ -161,6 +173,28 @@ exports.controlMediaAsync = function(data) {
  *           internal functions
  *
  ************************************************/
+
+/**
+ * @Author: George_Chen
+ * @Description: used to track conference session state
+ *         NOTE: if not received specific conference call event from server, 
+ *               we should release the specific conference session
+ *         
+ * @param {String}          data.channelId, the channel id
+ */
+function _trackConference(data) {
+    if (SessionsTimeout[data.channelId]) {
+        clearTimeout(SessionsTimeout[data.channelId]);
+    }
+    SessionsTimeout[data.channelId] = setTimeout(function() {
+        return exports.hangupConferenceAsync(data)
+            .then(function() {
+                return SocketUtils.execAction(OnConferenceStop, data);
+            }).catch(function(err) {
+                SharedUtils.printError('rtcService.js', '_trackConference', err);
+            });
+    }, RTC_CANCEL_TIMEOUT_IN_MSECOND);
+}
 
 /**
  * @Author: George_Chen
