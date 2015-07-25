@@ -124,10 +124,27 @@ $friend-hieght: 60px;
     }
 }
 
+.Friend:hover {
+    background-color: #eee;
+}
+
 .hasUnreadMessage {
     background-color: $grey-100;
 }
 
-.Friend:hover {
-    background-color: #eee;
+.hasIncomingCall {
+    animation-name: callNotification;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-duration: 0.6s;
+    animation-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860);
+}
+
+@keyframes callNotification {
+    0%   { 
+        opacity: 0.6;
+    }
+    100% { 
+        opacity: 1;
+    }
 }
