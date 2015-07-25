@@ -79,18 +79,21 @@ exports.pushNotification = function(channelId) {
  * @param {Object}          session, the rtc session sdps
  */
 function _notifyConference(cid, session) {
-    var clientChannel = 'channel:' + cid;
-    var rtcNotification = {
-        service: 'rtc',
-        clientHandler: 'onConference',
-        params: {
-            channelId: cid,
-            clients: session.clients
-        }
-    };
-    return new Promise(function(resolver, rejector) {
-        SocketWorker.global.publish(clientChannel, rtcNotification, function(err) {
-            return (err ? rejector(err) : resolver(true));
+    var channelPrefixes = ['channel', 'notification'];
+    return Promise.map(channelPrefixes, function(prefix) {
+        var channel = prefix + ':' + cid;
+        var data = {
+            service: 'rtc',
+            clientHandler: (prefix === 'channel' ? 'onConference' : 'notifyConferenceCall'),
+            params: {
+                channelId: cid,
+                clients: session.clients
+            }
+        };
+        return new Promise(function(resolver, rejector) {
+            SocketWorker.global.publish(channel, data, function(err) {
+                return (err ? rejector(err) : resolver(true));
+            });
         });
     });
 }
