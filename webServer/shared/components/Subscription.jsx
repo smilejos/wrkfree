@@ -1,6 +1,5 @@
 var React = require('react');
 var Router = require('react-router');
-var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../sharedUtils/utils');
 var SubscriptionStore = require('../stores/SubscriptionStore');
@@ -19,14 +18,6 @@ var NavToBoard = require('../../client/actions/draw/navToBoard');
  * child components
  */
 var SubscribedChannel = require('./SubscribedChannel.jsx');
-
-/**
- * material UI compoents
- */
-var Paper = Mui.Paper;
-var LeftNav = Mui.LeftNav;
-var TextField = Mui.TextField;
-var FlatButton = Mui.FlatButton;
 
 /**
  * @Author: George_Chen
@@ -68,7 +59,7 @@ module.exports = React.createClass({
                     name={item.name}
                     hostInfo={item.hostInfo}
                     unreadMsgNumbers={item.unreadMsgNumbers}
-                    isConferenceExist={item.isConferenceExist} />
+                    hasConferenceCall={item.hasConferenceCall} />
             );
         });
         return (
@@ -90,6 +81,10 @@ module.exports = React.createClass({
         var totalCounts = 0;
         SharedUtils.fastArrayMap(this.state.subscriptions, function(item){
             totalCounts += item.unreadMsgNumbers;
+            // count conference state
+            if (item.hasConferenceCall) {
+                totalCounts += 1;
+            }
         });
         this.executeAction(SetUnreadDiscussions, {
             counts: totalCounts

@@ -12,6 +12,7 @@ module.exports = CreateStore({
         'ON_CHANNEL_ADDED': '_onChannelAdded',
         'CHANGE_ROUTE': '_onChangeRoute',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
+        'RECV_NOTIFICATION_CONFERENCE': '_recvNotificationConference',
         'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts',
         'UPDATE_CHANNEL_STAR': '_updateChannelStar'
     },
@@ -138,6 +139,27 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
+     * @Description: to handle new received conference notification
+     * 
+     * @param {String}     data.channelId, the channel id
+     * @param {Boolean}    data.hasCall, indicate conference call event
+     */
+    _recvNotificationConference: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            if (obj.hasConferenceCall !== data.hasCall) {
+                obj.hasConferenceCall = data.hasCall;
+                self.emitChange();
+            }
+        });
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: update the channel visit time when user enter workspace
      * 
      * @param {Object}     route, react route object
@@ -212,7 +234,7 @@ function _saveSubscription(collection, doc) {
         name: SharedUtils.argsCheckAsync(doc.name, 'alphabet'),
         hostInfo: doc.hostInfo,
         unreadMsgNumbers: 0,
-        isConferenceExist: false
+        hasConferenceCall: false
     }).then(function(doc) {
         return collection.insert(doc);
     });
