@@ -1,5 +1,6 @@
 'use strict';
 var CreateStore = require('fluxible/addons').createStore;
+var SharedUtils = require('../../../sharedUtils/utils');
 
 var EVENT_TIMEOUT_IN_MSECOND = 3000;
 
@@ -11,6 +12,7 @@ module.exports = CreateStore({
 
     handlers: {
         'ON_TOAST_EVENT': '_onToastEvent',
+        'ON_CUSTOM_EVENT': '_onCustomEvent',
         'CLOSE_TOAST_EVENT': '_closeToastEvent'
     },
 
@@ -45,6 +47,31 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
+     * @Description: save the new customized event
+     *         NOTE: for flexibility, we can also customized the toast event
+     *
+     * @param {String}      data.id, the id of event
+     * @param {String}      data.title, the event message title
+     * @param {String}      data.message, the event message
+     * @param {String}      data.actionLabel, the label of extra-action
+     * @param {Number}      data.ttl, the time to live of current event
+     * @param {Function}    data.actionHandler, the handler of extra-action
+     */
+    _onCustomEvent: function(data) {
+        var id = data.eventId;
+        this.eventList[id] = {
+            type: 'info',
+            title: data.title,
+            message: data.message,
+            actionLabel: data.actionLabel,
+            actionHandler: data.actionHandler
+        };
+        this._setCloseTimer(id, data.ttl);
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: manually close specific event
      *         
      * @param {String}      data.eventId, the event id
@@ -63,13 +90,14 @@ module.exports = CreateStore({
      *         
      * @param {String}      data.eventId, the event id
      */
-    _setCloseTimer: function(eventId) {
+    _setCloseTimer: function(eventId, ttl) {
         var self = this;
+        var dismissTime = (SharedUtils.isNumber(ttl) ? ttl : EVENT_TIMEOUT_IN_MSECOND);
         self.timers[eventId] = setTimeout(function() {
             delete self.eventList[eventId];
             delete self.timers[eventId];
             self.emitChange();
-        }, EVENT_TIMEOUT_IN_MSECOND);
+        }, dismissTime);
     },
 
     getState: function() {
