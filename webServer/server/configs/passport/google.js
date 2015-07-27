@@ -1,6 +1,8 @@
 'use strict';
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var OAuthConfigs = require('./params').getOAuth('google');
+var LogUtils = require('../../../../sharedUtils/logUtils');
+var LogCategory = 'WEB';
 
 /************************************************
  *
