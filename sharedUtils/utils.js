@@ -335,7 +335,7 @@ exports.isAvatarUrl = function(avatarUrl) {
         // any string start with "https://graph.facebook.com" with be consider as valid
         facebook: /^(https\:\/\/graph.facebook.com).*$/,
         // any string start with "https://lh3.googleusercontent.com" with be consider as valid
-        google: /^(https\:\/\/lh3.googleusercontent.com).*$/
+        google: /^(https\:\/\/.+\.googleusercontent\.com).+/
     };
     return (regex.facebook.test(avatarUrl) || regex.google.test(avatarUrl));
 };
