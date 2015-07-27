@@ -8,6 +8,9 @@ var Passport = require('passport');
  */
 var UserStorage = null;
 
+var LogUtils = require('../../../../sharedUtils/logUtils');
+var LogCategory = 'WEB';
+
 /************************************************
  *
  *           Public APIs
@@ -23,12 +26,22 @@ var UserEntry = {};
  *     NOTE: triggered when user try oauth login each time
  */
 UserEntry.oAuthLogin = function(req, res, next) {
+    LogUtils.info(LogCategory, {
+        provider: req.provider
+    }, 'user ready to authenticate');
     return Passport.authenticate(req.provider, function(err, user) {
         if (err) {
-            SharedUtils.printError('userEntry.js', 'oAuthLogin', err);
+            LogUtils.warn(LogCategory, {
+                error: err
+            }, 'passport authenticate error');
             return res.end();
         }
-        if (!user) return res.end();
+        if (!user) {
+            LogUtils.warn(LogCategory, {
+                provider: req.provider
+            }, 'no user info got');
+            return res.end();
+        }
         return UserStorage.oAuthLoginAsync(user.id, req.provider)
             .then(function(info) {
                 if (!info) {
@@ -38,7 +51,9 @@ UserEntry.oAuthLogin = function(req, res, next) {
                 }
                 req.logIn(info, function(err) {
                     if (err) {
-                        SharedUtils.printError('userEntry.js', 'oauthLogin', err);
+                        LogUtils.warn(LogCategory, {
+                            error: err
+                        }, 'passport serializeUser fail');
                         return res.redirect('/app/logout');
                     }
                     res.cookie('uid', info.uid);
@@ -54,6 +69,7 @@ UserEntry.oAuthLogin = function(req, res, next) {
  * @Description: middleware for handling new user registeration
  */
 UserEntry.create = function(req, res, next) {
+    LogUtils.info(LogCategory, null, 'ready to create new user');
     return Promise.try(function() {
         if (!UserStorage) {
             throw new Error('UserStorage is not initialized');
@@ -66,6 +82,9 @@ UserEntry.create = function(req, res, next) {
         return UserStorage.addUserAsync(signUpInfo);
     }).then(function(result) {
         if (SharedUtils.isError(result)) {
+            LogUtils.warn(LogCategory, {
+                error: result
+            }, 'create new user fail');
             req.error = result.toString();
         } else {
             req.user = result;
@@ -79,7 +98,9 @@ UserEntry.create = function(req, res, next) {
         }
         return next();
     }).catch(function(err) {
-        SharedUtils.printError('UserEntry', 'create', err);
+        LogUtils.warn(LogCategory, {
+            error: err
+        }, 'unexpected error when create user');
         req.error = new Error('Unexpected error').toString();
         return next();
     });
@@ -92,6 +113,9 @@ UserEntry.create = function(req, res, next) {
  * NOTE: used on user signup
  */
 UserEntry.isEmailAvailable = function(req, res, next) {
+    LogUtils.info(LogCategory, {
+        method: req.method
+    }, 'check email availability');
     return Promise.try(function() {
         if (!UserStorage) {
             throw new Error('UserStorage is not initialized');
@@ -102,7 +126,11 @@ UserEntry.isEmailAvailable = function(req, res, next) {
         req.uidAvailable = !result;
         return next();
     }).catch(function(err) {
-        SharedUtils.printError('UserEntry', 'isUidAvailable', err);
+        LogUtils.error(LogCategory, {
+            email: req.query.email,
+            method: req.method,
+            error: err
+        }, 'check email availability fail');
         req.error = new Error('Unexpected error').toString();
         req.nextRoute = '/';
         return next();
