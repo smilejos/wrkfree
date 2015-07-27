@@ -6,9 +6,11 @@ var RtcHelper = require('../actions/rtc/rtcHelper');
 var OnConference = require('../actions/rtc/onConference');
 var OnConferenceStop = require('../actions/rtc/onConferenceStop');
 var OnRemoteStream = require('../actions/rtc/onRemoteStream');
+var NotifyConferenceCall = require('../actions/rtc/notifyConferenceCall');
 var Promise = require('bluebird');
 
 var SessionsTimeout = {};
+var NotificationsTimeout = {};
 
 var Configs = require('../../../configs/config');
 var RTC_CANCEL_TIMEOUT_IN_MSECOND = Configs.get().params.rtc.sessionCancelInMScend;
@@ -36,6 +38,25 @@ exports.onRemoteStream = function(data) {
  */
 exports.onSignaling = function(data) {
     RtcHelper.getConnection(data.channelId).onSignaling(data);
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: handler for "notifyConferenceCall" event
+ *         
+ * @param {String}          data.channelId, the channel id
+ */
+exports.notifyConferenceCall = function(data) {
+    var subscribeChannel = 'channel:' + data.channelId;
+    if (!SocketManager.hasSubscription(subscribeChannel)) {
+        _trackRtcNotification(data);
+
+        SocketUtils.execAction(NotifyConferenceCall, {
+            channelId: data.channelId,
+            hasCall: true
+        });
+    }
 };
 
 /**
@@ -193,6 +214,25 @@ function _trackConference(data) {
             }).catch(function(err) {
                 SharedUtils.printError('rtcService.js', '_trackConference', err);
             });
+    }, RTC_CANCEL_TIMEOUT_IN_MSECOND);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to track conference notification state
+ *         NOTE: only subscribed channels will get conference notifications
+ *         
+ * @param {String}          data.channelId, the channel id
+ */
+function _trackRtcNotification(data) {
+    if (NotificationsTimeout[data.channelId]) {
+        clearTimeout(NotificationsTimeout[data.channelId]);
+    }
+    NotificationsTimeout[data.channelId] = setTimeout(function() {
+        SocketUtils.execAction(NotifyConferenceCall, {
+            channelId: data.channelId,
+            hasCall: false
+        });
     }, RTC_CANCEL_TIMEOUT_IN_MSECOND);
 }
 

@@ -69,7 +69,7 @@ module.exports = React.createClass({
         // this ensure the update unreadConversations is not triggered by timeVisible
         if (prevState.isTimeVisible === this.state.isTimeVisible) {
             return Promise.reduce(this.state.friends, function(total, friendItem){
-                return (friendItem.isMessageReaded ? total : total + 1);
+                return (!friendItem.isMessageReaded || friendItem.hasIncomingCall ? total + 1 : total);
             }, 0).bind(this).then(function(totalUnreads){
                 this.executeAction(SetUnreadConverations, {
                     counts: totalUnreads
@@ -103,6 +103,7 @@ module.exports = React.createClass({
                 key={friendInfo.uid}
                 self={selfUid}
                 timeVisible={isTimeVisible}
+                hasIncomingCall={friendInfo.hasIncomingCall}
                 info={friendInfo} />
         });
         return (

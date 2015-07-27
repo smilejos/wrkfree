@@ -7,8 +7,16 @@ var SharedUtils = require('../../../../sharedUtils/utils');
  */
 var OpenHangout = require('../../../client/actions/openHangout');
 var Update1on1ChannelId = require('../../../client/actions/friend/update1on1ChannelId');
+var StartConference = require('../../../client/actions/rtc/startConference');
+var SetConferenceEvent = require('../../../client/actions/rtc/setConferenceEvent');
 var SubscribeChannelNotification = require('../../../client/actions/channel/subscribeChannelNotification');
 var TrackFriendActivity = require('../../../client/actions/friend/trackFriendActivity');
+
+/**
+ * load configs
+ */
+var Configs = require('../../../../configs/config');
+var CALL_DISSMISS_TIME_IN_MSECOND = Configs.get().params.rtc.sessionTimeoutInSecond * 1000;
 
 /**
  * child components
@@ -58,12 +66,17 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: to setup the unread message icon style
+     * @Description: to setup the user state icon style
      */
-    _setUnreadMessageIcon: function() {
+    _setStateIcon: function() {
         var isReaded = this.props.info.isMessageReaded;
-        var iconClass = 'unreadMessageIcon fa fa-envelope ';
-        iconClass = (isReaded ? iconClass + 'hide' : iconClass + 'show');
+        var hasIncomingCall = this.props.hasIncomingCall;
+        var iconClass = '';
+        if (hasIncomingCall) {
+            iconClass = 'unreadMessageIcon fa fa-phone show';
+        } else if (!this.props.info.isMessageReaded) {
+            iconClass = 'unreadMessageIcon fa fa-envelope show';
+        }
         return <span className={iconClass}></span>
     },
 
@@ -118,17 +131,43 @@ module.exports = React.createClass({
         // TODO: when delete friend, we should untrack and unsubscribe him/her
     },
 
+    componentWillReceiveProps: function(nextProps) {
+        var self = this;
+        if (nextProps.hasIncomingCall !== this.props.hasIncomingCall) {
+            self.executeAction(SetConferenceEvent, {
+                channelId: nextProps.info.channelId,
+                isShown: nextProps.hasIncomingCall,
+                ttl: CALL_DISSMISS_TIME_IN_MSECOND,
+                title: 'Incoming Call',
+                message: 'From ['+this.props.info.nickName + ']',
+                callHandler: function() {
+                    self._openHangout();
+                    setTimeout(function(){
+                        self.executeAction(StartConference, {
+                            channelId: nextProps.info.channelId
+                        });
+                    }, 1000);
+                }
+            });
+        }
+    },
+
     render: function(){
         var info = this.props.info;
         var stateColor = (info.isOnline ? "onlineState" : "offlineState");
         var timeClass = (this.props.timeVisible ? 'conversationTime show' : 'conversationTime hide');
-        var FriendClass = (info.isMessageReaded ? 'Friend' : 'Friend hasUnreadMessage' );
+        var FriendClass = 'Friend';
+        if (info.hasIncomingCall) {
+            FriendClass = FriendClass + ' hasIncomingCall';
+        } else if (!info.isMessageReaded) {
+            FriendClass = FriendClass + ' hasUnreadMessage';
+        }
         return (
             <div className={FriendClass} >
                 <div className="friendAvatar">
                     <UserAvatar avatar={info.avatar} isCircle />
                     <span className= {stateColor}></span>
-                    {this._setUnreadMessageIcon()}
+                    {this._setStateIcon()}
                 </div>
                 <div className="friendInfo" onClick={this._openHangout}>
                     <div className="friendName">

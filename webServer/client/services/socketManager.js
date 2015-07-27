@@ -43,8 +43,8 @@ exports.init = function(callback) {
     if (Socket !== null) {
         return callback();
     }
-    
-    function _clientInit(){
+
+    function _clientInit() {
         window.context.executeAction(ClientInitAction, {
             done: callback
         });
@@ -210,6 +210,17 @@ exports.unSubscribeAsync = function(subscribeReq) {
         SharedUtils.printError('socketManager.js', 'unsubscribeAsync', err);
         return false;
     });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check target subscription request has been completed or not
+ *
+ * @param {String}        subscribeReq, the sbuscription requsest
+ */
+exports.hasSubscription = function(subscribeReq) {
+    return Socket.isSubscribed(subscribeReq);
 };
 
 /************************************************
