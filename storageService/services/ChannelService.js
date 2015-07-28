@@ -137,8 +137,7 @@ exports.getAuthChannelsAsync = function(member, visitPeriod) {
             return Promise.props({
                 channel: ChannelDao.findByChannelAsync(cid, false),
                 isStarred: memberDoc.isStarred,
-                visitTime: memberDoc.lastVisitTime,
-                lastBaord: memberDoc.lastUsedBoard
+                visitTime: memberDoc.lastVisitTime
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getAuthChannelsAsync', err);
