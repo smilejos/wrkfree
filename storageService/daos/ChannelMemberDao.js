@@ -30,7 +30,6 @@ exports.addAsync = function(member, channelId, isChannelHost) {
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         isHost: SharedUtils.argsCheckAsync(isChannelHost, 'boolean'),
         isStarred: isChannelHost,
-        visitCounts: (isChannelHost ? 1 : 0),
         lastVisitTime: (isChannelHost ? Date.now() : new Date(0))
     }).then(function(doc) {
         return _save(doc, 'addMemberAsync');
@@ -359,10 +358,6 @@ exports.updateRtcAsync = function(member, channelId, status) {
  */
 exports.updateVisitAsync = function(member, channelId) {
     return _update(member, channelId, {
-        // increment te visitCounts field by "1"
-        $inc: {
-            visitCounts: 1
-        },
         lastVisitTime: Date.now()
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'updateVisitAsync', err);
