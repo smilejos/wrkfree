@@ -30,7 +30,6 @@ exports.addAsync = function(member, channelId, isChannelHost) {
         channelId: SharedUtils.argsCheckAsync(channelId, 'md5'),
         isHost: SharedUtils.argsCheckAsync(isChannelHost, 'boolean'),
         isStarred: isChannelHost,
-        visitCounts: (isChannelHost ? 1 : 0),
         lastVisitTime: (isChannelHost ? Date.now() : new Date(0))
     }).then(function(doc) {
         return _save(doc, 'addMemberAsync');
@@ -308,29 +307,6 @@ exports.updateMsgAsync = function(member, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: update the last board that member located on specific channel
- *
- * @param {String}      member, member's id
- * @param {String}      channelId, channel's id
- * @param {Number}      boardId, the draw board id
- */
-exports.updateDrawAsync = function(member, channelId, boardId) {
-    return Promise.try(function() {
-        if (boardId >= 0 && boardId < BOARD_NUM_MAXIMU) {
-            return _update(member, channelId, {
-                lastUsedBoard: boardId
-            });
-        }
-        throw new Error('boardId is invalid');
-    }).catch(function(err) {
-        SharedUtils.printError('ChannelMemberDao.js', 'updateDrawAsync', err);
-        throw err;
-    });
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: for member to update the rtc status on specific channel
  *
  * @param {String}      member, member's id
@@ -359,10 +335,6 @@ exports.updateRtcAsync = function(member, channelId, status) {
  */
 exports.updateVisitAsync = function(member, channelId) {
     return _update(member, channelId, {
-        // increment te visitCounts field by "1"
-        $inc: {
-            visitCounts: 1
-        },
         lastVisitTime: Date.now()
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'updateVisitAsync', err);

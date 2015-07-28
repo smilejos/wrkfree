@@ -55,8 +55,7 @@ module.exports = CreateStore({
                 hostInfo: item.hostInfo,
                 snapshotUrl: _getSnapshotUrl(item.channel.channelId),
                 isStarred: item.isStarred,
-                visitTime: item.visitTime,
-                lastBaord: item.lastBaord
+                visitTime: item.visitTime
             });
         }).bind(this).then(function() {
             this._setOutdatedTimer();
@@ -82,8 +81,7 @@ module.exports = CreateStore({
             hostInfo: info.hostInfo,
             snapshotUrl: _getSnapshotUrl(info.channelId),
             isStarred: info.isStarred,
-            visitTime: info.visitTime,
-            lastBaord: 0
+            visitTime: info.visitTime
         }).bind(this).then(function() {
             this.emitChange();
         });
@@ -175,8 +173,7 @@ function _saveDashboardChannel(collection, doc) {
         hostInfo: doc.hostInfo,
         snapshotUrl: SharedUtils.argsCheckAsync(doc.snapshotUrl, 'string'),
         isStarred: SharedUtils.argsCheckAsync(doc.isStarred, 'boolean'),
-        visitTime: SharedUtils.argsCheckAsync(doc.visitTime, 'number'),
-        lastBaord: SharedUtils.argsCheckAsync(doc.lastBaord, 'number'),
+        visitTime: SharedUtils.argsCheckAsync(doc.visitTime, 'number')
     }).then(function(doc) {
         return collection.insert(doc);
     });
