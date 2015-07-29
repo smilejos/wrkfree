@@ -201,15 +201,19 @@ module.exports = React.createClass({
         var ctrlIconStyle = {
             color: this.state.isConferenceExist ? '#FFF' : 'rgba(0,0,0,0.3)'
         };
+        var nameStyle = {
+            color: '#000',
+            fontSize: 18,
+            paddingLeft: 20,
+            paddingTop: 15
+        };
+        var is1on1 = this.props.channel.is1on1;
         return (
             <div className="footer" style={barStyle} >
-                <div className="pure-u-1-3">
-                    <IconButton iconClassName="fa fa-home"
-                                iconStyle={this.state.defaultIconStyle}
-                                onClick={this._onLeave} />
-                    <IconButton iconClassName="fa fa-star" 
-                                iconStyle={starIconStyle}
-                                onClick={this._starChannel} />
+                <div className="pure-u-1-3 baseFonts" style={nameStyle} >
+                    <span className={is1on1 ? 'fa fa-at' : 'fa fa-briefcase'} style={{color: Colors.grey500}} />
+                    &nbsp;
+                    {this.props.channel.name}
                 </div>
                 <div className="pure-u-1-3">
                     <FloatingActionButton mini secondary
@@ -243,6 +247,18 @@ module.exports = React.createClass({
                             {'call_end'}
                         </i>
                     </FloatingActionButton>
+                </div>
+                <div className="pure-u-1-3">
+                    <IconButton iconClassName="fa fa-user-plus"
+                                iconStyle={this.state.defaultIconStyle} />
+                    <IconButton iconClassName="fa fa-star" 
+                                iconStyle={starIconStyle}
+                                onClick={this._starChannel} />
+                    <IconButton iconClassName="fa fa-link"
+                                iconStyle={this.state.defaultIconStyle} />
+                    <IconButton iconClassName="fa fa-sign-out"
+                                iconStyle={this.state.defaultIconStyle}
+                                onClick={this._onLeave} />
                 </div>
                 <div className="rightControl" >
                     <div className={switchVieoStyle} onClick={this._switchVideo}>Video</div>
