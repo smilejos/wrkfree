@@ -104,13 +104,15 @@ module.exports = React.createClass({
      * @Description: focus on search field after click search icon
      */
     _onSearchIconClick: function() {
-        this.refs.search.focus();
         this.executeAction(ToggleQuickSearch, {
             isEnabled: true
         });
         this.executeAction(ToggleChannelNav, {
             open: false
         });
+        setTimeout(function(){
+            this.refs.search.focus();
+        }.bind(this));
     },
 
     /**
