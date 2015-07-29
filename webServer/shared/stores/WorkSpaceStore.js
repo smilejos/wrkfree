@@ -153,6 +153,15 @@ module.exports = CreateStore({
             self.draw.boardNums = state.channel.drawBoardNums;
             self.status = state.status;
         }).then(function() {
+            var membersInfo = self.members.info;
+            var selfUid = self.status.member;
+            if (self.channel.is1on1) {
+                SharedUtils.fastArrayMap(membersInfo, function(info){
+                    if (info.uid !== selfUid) {
+                        self.channel.name = info.nickName;
+                    }
+                });
+            }
             self.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('WorkSpaceStore.js', 'polyfillAsync', err);
