@@ -51,10 +51,13 @@ socketCluster.on('workerStart', function(workerInfo){
     Workers.push(workerInfo.pid);
 });
 
-// soft shutdown
-process.on('SIGUSR2', function(){
+/**
+ * @Author: George_Chen
+ * @Description: soft shutdown for signal sent by "docker stop"
+ */
+process.on('SIGTERM', function(){
     return Promise.map(Workers, function(pid){
-        return process.kill(pid, 'SIGUSR2');
+        return process.kill(pid, 'SIGTERM');
     }).delay(3000).then(function(){
         socketCluster.killWorkers();
         socketCluster.killStores();
