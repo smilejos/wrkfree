@@ -87,6 +87,27 @@ exports.checkExecuteResult = function(result, failMsg) {
 /**
  * @Public API
  * @Author: George_Chen
+ * @Description: to count the bytes of candidate string
+ *
+ * @param {String}      str, the candidate string
+ */
+exports.stringToBytes = function(str) {
+    var len = 0;
+    var symbol;
+    for (var i = 0; i < str.length; ++i) {
+        symbol = str.charCodeAt(i);
+        while (symbol > 0) {
+            ++len;
+            // right shift 1 bytes (8 bits)
+            symbol = symbol >> 8;
+        }
+    }
+    return len;
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
  * @Description: getting the arguments array without leaking it
  *
  * @param {Object}      rawArguments, the arguments object in function

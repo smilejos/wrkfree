@@ -2,8 +2,6 @@ $header-main-color: #FFF;
 $header-state-color: #144766;
 $header-active-state-color: #fff;
 
-$header-user-state-width: 135px;
-
 /**
  * unread notification state container
  */
@@ -37,7 +35,6 @@ $header-user-state-width: 135px;
     border-bottom-style: solid;
     border-width: 1px;
     height: $app-header-height;
-    width: 100%;
     color: $header-main-color;
     z-index: 5;
     position: relative;
@@ -74,10 +71,11 @@ $header-user-state-width: 135px;
         .userState {
             float:left;
             cursor: pointer;
-            width: $header-user-state-width;
             .UserStateName {
-                font-size: 14px;
+                float:left;
+                font-size: 12px;
                 padding-left: 5px;
+                margin-right: 10px;
                 line-height: $app-header-height;
             }
             .UserAvatar {

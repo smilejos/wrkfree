@@ -1,6 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var SharedUtils = require('../../../sharedUtils/utils');
 
 var HeaderStore = require('../stores/HeaderStore');
 var SubscriptionStore = require('../stores/SubscriptionStore');
@@ -246,10 +247,18 @@ var UserState = React.createClass({
     },
 
     render: function() {
+        var nameBytes = SharedUtils.stringToBytes(this.props.name);
+        var nameStyle = {};
+        // if username bytes exceed 16, we fix the width of username
+        // and overflow exceeded strings
+        if (nameBytes > 16) {
+            nameStyle.width = 120;
+            nameStyle.overflow = 'hidden';
+        }
         return (
             <div className="userState" onClick={this._onAvatarClick}>
-                <span className="UserStateName" > {this.props.name} </span>
                 <UserAvatar avatar={this.props.avatar} isCircle />
+                <div className="UserStateName" style={nameStyle}> {this.props.name} </div>
             </div>
         );
     }
