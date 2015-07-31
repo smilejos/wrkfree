@@ -1,7 +1,18 @@
 'use strict';
 var SocketCluster = require('socketcluster').SocketCluster;
 var Promise = require('bluebird');
+var Fs = require('fs');
 var Workers = [];
+
+/**
+ * for development env, we clean all legacy logs while booting socket server
+ */
+if (process.env.NODE_ENV !== 'production') {
+    Fs.writeFile('../logs/socketServer.log', '');
+    Fs.writeFile('../logs/webServer.log', '');
+    Fs.writeFile('../logs/storageService.log', '');
+}
+
 
 var socketCluster = new SocketCluster({
     workers: 1, // Number of worker processes
