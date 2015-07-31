@@ -169,7 +169,7 @@ module.exports = CreateStore({
 function _saveDashboardChannel(collection, doc) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
-        channelName: SharedUtils.argsCheckAsync(doc.channelName, 'alphabet'),
+        channelName: SharedUtils.argsCheckAsync(doc.channelName, 'channelName'),
         hostInfo: doc.hostInfo,
         snapshotUrl: SharedUtils.argsCheckAsync(doc.snapshotUrl, 'string'),
         isStarred: SharedUtils.argsCheckAsync(doc.isStarred, 'boolean'),

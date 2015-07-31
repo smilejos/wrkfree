@@ -27,7 +27,7 @@ exports.createAsync = function(channelId, creator, name, isPublic, org) {
     return Promise.props({
         _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
         host: SharedUtils.argsCheckAsync(creator, 'md5'),
-        name: SharedUtils.argsCheckAsync(name, 'string'),
+        name: SharedUtils.argsCheckAsync(name, 'channelName'),
         isPublic: SharedUtils.argsCheckAsync(isPublic, 'boolean'),
         is1on1: false
     }).then(function(doc) {

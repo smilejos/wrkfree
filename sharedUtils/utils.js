@@ -372,19 +372,17 @@ exports.isDbId = function(id) {
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: to check the full channel name based on channel type
+ * @Description: to check the channel name is valid or not
+ *         NOTE: any char in name should be: english, number, chinese or "-" and "_"
  * 
  * @param {String}      name, channel's full name
- * @param {String}      type, channel's type
  */
-exports.isChannelName = function(name, type) {
+exports.isChannelName = function(name) {
     if (!this.isString(name)) {
         return false;
     }
-    if (!this.isValidChannelType(type)) {
-        return false;
-    }
-    return (type === 'public' ? _isPublicChannel(name) : _isPrivateChannel(name));
+    var regx = /^[\u4e00-\u9fa5a-zA-Z0-9\-\_]+$/;
+    return regx.test(name);
 };
 
 exports.isDrawBoardId = function(boardId) {

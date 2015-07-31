@@ -231,7 +231,7 @@ module.exports = CreateStore({
 function _saveSubscription(collection, doc) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
-        name: SharedUtils.argsCheckAsync(doc.name, 'alphabet'),
+        name: SharedUtils.argsCheckAsync(doc.name, 'channelName'),
         hostInfo: doc.hostInfo,
         unreadMsgNumbers: 0,
         hasConferenceCall: false
