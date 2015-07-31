@@ -38,6 +38,14 @@
                     "path": "../logs/storageService.log"
                 }
             ]
+        },
+        "SLACK": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                }
+            ]
         }
     },
 
@@ -80,6 +88,17 @@
                     "level":"warn",
                     "type": "file",
                     "path": "/workspace/wrkfree2.0/logs/storageService.log"
+                }
+            ]
+        },
+        "SLACK": {
+            "settings": [
+                {
+                    "level": "info",
+                    "type": "slack",
+                    "webhook": "https://hooks.slack.com/services/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",
+                    "slackChannel": "#operation",
+                    "slackUser": "wrkfreeApp"
                 }
             ]
         }
