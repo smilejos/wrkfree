@@ -103,7 +103,7 @@ module.exports = React.createClass({
             var name = self.refs.channelName.getValue();
             // TODO: we should trigger another actiion flow 
             self.setState({
-                isNameValid: (name.length > 0)
+                isNameValid: SharedUtils.isChannelName(name)
             });
         }, 100);
     },
