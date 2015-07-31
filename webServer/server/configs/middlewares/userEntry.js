@@ -87,6 +87,8 @@ UserEntry.create = function(req, res, next) {
             }, 'create new user fail');
             req.error = result.toString();
         } else {
+            // notify our slack channel that we have new user register
+            LogUtils.info('SLACK', null, 'user: ' + result.nickName + ' [' + result.uid + '] just registered ');
             req.user = result;
             // override current session content
             req.session.passport.user = {

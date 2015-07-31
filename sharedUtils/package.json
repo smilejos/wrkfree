@@ -1,11 +1,12 @@
 {
   "name": "wrkfree-utils",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "private": true,
   "dependencies": {
     "bluebird": "^2.9.9",
     "bunyan": "~1.4.0",
     "bunyan-loggly": "0.0.5",
+    "bunyan-slack": "0.0.10",
     "crypto-browserify": "3.2.5"
   }
 }
