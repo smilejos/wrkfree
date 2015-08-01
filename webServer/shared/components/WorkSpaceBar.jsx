@@ -199,11 +199,6 @@ module.exports = React.createClass({
         var barStyle = {};
         var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
         var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
-        if (this.props.onConferenceCall) {
-            barStyle = {
-                backgroundColor: Colors.grey600
-            };
-        }
         var conferenceIconStyle = {
             color: this.state.isConferenceExist ? 'rgba(0,0,0,0.3)' : '#FFF'
         };
@@ -218,7 +213,7 @@ module.exports = React.createClass({
         };
         return (
             <div className="footer" >
-                <div className="leftControl" style={barStyle}>
+                <div className={this.props.onConferenceCall ? "leftControl onRtcCall" : "leftControl"}>
                     <div className="pure-u-1-3 baseFonts" style={nameStyle} >
                         {this._setStarIcon()}
                         &nbsp;

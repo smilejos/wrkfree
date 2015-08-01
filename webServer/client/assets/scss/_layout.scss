@@ -151,4 +151,20 @@ $app-infoBox-width: 250px;
         height: 100%;
         width: 250px;
     }
+    .onRtcCall {
+        background-color: $grey-600;
+        animation-name: barTwinkle;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        animation-duration: 0.8s;
+        animation-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860);
+    }
+    @keyframes barTwinkle {
+        0%   { 
+            opacity: 0.5;
+        }
+        100% { 
+            opacity: 0.8;
+        }
+    }
 }
