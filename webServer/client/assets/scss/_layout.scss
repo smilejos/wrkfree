@@ -128,11 +128,17 @@ $app-infoBox-width: 250px;
     bottom: 0px;
     width: 100%;
     height: $app-footer-height;
-    background-color: $grey-300;
-    color: $grey-600;
-    opacity: 0.5;
     z-index: 2;
-
+    .leftControl {
+        background-color: $grey-300;
+        color: $grey-600;
+        opacity: 0.5;
+    }
+    .leftControl:hover {
+        opacity: 0.7;
+        transition: 0.2s;
+        color: $grey-800;
+    }
     /**
      * define the switch buuton style of bottom setting bar
      */
