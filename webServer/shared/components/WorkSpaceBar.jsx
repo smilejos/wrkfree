@@ -48,9 +48,6 @@ module.exports = React.createClass({
             isAudioOn: true,
             defaultIconStyle: {
                 color: Colors.grey500
-            },
-            starIconStyle: {
-                color: Colors.amber500
             }
         };
     },
@@ -85,6 +82,22 @@ module.exports = React.createClass({
      */
     _onLeave: function () {
         this.transitionTo('/app/dashboard');
+    },
+
+    _setStarIcon: function() {
+        if (this.props.channel.is1on1) {
+            return (<span className="fa fa-at" style={this.state.defaultIconStyle} />);
+        }
+        var isStarred = this.props.status.isStarred;
+        var starIconStyle = {
+            color: (isStarred ? Colors.yellow900 : Colors.grey500),
+            cursor: 'pointer'
+        }
+        return (
+            <span className="fa fa-star-o" 
+                style={starIconStyle} 
+                onClick={this._starChannel} />
+        );
     },
 
     /**
@@ -184,16 +197,12 @@ module.exports = React.createClass({
 
     render: function (){
         var barStyle = {};
-        var starIconStyle = this.state.defaultIconStyle;
         var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
         var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         if (this.props.onConferenceCall) {
             barStyle = {
                 'backgroundColor': '#000'
             };
-        }
-        if (this.props.status.isStarred) {
-            starIconStyle = this.state.starIconStyle;
         }
         var conferenceIconStyle = {
             color: this.state.isConferenceExist ? 'rgba(0,0,0,0.3)' : '#FFF'
@@ -207,11 +216,10 @@ module.exports = React.createClass({
             paddingLeft: 20,
             paddingTop: 15
         };
-        var is1on1 = this.props.channel.is1on1;
         return (
             <div className="footer" style={barStyle} >
                 <div className="pure-u-1-3 baseFonts" style={nameStyle} >
-                    <span className={is1on1 ? 'fa fa-at' : 'fa fa-briefcase'} style={{color: Colors.grey500}} />
+                    {this._setStarIcon()}
                     &nbsp;
                     {this.props.channel.name}
                 </div>
@@ -251,10 +259,9 @@ module.exports = React.createClass({
                 <div className="pure-u-1-3">
                     <IconButton iconClassName="fa fa-user-plus"
                                 iconStyle={this.state.defaultIconStyle} />
-                    <IconButton iconClassName="fa fa-star" 
-                                iconStyle={starIconStyle}
-                                onClick={this._starChannel} />
                     <IconButton iconClassName="fa fa-link"
+                                iconStyle={this.state.defaultIconStyle} />
+                    <IconButton iconClassName="fa fa-random"
                                 iconStyle={this.state.defaultIconStyle} />
                     <IconButton iconClassName="fa fa-sign-out"
                                 iconStyle={this.state.defaultIconStyle}
