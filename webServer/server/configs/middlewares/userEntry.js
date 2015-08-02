@@ -145,7 +145,7 @@ UserEntry.isEmailAvailable = function(req, res, next) {
  * @Description: ensure non-login user can access signup page
  */
 UserEntry.authToSignup = function(req, res, next) {
-    if (!!req.cookies.uid) {
+    if (!!req.user.uid) {
         return res.redirect('/app/dashboard');
     }
     next();

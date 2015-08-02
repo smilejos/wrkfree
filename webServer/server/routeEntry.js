@@ -23,7 +23,7 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
         SharedUtils.printError('server-routeEntry', 'getDashboardAsync', err);
-        return {};
+        throw err;
     });
 };
 
@@ -48,7 +48,7 @@ exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
         return _storesPolyfill(actionContext, resource);
     }).catch(function(err) {
         SharedUtils.printError('server-routeEntry', 'getWorkSpaceAsync', err);
-        return {};
+        throw err;
     });
 };
 
@@ -69,7 +69,7 @@ exports.getSignUpAsync = function(actionContext, routeInfo) {
         });
     }).catch(function(err) {
         SharedUtils.printError('server-routeEntry', 'getSignUpAsync', err);
-        return {};
+        throw err;
     });
 };
 
@@ -98,14 +98,14 @@ function _storesPolyfill(actionContext, storeData) {
     return Promise.try(function() {
         return Object.keys(storeData);
     }).map(function(storeName) {
-        var store = actionContext.getStore(storeName);
-        if (storeData[storeName]) {
-            return store.polyfillAsync(storeData[storeName]);
+        if (!storeData[storeName]) {
+            throw new Error('the data in store [' + storeName + '] is invalid');
         }
-        return null;
+        var store = actionContext.getStore(storeName);
+        return store.polyfillAsync(storeData[storeName]);
     }).catch(function(err) {
         SharedUtils.printError('server-routeEntry', '_storesPolyfill', err);
-        return null;
+        throw new Error('store polyfill on server fail');
     });
 }
 
