@@ -21,5 +21,8 @@
         "sessionCancelInMScend": 5000,
         "notificationTimeoutInMSecond": 3000,
         "notificationDelayInMSecond": 2000
+    },
+    "system": {
+        "onlineUserKeyTimeoutInSecond": 120
     }
 }
