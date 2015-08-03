@@ -38,5 +38,5 @@ app.registerStore(require('./stores/EventToasterStore'));
 app.registerStore(require('./stores/NotificationStore'));
 app.registerStore(require('./stores/HangoutStore'));
 app.registerStore(require('./stores/PreviewStore'));
-
+app.registerStore(require('./stores/ChannelCreatorStore'));
 module.exports = app;

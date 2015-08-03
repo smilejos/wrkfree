@@ -32,7 +32,8 @@ exports.releaseConnection = function(id) {
  * @param {String}          id, the connection id
  */
 exports.hasConnection = function(id) {
-    return !!Connections[id];
+    var conn = Connections[id];
+    return (conn && conn.webrtc.localStreams.length > 0);
 };
 
 /**

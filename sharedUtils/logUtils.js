@@ -127,5 +127,19 @@ function _setLogStream(info) {
             })
         };
     }
+
+    if (info.type === 'slack') {
+        var BunyanSlack = require('bunyan-slack');
+        return {
+            name: "wrkfreeApp",
+            stream: new BunyanSlack({
+                webhook_url: info.webhook,
+                channel: info.slackChannel,
+                username: info.slackUser,
+            }),
+            level: info.level
+        }
+    }
+
     return info;
 }

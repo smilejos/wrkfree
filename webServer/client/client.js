@@ -56,10 +56,8 @@ app.rehydrate(dehydratedState, function(err, context) {
                 throw new Error('server connection lost');
             }
             // start the navigation action
-            Router.run(app.getComponent(), HistoryLocation, function(Handler, state) {
-                context.executeAction(navigateAction, state, function() {
-                    RenderApp(context, Handler);
-                });
+            return context.executeAction(navigateAction, state).then(function(){
+                RenderApp(context, Handler);
             });
         }).catch(function(err) {
             console.log('[ERROR]', err);

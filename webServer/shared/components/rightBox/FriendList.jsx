@@ -4,7 +4,6 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../../sharedUtils/utils');
 
 var FriendStore = require('../../stores/FriendStore');
-var ToggleStore = require('../../stores/ToggleStore');
 var HeaderStore = require('../../stores/HeaderStore');
 
 /**
@@ -27,21 +26,7 @@ module.exports = React.createClass({
 
     statics: {
         storeListeners: {
-            '_onStoreChange': [FriendStore],
-            '_onVisiableChange': [ToggleStore]
-        }
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for handling display or not
-     */
-    _onVisiableChange: function(){
-        var store = this.getStore(ToggleStore).getState();
-        if (this.state.isVisible !== store.friendVisiable) {
-            this.setState({
-                isVisible : store.friendVisiable 
-            }); 
+            '_onStoreChange': [FriendStore]
         }
     },
 
@@ -62,13 +47,14 @@ module.exports = React.createClass({
     _onStoreChange: function(){
         var store = this.getStore(FriendStore).getState();
         this.setState({
-            friends : store.friends
+            friends : store.friends,
+            isActive : this.state.isActive !== store.isActive ? store.isActive : this.state.isActive
         });
     },
 
     getInitialState: function() {
         return {
-            isVisible : this.getStore(ToggleStore).getState().friendVisiable,
+            isActive : this.getStore(FriendStore).getState().isActive,
             friends : this.getStore(FriendStore).getState().friends,
             selfUid: this.getStore(HeaderStore).getSelfInfo().uid,
             isTimeVisible: false,
@@ -83,7 +69,7 @@ module.exports = React.createClass({
         // this ensure the update unreadConversations is not triggered by timeVisible
         if (prevState.isTimeVisible === this.state.isTimeVisible) {
             return Promise.reduce(this.state.friends, function(total, friendItem){
-                return (friendItem.isMessageReaded ? total : total + 1);
+                return (!friendItem.isMessageReaded || friendItem.hasIncomingCall ? total + 1 : total);
             }, 0).bind(this).then(function(totalUnreads){
                 this.executeAction(SetUnreadConverations, {
                     counts: totalUnreads
@@ -117,10 +103,11 @@ module.exports = React.createClass({
                 key={friendInfo.uid}
                 self={selfUid}
                 timeVisible={isTimeVisible}
+                hasIncomingCall={friendInfo.hasIncomingCall}
                 info={friendInfo} />
         });
         return (
-            <div className={this.state.isVisible ? 'FriendsShow' : 'Friends'}
+            <div className={this.state.isActive ? 'FriendsShow' : 'Friends'}
                 onMouseEnter={this._showTime.bind(this, true)} 
                 onMouseLeave={this._showTime.bind(this, false)} >
                 {friendList}

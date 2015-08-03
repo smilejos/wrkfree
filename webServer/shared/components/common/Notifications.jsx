@@ -49,7 +49,7 @@ var Notification = React.createClass({
             return <Notices key={info.reqId} info={info} />
         });
         return (
-            <div className={this.state.isVisible ? "Notification NotificationShow" : "Notification"}>
+            <div className={this.state.isActive ? "Notification NotificationShow" : "Notification"}>
                 {list}
             </div>
         );

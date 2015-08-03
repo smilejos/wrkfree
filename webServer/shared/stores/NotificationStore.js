@@ -19,7 +19,7 @@ module.exports = CreateStore({
     },
 
     initialize: function() {
-        this.isVisible = false;
+        this.isActive = false;
         this.isOutdated = true;
         this.outdatedTimer = null;
         this.requests = [];
@@ -33,7 +33,7 @@ module.exports = CreateStore({
      * @param {Boolean}      isVisible, control notifications shown status
      */
     _toggleNotification: function(data) {
-        this.isVisible = data.isVisible;
+        this.isActive = data.isActive;
         this.emitChange();
     },
 
@@ -96,7 +96,7 @@ module.exports = CreateStore({
      * @Description: to check notifications is visible or not
      */
     isNotificationShown: function() {
-        return this.isVisible;
+        return this.isActive;
     },
 
     /**
@@ -141,7 +141,7 @@ module.exports = CreateStore({
 
     getState: function() {
         return {
-            isVisible: this.isVisible,
+            isActive: this.isActive,
             notifications: this.requests.concat(this.notifications)
         };
     }

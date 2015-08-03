@@ -13,7 +13,7 @@ var ChannelStorage = StorageManager.getService('Channel');
  * @param {String}          data.name, the channel name
  */
 exports.createAsync = function(socket, data) {
-    return SharedUtils.argsCheckAsync(data.name, 'string')
+    return SharedUtils.argsCheckAsync(data.name, 'channelName')
         .then(function(validName) {
             var host = socket.getAuthToken();
             var isPublic = true;

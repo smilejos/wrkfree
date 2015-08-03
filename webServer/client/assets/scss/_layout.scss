@@ -15,6 +15,14 @@ $app-infoBox-width: 250px;
 }
 
 /**
+ * the base fonts style
+ */
+.baseFonts {
+    font-family: 'Roboto', sans-serif;
+    font-size: 14;
+}
+
+/**
  * define the base style of box
  */
 .baseBox {
@@ -120,11 +128,17 @@ $app-infoBox-width: 250px;
     bottom: 0px;
     width: 100%;
     height: $app-footer-height;
-    background-color: $grey-300;
-    color: $grey-600;
-    opacity: 0.5;
     z-index: 2;
-
+    .leftControl {
+        background-color: $grey-300;
+        color: $grey-600;
+        opacity: 0.5;
+    }
+    .leftControl:hover {
+        opacity: 0.7;
+        transition: 0.2s;
+        color: $grey-800;
+    }
     /**
      * define the switch buuton style of bottom setting bar
      */
@@ -136,5 +150,21 @@ $app-infoBox-width: 250px;
         bottom: 0px;
         height: 100%;
         width: 250px;
+    }
+    .onRtcCall {
+        background-color: $grey-600;
+        animation-name: barTwinkle;
+        animation-iteration-count: infinite;
+        animation-direction: alternate;
+        animation-duration: 0.8s;
+        animation-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860);
+    }
+    @keyframes barTwinkle {
+        0%   { 
+            opacity: 0.5;
+        }
+        100% { 
+            opacity: 0.8;
+        }
     }
 }

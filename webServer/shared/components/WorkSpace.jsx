@@ -6,7 +6,8 @@ var WorkSpaceStore = require('../stores/WorkSpaceStore');
  * child components
  */
 var WorkSpaceBar = require('./WorkSpaceBar.jsx');
-var DrawingArea = require('./mainBox/DrawingArea.jsx');
+
+var MainWorkSpace = require('./mainBox/MainWorkSpace.jsx');
 var SubWorkSpace = require('./rightBox/SubWorkSpace.jsx');
 
 /**
@@ -41,7 +42,9 @@ module.exports = React.createClass({
         drawInfo.currentBoardId = (boardIndex ? boardIndex -1 : 0);
         return (
             <div>
-                <DrawingArea channel={channelInfo} drawInfo={drawInfo}/>
+                <MainWorkSpace 
+                    channel={channelInfo} 
+                    drawInfo={drawInfo}/>
                 <SubWorkSpace 
                     channelId={channelInfo.channelId} />
                 <WorkSpaceBar 
@@ -53,3 +56,4 @@ module.exports = React.createClass({
         );
     }
 });
+

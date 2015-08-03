@@ -5,6 +5,8 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 /**
  * actions
  */
+var SetConferenceEvent = require('../../client/actions/rtc/setConferenceEvent');
+var StartConference = require('../../client/actions/rtc/startConference');
 var EnterWorkspace = require('../../client/actions/enterWorkspace');
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
@@ -36,6 +38,29 @@ module.exports = React.createClass({
         //       then we should unsubscribe it !
     },
 
+    componentWillReceiveProps: function(nextProps) {
+        var self = this;
+        if (nextProps.hasConferenceCall !== this.props.hasConferenceCall) {
+            self.executeAction(SetConferenceEvent, {
+                channelId: self.props.channelId,
+                isShown: nextProps.hasConferenceCall,
+                title: 'Conference Call',
+                message: 'Received from ['+ this.props.name + ']',
+                callHandler: function() {
+                    self.executeAction(EnterWorkspace, {
+                        urlNavigator: self.transitionTo,
+                        channelId: self.props.channelId
+                    });
+                    setTimeout(function(){
+                        self.executeAction(StartConference, {
+                            channelId: self.props.channelId
+                        });
+                    }, 1000);
+                }
+            });
+        }
+    },
+
     render: function() {
         return (
             <div className="Channel" 
@@ -49,7 +74,7 @@ module.exports = React.createClass({
                     </div>
                 </div>
                 <div className="Signal">
-                    {this.props.isConferenceExist ? <div className="Conference fa fa-users" /> : ''}
+                    {this.props.hasConferenceCall ? <div className="Conference fa fa-users" /> : ''}
                     {this.props.unreadMsgNumbers > 0 ? <div className="Counter">{this.props.unreadMsgNumbers}</div> : '' }
                 </div>
             </div>

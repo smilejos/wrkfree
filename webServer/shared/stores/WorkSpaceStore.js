@@ -4,14 +4,18 @@ var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 
 /**
- * Default Draw Parameters
+ * Default Parameters
  */
-var DRAW_MODE = 'pen';
-var DRAW_PEN_LINECAP = 'round';
-var DRAW_PEN_WIDTH = 10;
-var DRAW_PEN_COLOR = '#000000';
-var DRAW_PALETTE = false;
-var RTC_CANCEL_TIMEOUT_IN_MSECOND = 3000;
+var Configs = require('../../../configs/config');
+var DrawOptions = Configs.get().params.draw.drawOptions;
+if (!DrawOptions) {
+    throw new Error('get draw parameters error');
+}
+
+var RTC_CANCEL_TIMEOUT_IN_MSECOND = Configs.get().params.rtc.sessionCancelInMScend;
+if (!SharedUtils.isNumber(RTC_CANCEL_TIMEOUT_IN_MSECOND)) {
+    throw new Error('get rtc parameters error');
+}
 
 module.exports = CreateStore({
     storeName: 'WorkSpaceStore',
@@ -64,13 +68,7 @@ module.exports = CreateStore({
         this.members = {};
         this.status = {};
         this.draw = {
-            drawOptions: {
-                mode: DRAW_MODE,
-                lineCap: DRAW_PEN_LINECAP,
-                lineWidth: DRAW_PEN_WIDTH,
-                strokeStyle: DRAW_PEN_COLOR,
-                palette: DRAW_PALETTE
-            },
+            drawOptions: DrawOptions
         };
         this.rtc = {
             onConferenceCall: false
@@ -155,6 +153,15 @@ module.exports = CreateStore({
             self.draw.boardNums = state.channel.drawBoardNums;
             self.status = state.status;
         }).then(function() {
+            var membersInfo = self.members.info;
+            var selfUid = self.status.member;
+            if (self.channel.is1on1) {
+                SharedUtils.fastArrayMap(membersInfo, function(info){
+                    if (info.uid !== selfUid) {
+                        self.channel.name = info.nickName;
+                    }
+                });
+            }
             self.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('WorkSpaceStore.js', 'polyfillAsync', err);

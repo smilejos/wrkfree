@@ -6,6 +6,7 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
  */
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
+var Colors = Mui.Styles.Colors;
 
 /**
  * store
@@ -54,7 +55,6 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        var style = (this.state.isEnabled ? 'Webcam-shown' : 'Webcam-hidden');
         var videoComponent = '';
         if (this.state.stream && this.state.isVideoShown) {
             videoComponent = (
@@ -65,12 +65,12 @@ module.exports = React.createClass({
             );
         }
         return (
-            <div className={style}>
+            <div className={this.state.isEnabled ? 'Webcam-shown' : 'Webcam-hidden'}>
                 <div className="icon">
                     <IconButton 
                         iconClassName="fa fa-dot-circle-o"
-                        tooltip={'Show Webcam Video'}
-                        touch  
+                        tooltip={this.state.isVideoShown ? 'Hide Webcam' : 'Show Webcam'}
+                        iconStyle={{color:Colors.red600}}
                         onClick={this._toggleVideo} />
                 </div>
                 {videoComponent}

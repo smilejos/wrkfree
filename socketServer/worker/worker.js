@@ -53,14 +53,6 @@ module.exports.run = function(worker) {
 
     /**
      * @Author: George_Chen
-     * @Description: to do a hot reset on current worker
-     */
-    process.on('SIGUSR2', function() {
-        _workerReset();
-    });
-
-    /**
-     * @Author: George_Chen
      * @Description: this is used for catching signal sent by "docker stop"
      *         NOTE: on production environment, the docker stop will send this signal
      *               before force stop container

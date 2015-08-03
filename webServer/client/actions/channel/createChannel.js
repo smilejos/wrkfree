@@ -15,7 +15,7 @@ var ActionUtils = require('../actionUtils');
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
-        name: SharedUtils.argsCheckAsync(data.name, 'string'),
+        name: SharedUtils.argsCheckAsync(data.name, 'channelName'),
     }).then(function(reqData) {
         return ChannelService.createAsync(reqData);
     }).then(function(info) {

@@ -24,6 +24,7 @@ var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
 var FloatingActionButton = Mui.FloatingActionButton;
 var Colors = Mui.Styles.Colors;
+var FontIcon = Mui.FontIcon;
 
 /**
  * workspace tool bar, now just a template
@@ -47,9 +48,6 @@ module.exports = React.createClass({
             isAudioOn: true,
             defaultIconStyle: {
                 color: Colors.grey500
-            },
-            starIconStyle: {
-                color: Colors.amber500
             }
         };
     },
@@ -86,6 +84,22 @@ module.exports = React.createClass({
         this.transitionTo('/app/dashboard');
     },
 
+    _setStarIcon: function() {
+        if (this.props.channel.is1on1) {
+            return (<span className="fa fa-at" style={this.state.defaultIconStyle} />);
+        }
+        var isStarred = this.props.status.isStarred;
+        var starIconStyle = {
+            color: (isStarred ? Colors.yellow900 : Colors.grey500),
+            cursor: 'pointer'
+        }
+        return (
+            <span className="fa fa-star-o" 
+                style={starIconStyle}
+                onClick={this._starChannel} />
+        );
+    },
+
     /**
      * @Author: George_Chen
      * @Description: for user to star current workspace channel
@@ -116,6 +130,11 @@ module.exports = React.createClass({
     _hangupConference: function() {
         this.executeAction(HangupConference, {
             channelId: this.props.channel.channelId
+        });
+        // reset video and audio back to default
+        this.setState({
+            isVideoOn: true,
+            isAudioOn: true,
         });
     },
 
@@ -163,49 +182,87 @@ module.exports = React.createClass({
         this.setState(nextState);
     },
 
+    componentWillReceiveProps: function(nextProps) {
+        var isChannelChange = (this.props.channel.channelId !== nextProps.channel.channelId);
+        if (isChannelChange && this.state.isConferenceExist) {
+            this._hangupConference();
+        }
+    },
+
+    componentWillUnmount: function() {
+        if (this.state.isConferenceExist) {
+            this._hangupConference();
+        }
+    },
+
     render: function (){
         var barStyle = {};
-        var starIconStyle = this.state.defaultIconStyle;
         var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
         var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
-        if (this.props.onConferenceCall) {
-            barStyle = {
-                'backgroundColor': '#000'
-            };
-        }
-        if (this.props.status.isStarred) {
-            starIconStyle = this.state.starIconStyle;
-        }
+        var conferenceIconStyle = {
+            color: this.state.isConferenceExist ? 'rgba(0,0,0,0.3)' : '#FFF'
+        };
+        var ctrlIconStyle = {
+            color: this.state.isConferenceExist ? '#FFF' : 'rgba(0,0,0,0.3)'
+        };
+        var nameStyle = {
+            color: '#000',
+            fontSize: 18,
+            paddingLeft: 20,
+            paddingTop: 15
+        };
         return (
-            <div className="footer" style={barStyle} >
-                <div className="pure-u-1-3">
-                    <IconButton iconClassName="fa fa-home"
-                                iconStyle={this.state.defaultIconStyle}
-                                onClick={this._onLeave} />
-                    <IconButton iconClassName="fa fa-star" 
-                                iconStyle={starIconStyle}
-                                onClick={this._starChannel} />
-                </div>
-                <div className="pure-u-1-3">
-                    <FloatingActionButton mini secondary
-                        disabled={this.state.isConferenceExist}
-                        iconClassName="fa fa-users" 
-                        onClick={this._startConference} />
-                    &nbsp;
-                    <FloatingActionButton mini secondary
-                        disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-video-camera "
-                        onClick={this._controlMedia.bind(this, true)} />
-                    &nbsp;
-                    <FloatingActionButton mini secondary
-                        disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-microphone"
-                        onClick={this._controlMedia.bind(this, false)} />
-                    &nbsp;
-                    <FloatingActionButton mini primary
-                        disabled={!this.state.isConferenceExist}
-                        iconClassName="fa fa-tty" 
-                        onClick={this._hangupConference} />
+            <div className="footer" >
+                <div className={this.props.onConferenceCall ? "leftControl onRtcCall" : "leftControl"}>
+                    <div className="pure-u-1-3 baseFonts" style={nameStyle} >
+                        {this._setStarIcon()}
+                        &nbsp;
+                        {this.props.channel.name}
+                    </div>
+                    <div className="pure-u-1-3">
+                        <FloatingActionButton mini secondary
+                            disabled={this.state.isConferenceExist}
+                            onClick={this._startConference} >
+                            <i className="material-icons" style={conferenceIconStyle}>
+                                {'settings_phone'}
+                            </i>
+                        </FloatingActionButton>
+                        &nbsp;
+                        <FloatingActionButton mini secondary
+                            disabled={!this.state.isConferenceExist}
+                            onClick={this._controlMedia.bind(this, true)} >
+                            <i className="material-icons" style={ctrlIconStyle}>
+                                {this.state.isVideoOn ? 'videocam_off' : 'videocam'}
+                            </i>
+                        </FloatingActionButton>
+                        &nbsp;
+                        <FloatingActionButton mini secondary
+                            disabled={!this.state.isConferenceExist}
+                            onClick={this._controlMedia.bind(this, false)} >
+                            <i className="material-icons" style={ctrlIconStyle}>
+                                {this.state.isAudioOn ? 'mic_off' : 'mic'}
+                            </i>
+                        </FloatingActionButton>
+                        &nbsp;
+                        <FloatingActionButton mini primary
+                            disabled={!this.state.isConferenceExist}
+                            onClick={this._hangupConference}>
+                            <i className="material-icons" style={ctrlIconStyle}>
+                                {'call_end'}
+                            </i>
+                        </FloatingActionButton>
+                    </div>
+                    <div className="pure-u-1-3">
+                        <IconButton iconClassName="fa fa-user-plus"
+                                    iconStyle={this.state.defaultIconStyle} />
+                        <IconButton iconClassName="fa fa-link"
+                                    iconStyle={this.state.defaultIconStyle} />
+                        <IconButton iconClassName="fa fa-random"
+                                    iconStyle={this.state.defaultIconStyle} />
+                        <IconButton iconClassName="fa fa-sign-out"
+                                    iconStyle={this.state.defaultIconStyle}
+                                    onClick={this._onLeave} />
+                    </div>
                 </div>
                 <div className="rightControl" >
                     <div className={switchVieoStyle} onClick={this._switchVideo}>Video</div>

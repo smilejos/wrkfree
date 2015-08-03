@@ -28,7 +28,8 @@ module.exports = function(actionContext, data) {
             channelId: recordData.channelId,
             boardId: recordData.boardId,
             record: [recordData.chunks],
-            drawOptions: recordData.drawOptions
+            drawOptions: recordData.drawOptions,
+            isUpdated: false
         });
     }).catch(function(err) {
         SharedUtils.printError('onSaveSingleDraw.js', 'core', err);

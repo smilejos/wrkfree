@@ -1,7 +1,18 @@
 'use strict';
 var SocketCluster = require('socketcluster').SocketCluster;
 var Promise = require('bluebird');
+var Fs = require('fs');
 var Workers = [];
+
+/**
+ * for development env, we clean all legacy logs while booting socket server
+ */
+if (process.env.NODE_ENV !== 'production') {
+    Fs.writeFile('../logs/socketServer.log', '');
+    Fs.writeFile('../logs/webServer.log', '');
+    Fs.writeFile('../logs/storageService.log', '');
+}
+
 
 var socketCluster = new SocketCluster({
     workers: 1, // Number of worker processes
@@ -40,10 +51,13 @@ socketCluster.on('workerStart', function(workerInfo){
     Workers.push(workerInfo.pid);
 });
 
-// soft shutdown
-process.on('SIGUSR2', function(){
+/**
+ * @Author: George_Chen
+ * @Description: soft shutdown for signal sent by "docker stop"
+ */
+process.on('SIGTERM', function(){
     return Promise.map(Workers, function(pid){
-        return process.kill(pid, 'SIGUSR2');
+        return process.kill(pid, 'SIGTERM');
     }).delay(3000).then(function(){
         socketCluster.killWorkers();
         socketCluster.killStores();

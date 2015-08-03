@@ -24,8 +24,12 @@ RUN apt-get install -y \
         libgif-dev \
         build-essential \
         g++ \
-        ruby-compass \
+        ruby-dev \
+        make \
         git
+
+# install compass
+RUN gem install --no-rdoc --no-ri compass
 
 # install gulp as global module
 RUN npm install gulp -g

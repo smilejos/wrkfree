@@ -8,29 +8,22 @@ module.exports = CreateStore({
     storeName: 'SubscriptionStore',
 
     handlers: {
-        'ON_CHANNEL_CREATE': 'onChannelCreate',
         'ON_OPEN_HANGOUT': '_onOpenHangout',
         'ON_CHANNEL_ADDED': '_onChannelAdded',
         'CHANGE_ROUTE': '_onChangeRoute',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
+        'RECV_NOTIFICATION_CONFERENCE': '_recvNotificationConference',
         'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts',
         'UPDATE_CHANNEL_STAR': '_updateChannelStar'
     },
 
     initialize: function() {
         // test data for channelNav Info
-        this.isActived = false;
-        this.isNameValid = false;
+        this.isActive = false;
         // use "-1" to indicate that no channel create action
-        this.createdChannel = -1;
         this.dbName = 'SubscriptionStore';
         this.db = this.getContext().getLokiDb(this.dbName);
         this.db.addCollection(this.dbName).ensureIndex('channelId');
-    },
-
-    onChannelCreate: function(data) {
-        this.createdChannel = data.channelInfo;
-        this.emitChange();
     },
 
     /**
@@ -45,7 +38,7 @@ module.exports = CreateStore({
         var self = this;
         return Promise.try(function() {
             self.createdChannel = -1;
-            self.isActived = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActived);
+            self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
             self.emitChange();
         });
     },
@@ -146,6 +139,27 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
+     * @Description: to handle new received conference notification
+     * 
+     * @param {String}     data.channelId, the channel id
+     * @param {Boolean}    data.hasCall, indicate conference call event
+     */
+    _recvNotificationConference: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            if (obj.hasConferenceCall !== data.hasCall) {
+                obj.hasConferenceCall = data.hasCall;
+                self.emitChange();
+            }
+        });
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: update the channel visit time when user enter workspace
      * 
      * @param {Object}     route, react route object
@@ -191,9 +205,7 @@ module.exports = CreateStore({
     getState: function() {
         var collection = this.db.getCollection(this.dbName);
         return {
-            createdChannel: this.createdChannel,
-            isNameValid: this.isNameValid,
-            isActived: this.isActived,
+            isActive: this.isActive,
             subscriptions: collection.chain().data()
         };
     },
@@ -219,10 +231,10 @@ module.exports = CreateStore({
 function _saveSubscription(collection, doc) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
-        name: SharedUtils.argsCheckAsync(doc.name, 'alphabet'),
+        name: SharedUtils.argsCheckAsync(doc.name, 'channelName'),
         hostInfo: doc.hostInfo,
         unreadMsgNumbers: 0,
-        isConferenceExist: false
+        hasConferenceCall: false
     }).then(function(doc) {
         return collection.insert(doc);
     });

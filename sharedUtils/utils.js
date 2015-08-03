@@ -87,6 +87,27 @@ exports.checkExecuteResult = function(result, failMsg) {
 /**
  * @Public API
  * @Author: George_Chen
+ * @Description: to count the bytes of candidate string
+ *
+ * @param {String}      str, the candidate string
+ */
+exports.stringToBytes = function(str) {
+    var len = 0;
+    var symbol;
+    for (var i = 0; i < str.length; ++i) {
+        symbol = str.charCodeAt(i);
+        while (symbol > 0) {
+            ++len;
+            // right shift 1 bytes (8 bits)
+            symbol = symbol >> 8;
+        }
+    }
+    return len;
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
  * @Description: getting the arguments array without leaking it
  *
  * @param {Object}      rawArguments, the arguments object in function
@@ -335,7 +356,7 @@ exports.isAvatarUrl = function(avatarUrl) {
         // any string start with "https://graph.facebook.com" with be consider as valid
         facebook: /^(https\:\/\/graph.facebook.com).*$/,
         // any string start with "https://lh3.googleusercontent.com" with be consider as valid
-        google: /^(https\:\/\/lh3.googleusercontent.com).*$/
+        google: /^(https\:\/\/.+\.googleusercontent\.com).+/
     };
     return (regex.facebook.test(avatarUrl) || regex.google.test(avatarUrl));
 };
@@ -372,19 +393,17 @@ exports.isDbId = function(id) {
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: to check the full channel name based on channel type
+ * @Description: to check the channel name is valid or not
+ *         NOTE: any char in name should be: english, number, chinese or "-" and "_"
  * 
  * @param {String}      name, channel's full name
- * @param {String}      type, channel's type
  */
-exports.isChannelName = function(name, type) {
+exports.isChannelName = function(name) {
     if (!this.isString(name)) {
         return false;
     }
-    if (!this.isValidChannelType(type)) {
-        return false;
-    }
-    return (type === 'public' ? _isPublicChannel(name) : _isPrivateChannel(name));
+    var regx = /^[\u4e00-\u9fa5a-zA-Z0-9\-\_]+$/;
+    return regx.test(name);
 };
 
 exports.isDrawBoardId = function(boardId) {

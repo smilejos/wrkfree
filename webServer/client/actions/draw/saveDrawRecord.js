@@ -40,7 +40,8 @@ module.exports = function(actionContext, data, callback) {
             boardId: data.boardId,
             clientId: clientId,
             record: drawTempStore.getLocalDraws(data.channelId, data.boardId),
-            drawOptions: _cloneOptions(data.drawOptions)
+            drawOptions: _cloneOptions(data.drawOptions),
+            isUpdated: true
         });
     }).catch(function(err) {
         SharedUtils.printError('saveDrawRecord.js', 'core', err);

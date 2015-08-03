@@ -3,7 +3,7 @@ var ObjectAssign = require('object-assign');
 var MainAppStore = require('./stores/MainAppStore');
 var Promise = require('bluebird');
 
-module.exports = function(actionContext, payload, done) {
+module.exports = function(actionContext, payload) {
     var appStore = actionContext.getStore(MainAppStore);
     if (appStore.isRepeatNavigated(payload)) {
         return;
@@ -18,8 +18,9 @@ module.exports = function(actionContext, payload, done) {
         actionContext.dispatch('CHANGE_ROUTE', payload);
     }).catch(function(err) {
         return console.log('[navigateAction]', err);
+        throw new Error('navigate route error');
         // disaptch error route ???
-    }).nodeify(done);
+    });
 };
 
 /**

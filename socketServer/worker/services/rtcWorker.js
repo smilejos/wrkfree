@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var RtcStorage = StorageManager.getService('Rtc');
+var KueUtils = require('./kueUtils');
 
 /**
  * setup rtc params
@@ -16,25 +17,10 @@ var QUEUE_TYPE = Params.workQueueType;
 var NOTIFICATION_DELAY = Params.notificationDelayInMSecond;
 var NOTIFICATION_TIMEOUT = Params.notificationTimeoutInMSecond;
 
-var DbConfigs = Configs.get().db;
-if (!DbConfigs) {
-    throw new Error('DB configurations broken');
-}
-
 /**
  * the work queue object based on redis,
  */
-var Kue = require('kue');
-var Queue = Kue.createQueue({
-    jobEvents: false,
-    redis: {
-        host: DbConfigs.cacheEnv.global.host,
-        port: DbConfigs.cacheEnv.global.port,
-        options: DbConfigs.cacheEnv.global.options,
-        db: 3,
-    }
-});
-var _GetJobAsync = Promise.promisify(Kue.Job.get);
+var Queue = KueUtils.getKue();
 
 /**
  * the worker object of socket cluster
@@ -93,35 +79,23 @@ exports.pushNotification = function(channelId) {
  * @param {Object}          session, the rtc session sdps
  */
 function _notifyConference(cid, session) {
-    var clientChannel = 'channel:' + cid;
-    var rtcNotification = {
-        service: 'rtc',
-        clientHandler: 'onConference',
-        params: {
-            channelId: cid,
-            clients: session.clients
-        }
-    };
-    return new Promise(function(resolver, rejector) {
-        SocketWorker.global.publish(clientChannel, rtcNotification, function(err) {
-            return (err ? rejector(err) : resolver(true));
-        });
-    });
-}
-
-/**
- * @Author: George_Chen
- * @Description: to remove completed or failed job from kue
- *
- * @param {Number}          jobId, the kue's job id
- */
-function _removeJob(jobId) {
-    return _GetJobAsync(jobId)
-        .then(function(job) {
-            job.remove(function(err) {
-                if (err) throw err;
+    var channelPrefixes = ['channel', 'notification'];
+    return Promise.map(channelPrefixes, function(prefix) {
+        var channel = prefix + ':' + cid;
+        var data = {
+            service: 'rtc',
+            clientHandler: (prefix === 'channel' ? 'onConference' : 'notifyConferenceCall'),
+            params: {
+                channelId: cid,
+                clients: session.clients
+            }
+        };
+        return new Promise(function(resolver, rejector) {
+            SocketWorker.global.publish(channel, data, function(err) {
+                return (err ? rejector(err) : resolver(true));
             });
         });
+    });
 }
 
 /**
@@ -156,24 +130,11 @@ function _enqueueAsync(jobInfo, delay) {
  */
 Queue.process(QUEUE_TYPE, function(job, done) {
     var cid = job.data.cid;
-    return RtcStorage.getSessionAsync(cid, true)
+    return RtcStorage.getSessionAsync(cid)
         .then(function(session) {
             var shouldNotify = (session && session.clients.length > 0);
             return (shouldNotify ? _notifyConference(cid, session) : false);
         }).then(function(isRepeat) {
             return (isRepeat ? _enqueueAsync(job.data) : false);
         }).nodeify(done);
-});
-
-Queue.on('job complete', function(id) {
-    return _removeJob(id)
-        .catch(function(err) {
-            SharedUtils.printError('rtcWorker.js', 'Queue-jobComplete', err);
-        });
-}).on('job failed', function(id, failReason) {
-    SharedUtils.printError('rtcWorker.js', 'Queue-failed', new Error(failReason));
-    return _removeJob(id)
-        .catch(function(err) {
-            SharedUtils.printError('rtcWorker.js', 'Queue-failed', err);
-        });
 });

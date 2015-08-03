@@ -1,4 +1,6 @@
 var React = require('react');
+var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var HangupConference = require('../../../client/actions/rtc/hangupConference');
 
 /**
  * child components
@@ -9,11 +11,11 @@ var HangoutConference = require('./HangoutConference.jsx');
 var HangoutInput = require('./HangoutInput.jsx');
 
 var HANGOUT_WIDTH = 260;
-var HANGOUT_HEIGHT = 350;
+var HANGOUT_HEIGHT = 360;
 var HANGOUT_INTERVAL_WIDTH = 270;
 var HANGOUT_HEADER_HEIGHT = 30;
 var HANGOUT_CONFERENCE_AREA_HEIGHT = 150;
-var HANGOUT_MESSAGE_LIST_HEIGHT = 275;
+var HANGOUT_MESSAGE_LIST_HEIGHT = 280;
 
 
 /**
@@ -31,13 +33,22 @@ var HANGOUT_MESSAGE_LIST_HEIGHT = 275;
  * @param {Number}      this.props.bottomOffset, the hangout bottom offset
  */
 module.exports = React.createClass({
-
+    mixins: [FluxibleMixin],
+    
     /**
      * @Author: George_Chen
      * @Description: focus current hangout input when hangout content has been clicked
      */
     _onContentClick: function() {
         this.refs.hangoutInput.focusInput();
+    },
+
+    componentWillUnmount: function() {
+        if (this.props.hasConference) {
+            this.executeAction(HangupConference, {
+                channelId: this.props.channelId
+            });
+        }
     },
 
     render: function() {

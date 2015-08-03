@@ -156,7 +156,7 @@ function _getFriendResource(actionContext, userInfo) {
     if (!friendStore.hasPolyfilled()) {
         return FriendService.getFriendListAsync(userInfo.uid);
     }
-    return null;
+    return false;
 }
 
 /**
@@ -181,7 +181,7 @@ function _getDashboardResource(actionContext) {
                 };
             });
     }
-    return null;
+    return false;
 }
 
 /**
@@ -202,7 +202,7 @@ function _getWorkSpaceResource(actionContext, channelId) {
             status: ChannelService.getMemberStatusAsync(params)
         });
     }
-    return null;
+    return false;
 }
 
 /**
@@ -218,13 +218,15 @@ function _storesPolyfill(actionContext, storeData) {
     return Promise.try(function() {
         return Object.keys(storeData);
     }).map(function(storeName) {
-        var store = actionContext.getStore(storeName);
-        if (storeData[storeName]) {
-            return store.polyfillAsync(storeData[storeName]);
+        if (storeData[storeName] === null) {
+            throw new Error('the data in store [' + storeName + '] is invalid');
         }
-        return null;
+        // if storeData[storeName] === false, means no need to polyfill
+        if (storeData[storeName]) {
+            return actionContext.getStore(storeName).polyfillAsync(storeData[storeName]);
+        }
     }).catch(function(err) {
         SharedUtils.printError('client-routeEntry', '_storesPolyfill', err);
-        return null;
+        throw new Error('store polyfill on client fail');
     });
 }

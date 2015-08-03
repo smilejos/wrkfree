@@ -13,6 +13,7 @@ module.exports = CreateStore({
         'ON_OPEN_HANGOUT': '_updateMessageToReaded',
         'ON_FRIEND_ADDED': '_onFriendAdded',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
+        'RECV_NOTIFICATION_CONFERENCE': '_recvNotificationConference',
         'RECV_MESSAGE': '_recvMessage'
     },
 
@@ -90,7 +91,7 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: to handle new received notification message
      * 
-     * @param {Object}     data.channelId, the channel id
+     * @param {String}     data.channelId, the channel id
      */
     _recvNotificationMessage: function(data) {
         var collection = this.db.getCollection(this.dbName);
@@ -102,6 +103,27 @@ module.exports = CreateStore({
             obj.lastMessage = data;
             obj.isMessageReaded = false;
             self.emitChange();
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to handle new received conference notification
+     * 
+     * @param {String}     data.channelId, the channel id
+     * @param {Boolean}    data.hasCall, indicate conference call event
+     */
+    _recvNotificationConference: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        var self = this;
+        var query = {
+            channelId: data.channelId
+        };
+        collection.chain().find(query).update(function(obj) {
+            if (obj.hasIncomingCall !== data.hasCall) {
+                obj.hasIncomingCall = data.hasCall;
+                self.emitChange();
+            }
         });
     },
 
@@ -160,7 +182,25 @@ module.exports = CreateStore({
         });
     },
 
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: used to show or hide channelNav bar
+     * NOTE: if is "isOpen" is invalid, we will change "actived" state different from current
+     * 
+     * @param {Boolean}        isOpen, to indicate channelNav bar should open or not
+     */
+    toggleAsync: function(isOpen) {
+        var self = this;
+        return Promise.try(function() {
+            self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
+            self.emitChange();
+        });
+    },
+
+
     initialize: function() {
+        this.isActive = false;
         this.isPolyFilled = false;
         this.dbName = 'FriendDB';
         this.db = this.getContext().getLokiDb(this.dbName);
@@ -212,6 +252,7 @@ module.exports = CreateStore({
             if (obj1.nickName > obj2.nickName) return 1;
         };
         return {
+            isActive: this.isActive,
             friends: collection.chain().sort(sortMethod).data()
         };
     },
@@ -299,7 +340,8 @@ function _importFriend(collection, doc) {
         group: SharedUtils.argsCheckAsync(doc.group, 'string'),
         isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean'),
         lastMessage: doc.lastMessage || '',
-        isMessageReaded: true
+        isMessageReaded: true,
+        hasIncomingCall: false,
     }).then(function(doc) {
         return collection.insert(doc);
     });
