@@ -2,7 +2,7 @@
 var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
-var UpdateFriendStatus = require('../actions/friend/updateFriendStatus');
+var UpdateOnlineFriend = require('../actions/friend/updateOnlineFriend');
 var OnfriendAdded = require('../actions/friend/onFriendAdded');
 
 /**
@@ -20,13 +20,13 @@ exports.onFriendAdded = function(data) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: handling friend status changed sent from server
+ * @Description: receive online friend notification
  *
  * @param {String}          data.uid, user's id
- * @param {Boolean}         data.isOnline, the online status of friend
  */
-exports.updateFriendStatus = function(data) {
-    SocketUtils.execAction(UpdateFriendStatus, data, 'updateFriendStatus');
+exports.updateOnlineFriend = function(data) {
+    data.isOnline = true;
+    SocketUtils.execAction(UpdateOnlineFriend, data, 'updateOnlineFriend');
 };
 
 /**

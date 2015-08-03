@@ -148,9 +148,8 @@ exports.isUserSessionAuthAsync = function(user, sid) {
  * @Description: binding current socket and set to online status
  *
  * @param  {String}           uid, user's id
- * @param  {String}           socketId, websocket id
  */
-exports.userEnterAsync = function(uid, socketId) {
+exports.userEnterAsync = function(uid) {
     return UserTemp.enterAsync(uid)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'userEnterAsync', err);
