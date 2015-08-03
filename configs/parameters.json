@@ -24,5 +24,8 @@
     },
     "system": {
         "onlineUserKeyTimeoutInSecond": 120
+    },
+    "friend": {
+        "sessionTimeoutInMsecond": 60000
     }
 }

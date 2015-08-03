@@ -3,6 +3,7 @@ var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var UpdateOnlineFriend = require('../actions/friend/updateOnlineFriend');
+var TrackFriendSession = require('../actions/friend/trackFriendSession');
 var OnfriendAdded = require('../actions/friend/onFriendAdded');
 
 /**
@@ -27,6 +28,7 @@ exports.onFriendAdded = function(data) {
 exports.updateOnlineFriend = function(data) {
     data.isOnline = true;
     SocketUtils.execAction(UpdateOnlineFriend, data, 'updateOnlineFriend');
+    SocketUtils.execAction(TrackFriendSession, data, 'updateOnlineFriend');
 };
 
 /**
