@@ -148,34 +148,11 @@ exports.isUserSessionAuthAsync = function(user, sid) {
  * @Description: binding current socket and set to online status
  *
  * @param  {String}           uid, user's id
- * @param  {String}           socketId, websocket id
  */
-exports.userEnterAsync = function(uid, socketId) {
-    return Promise.all([
-        UserTemp.bindSocketAsync(uid, socketId),
-        UserTemp.enterAsync(uid),
-    ]).catch(function(err) {
-        SharedUtils.printError('UserService', 'userEnterAsync', err);
-        return false;
-    });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: unbinding current socket and check user should be offline or not
- *
- * @param  {String}           uid, user's id
- * @param  {String}           socketId, websocket id
- */
-exports.userLeaveAsync = function(uid, socketId) {
-    return UserTemp.unbindSocketAsync(uid, socketId)
-        .then(function() {
-            return UserTemp.isSocketExistAsync(uid);
-        }).then(function(socketExist) {
-            return (socketExist ? null : UserTemp.leaveAsync(uid));
-        }).catch(function(err) {
-            SharedUtils.printError('UserService', 'userLeaveAsync', err);
+exports.userEnterAsync = function(uid) {
+    return UserTemp.enterAsync(uid)
+        .catch(function(err) {
+            SharedUtils.printError('UserService', 'userEnterAsync', err);
             return false;
         });
 };

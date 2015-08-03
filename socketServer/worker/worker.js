@@ -118,12 +118,7 @@ module.exports.run = function(worker) {
         LogUtils.info(LogCategory, {
             socketId: sid
         }, 'user [' + uid + '] leave ...');
-        return Promise.join(
-            UserStorage.userLeaveAsync(uid, sid),
-            _disconnectChannel(sid, subscriptions),
-            function(isLeft) {
-                return isLeft;
-            });
+        return _disconnectChannel(sid, subscriptions);
     }
 
     /*
@@ -131,16 +126,24 @@ module.exports.run = function(worker) {
     */
     scServer.on('connection', function(socket) {
         LogUtils.info(LogCategory, null, 'socket [' + socket.id + '] connecting ...');
-        var token = socket.getAuthToken();
-        if (token) {
+        var socketUid = socket.getAuthToken();
+        if (socketUid) {
             LogUtils.info(LogCategory, {
                 socketId: socket.id
-            }, 'user [' + token + '] enter ...');
-            UserStorage.userEnterAsync(token, socket.id)
-                .then(function() {
-                    return _publishUserOnlineStatus(socket, token, true);
-                });
+            }, 'user [' + socketUid + '] enter ...');
+            _publishUserOnlineStatus(UserStorage, socket, socketUid);
         }
+
+        socket.on('message', function(data){
+            /**
+             * socketCluster use "ping (1)" and "pong (2)" to detect socket alive
+             * so we inform user online when getting "pong (2)" message
+             */
+            if (data === '2' && socket.getAuthToken()) {
+                var uid = socket.getAuthToken();
+                return _publishUserOnlineStatus(UserStorage, socket, uid);
+            }
+        });
 
         socket.on('auth', function(cookieStr, callback) {
             LogUtils.info(LogCategory, null, 'socket [' + socket.id + '] auth ...');
@@ -154,11 +157,9 @@ module.exports.run = function(worker) {
                 if (isAuth) {
                     LogUtils.info(LogCategory, {user: uid}, 'socket [' + socket.id + '] get auth ...');
                     // configure uid as token
+                    // TODO: should we use uid in cookie as token? is it secure ?
                     socket.setAuthToken(uid);
-                    return UserStorage.userEnterAsync(uid, socket.id)
-                        .then(function() {
-                            return _publishUserOnlineStatus(socket, uid, true);
-                        });
+                    return _publishUserOnlineStatus(UserStorage, socket, uid);
                 }
                 LogUtils.warn(LogCategory, null, 'socket [' + socket.id + '] authentication fail');
                 throw new Error('authentication fail');
@@ -187,11 +188,7 @@ module.exports.run = function(worker) {
             var uid = socket.getAuthToken();
             var subscriptions = socket.subscriptions();
             return _userLeaveAsync(uid, socket.id, subscriptions)
-                .then(function(isUserLeft) {
-                    if (isUserLeft === 1) {
-                        return _publishUserOnlineStatus(socket, uid, false);
-                    }
-                }).catch(function(err) {
+                .catch(function(err) {
                     LogUtils.error(LogCategory, {
                         user: uid,
                         error: err
@@ -288,17 +285,18 @@ function _configPublishOut(server) {
  * @Description: to configure the publish-out related middlewares
  *
  * @param {Object}        server, the socket server instance
- * @param {String}        from, the socket server instance
- * @param {Boolean}       isUserOnline, the socket server instance
+ * @param {String}        uid, the socket server instance
  */
-function _publishUserOnlineStatus(socket, from, isUserOnline) {
-    LogUtils.info(LogCategory, {online: isUserOnline}, 'inform user ['+from+'] status');
-    socket.global.publish('activity:' + from, {
-        clientHandler: 'updateFriendStatus',
-        service: 'friend',
-        params: {
-            isOnline: isUserOnline,
-            uid: from
-        }
-    });
+function _publishUserOnlineStatus(userStorage, socket, uid) {
+    LogUtils.info(LogCategory, null, 'inform user ['+uid+'] online status');
+    return userStorage.userEnterAsync(uid)
+        .then(function() {
+            socket.global.publish('activity:' + uid, {
+                clientHandler: 'updateOnlineFriend',
+                service: 'friend',
+                params: {
+                    uid: uid
+                }
+            }); 
+        });
 }

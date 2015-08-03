@@ -11,6 +11,7 @@ var StartConference = require('../../../client/actions/rtc/startConference');
 var SetConferenceEvent = require('../../../client/actions/rtc/setConferenceEvent');
 var SubscribeChannelNotification = require('../../../client/actions/channel/subscribeChannelNotification');
 var TrackFriendActivity = require('../../../client/actions/friend/trackFriendActivity');
+var TrackFriendSession = require('../../../client/actions/friend/trackFriendSession');
 
 /**
  * load configs
@@ -114,17 +115,25 @@ module.exports = React.createClass({
      *         NOTE: only update each item has been mounted
      */
     componentDidMount: function() {
-        var uid = this.props.info.uid;
-        var cid = SharedUtils.get1on1ChannelId(this.props.self, uid);
-        this.executeAction(Update1on1ChannelId, {
-            friendUid: uid
-        });
-        this.executeAction(TrackFriendActivity, {
-            friendUid: uid
-        });
-        this.executeAction(SubscribeChannelNotification, {
-            channelId: cid
-        });
+        var context = window.context;
+        var info = this.props.info;
+        var self = this;
+        var reqData = {
+            friendUid: info.uid,
+            channelId: SharedUtils.get1on1ChannelId(this.props.self, info.uid)
+        };
+        return context.executeAction(Update1on1ChannelId, reqData)
+            .then(function(){
+                context.executeAction(TrackFriendActivity, reqData)
+            }).then(function(){
+                context.executeAction(SubscribeChannelNotification, reqData)
+            }).then(function(){
+                if (self.props.info.isOnline) {
+                    self.executeAction(TrackFriendSession, {
+                        uid: info.uid
+                    });
+                }
+            });
     },
 
     componentWillUnmount: function() {

@@ -9,6 +9,7 @@ var PreviewDao = require('../daos/DrawPreviewDao');
 var UserTemp = require('../tempStores/UserTemp');
 var FriendDao = require('../daos/FriendDao');
 var FriendTemp = require('../tempStores/FriendTemp');
+var UserTemp = require('../tempStores/UserTemp');
 
 /************************************************
  *
@@ -27,16 +28,25 @@ var FriendTemp = require('../tempStores/FriendTemp');
 exports.getFriendListAsync = function(candidate, asker) {
     return FriendDao.getFriendsAsync(candidate, asker)
         .then(function(friends) {
-            return FriendTemp.getOnlineFriendsAsync(friends)
-                .then(function(onlineFriends) {
-                    return Promise.map(friends, function(doc) {
-                        doc.isOnline = (onlineFriends.indexOf(doc.uid) > -1);
-                        return doc;
-                    });
-                });
+            return Promise.map(friends, function(doc) {
+                doc.isOnline = false;
+                return doc.uid;
+            }).then(function(uids) {
+                if (uids.length > 0) {
+                    return UserTemp.getOnlineUsersAsync(uids)
+                        .map(function(onlineUid) {
+                            var index = uids.indexOf(onlineUid);
+                            if (index > -1) {
+                                friends[index].isOnline = true;
+                            }
+                        });
+                }
+            }).then(function() {
+                return friends;
+            });
         }).catch(function(err) {
             SharedUtils.printError('FriendService', 'getFriendListAsync', err);
-            return [];
+            return null;
         });
 };
 
