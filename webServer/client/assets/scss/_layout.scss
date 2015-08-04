@@ -168,3 +168,23 @@ $app-infoBox-width: 250px;
         }
     }
 }
+
+
+ /**
+ * Use below style to make chrome browser have same scroll bar style between diff OS
+ */
+::-webkit-scrollbar {
+      width: 5px;
+}
+::-webkit-scrollbar-track {
+      background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+      background-color: #888;
+}
+::-webkit-scrollbar-button {
+      background-color: transparent
+}
+::-webkit-scrollbar-corner {
+      background-color: transparent;
+}
