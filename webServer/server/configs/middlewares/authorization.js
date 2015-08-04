@@ -14,7 +14,8 @@ exports.ensureAuthed = function(req, res, next) {
     if (!req.user || !req.user.uid) {
         LogUtils.warn(LogCategory, {
             ip: req.ip,
-            method: req.method
+            method: req.method,
+            url: req.url
         }, 'anonymous user request');
     }
     return (req.isAuthenticated() ? next() : _noAuthHandler(res));
