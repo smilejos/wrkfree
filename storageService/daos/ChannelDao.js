@@ -129,7 +129,7 @@ exports.findByChannelAsync = function(channelId, is1on1) {
         return DbUtil.transformToNewIdAsync(doc, 'channelId');
     }).catch(function(err) {
         SharedUtils.printError('ChannelDao.js', 'findByChannelAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -157,7 +157,7 @@ exports.findByChanelsAsync = function(channelIds) {
         return DbUtil.transformToNewIdAsync(doc, 'channelId');
     }).catch(function(err) {
         SharedUtils.printError('ChannelDao.js', 'findByChanelsAsync', err);
-        return [];
+        throw err;
     });
 };
 
@@ -181,7 +181,7 @@ exports.searchByNameAsync = function(name) {
             return DbUtil.transformToNewIdAsync(doc, 'channelId');
         }).catch(function(err) {
             SharedUtils.printError('ChannelDao.js', 'searchByNameAsync', err);
-            return [];
+            throw err;
         });
 };
 
@@ -252,7 +252,7 @@ function _save(channelDoc, caller) {
             return DbUtil.transformToNewIdAsync(channelDoc, 'channelId');
         }).catch(function(err) {
             SharedUtils.printError('ChannelDao.js', caller, err);
-            return null;
+            throw err;
         });
 }
 
@@ -271,7 +271,7 @@ function _delete(condition, caller) {
             return DbUtil.checkDocumentRemoveStatusAsync(result);
         }).catch(function(err) {
             SharedUtils.printError('ChannelDao.js', caller, err);
-            return null;
+            throw err;
         });
 }
 

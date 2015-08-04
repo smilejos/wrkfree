@@ -30,7 +30,7 @@ exports.saveMsgAsync = function(sender, channelId, msg) {
         return DbUtil.checkDocumentSaveStatusAsync(result);
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'saveMsgAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -54,7 +54,7 @@ exports.findByUidAsync = function(uid, period) {
         return _findMsg(queryCondition);
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'findByUidAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -82,7 +82,7 @@ exports.findByChannelAsync = function(channelId, period) {
         return DbUtil.transformTimeAsync(doc, 'sentTime');
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'findByChannelAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -119,7 +119,7 @@ exports.findChannelsLatestAsync = function(channels) {
         return DbUtil.transformTimeAsync(doc, 'sentTime');
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'findChannelsLatestAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -172,7 +172,7 @@ exports.countUnreadByChannelsAsync = function(userMsgSeenTime) {
         });
     }).catch(function(err) {
         SharedUtils.printError('MsgDao.js', 'countUnreadByChannelsAsync', err);
-        return null;
+        throw err;
     });
 };
 
