@@ -288,7 +288,7 @@ function _configPublishOut(server) {
  * @param {String}        uid, the socket server instance
  */
 function _publishUserOnlineStatus(userStorage, socket, uid) {
-    LogUtils.info(LogCategory, null, 'inform user ['+uid+'] online status');
+    LogUtils.debug(LogCategory, null, 'inform user ['+uid+'] online status');
     return userStorage.userEnterAsync(uid)
         .then(function() {
             socket.global.publish('activity:' + uid, {
