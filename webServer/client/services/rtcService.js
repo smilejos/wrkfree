@@ -130,14 +130,14 @@ exports.signaling = function(data) {
  * @param {String}          data.channelId, the channel id
  */
 exports.startConferenceAsync = function(data) {
-    var packet = _setPacket('startConferenceAsync', null, data);
-    return RtcHelper
-        .getConnection(data.channelId)
-        .getLocalStreamAsync()
-        .then(function(stream) {
+    return RtcHelper.getDeviceSupportAsync()
+        .then(function(media) {
+            return RtcHelper.getConnection(data.channelId).getLocalStreamAsync(media);
+        }).then(function(stream) {
             if (!stream) {
                 throw new Error('get local stream fail');
             }
+            var packet = _setPacket('startConferenceAsync', null, data);
             return _request(packet, 'startConferenceAsync')
                 .then(function(result) {
                     if (!result) {

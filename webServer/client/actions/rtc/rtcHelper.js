@@ -10,6 +10,19 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 var Connections = {};
 
 /**
+ * the default rtc media configs
+ */
+var DefaultMediaConfig = {
+    video: true,
+    audio: true
+};
+
+/**
+ * the rtc media support on runtime
+ */
+var DeviceMediaSupport = null;
+
+/**
  * Public API
  * @Author: George_Chen
  * @Description: to release current rtc connection
@@ -52,6 +65,41 @@ exports.getConnection = function(id, options) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to check current device support webcam and mic or not
+ *         NOTE: in firefox env, user can decide device media support runtime,
+ *               so just return "DefaultMediaConfig"
+ */
+exports.getDeviceSupportAsync = function() {
+    return Promise.try(function() {
+        var connection = new rtcConnection('temp');
+        var webrtc = connection.webrtc;
+        if (DeviceMediaSupport) {
+            return DeviceMediaSupport;
+        }
+        if (require('webrtcsupport').prefix === 'moz') {
+            return DefaultMediaConfig;
+        }
+        return Promise.join(
+            connection.getLocalStreamAsync({
+                video: true
+            }),
+            connection.getLocalStreamAsync({
+                audio: true
+            }),
+            function(vStream, aStream) {
+                DeviceMediaSupport = {
+                    video: !!vStream,
+                    audio: !!aStream
+                };
+                connection.stopLocalVideo();
+                return DeviceMediaSupport;
+            });
+    });
+};
+
+/**
  * @Author: George_Chen
  * @Description: constructor of rtc connection
  *       
@@ -68,10 +116,7 @@ var rtcConnection = function(channelId, opts) {
         autoRemoveVideos: true,
         adjustPeerVolume: true,
         peerVolumeWhenSpeaking: 0.25,
-        media: {
-            video: true,
-            audio: true
-        },
+        media: DefaultMediaConfig,
         receiveMedia: { // FIXME: remove old chrome <= 37 constraints format
             mandatory: {
                 OfferToReceiveAudio: true,
@@ -297,9 +342,12 @@ rtcConnection.prototype.hangupAsync = function() {
 rtcConnection.prototype.getLocalStreamAsync = function(mediaConfig) {
     var self = this;
     var media = mediaConfig || this.config.media;
-    return new Promise(function(resolver, rejector) {
+    return new Promise(function(resolver) {
         self.webrtc.startLocalMedia(media, function(err, stream) {
-            return (err ? rejector(err) : resolver(stream));
+            if (err) {
+                console.log(new Error('get media error:' + err.name));
+            }
+            return resolver(stream);
         });
     });
 };
