@@ -125,19 +125,35 @@ exports.signaling = function(data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: initialize rtc service
+ *         NOTE: currently just pre-init device media support check
+ */
+exports.initRtcAsync = function() {
+    return Promise.try(function(){
+        if (require('webrtcsupport').getUserMedia) {
+            return RtcHelper.getDeviceSupportAsync();
+        }
+    }).catch(function(err){
+        SharedUtils.printError('rtcService.js', 'initRtcAsync', err);
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: initialize and start the conference on current channel
  *       
  * @param {String}          data.channelId, the channel id
  */
 exports.startConferenceAsync = function(data) {
-    var packet = _setPacket('startConferenceAsync', null, data);
-    return RtcHelper
-        .getConnection(data.channelId)
-        .getLocalStreamAsync()
-        .then(function(stream) {
+    return RtcHelper.getDeviceSupportAsync()
+        .then(function(media) {
+            return RtcHelper.getConnection(data.channelId).getLocalStreamAsync(media);
+        }).then(function(stream) {
             if (!stream) {
                 throw new Error('get local stream fail');
             }
+            var packet = _setPacket('startConferenceAsync', null, data);
             return _request(packet, 'startConferenceAsync')
                 .then(function(result) {
                     if (!result) {

@@ -5,6 +5,7 @@ var HeaderStore = require('../../shared/stores/HeaderStore');
 var FriendStore = require('../../shared/stores/FriendStore');
 var SocketManager = require('../services/socketManager');
 var UserService = require('../services/userService');
+var RtcService = require('../services/rtcService');
 
 /**
  * @Public API
@@ -26,6 +27,8 @@ module.exports = function(actionContext, data) {
         SocketManager.subscribeAsync(selfChannel),
         // cache info of known users
         UserService.polyfillAsync(cacheUsers),
+        // initiate the rtc service resource
+        RtcService.initRtcAsync(),
         function() {
             if (typeof data.done === 'function') {
                 data.done();

@@ -2,6 +2,7 @@
 var SharedUtils = require('../../../../sharedUtils/utils');
 var Promise = require('bluebird');
 var RtcService = require('../../services/rtcService');
+var ActionUtils = require('../actionUtils');
 
 /**
  * @Public API
@@ -14,12 +15,12 @@ var RtcService = require('../../services/rtcService');
 module.exports = function(actionContext, data) {
     // show alert message if browser not support webrtc
     if (!require('webrtcsupport').getUserMedia) {
-        var err = new Error('current browser is not support WEBRTC');
-        SharedUtils.printError('startConference.js', 'core', err);
+        return ActionUtils.showWarningEvent('Conference', 'your browser is not support WEBRTC');
     }
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5')
     }).then(function(reqData) {
+        ActionUtils.showInfoEvent('Conference', 'starting rtc conference...');
         return RtcService.startConferenceAsync(reqData);
     }).then(function(localStream) {
         actionContext.dispatch('CATCH_LOCAL_STREAM', {
@@ -33,5 +34,6 @@ module.exports = function(actionContext, data) {
     }).catch(function(err) {
         SharedUtils.printError('startConference.js', 'core', err);
         // TODO: some error handling
+        ActionUtils.showErrorEvent('Error', 'entering conference fail');
     });
 };

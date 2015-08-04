@@ -14,6 +14,10 @@ module.exports = CreateStore({
     initialize: function() {
         this.isEnabled = false;
         this.stream = null;
+        this.supportedMedia = {
+            video: false,
+            audio: false
+        };
     },
 
     /**
@@ -24,15 +28,24 @@ module.exports = CreateStore({
      * @param {Object}          data.mediaStream, the media stream instance
      */
     _catchLocalStream: function(data) {
-        this.stream = data.mediaStream;
-        this.isEnabled = data.isEnabled;
+        if (!data.mediaStream) {
+            this.initialize();
+        } else {
+            this.stream = data.mediaStream;
+            this.isEnabled = data.isEnabled;
+            this.supportedMedia = {
+                video: (this.stream.getVideoTracks().length > 0),
+                audio: (this.stream.getAudioTracks().length > 0)
+            }
+        }
         this.emitChange();
     },
 
     getState: function() {
         return {
             isEnabled: this.isEnabled,
-            stream: this.stream
+            stream: this.stream,
+            supportedMedia: this.supportedMedia
         };
     }
 });
