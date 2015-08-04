@@ -16,6 +16,7 @@ var StarChannel = require('../../client/actions/channel/starChannel');
  */
 var ConferenceStore = require('../stores/ConferenceStore');
 var ToggleStore = require('../stores/ToggleStore');
+var WebcamStore = require('../stores/WebcamStore');
 
 /**
  * material ui components
@@ -34,7 +35,8 @@ module.exports = React.createClass({
     statics: {
         storeListeners: {
             '_onConferenceChange': [ConferenceStore],
-            '_onStoreChange': [ToggleStore]
+            '_onStoreChange': [ToggleStore],
+            '_onWebcamChange': [WebcamStore]
         }
     },
 
@@ -44,12 +46,23 @@ module.exports = React.createClass({
             isConferenceExist: false,
             isConferenceVisible: toggleStore.conferenceVisible,
             isDiscussionVisible: toggleStore.discussionVisible,
+            isVideoSupported: true,
+            isAudioSupported: true,
             isVideoOn: true,
             isAudioOn: true,
             defaultIconStyle: {
                 color: Colors.grey500
             }
         };
+    },
+
+    _onWebcamChange: function() {
+        var webcamStore = this.getStore(WebcamStore);
+        var supportedMedia = webcamStore.getState().supportedMedia;
+        this.setState({
+            isVideoSupported: supportedMedia.video,
+            isAudioSupported: supportedMedia.audio,
+        });
     },
 
     /**
@@ -195,15 +208,25 @@ module.exports = React.createClass({
         }
     },
 
-    render: function (){
-        var barStyle = {};
+    render: function () {
+        var activeIconColor = '#FFF';
+        var inActiveIconColor = 'rgba(0,0,0,0.3)';
+        var isConferenceExist = this.state.isConferenceExist;
+        var isVideoSupported = this.state.isVideoSupported;
+        var isAudioSupported = this.state.isAudioSupported;
         var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
         var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         var conferenceIconStyle = {
-            color: this.state.isConferenceExist ? 'rgba(0,0,0,0.3)' : '#FFF'
+            color: isConferenceExist ? inActiveIconColor : activeIconColor
         };
-        var ctrlIconStyle = {
-            color: this.state.isConferenceExist ? '#FFF' : 'rgba(0,0,0,0.3)'
+        var cameraIconStyle = {
+            color: isConferenceExist && isVideoSupported ? activeIconColor : inActiveIconColor
+        };
+        var micIconStyle = {
+            color: isConferenceExist && isAudioSupported ? activeIconColor : inActiveIconColor
+        };
+        var hangupIconStyle = {
+            color: isConferenceExist ? activeIconColor : inActiveIconColor
         };
         var nameStyle = {
             color: '#000',
@@ -221,7 +244,7 @@ module.exports = React.createClass({
                     </div>
                     <div className="pure-u-1-3">
                         <FloatingActionButton mini secondary
-                            disabled={this.state.isConferenceExist}
+                            disabled={isConferenceExist}
                             onClick={this._startConference} >
                             <i className="material-icons" style={conferenceIconStyle}>
                                 {'settings_phone'}
@@ -229,17 +252,17 @@ module.exports = React.createClass({
                         </FloatingActionButton>
                         &nbsp;
                         <FloatingActionButton mini secondary
-                            disabled={!this.state.isConferenceExist}
+                            disabled={!isConferenceExist || !isVideoSupported}
                             onClick={this._controlMedia.bind(this, true)} >
-                            <i className="material-icons" style={ctrlIconStyle}>
+                            <i className="material-icons" style={cameraIconStyle}>
                                 {this.state.isVideoOn ? 'videocam_off' : 'videocam'}
                             </i>
                         </FloatingActionButton>
                         &nbsp;
                         <FloatingActionButton mini secondary
-                            disabled={!this.state.isConferenceExist}
+                            disabled={!isConferenceExist || !isAudioSupported}
                             onClick={this._controlMedia.bind(this, false)} >
-                            <i className="material-icons" style={ctrlIconStyle}>
+                            <i className="material-icons" style={micIconStyle}>
                                 {this.state.isAudioOn ? 'mic_off' : 'mic'}
                             </i>
                         </FloatingActionButton>
@@ -247,7 +270,7 @@ module.exports = React.createClass({
                         <FloatingActionButton mini primary
                             disabled={!this.state.isConferenceExist}
                             onClick={this._hangupConference}>
-                            <i className="material-icons" style={ctrlIconStyle}>
+                            <i className="material-icons" style={hangupIconStyle}>
                                 {'call_end'}
                             </i>
                         </FloatingActionButton>
