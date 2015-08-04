@@ -9,11 +9,9 @@ module.exports = React.createClass({
      * attach the media stream to video element
      */
     componentDidMount: function(){
+        var video = React.findDOMNode(this.refs.videoElement);
         if (this.props.stream) {
-            AttachStream(
-                this.props.stream, 
-                document.getElementById(this.props.videoId)
-            );
+            return AttachStream(this.props.stream, video);
         }
     },
 
@@ -22,8 +20,9 @@ module.exports = React.createClass({
         return (
             <div className="rtcVideo">
                 <video 
-                    width={videoWidth} 
-                    id={this.props.videoId}
+                    ref="videoElement"
+                    width={videoWidth}
+                    poster="http://gamebattles.majorleaguegaming.com/images/homepage/2.0/profile.png"
                     muted={!!this.props.isMuted} />
             </div>
         );
