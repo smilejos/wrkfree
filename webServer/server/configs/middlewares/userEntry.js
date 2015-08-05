@@ -44,12 +44,6 @@ UserEntry.oAuthLogin = function(req, res, next) {
         }
         return UserStorage.oAuthLoginAsync(user.id, req.provider)
             .then(function(info) {
-                if (info === null) {
-                    LogUtils.warn(LogCategory, {
-                        provider: req.provider
-                    }, 'oauth login fail on storage');
-                    return res.end();
-                }
                 if (!info) {
                     user.provider = req.provider;
                     req.session.passport.user = user;
