@@ -85,6 +85,9 @@ exports.getLatestAsync = function(user, channels) {
                 }
             });
             return result;
+        }).catch(function(err) {
+            SharedUtils.printError('MsgService.js', 'getLatestAsync', err);
+            return null;
         });
 };
 
