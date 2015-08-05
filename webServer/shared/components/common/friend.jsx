@@ -14,6 +14,11 @@ var TrackFriendActivity = require('../../../client/actions/friend/trackFriendAct
 var TrackFriendSession = require('../../../client/actions/friend/trackFriendSession');
 
 /**
+ * stores
+ */
+var WorkSpaceStore = require('../../stores/WorkSpaceStore');
+
+/**
  * load configs
  */
 var Configs = require('../../../../configs/config');
@@ -150,7 +155,10 @@ module.exports = React.createClass({
                 title: 'Incoming Call',
                 message: 'From ['+this.props.info.nickName + ']',
                 callHandler: function() {
-                    self._openHangout();
+                    var cid = nextProps.info.channelId;
+                    if (!self.getStore(WorkSpaceStore).isOpenedChannel(cid)) {
+                        self._openHangout();
+                    }
                     setTimeout(function(){
                         self.executeAction(StartConference, {
                             channelId: nextProps.info.channelId
