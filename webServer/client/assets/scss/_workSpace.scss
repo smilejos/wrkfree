@@ -30,6 +30,7 @@ $app_drawing_area_height: $app_canvas_height + $app-header-height;
  * the style of conference area on workspace
  */
 .ConferenceArea {
+    overflow-y: scroll;
     @extend .infoBox;
 }
 

@@ -35,7 +35,7 @@ exports.getFriendsAsync = function(candidate, asker) {
             return FriendModel.find(condition, fields).lean().execAsync();
         }).catch(function(err) {
             SharedUtils.printError('FriendDao', 'getFriendsAsync', err);
-            return [];
+            throw err;
         });
 };
 
@@ -64,7 +64,7 @@ exports.addNewFriendAsync = function(asker, friendUid, friendName, friendAvatar,
         return DbUtil.checkDocumentSaveStatusAsync(result);
     }).catch(function(err) {
         SharedUtils.printError('FriendDao', 'addNewFriendAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -87,7 +87,7 @@ exports.isFriendExistAsync = function(candidate, asker) {
             return (count > 0);
         }).catch(function(err) {
             SharedUtils.printError('FriendDao', 'isFriendExistAsync', err);
-            return null;
+            throw err;
         });
 };
 
@@ -110,7 +110,7 @@ exports.delFriendAsync = function(candidate, asker) {
             return (result > 0);
         }).catch(function(err) {
             SharedUtils.printError('FriendDao', 'delFriendAsync', err);
-            return null;
+            throw err;
         });
 };
 
@@ -134,7 +134,7 @@ exports.updateAvatarAsync = function(candidate, asker, avatarUrl) {
             });
         }).catch(function(err) {
             SharedUtils.printError('FriendDao', 'updateAvatarAsync', err);
-            return null;
+            throw err;
         });
 };
 
@@ -158,7 +158,7 @@ exports.updateNameAsync = function(candidate, asker, name) {
             });
         }).catch(function(err) {
             SharedUtils.printError('FriendDao', 'updateNameAsync', err);
-            return null;
+            throw err;
         });
 };
 
@@ -182,7 +182,7 @@ exports.updateGroupAsync = function(candidate, asker, groupName) {
             });
         }).catch(function(err) {
             SharedUtils.printError('FriendDao', 'updateGroupAsync', err);
-            return null;
+            throw err;
         });
 };
 

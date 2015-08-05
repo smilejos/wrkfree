@@ -19,10 +19,8 @@ exports.createAsync = function(socket, data) {
             var isPublic = true;
             return ChannelStorage.createChannelAsync(host, validName, isPublic);
         }).then(function(result) {
-            if (!result) {
-                throw new Error('channel storage internal error');
-            }
-            return result;
+            var errMsg = 'channel storage internal error';
+            return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('channelHandler.js', 'createAsync', err);
             throw new Error('create channel fail');
@@ -50,10 +48,8 @@ exports.addMemberAsync = function(socket, data) {
             params.member,
             params.channelId);
     }).then(function(result) {
-        if (!result) {
-            throw new Error('channel storage internal error');
-        }
-        return null;
+        var errMsg = 'fail to add medmber on storage service';
+        return SharedUtils.checkExecuteResult(result, errMsg);
     }).catch(function(err) {
         SharedUtils.printError('channelHandler.js', 'addMemberAsync', err);
         throw new Error('add member fail');
@@ -72,6 +68,9 @@ exports.getAuthChannelsAsync = function(socket) {
     return SharedUtils.argsCheckAsync(uid, 'md5')
         .then(function(validUid) {
             return ChannelStorage.getAuthChannelsAsync(validUid);
+        }).then(function(channels) {
+            var errMsg = 'get authorized channels fail on storage service';
+            return SharedUtils.checkExecuteResult(channels, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('channelHandler.js', 'getAuthChannelsAsync', err);
             throw new Error('get authorized channels fail');
@@ -98,6 +97,9 @@ exports.getInfoAsync = function(socket, data) {
             throw new Error('not auth to get channel info');
         }
         return ChannelStorage.getChannelInfoAsync(data.channelId);
+    }).then(function(info) {
+        var errMsg = 'fail to get channel information on storage service';
+        return SharedUtils.checkExecuteResult(info, errMsg);
     }).catch(function(err) {
         SharedUtils.printError('channelHandler.js', 'getInfoAsync', err);
         throw new Error('get channel info fail');
@@ -119,6 +121,9 @@ exports.getMemberStatusAsync = function(socket, data) {
         cid: SharedUtils.argsCheckAsync(data.channelId, 'md5')
     }).then(function(data) {
         return ChannelStorage.getMemberStatusAsync(data.uid, data.cid);
+    }).then(function(status) {
+        var errMsg = 'fail to get member status on storage service';
+        return SharedUtils.checkExecuteResult(status, errMsg);
     }).catch(function(err) {
         SharedUtils.printError('channelHandler.js', 'getMemberStatusAsync', err);
         throw new Error('get channel member status fail');
@@ -143,6 +148,9 @@ exports.getMemberListAsync = function(socket, data) {
                 throw new Error('get Auth fail');
             }
             return ChannelStorage.getMembersAsync(data.channelId);
+        }).then(function(members) {
+            var errMsg = 'fail to get members on storage service';
+            return SharedUtils.checkExecuteResult(members, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('channelHandler.js', 'getMemberListAsync', err);
             throw new Error('get member list fail');
@@ -162,6 +170,9 @@ exports.searchAsync = function(socket, data) {
         .then(function(validString) {
             return ChannelStorage.searchChannelAsync(validString);
         }).map(function(channel) {
+            if (!channel) {
+                throw new Error('search channel fail on storage service');
+            }
             var uid = socket.getAuthToken();
             return Promise.props({
                 host: channel.host,
@@ -197,6 +208,9 @@ exports.starContrlAsync = function(socket, data) {
                     }
                     return ChannelStorage.starControlAsync(uid, cid, toStar);
                 });
+        }).then(function(result) {
+            var errMsg = 'fail to star channel on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('channelHandler.js', 'starContrlAsync', err);
             throw new Error('star channel fail');

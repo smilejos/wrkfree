@@ -27,7 +27,7 @@ exports.drawAsync = function(socket, data) {
             if (result) {
                 data.clientId = socket.id;
             }
-            var errMsg = 'drawing fail';
+            var errMsg = 'drawing fail on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'drawAsync', err);
@@ -59,7 +59,7 @@ exports.saveRecordAsync = function(socket, data) {
             return DrawStorage.saveRecordAsync(cid, bid, socket.id, chunksLength, drawOptions);
         }).then(function(result) {
             if (!result) {
-                throw new Error('save draw record fail');
+                throw new Error('save draw record fail on storage service');
             }
             data.clientId = socket.id;
             // enqueue a preview image update job
@@ -103,7 +103,7 @@ exports.saveSingleDrawAsync = function(socket, data) {
         function(cid, bid, chunks, drawOptions) {
             return DrawStorage.saveSingleDrawAsync(cid, bid, chunks, drawOptions);
         }).then(function(result) {
-            var errMsg = 'failure on saving single draw';
+            var errMsg = 'fail to save single draw on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'saveSingleDrawAsync', err);
@@ -178,7 +178,7 @@ exports.drawUndoAsync = function(socket, data) {
             var uid = socket.getAuthToken();
             return DrawStorage.undoRecordAsync(cid, bid, uid);
         }).then(function(result) {
-            var errMsg = 'draw undo fail';
+            var errMsg = 'fail to undo last draw on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'drawUndoAsync', err);
@@ -203,7 +203,7 @@ exports.drawRedoAsync = function(socket, data) {
             var uid = socket.getAuthToken();
             return DrawStorage.restoreUndoAsync(cid, bid, uid);
         }).then(function(result) {
-            var errMsg = 'draw redo fail';
+            var errMsg = 'fail to restore last undo draw on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'drawRedoAsync', err);
@@ -230,9 +230,12 @@ exports.getDrawBoardAsync = function(socket, data) {
             var uid = socket.getAuthToken();
             return DrawStorage.getBoardInfoAsync(cid, bid, uid);
         }).then(function(resource) {
+            if (!resource) {
+                throw new Error('fail to get board infomration on storage service');
+            }
             return DrawWorker.drawBaseImgAsync(resource.board, resource.reocrds);
         }).then(function(result) {
-            var errMsg = 'get draw board information fail';
+            var errMsg = 'fail to update board base image';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'getDrawBoardAsync', err);
@@ -254,10 +257,8 @@ exports.getLatestBoardIdAsync = function(socket, data) {
         .then(function(cid) {
             return DrawStorage.getLatestBoardIdAsync(cid);
         }).then(function(result) {
-            if (result === null) {
-                throw new Error('get latest draw board id fail');
-            }
-            return result;
+            var errMsg = 'fail to get latest board id on stoarge service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('drawHandler.js', 'getLatestBoardIdAsync', err);
             throw err;

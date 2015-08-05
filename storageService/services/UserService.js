@@ -21,10 +21,13 @@ exports.addUserAsync = function(userInfo) {
     return Promise.try(function() {
         return UserDao.isEmailUsedAsync(userInfo.email);
     }).then(function(exist) {
-        return (exist ? new Error('user is exist') : UserDao.addNewUserAsync(userInfo));
+        if (exist) {
+            throw new Error('user already exist');
+        }
+        return UserDao.addNewUserAsync(userInfo);
     }).catch(function(err) {
         SharedUtils.printError('UserService', 'addUserAsync', err);
-        throw err;
+        return null;
     });
 };
 
@@ -39,10 +42,10 @@ exports.addUserAsync = function(userInfo) {
 exports.oAuthLoginAsync = function(clientId, provider) {
     return UserDao.findByOAuthAsync(clientId, provider)
         .then(function(userInfo) {
-            if (!userInfo) {
-                return null;
-            }
-            return userInfo;
+            return (!userInfo ? false : userInfo);
+        }).catch(function(err) {
+            SharedUtils.printError('UserService', 'oAuthLoginAsync', err);
+            return null;
         });
 };
 
@@ -54,13 +57,17 @@ exports.oAuthLoginAsync = function(clientId, provider) {
  * @param {String}      findString, the string used to find user
  */
 exports.findUsersAsync = function(findString) {
-    return UserDao.findByNameAsync(findString);
+    return UserDao.findByNameAsync(findString)
+        .catch(function(err) {
+            SharedUtils.printError('UserService', 'findUsersAsync', err);
+            return null;
+        });
 };
 
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to check sepcific user is exist or not
+ * @Description: to check sepcific email has been used or not
  *
  * @param {String}      uid, user id
  */
@@ -68,7 +75,7 @@ exports.isEmailUsedAsync = function(uid) {
     return UserDao.isEmailUsedAsync(uid)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'isEmailUsedAsync', err);
-            throw err;
+            return null;
         });
 };
 
@@ -137,9 +144,9 @@ exports.isUserSessionAuthAsync = function(user, sid) {
         function(validUid, rawSession) {
             return (validUid === JSON.parse(rawSession).passport.user.uid);
         }).catch(function(err) {
-        SharedUtils.printError('UserService', 'getSessAuthAsync', err);
-        return false;
-    });
+            SharedUtils.printError('UserService', 'getSessAuthAsync', err);
+            return null;
+        });
 };
 
 /**
@@ -153,6 +160,6 @@ exports.userEnterAsync = function(uid) {
     return UserTemp.enterAsync(uid)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'userEnterAsync', err);
-            return false;
+            return null;
         });
 };

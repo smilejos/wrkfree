@@ -124,6 +124,9 @@ function _getChannelStreams(uid, storageManager) {
         .map(function(doc) {
             return userStorage.getUserAsync(doc.channel.host)
                 .then(function(hostInfo) {
+                    if (hostInfo === null) {
+                        throw new Error('fail to get host info on storage service');
+                    }
                     doc.hostInfo = hostInfo;
                     return doc;
                 });
@@ -154,6 +157,14 @@ function _getWorkSpace(uid, channelId, storageManager) {
                 channel: channelStorage.getChannelInfoAsync(channelId),
                 members: channelStorage.getMembersAsync(channelId),
                 status: channelStorage.getMemberStatusAsync(uid, channelId)
+            }).then(function(resource){
+                var props = Object.keys(resource);
+                SharedUtils.fastArrayMap(props, function(prop){
+                    if (prop === null) {
+                        throw new Error('getting workspace resource fail on storage service');
+                    }
+                });
+                return resource;
             });
         });
 }
@@ -173,6 +184,9 @@ function _getStarredChannels(uid, storageManager) {
         .map(function(doc) {
             return userStorage.getUserAsync(doc.host)
                 .then(function(hostInfo) {
+                    if (hostInfo === null) {
+                        throw new Error('fail to get host info on storage service');
+                    }
                     doc.hostInfo = hostInfo;
                     delete doc.host;
                     return doc;

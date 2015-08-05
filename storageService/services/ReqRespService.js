@@ -48,24 +48,6 @@ exports.saveReqAsync = function(sender, target, type, info) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to increment current user's unread notice counts
- *
- * @param {String}          user, user's id
- * @param {String}          caller, the caller of this API
- */
-function _incrNoticeCounts(user, caller) {
-    var err = new Error('incrNoticeCounts fail');
-    return UserDao.setUnreadNoticeCountAsync(user, false)
-        .then(function(incrResult) {
-            if (!incrResult) {
-                SharedUtils.printError('ReqRespService.js', caller, err);
-            }
-        });
-}
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: used for user to reply any request sent to him or her
  *         
  * @param {String}          reqId, the _id of reqresp document
@@ -170,4 +152,21 @@ function _isReqCompleted(sender, target, type, info) {
         }
         throw new Error('unsupported request type');
     });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to increment current user's unread notice counts
+ *
+ * @param {String}          user, user's id
+ * @param {String}          caller, the caller of this API
+ */
+function _incrNoticeCounts(user, caller) {
+    var err = new Error('incrNoticeCounts fail');
+    return UserDao.setUnreadNoticeCountAsync(user, false)
+        .then(function(incrResult) {
+            if (!incrResult) {
+                SharedUtils.printError('ReqRespService.js', caller, err);
+            }
+        });
 }

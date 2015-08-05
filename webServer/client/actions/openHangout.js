@@ -2,6 +2,8 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var ChannelService = require('../services/channelService');
+var WorkSpaceStore = require('../../shared/stores/WorkSpaceStore');
+var ActionUtils = require('./actionUtils');
 
 /**
  * @Public API
@@ -20,6 +22,10 @@ module.exports = function(actionContext, data) {
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         hangoutTitle: SharedUtils.argsCheckAsync(data.hangoutTitle, 'string')
     }).then(function(reqData) {
+        var workSpaceStore = actionContext.getStore(WorkSpaceStore);
+        if (workSpaceStore.isOpenedChannel(reqData.channelId)) {
+            return ActionUtils.showInfoEvent('Tips', 'You already open on current workspace');
+        }
         return ChannelService.enterAsync(reqData.channelId)
             .then(function(isAuth) {
                 if (!isAuth) {
@@ -29,5 +35,6 @@ module.exports = function(actionContext, data) {
             });
     }).catch(function(err) {
         SharedUtils.printError('openHangout.js', 'core', err);
+        ActionUtils.showErrorEvent('FAIL', 'can not access to target channel');
     });
 };

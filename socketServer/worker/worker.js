@@ -290,7 +290,10 @@ function _configPublishOut(server) {
 function _publishUserOnlineStatus(userStorage, socket, uid) {
     LogUtils.debug(LogCategory, null, 'inform user ['+uid+'] online status');
     return userStorage.userEnterAsync(uid)
-        .then(function() {
+        .then(function(result) {
+            if (result === null) {
+                return LogUtils.warn(LogCategory, null, 'fail to set user ['+uid+'] online on storage service');
+            }
             socket.global.publish('activity:' + uid, {
                 clientHandler: 'updateOnlineFriend',
                 service: 'friend',

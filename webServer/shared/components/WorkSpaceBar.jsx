@@ -10,6 +10,7 @@ var StartConference = require('../../client/actions/rtc/startConference');
 var HangupConference = require('../../client/actions/rtc/hangupConference');
 var ToggleComponent = require('../../client/actions/toggleComponent');
 var StarChannel = require('../../client/actions/channel/starChannel');
+var OpenHangout = require('../../client/actions/openHangout');
 
 /**
  * stores
@@ -26,6 +27,7 @@ var IconButton = Mui.IconButton;
 var FloatingActionButton = Mui.FloatingActionButton;
 var Colors = Mui.Styles.Colors;
 var FontIcon = Mui.FontIcon;
+var Dialog = Mui.Dialog;
 
 /**
  * workspace tool bar, now just a template
@@ -52,7 +54,8 @@ module.exports = React.createClass({
             isAudioOn: true,
             defaultIconStyle: {
                 color: Colors.grey500
-            }
+            },
+            dialogInfo: {}
         };
     },
 
@@ -91,10 +94,54 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
+     * @Description: for switch current workspace into hangout window
+     */
+    _siwthToHangout: function() {
+        var dialog = this.refs.dialog;
+        var channel = this.props.channel;
+        this.setState({
+            dialogInfo: {
+                title: 'Confirmation',
+                content: 'Your are about to switch into hangout window',
+                actions: [{
+                    text: 'Cancel',
+                    onClick: dialog.dismiss
+                }, {
+                    text: 'Continue',
+                    onClick: function(){
+                        this.transitionTo('/app/dashboard');
+                        setTimeout(function(){
+                            window.context.executeAction(OpenHangout, {
+                                channelId: channel.channelId,
+                                hangoutTitle: channel.name
+                            });
+                        }, 300);
+                    }.bind(this)
+                }]
+            }
+        });
+        dialog.show();
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: for leaving current workspace
      */
     _onLeave: function () {
-        this.transitionTo('/app/dashboard');
+        this.setState({
+            dialogInfo: {
+                title: 'Warning',
+                content: 'You are about to leave current workspace',
+                actions: [{
+                    text: 'Cancel',
+                    onClick: this.refs.dialog.dismiss
+                }, {
+                    text: 'Continue',
+                    onClick: this.transitionTo.bind(this, '/app/dashboard')
+                }]
+            }
+        });
+        this.refs.dialog.show();
     },
 
     _setStarIcon: function() {
@@ -281,7 +328,8 @@ module.exports = React.createClass({
                         <IconButton iconClassName="fa fa-link"
                                     iconStyle={this.state.defaultIconStyle} />
                         <IconButton iconClassName="fa fa-random"
-                                    iconStyle={this.state.defaultIconStyle} />
+                                    iconStyle={this.state.defaultIconStyle}
+                                    onClick={this._siwthToHangout} />
                         <IconButton iconClassName="fa fa-sign-out"
                                     iconStyle={this.state.defaultIconStyle}
                                     onClick={this._onLeave} />
@@ -291,6 +339,11 @@ module.exports = React.createClass({
                     <div className={switchVieoStyle} onClick={this._switchVideo}>Video</div>
                     <div className={switchChatStyle} onClick={this._switchChat}>Chat</div>
                 </div>
+                <Dialog ref="dialog" 
+                    actions={this.state.dialogInfo.actions}
+                    title={this.state.dialogInfo.title} >
+                    {this.state.dialogInfo.content}
+                </Dialog>
             </div>
         );
     }

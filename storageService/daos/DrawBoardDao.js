@@ -32,7 +32,7 @@ exports.saveAsync = function(channelId, boardId) {
         return DbUtil.checkDocumentSaveStatusAsync(result);
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'saveAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -66,7 +66,7 @@ exports.updateBaseImgAsync = function(channelId, boardId, rawData) {
         return Model.findOneAndUpdate(condition, updateDoc).select('_id').execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'updateBaseImgAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -92,7 +92,7 @@ exports.findByBoardAsync = function(channelId, boardId) {
         return Model.findOneAsync(condition, fields, options);
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'findByBoardAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -118,7 +118,7 @@ exports.findBoardUpdatedTimeAsync = function(channelId, boardId) {
         return Model.findOne(condition, fields).lean(true).execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'findBoardUpdatedTimeAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -164,7 +164,7 @@ exports.countBoardsAsync = function(channelId) {
         return Model.count(condition).execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'countBoardsAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -184,7 +184,7 @@ exports.removeByBoardAsync = function(channelId, boardId) {
         return _remove(condition);
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'removeByBoardAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -202,7 +202,7 @@ exports.removeByChannelAsync = function(channelId) {
         return _remove(condition);
     }).catch(function(err) {
         SharedUtils.printError('DrawBoardDao.js', 'removeByChannelAsync', err);
-        return null;
+        throw err;
     });
 };
 
