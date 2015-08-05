@@ -10,9 +10,10 @@ $signup-form-cover-height: 330px;
  */
 .SignupForm {
     @extend .baseSignupFormWidth;
-    position: fixed;
+    position: absolute;
     margin-left: -1/2 * $signup-form-width;
     margin-top: 30px;
+    margin-bottom: 15px;
     left: 50%;
     text-align: center;
 }
