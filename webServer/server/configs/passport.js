@@ -44,6 +44,9 @@ module.exports = function() {
         }
         return UserStorage.getUserAsync(user.uid, true)
             .then(function(info) {
+                if (info === null) {
+                    throw new Error('fail to get user info on storage service');
+                }
                 info.uid = user.uid;
                 return info;
             }).catch(function(err) {

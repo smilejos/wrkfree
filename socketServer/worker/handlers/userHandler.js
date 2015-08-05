@@ -27,6 +27,9 @@ exports.getInfoAsync = function(socket, data) {
         });
         return UserStorage.getUserAsync(list, uid);
     }).then(function(result) {
+        if (result === null) {
+            throw new Error('get user info fail on storage service');
+        }
         if (!result || result.length === 0) {
             throw new Error('user not exist');
         }
@@ -56,6 +59,9 @@ exports.getNotificationsAsync = function(socket, data) {
     }).then(function(isReadedFlag) {
         var uid = socket.getAuthToken();
         return ReqRespStorage.getReqRespAsync(uid, isReadedFlag);
+    }).then(function(notifications) {
+        var errMsg = 'fail to get user notifications on storage service';
+        return SharedUtils.checkExecuteResult(notifications, errMsg);
     }).catch(function(err) {
         SharedUtils.printError('userHandler.js', 'getNotificationsAsync', err);
         throw err;
@@ -72,7 +78,10 @@ exports.getNotificationsAsync = function(socket, data) {
 exports.resetUnreadNoticeAsync = function(socket) {
     var uid = socket.getAuthToken();
     return UserStorage.resetUnreadNoticeAsync(uid)
-        .catch(function(err) {
+        .then(function(result) {
+            var errMsg = 'reset user unread notifications fail on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
             SharedUtils.printError('userHandler.js', 'resetUnreadNoticeAsync', err);
             throw err;
         });
@@ -91,6 +100,9 @@ exports.setDashboardLayoutAsync = function(socket, data) {
         .then(function(isGrid) {
             var uid = socket.getAuthToken();
             return UserStorage.setDashboardLayoutAsync(uid, isGrid);
+        }).then(function(result) {
+            var errMsg = 'fail to set user dashboard layout on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('userHandler.js', 'resetUnreadNoticeAsync', err);
             throw err;
@@ -109,6 +121,9 @@ exports.searchAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.queryStr, 'alphabet')
         .then(function(validString) {
             return UserStorage.findUsersAsync(validString);
+        }).then(function(result) {
+            var errMsg = 'fail to search users on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('userHandler.js', 'searchAsync', err);
             throw new Error('search user fail');

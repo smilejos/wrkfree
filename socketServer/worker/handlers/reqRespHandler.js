@@ -25,7 +25,7 @@ exports.channelReqAsync = function(socket, data) {
             return ReqRespStorage.saveReqAsync(uid, target, type, cid);
         }).then(function(result) {
             if (result === null) {
-                throw new Error('save request fail');
+                throw new Error('save channel request fail on storage service');
             }
             return _getExtraChannelInfo(data.channelId).then(function(info) {
                 var notification = _setReqNotification(result, info);
@@ -54,7 +54,7 @@ exports.friendReqAsync = function(socket, data) {
             return ReqRespStorage.saveReqAsync(uid, target, type);
         }).then(function(result) {
             if (result === null) {
-                throw new Error('save request fail');
+                throw new Error('save friend request fail on storage service');
             }
             var notification = _setReqNotification(result, {});
             _notifyTarget(socket, data.targetUser, notification);
@@ -227,6 +227,9 @@ function _addChannelMember(host, newMember, cid, socket) {
             if (!result) {
                 throw new Error('add chanel member fail');
             }
+            if (!channelInfo) {
+                throw new Error('fail to get channel information on storage service');
+            }
             _publishToUser(socket, newMember, {
                 service: 'channel',
                 clientHandler: 'onChannelAdded',
@@ -301,6 +304,9 @@ function _notifyTarget(socket, target, data) {
 function _getExtraChannelInfo(cid) {
     return ChannelStorage.getChannelInfoAsync(cid)
         .then(function(channel) {
+            if (!channel) {
+                throw new Error('fail to get channel information on storage service');
+            }
             return {
                 channelId: channel.basicInfo.channelId,
                 name: channel.basicInfo.name
