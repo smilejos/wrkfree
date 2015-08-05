@@ -23,7 +23,7 @@ exports.delFriendshipAsync = function(socket, data) {
         if (!delResult || delResult.length === 0) {
             throw new Error('friendship not exist or storage internal error');
         }
-        return null;
+        return true;
     }).catch(function(err) {
         SharedUtils.printError('friendHandler.js', 'delFriendshipAsync', err);
         throw err;
@@ -45,45 +45,11 @@ exports.getFriendsAsync = function(socket, data) {
         target: SharedUtils.argsCheckAsync(data.candidate, 'md5')
     }).then(function(params) {
         return FriendStorage.getFriendListAsync(params.target, params.asker);
+    }).then(function(friends) {
+        var errMsg = 'fail to get friends information on storage service';
+        return SharedUtils.checkExecuteResult(friends, errMsg);
     }).catch(function(err) {
         SharedUtils.printError('friendHandler.js', 'getFriendListAsync', err);
         throw new Error('get friend list fail');
     });
-};
-
-/**
- * TODO:
- * Public API
- * @Author: George_Chen
- * @Description: for user send friend request to target user
- *
- * @param {Object}          socket, the client socket instance
- */
-exports.reqFriendshipAsync = function(socket, data) {
-    console.log(socket, data);
-};
-
-/**
- * TODO:
- * Public API
- * @Author: George_Chen
- * @Description: for user response friend request sent from other user
- *
- * @param {Object}          socket, the client socket instance
- */
-exports.respFriendshipAsync = function(socket, data) {
-    console.log(socket, data);
-};
-
-/**
- * TODO:
- * Public API
- * @Author: George_Chen
- * @Description: for user to checking the friend request has already sent to 
- *             target user or not
- *
- * @param {Object}          socket, the client socket instance
- */
-exports.isFriendshipReqSentAsync = function(socket, data) {
-    console.log(socket, data);
 };

@@ -51,7 +51,7 @@ exports.findByEmailAsync = function(email) {
             return _transformUid(doc);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', 'findByEmailAsync', err);
-            return null;
+            throw err;
         });
 };
 
@@ -150,7 +150,7 @@ exports.findByOAuthAsync = function(oAuthId, provider) {
         return _transformUid(doc);
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'findByOAuthAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -193,7 +193,7 @@ exports.addNewUserAsync = function(userInfo) {
         return _transformUid(doc);
     }).catch(function(err) {
         SharedUtils.printError('UserDao', 'addNewUserAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -311,7 +311,7 @@ function _update(condition, info, caller) {
             return DbUtil.checkDocumentUpdateStatusAsync(result);
         }).catch(function(err) {
             SharedUtils.printError('UserDao', caller, err);
-            return null;
+            throw err;
         });
 }
 
@@ -329,7 +329,7 @@ function _findById(id, fields, caller) {
             return DbUtil.transformToNewIdAsync(doc, 'uid');
         }).catch(function(err) {
             SharedUtils.printError('UserDao', caller, err);
-            return null;
+            throw err;
         });
 }
 

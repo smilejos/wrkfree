@@ -22,9 +22,9 @@ exports.sendMsgAsync = function(socket, data) {
         function(sender, channelId, msg) {
             return MsgStorage.saveAsync(sender, channelId, msg);
         }).then(function(result) {
-            var errMsg = 'send message fail';
+            var errMsg = 'fail to save new sent message on storage service';
             if (result) {
-                socket.global.publish('notification:'+data.channelId, {
+                socket.global.publish('notification:' + data.channelId, {
                     clientHandler: 'recvNotificationMsg',
                     service: 'chat',
                     params: data
@@ -58,7 +58,7 @@ exports.getMsgAsync = function(socket, data) {
         function(validUid, validChannelId, period) {
             return MsgStorage.pullAsync(validUid, validChannelId, period);
         }).then(function(result) {
-            var errMsg = 'get messages fail';
+            var errMsg = 'fail to get previous messages on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('chatHandler.js', 'getMsgAsync', err);
@@ -82,7 +82,7 @@ exports.readMsgAsync = function(socket, data) {
         function(validUid, validChannelId) {
             return MsgStorage.readAckAsync(validUid, validChannelId);
         }).then(function(result) {
-            var errMsg = 'update message read ack fail';
+            var errMsg = 'update message read ack fail on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('chatHandler.js', 'readMsgAsync', err);
@@ -104,6 +104,9 @@ exports.getLastMsgsAsync = function(socket, data) {
     }).then(function(cids) {
         var uid = socket.getAuthToken();
         return MsgStorage.getLatestAsync(uid, cids);
+    }).then(function(channelsMsg) {
+        var errMsg = 'fail to get channels last message on storage service';
+        return SharedUtils.checkExecuteResult(channelsMsg, errMsg);
     }).catch(function(err) {
         SharedUtils.printError('chatHandler.js', 'getLastMsgsAsync', err);
         throw err;
@@ -120,7 +123,10 @@ exports.getLastMsgsAsync = function(socket, data) {
 exports.getUnreadSubscribedMsgCounts = function(socket) {
     var uid = socket.getAuthToken();
     return MsgStorage.getUnreadSubscribedMsgCountsAsync(uid)
-        .catch(function(err) {
+        .then(function(messageCounts) {
+            var errMsg = 'fail to count channels unread messages on storage service';
+            return SharedUtils.checkExecuteResult(messageCounts, errMsg);
+        }).catch(function(err) {
             SharedUtils.printError('chatHandler.js', 'getUnreadSubscribedMsgCounts', err);
             throw err;
         });

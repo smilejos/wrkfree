@@ -86,7 +86,11 @@ exports.visitChannelAsync = function(member, channelId) {
  * @param {String}          name, channel name
  */
 exports.searchChannelAsync = function(name) {
-    return ChannelDao.searchByNameAsync(name);
+    return ChannelDao.searchByNameAsync(name)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'searchChannelAsync', err);
+            return null;
+        });
 };
 
 /**
@@ -141,7 +145,7 @@ exports.getAuthChannelsAsync = function(member, visitPeriod) {
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getAuthChannelsAsync', err);
-            return [];
+            return null;
         });
 };
 
@@ -228,7 +232,7 @@ exports.getMembersAsync = function(channelId) {
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getMembersAsync', err);
-            return [];
+            return null;
         });
 };
 
@@ -242,12 +246,12 @@ exports.getMembersAsync = function(channelId) {
  * @param {String}          channelId, channel id
  */
 exports.getOnlineMembersAsync = function(channelId) {
-    return this.getMembersAsync(channelId)
+    return exports.getMembersAsync(channelId)
         .then(function() {
             return ChannelTemp.getOnlineMembersAsync(channelId);
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getOnlineMembersAsync', err);
-            return [];
+            return null;
         });
 };
 

@@ -38,7 +38,7 @@ exports.saveReqAsync = function(reqUser, targetUser, reqType, info) {
         return DbUtil.checkDocumentSaveStatusAsync(result);
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'saveReqAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -68,7 +68,7 @@ exports.findByTargetAsync = function(targetUser, isReaded) {
         return DbUtil.transformTimeAsync(doc, 'updatedTime');
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'findByTargetAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -94,7 +94,7 @@ exports.isReqSentAsync = function(reqUser, targetUser, reqType, info) {
         return _exist(condition);
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'isReqSentAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -114,7 +114,7 @@ exports.isReplierAuthAsync = function(reqId, replier) {
         return _exist(condition);
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'isReplierAuthAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -136,7 +136,7 @@ exports.updateToAllReadedAsync = function(targetUser) {
         return _update(condition, updateDoc, true);
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'updateToAllReadedAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -160,7 +160,7 @@ exports.updateToReadedAsync = function(reqId, targetUser) {
         return _update(condition, updateDoc);
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'updateToReadedAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -194,7 +194,7 @@ exports.updateToRespAsync = function(reqId, replier, originalSender, respToPermi
         return _update(condition, updateDoc);
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'updateToRespAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -233,7 +233,7 @@ exports.savePermittedRespAsync = function(reqUser, targetUser, reqType, info) {
         return DbUtil.checkDocumentSaveStatusAsync(result);
     }).catch(function(err) {
         SharedUtils.printError('ReqRespDao', 'savePermittedRespAsync', err);
-        return null;
+        throw err;
     });
 };
 

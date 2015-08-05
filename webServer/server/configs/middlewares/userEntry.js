@@ -44,6 +44,12 @@ UserEntry.oAuthLogin = function(req, res, next) {
         }
         return UserStorage.oAuthLoginAsync(user.id, req.provider)
             .then(function(info) {
+                if (info === null) {
+                    LogUtils.warn(LogCategory, {
+                        provider: req.provider
+                    }, 'oauth login fail on storage');
+                    return res.end();
+                }
                 if (!info) {
                     user.provider = req.provider;
                     req.session.passport.user = user;
@@ -81,7 +87,7 @@ UserEntry.create = function(req, res, next) {
         signUpInfo[provider] = req.session.passport.user.id;
         return UserStorage.addUserAsync(signUpInfo);
     }).then(function(result) {
-        if (SharedUtils.isError(result)) {
+        if (result === null) {
             LogUtils.warn(LogCategory, {
                 error: result
             }, 'create new user fail');
@@ -124,6 +130,9 @@ UserEntry.isEmailAvailable = function(req, res, next) {
         }
         return UserStorage.isEmailUsedAsync(req.query.email);
     }).then(function(result) {
+        if (result === null) {
+            throw new Error('checking user email fail on storage service');
+        }
         // user exist means not available
         req.uidAvailable = !result;
         return next();

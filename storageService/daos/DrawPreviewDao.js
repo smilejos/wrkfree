@@ -30,7 +30,7 @@ exports.saveAsync = function(channelId, boardId) {
         return DbUtil.checkDocumentSaveStatusAsync(result);
     }).catch(function(err) {
         SharedUtils.printError('DrawPreviewDao.js', 'saveAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -60,7 +60,7 @@ exports.updateChunksAsync = function(channelId, boardId, rawData) {
         return Model.findOneAndUpdate(condition, updateDoc).select('_id').execAsync();
     }).catch(function(err) {
         SharedUtils.printError('DrawPreviewDao.js', 'updateChunksAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -86,7 +86,7 @@ exports.findByBoardAsync = function(channelId, boardId) {
         return Model.findOneAsync(condition, fields, options);
     }).catch(function(err) {
         SharedUtils.printError('DrawPreviewDao.js', 'findByBoardAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -107,7 +107,7 @@ exports.findByChannelLatestAsync = function(channelId) {
         });
     }).catch(function(err) {
         SharedUtils.printError('DrawPreviewDao.js', 'findByBoardAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -155,7 +155,7 @@ exports.removeByBoardAsync = function(channelId, boardId) {
         return _remove(condition);
     }).catch(function(err) {
         SharedUtils.printError('DrawPreviewDao.js', 'removeByBoardAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -173,7 +173,7 @@ exports.removeByChannelAsync = function(channelId) {
         return _remove(condition);
     }).catch(function(err) {
         SharedUtils.printError('DrawPreviewDao.js', 'removeByChannelAsync', err);
-        return null;
+        throw err;
     });
 };
 

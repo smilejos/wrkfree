@@ -16,6 +16,9 @@ exports.isCookieSessionAuthAsync = function(cookie) {
         var uid = cookie.uid;
         var sessKey = _getSessionStoreKey(cookie.sid);
         return UserStorage.isUserSessionAuthAsync(uid, sessKey);
+    }).then(function(isAuth) {
+        var errMsg = 'fail to check session authorization on storage service';
+        return SharedUtils.checkExecuteResult(isAuth, errMsg);
     }).catch(function(err) {
         SharedUtils.printError('middleware-utils.js', 'isCookieSessionAuthAsync', err);
         throw new Error('storage internal error');

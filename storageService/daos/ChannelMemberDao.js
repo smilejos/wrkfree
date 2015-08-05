@@ -126,7 +126,7 @@ exports.findByUidAsync = function(member, is1on1, period) {
         return DbUtil.transformTimeAsync(doc, 'lastVisitTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByUidAsync', err);
-        return [];
+        throw err;
     });
 };
 
@@ -148,7 +148,7 @@ exports.findByHostUidAsync = function(host) {
         return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByHostUidAsync', err);
-        return [];
+        throw err;
     });
 };
 
@@ -170,7 +170,7 @@ exports.findByStarredAsync = function(uid) {
         return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByStarredAsync', err);
-        return [];
+        throw err;
     });
 };
 
@@ -193,7 +193,7 @@ exports.findByChannelAsync = function(channelId, is1on1) {
         return DbUtil.transformTimeAsync(doc, 'msgSeenTime');
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findByChannelAsync', err);
-        return [];
+        throw err;
     });
 };
 
@@ -216,7 +216,7 @@ exports.findMemberAsync = function(member, channelId, is1on1) {
         return _find(condition, 1);
     }).catch(function(err) {
         SharedUtils.printError('ChannelMemberDao.js', 'findMemberAsync', err);
-        return null;
+        throw err;
     });
 };
 
@@ -385,7 +385,7 @@ function _save(memberDoc, caller) {
             return DbUtil.checkDocumentSaveStatusAsync(result);
         }).catch(function(err) {
             SharedUtils.printError('ChannelMemberDao.js', caller, err);
-            return null;
+            throw err;
         });
 }
 

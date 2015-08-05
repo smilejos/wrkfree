@@ -24,9 +24,9 @@ exports.startConferenceAsync = function(socket, data) {
                     return (!session ? RtcWorker.pushNotification(cid) : true);
                 });
         }).catch(function(err) {
-        SharedUtils.printError('rtcHandler.js', 'startConferenceAsync', err);
-        throw err;
-    });
+            SharedUtils.printError('rtcHandler.js', 'startConferenceAsync', err);
+            throw err;
+        });
 };
 
 /**
@@ -42,10 +42,8 @@ exports.hangupConferenceAsync = function(socket, data) {
         .then(function(cid) {
             return RtcStorage.delClientAsync(cid, socket.id);
         }).then(function(success) {
-            if (!success) {
-                throw new Error('server storage get failure');
-            }
-            return success;
+            var errMsg = 'fail to delete rtc client on storage service';
+            return SharedUtils.checkExecuteResult(success, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('rtcHandler.js', 'hangupConferenceAsync', err);
             throw err;
@@ -68,6 +66,9 @@ exports.getTargetsSdpAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.targets, 'array'),
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         function(session, targets) {
+            if (!session) {
+                throw new Error('fail to get current rtc session on storage service');
+            }
             var sdps = {};
             SharedUtils.fastArrayMap(targets, function(client) {
                 sdps[client] = session.sdps[client];
