@@ -29,7 +29,8 @@ var Services = [
     'MsgService',
     'DrawService',
     'ReqRespService',
-    'RtcService'
+    'RtcService',
+    'SearchService'
 ];
 
 /************************************************
