@@ -68,6 +68,7 @@ module.exports = React.createClass({
         return (
             <div>
                 <NoticeMessage message={message}
+                    reqId={this.props.info.reqId}
                     title={this.props.info.sender.nickName}
                     date={new Date(this.props.info.updatedTime)}
                     isTimeVisible={this.props.info.isTimeVisible}

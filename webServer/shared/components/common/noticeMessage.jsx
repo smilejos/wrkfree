@@ -2,6 +2,11 @@ var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 
 /**
+ * actions
+ */
+var SetNotificationReaded = require('../../../client/actions/setNotificationReaded');
+
+/**
  * @Author: George_Chen
  * @Description: the component for rendering the notice messages
  *         
@@ -11,15 +16,22 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
  * @param {String}      this.props.emphasis, the notice emphasis word
  */
 module.exports = React.createClass({
+    mixins: [FluxibleMixin],
+
     getInitialState: function() {
         return {
             isTimeVisible: true
         };
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: to mark current notice to readed
+     */
     _markReaded: function() {
-        // TODO: 
-        // mark notification as readed and not shown on notification window
+        this.executeAction(SetNotificationReaded, {
+            reqId: this.props.reqId
+        });
     },
 
     render: function() {
