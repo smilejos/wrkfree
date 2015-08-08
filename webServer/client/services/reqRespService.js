@@ -92,6 +92,19 @@ exports.isFriendReqSentAsync = function(data) {
     return _request(packet, 'isFriendReqSentAsync');
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to notify server that specific notification has
+ *               been readed by user
+ *
+ * @param {String}          data.reqId, the reqResp id
+ */
+exports.readReqRespAsync = function(data) {
+    var packet = _setPacket('readReqRespAsync', null, data);
+    return _request(packet, 'readReqRespAsync');
+};
+
 /************************************************
  *
  *           internal functions
