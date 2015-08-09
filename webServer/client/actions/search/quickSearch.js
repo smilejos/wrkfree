@@ -2,36 +2,41 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var UserService = require('../../services/userService');
-var ChannelService = require('../../services/channelService');
 var FriendStore = require('../../../shared/stores/FriendStore');
 var QuickSearchStore = require('../../../shared/stores/QuickSearchStore');
+var SearchService = require('../../services/searchService');
 
 /**
  * @Public API
  * @Author: George_Chen
  * @Description: action for user to trigger quickSearch
+ *         NOTE: we use first symbol of query string to distinguish
+ *               what kind of search method that client want to use
+ *
+ *          e.g. '#': to search on channel, '@': to search on user
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.query, the query string of quickSearch
  */
 module.exports = function(actionContext, data) {
-    var quickSearchStore = actionContext.getStore(QuickSearchStore);
-    if (data.query === '' || quickSearchStore.hasCached(data.query)) {
-        return actionContext.dispatch('ON_QUICKSEARCH_CACHE_HIT', data.query);
-    }
     return Promise.props({
-        queryStr: SharedUtils.argsCheckAsync(data.query, 'string')
+        query: SharedUtils.argsCheckAsync(data.query, 'string')
     }).then(function(reqData) {
-        return Promise.join(
-            _searchChannel(actionContext, reqData),
-            _searchUser(actionContext, reqData),
-            function(channelResults, userResults) {
-                actionContext.dispatch('ON_QUICKSEARCH_UPDATE', {
-                    query: reqData.queryStr,
-                    users: userResults,
-                    channels: channelResults
-                });
-            });
+        var quickSearchStore = actionContext.getStore(QuickSearchStore);
+        var text = reqData.query;
+        if (text === '' || text === '#' || text === '@' || quickSearchStore.hasCached(text)) {
+            return actionContext.dispatch('ON_QUICKSEARCH_CACHE_HIT', text);
+        }
+        switch (text[0]) {
+            case '#':
+                return _searchChannel(actionContext, reqData);
+            case '@':
+                return _searchUser(actionContext, reqData);
+            default:
+                return _search(actionContext, reqData);
+        }
+    }).then(function(data) {
+        actionContext.dispatch('ON_QUICKSEARCH_UPDATE', data);
     }).catch(function(err) {
         SharedUtils.printError('quickSearch.js', 'core', err);
     });
@@ -39,52 +44,104 @@ module.exports = function(actionContext, data) {
 
 /**
  * @Author: George_Chen
- * @Description: use to trigger user search
+ * @Description: used to search on all the things
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {Object}      Object, the request data for searching users
+ * @param {Object}      reqData, the request data for searching
  */
-function _searchUser(actionContext, reqData) {
-    var friendStore = actionContext.getStore(FriendStore);
-    return UserService.searchAsync(reqData)
-        .map(function(info) {
-            info.isKnown = friendStore.hasFriendShip(info.uid);
-            return info;
-        }).then(function(users) {
-            var uids = SharedUtils.fastArrayMap(users, function(info) {
-                return info.uid;
+function _search(actionContext, reqData) {
+    return SearchService.searchAsync(reqData)
+        .then(function(result) {
+            return Promise.props({
+                query: reqData.query,
+                users: _polyfillUsers(result.users),
+                channels: _polyfillChannels(result.channels)
             });
-            return {
-                keys: uids,
-                results: users
-            };
         });
 }
 
 /**
  * @Author: George_Chen
- * @Description: use to trigger channel search
+ * @Description: used to search directly on users
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {Object}      Object, the request data for searching channels
+ * @param {Object}      reqData, the request data for searching
+ */
+function _searchUser(actionContext, reqData) {
+    return SearchService.searchUserAsync(reqData)
+        .then(function(result) {
+            return Promise.props({
+                query: reqData.query,
+                users: _polyfillUsers(result),
+                channels: _polyfillChannels([])
+            });
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to search directly on channels
+ * 
+ * @param {Object}      actionContext, the fluxible's action context
+ * @param {Object}      reqData, the request data for searching
  */
 function _searchChannel(actionContext, reqData) {
-    return ChannelService.searchAsync(reqData)
-        .map(function(channel) {
-            return UserService.getInfoAsync(channel.host)
-                .then(function(info) {
-                    info.extraInfo = channel.name;
-                    info.channelId = channel.channelId;
-                    info.isKnown = channel.isKnown;
-                    return info;
-                });
-        }).then(function(channels) {
-            var cids = SharedUtils.fastArrayMap(channels, function(info) {
-                return info.channelId;
+    return SearchService.searchChannelAsync(reqData)
+        .then(function(result) {
+            return Promise.props({
+                query: reqData.query,
+                users: _polyfillUsers([]),
+                channels: _polyfillChannels(result)
             });
-            return {
-                keys: cids,
-                results: channels
-            };
         });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to polyfill information on user search results
+ * 
+ * @param {String}      users, an array of search results on user
+ */
+function _polyfillUsers(users) {
+    var friendStore = window.context.getStore(FriendStore);
+    var uids = [];
+    return Promise.map(users, function(user) {
+        uids.push(user.uid);
+        user.isKnown = friendStore.hasFriendShip(user.uid);
+        return user;
+    }).then(function(updateResults) {
+        return {
+            keys: uids,
+            results: updateResults
+        };
+    });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to polyfill information on channel search results
+ * 
+ * @param {String}      channels, an array of search results on channel
+ */
+function _polyfillChannels(channels) {
+    var cids = [];
+    return Promise.map(channels, function(channel) {
+        cids.push(channel.channelId);
+        return UserService.getInfoAsync(channel.host)
+            .then(function(info) {
+                return {
+                    uid: info.uid,
+                    avatar: info.avatar,
+                    nickName: info.nickName,
+                    channelId: channel.channelId,
+                    isKnown: channel.isKnown,
+                    extraInfo: channel.name
+                };
+            });
+    }).then(function(updateResults) {
+        return {
+            keys: cids,
+            results: updateResults
+        };
+    });
 }

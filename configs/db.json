@@ -19,6 +19,10 @@
                 "options": {},
                 "ttl": 3
             }
+        },
+        "searchEnv": {
+            "host": "127.0.0.1:9200",
+            "defaultIndex": "wrkfree"
         }
     },
     "production": {
@@ -41,6 +45,10 @@
                 "options": {},
                 "ttl": 3
             }
+        },
+        "searchEnv": {
+            "host": "search:9200",
+            "defaultIndex": "wrkfree"
         }
     }
 }
