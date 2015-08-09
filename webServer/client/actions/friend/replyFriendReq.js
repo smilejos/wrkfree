@@ -25,8 +25,7 @@ module.exports = function(actionContext, data) {
             throw new Error('response friend request fail');
         }
         actionContext.dispatch('DELETE_NOTIFICATION', {
-            reqId: data.id,
-            isReq: true
+            reqId: data.id
         });
     }).catch(function(err) {
         SharedUtils.printError('replyFriendReq.js', 'core', err);
