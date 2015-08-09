@@ -42,25 +42,23 @@ var AuthHandlers = {
 /**
  * @Author: George_Chen
  * @Description: to check socket client can subscribing self channel or not
- * @param {Object}        socket, server socket object
- * @param {String}        uid, target user's id 
+ * @param {String}        uid, the user id
+ * @param {String}        targetUid, target user's id 
  */
-function _getUserAuthAsync(socket, uid) {
-    var token = socket.getAuthToken();
+function _getUserAuthAsync(uid, targetUid) {
     return Promise.try(function() {
-        return (token === uid);
+        return (uid === targetUid);
     });
 }
 
 /**
  * @Author: George_Chen
  * @Description: to check asker can subscribe to channel or not
- * @param {Object}        socket, server socket object
+ * @param {String}        uid, the user id
  * @param {String}        channelId, channel's id
  */
-function _getChannelAuthAsync(socket, channelId) {
+function _getChannelAuthAsync(uid, channelId) {
     var channelStorage = StorageManager.getService('Channel');
-    var uid = socket.getAuthToken();
     return channelStorage.getAuthAsync(uid, channelId)
         .then(function(isAuth) {
             if (isAuth) {
@@ -73,24 +71,22 @@ function _getChannelAuthAsync(socket, channelId) {
 /**
  * @Author: George_Chen
  * @Description: to check asker can subscribe to target user's activities or not
- * @param {Object}        socket, server socket object
+ * @param {String}        uid, the user id
  * @param {String}        friendUid, friend's uid
  */
-function _getFriendAuthAsync(socket, friendUid) {
+function _getFriendAuthAsync(uid, friendUid) {
     var friendStorage = StorageManager.getService('Friend');
-    var uid = socket.getAuthToken();
     return friendStorage.hasFriendshipAsync(uid, friendUid);
 }
 
 /**
  * @Author: George_Chen
  * @Description: to check asker can subscribe to channel notifications or not
- * @param {Object}        socket, server socket object
+ * @param {String}        uid, the user id
  * @param {String}        channelId, channel's id
  */
-function _getNotificationAuthAsync(socket, channelId) {
+function _getNotificationAuthAsync(uid, channelId) {
     var channelStorage = StorageManager.getService('Channel');
-    var uid = socket.getAuthToken();
     return channelStorage.hasStarredAsync(uid, channelId);
 }
 
@@ -109,13 +105,20 @@ function _getNotificationAuthAsync(socket, channelId) {
  */
 exports.ensureAuthed = function(socket, channel, next) {
     return Promise.try(function() {
+        var uid = socket.getAuthToken();
         var request = channel.split(':');
         var handler = AuthHandlers[request[0]];
+        if (!SharedUtils.isMd5Hex(uid)) {
+            throw new Error('socket did not get token correctly');
+        }
         if (!handler) {
             throw new Error('subscribed type not supported ');
         }
-        return handler(socket, request[1]);
+        return handler(uid, request[1]);
     }).then(function(isAuth) {
+        if (isAuth === null) {
+            return next('authorization failure on storage service');
+        }
         return (isAuth ? next() : next('authorization failure'));
     }).catch(function(err) {
         SharedUtils.printError('subscribe.js', 'ensureAuthed', err);
