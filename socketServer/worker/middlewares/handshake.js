@@ -31,9 +31,9 @@ exports.ensureWebLogin = function(req, next) {
         var cookie = Cookie.parse(req.headers.cookie);
         return middlewareUtils.isCookieSessionAuthAsync(cookie);
     }).then(function(isAuth) {
-        return (isAuth ? next() : next('Authentication failure'));
+        return (isAuth ? next() : next('handshake authentication failure'));
     }).catch(function(err) {
         SharedUtils.printError('handshake.js', 'ensureWebLogin', err);
-        next('server error');
+        next('server error druing handshake');
     });
 };

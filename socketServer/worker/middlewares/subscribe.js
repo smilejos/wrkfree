@@ -109,7 +109,7 @@ exports.ensureAuthed = function(socket, channel, next) {
         var request = channel.split(':');
         var handler = AuthHandlers[request[0]];
         if (!SharedUtils.isMd5Hex(uid)) {
-            throw new Error('socket did not get token correctly');
+            throw new Error('did not get token before subscribe request');
         }
         if (!handler) {
             throw new Error('subscribed type not supported ');
