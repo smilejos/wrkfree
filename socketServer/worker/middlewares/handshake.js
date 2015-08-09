@@ -1,4 +1,5 @@
 'use strict';
+var Promise = require('bluebird');
 var Cookie = require('cookie');
 var SharedUtils = require('../../../sharedUtils/utils');
 var middlewareUtils = require('./utils');
@@ -26,12 +27,13 @@ var middlewareUtils = require('./utils');
  * @param {Function}      this.state.user.avatar, login user's avatar
  */
 exports.ensureWebLogin = function(req, next) {
-    var cookie = Cookie.parse(req.headers.cookie);
-    return middlewareUtils.isCookieSessionAuthAsync(cookie)
-        .then(function(isAuth) {
-            return (isAuth ? next() : next('Authentication failure'));
-        }).catch(function(err) {
-            SharedUtils.printError('handshake.js', 'ensureWebLogin', err);
-            next('server error');
-        });
+    return Promise.try(function() {
+        var cookie = Cookie.parse(req.headers.cookie);
+        return middlewareUtils.isCookieSessionAuthAsync(cookie);
+    }).then(function(isAuth) {
+        return (isAuth ? next() : next('Authentication failure'));
+    }).catch(function(err) {
+        SharedUtils.printError('handshake.js', 'ensureWebLogin', err);
+        next('server error');
+    });
 };

@@ -39,7 +39,7 @@ module.exports = function(req, res) {
                     user: req.user,
                     routeInfo: req.routeInfo,
                     url: req.url,
-                    error: err
+                    error: err.toString()
                 }, 'react route error on server side');
                 // we should redirect to error page
                 res.end();
