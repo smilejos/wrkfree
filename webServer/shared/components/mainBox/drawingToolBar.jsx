@@ -13,10 +13,18 @@ var NavToBoard = require('../../../client/actions/draw/navToBoard');
 var ChangeDrawMode = require('../../../client/actions/draw/changeDrawMode');
 
 /**
+ * stores
+ */
+var DrawTempStore = require('../../stores/DrawTempStore');
+
+/**
  * material ui components
  */
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
+
+var DRAWING_TIMEOUT_IN_MSECOND = 1000;
+var DisableDraw = null;
 
 /**
  * the drawingToolBar component
@@ -24,9 +32,42 @@ var IconButton = Mui.IconButton;
 module.exports = React.createClass({
     mixins: [FluxibleMixin, Router.Navigation],
 
+    statics: {
+        storeListeners: {
+            '_onDrawing': [DrawTempStore]
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: for detecting current board is drawing or not
+     */
+    _onDrawing: function() {
+        var self = this;
+        var cid = this.props.channelId;
+        var bid = this.props.boardId;
+        var lastDraw = this.getStore(DrawTempStore).getLastDraw(cid, bid);
+        if (lastDraw) {
+            if (!this.state.isDrawing) {
+                self.setState({
+                    isDrawing: true
+                });
+            }
+            if (DisableDraw) {
+                clearTimeout(DisableDraw);
+            }
+            DisableDraw = setTimeout(function() {
+                self.setState({
+                    isDrawing: false
+                });
+            }, DRAWING_TIMEOUT_IN_MSECOND)
+        }
+    },
+
     getInitialState: function() {
         return {
-            boardIndex: this.props.boardId + 1
+            boardIndex: this.props.boardId + 1,
+            isDrawing: false
         };
     },
 
@@ -93,10 +134,12 @@ module.exports = React.createClass({
      * @Description: handler for clean drawing board
      */
     _cleanBoard: function(){
-        this.executeAction(CleanDrawBoard, {
-            channelId: this.props.channelId,
-            boardId: this.props.boardId
-        });
+        if (!this.state.isDrawing) {
+            this.executeAction(CleanDrawBoard, {
+                channelId: this.props.channelId,
+                boardId: this.props.boardId
+            });
+        }
     },
 
     /**
@@ -104,10 +147,12 @@ module.exports = React.createClass({
      * @Description: handler undo to previous draw on drawing board
      */
     _drawUndo: function(){
-        this.executeAction(UndoDrawRecord, {
-            channelId: this.props.channelId,
-            boardId: this.props.boardId
-        });
+        if (!this.state.isDrawing) {
+            this.executeAction(UndoDrawRecord, {
+                channelId: this.props.channelId,
+                boardId: this.props.boardId
+            });
+        }
     },
 
     /**
@@ -115,10 +160,12 @@ module.exports = React.createClass({
      * @Description: handler to redo to next draw on drawing board 
      */
     _drawRedo: function(){
-        this.executeAction(RedoDrawRecord, {
-            channelId: this.props.channelId,
-            boardId: this.props.boardId
-        });
+        if (!this.state.isDrawing) {
+            this.executeAction(RedoDrawRecord, {
+                channelId: this.props.channelId,
+                boardId: this.props.boardId
+            });
+        }
     },
 
     /**
@@ -191,7 +238,10 @@ module.exports = React.createClass({
         });
     },
 
-    render: function(){
+    render: function() {
+        var drawIconStyle = {
+            cursor: (this.state.isDrawing ? 'not-allowed' : 'pointer')
+        };
         return (
             <div className="DrawingToolBar" >
                 <div className="pure-u-1-3 Left">
@@ -238,16 +288,19 @@ module.exports = React.createClass({
                         onClick={this._addBoard} />
                     <IconButton 
                         iconClassName="fa fa fa-square-o"
+                        iconStyle={drawIconStyle}
                         tooltip={'clean current board'} 
                         touch
                         onClick={this._cleanBoard} />
                     <IconButton 
                         iconClassName="fa fa-undo"
+                        iconStyle={drawIconStyle}
                         tooltip={'undo to previous draw'} 
                         touch
                         onClick={this._drawUndo} />
                     <IconButton 
                         iconClassName="fa fa-repeat"
+                        iconStyle={drawIconStyle}
                         tooltip={'repeat to next draw'}
                         touch
                         onClick={this._drawRedo} />
