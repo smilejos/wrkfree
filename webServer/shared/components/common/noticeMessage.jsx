@@ -1,6 +1,6 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
-
+var SharedUtils = require('../../../../sharedUtils/utils');
 /**
  * actions
  */
@@ -38,6 +38,8 @@ module.exports = React.createClass({
         var isTimeVisible = this.props.isTimeVisible;
         var timeClass = (isTimeVisible ? 'show' : 'hide');
         var closeIconClass = (isTimeVisible ? 'hide' : 'show');
+        var len = this.props.emphasis ? SharedUtils.stringToBytes(this.props.emphasis)  : 0;
+        var extraInfo = len > 30 ? this.props.emphasis.substring(0, 30) + '...' : this.props.emphasis;
         return (
             <div className="NoticeMessage" >
                 <div className="title"> {this.props.title} </div>
@@ -56,7 +58,7 @@ module.exports = React.createClass({
                 </div>
                 <div className="description">
                     {this.props.message}
-                    <span className="emphasis"> {this.props.emphasis} </span>
+                    <span className="emphasis"> {extraInfo} </span>
                 </div>
             </div>
         );
