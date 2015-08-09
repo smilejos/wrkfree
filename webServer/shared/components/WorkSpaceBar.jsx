@@ -324,14 +324,26 @@ module.exports = React.createClass({
                     </div>
                     <div className="pure-u-1-3">
                         <IconButton iconClassName="fa fa-user-plus"
+                                    tooltipPosition="top-center"
+                                    tooltip="invite member"
+                                    touch
                                     iconStyle={this.state.defaultIconStyle} />
                         <IconButton iconClassName="fa fa-link"
+                                    tooltipPosition="top-center"
+                                    tooltip="copy link"
+                                    touch
                                     iconStyle={this.state.defaultIconStyle} />
                         <IconButton iconClassName="fa fa-random"
                                     iconStyle={this.state.defaultIconStyle}
+                                    tooltipPosition="top-center"
+                                    tooltip="switch small window"
+                                    touch
                                     onClick={this._siwthToHangout} />
                         <IconButton iconClassName="fa fa-sign-out"
                                     iconStyle={this.state.defaultIconStyle}
+                                    tooltipPosition="top-center"
+                                    tooltip="leave workspace"
+                                    touch
                                     onClick={this._onLeave} />
                     </div>
                 </div>
