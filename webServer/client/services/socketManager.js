@@ -41,7 +41,7 @@ var Socket = null;
  */
 exports.init = function(callback) {
     if (Socket !== null) {
-        return callback();
+        return (Socket.getState() === 'open' ? callback() : location.assign(location.pathname));
     }
 
     function _clientInit() {
@@ -66,11 +66,12 @@ exports.init = function(callback) {
      */
     Socket.on('connect', function(state) {
         if (!state.isAuthenticated) {
+            if (document.cookie === '') {
+                return location.assign('/');
+            }
             return Socket.emit('auth', document.cookie, function(err) {
-                // TODO:
-                // error handling on "auth"
                 if (err) {
-                    return console.log(err);
+                    _handleConnectionFail('connection authentication fail');
                 }
                 _clientInit();
             });
@@ -113,7 +114,7 @@ exports.getSocket = function() {
 exports.requestAsync = function(packet) {
     return new Promise(function(resolver, rejecter) {
         if (Socket.getState() !== 'open') {
-            throw new Error('server connection lost');
+            return _handleConnectionFail('server connection lost');
         }
         return Socket.emit('req', packet, function(err, data) {
             return (err ? rejecter(err) : resolver(data));
@@ -151,7 +152,7 @@ exports.publishAsync = function(subscribedChannel, packet) {
     packet.socketId = Socket.id;
     return new Promise(function(resolver, rejecter) {
         if (Socket.getState() !== 'open') {
-            throw new Error('server connection lost');
+            return _handleConnectionFail('server connection lost');
         }
         return Socket.publish(subscribedChannel, packet, function(err) {
             return (err ? rejecter(err) : resolver(true));
@@ -172,7 +173,7 @@ exports.publishAsync = function(subscribedChannel, packet) {
 exports.subscribeAsync = function(subscribeReq) {
     return new Promise(function(resolver, rejecter) {
         if (Socket.getState() !== 'open') {
-            throw new Error('server connection lost');
+            return _handleConnectionFail('server connection lost');
         }
         if (Socket.isSubscribed(subscribeReq)) {
             return resolver(true);
@@ -202,7 +203,7 @@ exports.subscribeAsync = function(subscribeReq) {
 exports.unSubscribeAsync = function(subscribeReq) {
     return Promise.try(function() {
         if (Socket.getState() !== 'open') {
-            throw new Error('server connection lost');
+            return _handleConnectionFail('server connection lost');
         }
         Socket.destroyChannel(subscribeReq);
         return true;
@@ -247,4 +248,15 @@ function _evtWatcher(subscription, packet) {
     }).catch(function(err) {
         SharedUtils.printError('socketManager.js', '_evtWatcher', err);
     });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to handle socket connection failure
+ *
+ * @param {String}        errMsg, connection failure message
+ */
+function _handleConnectionFail(errMsg) {
+    alert(errMsg);
+    location.assign(location.pathname);
 }

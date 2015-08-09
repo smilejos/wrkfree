@@ -62,7 +62,7 @@ app.rehydrate(dehydratedState, function(err, context) {
         }).catch(function(err) {
             console.log('[ERROR]', err);
             // TODO: we should redirect to error page
-            // location.assign('/');
+            location.assign(location.pathname);
         });
     });
 });
