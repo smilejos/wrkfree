@@ -95,7 +95,7 @@ module.exports = React.createClass({
                     title={this.props.info.sender.nickName}
                     date={new Date(this.props.info.updatedTime)}
                     isTimeVisible={this.props.info.isTimeVisible}
-                    extraInfo={this.props.info.extraInfo.name} />
+                    emphasis={this.props.info.extraInfo.name} />
                 {this._getNoticeNextAction()}
             </div>
         );
