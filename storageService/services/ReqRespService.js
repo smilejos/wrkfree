@@ -110,7 +110,7 @@ exports.isReqSentAsync = function(reqSender, targetUser, reqType, info) {
  * @Description: get user readed or unreaded requests and responses
  *
  * @param {Object}          socket, the client socket instance
- * @param {Boolean}         data.isReaded, to indicate readed or not (optional)
+ * @param {Boolean}         isReaded, to indicate readed or not (optional)
  */
 exports.getReqRespAsync = function(sender, isReaded) {
     return ReqRespDao.findByTargetAsync(sender, isReaded)
@@ -129,6 +129,22 @@ exports.getReqRespAsync = function(sender, isReaded) {
                 });
         }).catch(function(err) {
             SharedUtils.printError('ReqRespService.js', 'getReqRespAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to mark specific reqResp notification as readed
+ *
+ * @param {String}          reqId, the reqResp id
+ * @param {String}          sender, the uid of req sender
+ */
+exports.readReqRespAsync = function(reqId, sender) {
+    return ReqRespDao.updateToReadedAsync(reqId, sender)
+        .catch(function(err) {
+            SharedUtils.printError('ReqRespService.js', 'readReqRespAsync', err);
             return null;
         });
 };

@@ -31,7 +31,7 @@ var EventIcons = {
 };
 
 var BOTTOM_HEIGHT = 50;
-var EVENT_HEIGHT = 90;
+var EVENT_HEIGHT = 70;
 
 /**
  * the container component of toast events

@@ -75,15 +75,12 @@ module.exports = CreateStore({
      */
     _deleteNotification: function(notification) {
         var self = this;
+        function _filterByReqId(item) {
+            return (item.reqId !== notification.reqId);
+        }
         return Promise.try(function() {
-            return (notification.isReq ? self.requests : self.notifications);
-        }).then(function(array) {
-            for (var i = 0; i < array.length; ++i) {
-                if (notification.reqId === array[i].reqId) {
-                    return array.splice(i, 1);
-                }
-            }
-        }).then(function() {
+            self.requests = self.requests.filter(_filterByReqId);
+            self.notifications = self.notifications.filter(_filterByReqId);
             self.emitChange();
         }).catch(function(err) {
             SharedUtils.printError('NotificationStore', '_deleteNotification', err);

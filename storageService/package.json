@@ -1,9 +1,10 @@
 {
   "name": "wrkfree-storage",
-  "version": "0.6.15",
+  "version": "0.6.16",
   "private": true,
   "dependencies": {
     "bluebird": "^2.9.13",
+    "elasticsearch": "^6.0.0",
     "mongoose": "~3.8.30",
     "mongoose-cache-manager": "git://github.com/bamoo456/mongoose-cache-manager",
     "object-assign": "^2.0.0",

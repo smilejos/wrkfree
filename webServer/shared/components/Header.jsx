@@ -33,6 +33,9 @@ var UserAvatar = require('./common/userAvatar.jsx');
 var StateIcon = require('./common/stateIcon.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
 
+var SEARCH_DELAY_IN_MSECOND = 500;
+var CurrentSearch = null;
+
 /**
  * @Author: George_Chen
  * @Description: container component of application header
@@ -133,9 +136,15 @@ module.exports = React.createClass({
      * @param {Object}      e, the react onChange event
      */
     _onSearchChange: function(e){
-        this.executeAction(QuickSearchAction, {
-            query: e.target.value
-        });
+        var queryText = e.target.value;
+        if (CurrentSearch) {
+            clearTimeout(CurrentSearch);
+        }
+        CurrentSearch = setTimeout(function(){
+            this.executeAction(QuickSearchAction, {
+                query: queryText
+            });            
+        }.bind(this), SEARCH_DELAY_IN_MSECOND);
     },
 
     _onInboxToggle: function(){

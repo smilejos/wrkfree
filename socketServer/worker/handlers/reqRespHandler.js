@@ -179,6 +179,30 @@ exports.isFriendReqSentAsync = function(socket, data) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to mark specific reqResp notification as readed
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.reqId, the reqResp id
+ */
+exports.readReqRespAsync = function(socket, data) {
+    return SharedUtils.argsCheckAsync(data.reqId, '_id')
+        .then(function(reqId) {
+            var uid = socket.getAuthToken();
+            return ReqRespStorage.readReqRespAsync(reqId, uid);
+        }).then(function(result) {
+            if (result === null) {
+                throw new Error('mark notification readed fail on storage service');
+            }
+            return true;
+        }).catch(function(err) {
+            SharedUtils.printError('reqRespHandler.js', 'readReqRespAsync', err);
+            throw new Error('set notification readed fail');
+        });
+};
+
+/**
  * @Author: George_Chen
  * @Description: for handling response by type
  *
@@ -355,9 +379,5 @@ function _setRespNotification(id, uid, targetUid, isPermitted, respType, extraDa
 // TODO:
 
 // exports.readAllAsync = function() {
-
-// };
-
-// exports.readReqRespAsync = function() {
 
 // };
