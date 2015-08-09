@@ -162,15 +162,13 @@ module.exports.run = function(worker) {
                     return _publishUserOnlineStatus(UserStorage, socket, uid);
                 }
                 LogUtils.warn(LogCategory, null, 'socket [' + socket.id + '] authentication fail');
-                throw new Error('authentication fail');
+                return callback('authentication fail');
             }).catch(function(err) {
                 var errMsg = err.toString();
-                if (errMsg !== 'authentication fail') {
-                    LogUtils.error(LogCategory, {
-                        cookie: cookieStr,
-                        error: err
-                    }, 'error in socket auth');
-                }
+                LogUtils.error(LogCategory, {
+                    cookie: cookieStr,
+                    error: errMsg
+                }, 'error in socket auth');
                 throw errMsg;
             }).nodeify(callback);
         });
