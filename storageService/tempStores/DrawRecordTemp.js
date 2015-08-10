@@ -16,7 +16,7 @@ var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
 // if no streams arrived within expriation time, stream raw data will be expired
 var RECORD_STREAM_EXPIRE_TIME_IN_SECONDS = Configs.get().params.draw.activeDrawsExpiration;
 
-if (!SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT) || 
+if (!SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT) ||
     !SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT)) {
     throw new Error('error while on getting draw related params');
 }
@@ -78,9 +78,14 @@ exports.getRecordAsync = function(channelId, boardId, clientId) {
         SharedUtils.argsCheckAsync(clientId, 'string'),
         function(cid, bid, sid) {
             var streamKey = _getStreamKey(cid, bid, sid);
-            return RedisClient.lrangeAsync(streamKey, 0, ACTIVED_DRAWS_LIMIT);
-        }).map(function(chunks) {
-            return _deserializeChunks(chunks);
+            return RedisClient.multi()
+                .lrange(streamKey, 0, ACTIVED_DRAWS_LIMIT)
+                .del(streamKey)
+                .execAsync();
+        }).then(function(multiResult) {
+            return Promise.map(multiResult[0], function(chunks) {
+                return _deserializeChunks(chunks);
+            });
         }).catch(function(err) {
             SharedUtils.printError('DrawTemp.js', 'getRecordAsync', err);
             throw err;

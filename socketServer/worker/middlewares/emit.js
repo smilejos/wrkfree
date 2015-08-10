@@ -31,5 +31,5 @@ exports.ensureLogin = function(socket, event, data, next) {
     if (SharedUtils.isMd5Hex(token)) {
         return next();
     }
-    next('authorization fail');
+    next('did not get token before emit request');
 };

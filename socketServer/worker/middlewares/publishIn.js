@@ -27,7 +27,7 @@ exports.ensureLogin = function(socket, channel, data, next) {
     if (SharedUtils.isMd5Hex(uid)) {
         return next();
     }
-    next('authorization fail');
+    next('did not get token before publish request');
 };
 
 /**
@@ -39,7 +39,7 @@ exports.ensureSubscribed = function(socket, channel, data, next) {
     if (socket.isSubscribed(channel)) {
         return next();
     }
-    return next('not allowed to publish request');
+    return next('did not subscribe target channel before publish request');
 };
 
 /**
