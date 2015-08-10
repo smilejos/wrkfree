@@ -199,6 +199,7 @@ gulp.task('reloadNow', function() {
 gulp.task('copy', function() {
     // for web entry files
     gulp.src(entryPaths.html).pipe(gulp.dest(entryPaths.destDir));
+    gulp.src(entryPaths.css).pipe(gulp.dest(entryPaths.destCSS));
     gulp.src(entryPaths.imgs).pipe(gulp.dest(entryPaths.destImg));
     gulp.src(entryPaths.lib).pipe(gulp.dest(entryPaths.destLib));
 
