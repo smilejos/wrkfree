@@ -101,7 +101,7 @@ exports.saveSingleDrawAsync = function(socket, data) {
         DrawUtils.checkDrawChunksAsync(data.chunks),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, chunks, drawOptions) {
-            return DrawStorage.saveSingleDrawAsync(cid, bid, chunks, drawOptions);
+            return DrawStorage.saveSingleDrawAsync(cid, bid, socket.id, chunks, drawOptions);
         }).then(function(result) {
             var errMsg = 'fail to save single draw on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
@@ -125,8 +125,7 @@ exports.cleanDrawBoardAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            var uid = socket.getAuthToken();
-            return DrawStorage.cleanBoardAsync(cid, bid, uid);
+            return DrawStorage.cleanBoardAsync(cid, bid, socket.id);
         }).then(function(result) {
             var errMsg = 'clean board fail';
             return SharedUtils.checkExecuteResult(result, errMsg);

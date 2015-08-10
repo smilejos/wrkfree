@@ -103,12 +103,12 @@ exports.delBoardAsync = function(channelId, boardId, member) {
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          member, the member uid
+ * @param {String}          clientId, the draw client sid
  */
-exports.cleanBoardAsync = function(channelId, boardId, member) {
+exports.cleanBoardAsync = function(channelId, boardId, clientId) {
     var logMsg = 'channel [' + channelId + '] clean board [' + boardId + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    return _ensureAuth(member, channelId)
+    return RecordTemp.initDrawStreamAsync(channelId, boardId, clientId)
         .then(function() {
             var cleanDoc = DrawUtils.generateCleanRecord(channelId, boardId);
             return _saveRecord(channelId, boardId, cleanDoc.record, cleanDoc.drawOptions);
@@ -171,7 +171,6 @@ exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers,
                     clientRecordLen: rawDataNumbers
                 }, 'some record missing ');
             }
-            RecordTemp.initDrawStreamAsync(channelId, boardId, clientId);
             if (missingDraws > MISSING_DRAWS_LIMIT) {
                 LogUtils.warn(LogCategory, null, 'save record fail with missingDraws: ' + missingDraws);
                 return null;
@@ -180,7 +179,6 @@ exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers,
                 return _saveRecord(channelId, boardId, tempRecord, drawOptions);
             }
         }).catch(function(err) {
-            RecordTemp.initDrawStreamAsync(channelId, boardId, clientId);
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
                 error: err
@@ -196,23 +194,25 @@ exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers,
  *
  * @param {String}          channelId, the channel id
  * @param {Number}          boardId, the draw board id
+ * @param {String}          clientId, the draw client sid
  * @param {Array}           rawData, the raw chunks of current drawing
  * @param {Object}          drawOptions, the draw options for this record
  */
-exports.saveSingleDrawAsync = function(channelId, boardId, rawData, drawOptions) {
+exports.saveSingleDrawAsync = function(channelId, boardId, clientId, rawData, drawOptions) {
     var logMsg = 'channel [' + channelId + '] save single draw on board [' + boardId + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    return Promise.try(function() {
-        return [rawData];
-    }).then(function(drawRecord) {
-        return _saveRecord(channelId, boardId, drawRecord, drawOptions);
-    }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err
-        }, 'error in DrawService.saveSingleDrawAsync()');
-        return null;
-    });
+    return RecordTemp.initDrawStreamAsync(channelId, boardId, clientId)
+        .then(function() {
+            return [rawData];
+        }).then(function(drawRecord) {
+            return _saveRecord(channelId, boardId, drawRecord, drawOptions);
+        }).catch(function(err) {
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err
+            }, 'error in DrawService.saveSingleDrawAsync()');
+            return null;
+        });
 };
 
 /**
