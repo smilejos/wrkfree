@@ -16,6 +16,13 @@ module.exports = function(server) {
 
     server.use(ExpressRouter);
 
+    ExpressRouter.get('/app/signin', function(req, res) {
+        res.send({
+            hasSignIn: (req.user && req.user.uid)
+        });
+        res.end();
+    });
+
     /**
      * ensure all routes start with '/app' will get authorized check
      */
