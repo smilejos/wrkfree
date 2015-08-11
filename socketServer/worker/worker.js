@@ -235,6 +235,8 @@ function _configHandshake(server) {
 function _configSubscribe(server) {
     var middleware = require('./middlewares/subscribe');
     var type = server.MIDDLEWARE_SUBSCRIBE;
+    server.addMiddleware(type, middleware.ensureLogin);
+    server.addMiddleware(type, middleware.vertifyArgument);
     server.addMiddleware(type, middleware.ensureAuthed);
 }
 
