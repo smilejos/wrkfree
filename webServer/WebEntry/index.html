@@ -4,7 +4,13 @@
     <meta charSet="utf-8" />
     <title>Wrkfree2.0</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/pure/0.5.0/pure-min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontawesome/4.4.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="/assets/css/vex.css" />
+    <link rel="stylesheet" href="/assets/css/vex-theme-plain.css" />
     <style type="text/css">
+        body {
+            font-family: verdana;
+        }
         .background {
             background-image: url('https://farm1.staticflickr.com/550/18674641644_3be1602473_o_d.jpg');
             background-repeat: no-repeat;
@@ -33,24 +39,43 @@
         }
         .header-menu .header-title {
             position: absolute;
-            top:8px;
-            right: 240px;
-            font-family: fantasy;
+            top: 10px;
+            left: 3%;
             font-size: 28px;
             z-index: 3;
         }
         .header-menu .header-menu-tools {
             position: absolute;
-            top: 8px;
+            top: 10px;
             right: 10px;
         }
-        .header-menu-tools .facebook {
+        .header-menu-tools .menu-button {
+            color: #FFF;
+            cursor: pointer;
+            opacity: 0.6;
+            border-radius: 4px;
+        }
+        .header-menu-tools .menu-button:hover {
+            opacity: 0.9;
+        }
+        .header-menu-tools .primary-button {
+            font-size: 100%;
+        }
+        .header-menu-tools .secondary-button {
+            font-size: 90%;
+        }
+        .facebook {
+            margin-top: 15px;
+            width: 400px;
             background-color: #3A5795;
             color: #FFF;
         }
-        .header-menu-tools .google {
+        .google {
+            margin-top: 15px;
+            width: 400px;
             background-color: #DD4B39;
             color: #FFF;
+            margin-bottom: 10px;
         }
         .solagn {
             position: absolute;
@@ -64,6 +89,17 @@
             font-size: 36px;
             z-index: 3;
         }
+        .button-sign-in {
+            background-color: #27A;
+            color: #FFF;
+            font-size: 90%;
+        }
+        .header-background {
+            background-color: #000;
+            width: 100%;
+            height: 50px;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body>
@@ -72,21 +108,50 @@
     </div>
     <div class="header-menu">
         <div class="header-title">
-            Wrkfree
+            <span class="fa fa-wikipedia-w" >
+                <span style="font-size: 70%;margin-left:-10px;">rkfree</span>
+            </span>
         </div>
         <div class="header-menu-tools">
-            <a class="pure-button facebook" href="/auth/facebook/">
-                facebook
-            </a>
-            &nbsp;
-            <a class="pure-button google" href="/auth/google/">
-                google+
-            </a>
+        <span class="menu-button secondary-button">
+            Tours
+        </span>
+        &nbsp;
+        <span class="menu-button secondary-button">
+            Features
+        </span>
+        &nbsp;
+        <span class="menu-button secondary-button">
+            Support
+        </span>
+        &nbsp;
+        <button id="signInButton" class="pure-button button-sign-in">
+            <i class="fa fa-sign-in"></i>
+            SIGN IN
+        </button>
         </div>
     </div>
     <div class="solagn">
         Work with your ideas and people
     </div>
+    <div class="header-background" />
+    <script type="text/javascript" src="/libs/jquery.min.js"></script>
+    <script type="text/javascript" src="/libs/vex.min.js"></script>
     <script type="text/javascript" src="https://localhost:35729/livereload.js"></script>
+    <script>
+        vex.defaultOptions.className = 'vex-theme-plain';
+        document.getElementById('signInButton').addEventListener('click', function() {
+            $.get('/app/signin', function(data, status) {
+                if (data.hasSignIn) {
+                    return location.assign('/app/dashboard');
+                }
+                vex.open({
+                    content: (
+                        '<div><div style="text-align: center; font-weight: bold;">SIGN IN / SIGN UP </div><a class="pure-button facebook" href="/auth/facebook/">Facebook</a><a class="pure-button google" href="/auth/google/">Google</a></div>'
+                    )
+                });
+            });
+        });
+    </script>
 </body>
 </html>
