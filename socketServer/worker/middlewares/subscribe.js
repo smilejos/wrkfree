@@ -96,32 +96,46 @@ function _getNotificationAuthAsync(uid, channelId) {
  *
  ************************************************/
 
+ /**
+  * Public API
+  * @Author: George_Chen
+  * @Description: to check socket client has valid socket token or not
+  */
+exports.ensureLogin = function(socket, channel, next) {
+    var isLogin = SharedUtils.isMd5Hex(socket.getAuthToken());
+    return (isLogin ? next() : next('did not get token before subscribe request'));
+};
+
 /**
  * Public API
  * @Author: George_Chen
- * @Description: check req cookie about web login state of current user
- * NOTE: only web login user is allowed to create socket
- *
+ * @Description: to check channel argument is valid or not
+ */
+exports.vertifyArgument = function(socket, channel, next) {
+    var isString = SharedUtils.isString(channel);
+    return (isString ? next() : next('not supported channel argument'));
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check current client has auth to subscribe specific channel or not
  */
 exports.ensureAuthed = function(socket, channel, next) {
-    return Promise.try(function() {
-        var uid = socket.getAuthToken();
-        var request = channel.split(':');
-        var handler = AuthHandlers[request[0]];
-        if (!SharedUtils.isMd5Hex(uid)) {
-            throw new Error('did not get token before subscribe request');
-        }
-        if (!handler) {
-            throw new Error('subscribed type not supported ');
-        }
-        return handler(uid, request[1]);
-    }).then(function(isAuth) {
-        if (isAuth === null) {
-            return next('authorization failure on storage service');
-        }
-        return (isAuth ? next() : next('authorization failure'));
-    }).catch(function(err) {
-        SharedUtils.printError('subscribe.js', 'ensureAuthed', err);
-        next('server error');
-    });
+    var uid = socket.getAuthToken();
+    var request = channel.split(':');
+    var handler = AuthHandlers[request[0]];
+    if (!handler) {
+        return next('subscribed type not supported');
+    }
+    return handler(uid, request[1])
+        .then(function(isAuth) {
+            if (isAuth === null) {
+                return next('authorization failure on storage service');
+            }
+            return (isAuth ? next() : next('authorization failure'));
+        }).catch(function(err) {
+            SharedUtils.printError('subscribe.js', 'ensureAuthed', err);
+            next('server error');
+        });
 };
