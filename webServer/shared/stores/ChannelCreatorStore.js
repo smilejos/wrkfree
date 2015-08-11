@@ -14,7 +14,8 @@ module.exports = CreateStore({
     initialize: function() {
         // test data for channelNav Info
         this.isActive = false;
-        this.isNameValid = false;
+        this.hasError = false;
+        this.channelWillCreate = false;
         this.createdChannel = -1;
     },
 
@@ -42,8 +43,9 @@ module.exports = CreateStore({
 
     getState: function() {
         return {
-            isNameValid: this.isNameValid,
+            channelWillCreate: this.channelWillCreate,
             isActive: this.isActive,
+            hasError: this.hasError,
             createdChannel: this.createdChannel
         };
     },

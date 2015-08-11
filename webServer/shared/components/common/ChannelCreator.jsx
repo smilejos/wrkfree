@@ -25,7 +25,7 @@ var FlatButton = Mui.FlatButton;
  * @Author: Jos Tung
  * @Description: this component is channel creator
  *
- * @param {Boolean}       this.state.isNameValid, to check creating channel name is valid or not
+ * @param {Boolean}       this.state.channelWillCreate, to check creating channel name is valid or not
  * @param {Boolean}       this.state.isActive, indicate that channel nav should open or close
  */
 module.exports = React.createClass({
@@ -101,9 +101,11 @@ module.exports = React.createClass({
                 self._onCreateChannel();
             }
             var name = self.refs.channelName.getValue();
+            var isChannelName = SharedUtils.isChannelName(name);
             // TODO: we should trigger another actiion flow 
             self.setState({
-                isNameValid: SharedUtils.isChannelName(name)
+                channelWillCreate: isChannelName,
+                hasError: (name !== '' && !isChannelName)
             });
         }, 100);
     },
@@ -113,8 +115,12 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        var isNameValid = this.state.isNameValid;
+        var channelWillCreate = this.state.channelWillCreate;
         var style = this.state.isActive ? "ChannelCreator ChannelCreatorShow" : "ChannelCreator";
+        var channelNmaeErrorMsg = 'channl name do not allowed special characters';
+        var buttonContainerStyle = {
+            marginTop: this.state.hasError ? 20 : 0
+        };
         return (
             <div className={style}>
                 {'Create Cannel'}
@@ -122,13 +128,14 @@ module.exports = React.createClass({
                     <TextField 
                         hintText="channel name" 
                         ref={'channelName'}
+                        errorText={this.state.hasError ? channelNmaeErrorMsg : ''}
                         onKeyDown={this._checkChannelName} />
                 </div>
-                <div className="ChannelButton">
-                    <FlatButton disabled={!isNameValid} primary={isNameValid} onClick={this._onCreateChannel}>
+                <div className="ChannelButton" style={buttonContainerStyle}>
+                    <FlatButton disabled={!channelWillCreate} primary={channelWillCreate} onClick={this._onCreateChannel}>
                         {'create'}
                     </FlatButton>
-                    <FlatButton disabled={!isNameValid} secondary={isNameValid} onClick={this._onCancelChannel}>
+                    <FlatButton disabled={!channelWillCreate} secondary={channelWillCreate} onClick={this._onCancelChannel}>
                         {'cancel'}
                     </FlatButton>
                 </div>
