@@ -78,7 +78,6 @@ module.exports = React.createClass({
                 boardId: nextProps.boardId
             });
         }
-
         /**
          * auto change cursor when props change
          */
@@ -311,7 +310,12 @@ function _changeBoardWheel(drawOptions) {
     ctx.fill();
 
     var drawingBoard = document.getElementById('DrawBoard');
-    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL('image/png') + ') ' + drawOptions.lineWidth/2 + ' ' + drawOptions.lineWidth/2 + ',crosshair';
+
+    /**
+     * this is temp workaround for draw cursor not update its color
+     */
+    drawingBoard.style.cursor = '';
+    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + drawOptions.lineWidth/2 + ' ' + drawOptions.lineWidth/2 + ',crosshair';
 }
 
 /**
