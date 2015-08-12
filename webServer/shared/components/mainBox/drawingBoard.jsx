@@ -21,6 +21,7 @@ if (!SharedUtils.isNumber(BOARD_WIDTH) ||
 /**
  * actions
  */
+var InitToDraw = require('../../../client/actions/draw/initToDraw');
 var Drawing = require('../../../client/actions/draw/drawing');
 var SaveDrawRecord = require('../../../client/actions/draw/saveDrawRecord');
 var GetDrawBoard = require('../../../client/actions/draw/getDrawBoard');
@@ -96,7 +97,6 @@ module.exports = React.createClass({
         var board = document.getElementById("DrawBoard");
         var canvas = document.createElement('canvas');
         var self = this;
-        var drawing = false;
         // used to store previous mouse position
         var prev = {};
 
@@ -121,11 +121,16 @@ module.exports = React.createClass({
         function _completeDraw() {
             var drawTempStore = self.getStore(DrawTempStore);
             var localDraws = drawTempStore.getLocalDraws(self.props.channelId, self.props.boardId);
-            drawing = false;
+            self.executeAction(InitToDraw, {
+                channelId: self.props.channelId,
+                boardId: self.props.boardId,
+                isInited: false
+            });
             if (SharedUtils.isArray(localDraws)) {
                 return self.executeAction(SaveDrawRecord, {
                     channelId: self.props.channelId,
                     boardId: self.props.boardId,
+                    localDraws: localDraws,
                     chunksNum: localDraws.length,
                     drawOptions: self.props.drawInfo.drawOptions
                 });
@@ -145,14 +150,13 @@ module.exports = React.createClass({
         }
         
         board.addEventListener('mousemove',function(e){
-            if (!drawing) {
+            if (!self.props.drawInfo.isInited) {
                 return;
             }
             var cid = self.props.channelId;
             var bid = self.props.boardId;
             var localDraws = self.getStore(DrawTempStore).getLocalDraws(cid, bid);
             if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
-                drawing = false;
                 return _completeDraw();
             }
             var position = _getCanvasMouse(e);
@@ -178,20 +182,24 @@ module.exports = React.createClass({
             prev = _getCanvasMouse(e);
             // to ensure the mouse pointer will not change to default behaviour
             e.preventDefault();
-            drawing = true;
+            return self.executeAction(InitToDraw, {
+                channelId: self.props.channelId,
+                boardId: self.props.boardId,
+                isInited: true
+            });
         });
 
         board.addEventListener('mouseup',function(){
             if (self.props.drawInfo.boardNums === 0) {
                 return;
             }
-            if (drawing) {
+            if (self.props.drawInfo.isInited) {
                 _completeDraw();
             }
         });
 
         board.addEventListener('mouseleave',function(){
-            if (drawing) {
+            if (self.props.drawInfo.isInited) {
                 _completeDraw();
             }
         });
