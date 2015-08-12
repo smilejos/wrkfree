@@ -10,12 +10,20 @@ var OnDrawUndo = require('../actions/draw/onDrawUndo');
 var OnDrawRedo = require('../actions/draw/onDrawRedo');
 var OnAddDrawBoard = require('../actions/draw/onAddDrawBoard');
 var OnPreviewUpdated = require('../actions/draw/onPreviewUpdated');
+var OnRemoteDrawInit = require('../actions/draw/onRemoteDrawInit');
 
 /**
  * handler for handling event that draw board preview updated
  */
 exports.onPreviewUpdated = function(data) {
-    return SocketUtils.execAction(OnPreviewUpdated, data, 'OnPreviewUpdated');
+    return SocketUtils.execAction(OnPreviewUpdated, data, 'onPreviewUpdated');
+};
+
+/**
+ * handler for handling event that remote client is about to drawing
+ */
+exports.onRemoteDrawInit = function(data) {
+    return SocketUtils.execAction(OnRemoteDrawInit, data, 'onRemoteDrawInit');
 };
 
 /**
@@ -92,8 +100,9 @@ exports.saveSingleDrawAsync = function(data) {
  * @param {Number}          data.boardId, the draw board id
  */
 exports.initToDrawAsync = function(data) {
-    var packet = _setPacket('initToDrawAsync', null, data);
-    return _request(packet, 'initToDrawAsync');
+    var channel = SocketUtils.setChannelReq(data.channelId);
+    var packet = _setPacket('initToDrawAsync', 'onRemoteDrawInit', data);
+    return _publish(channel, packet, 'initToDrawAsync');
 };
 
 /**
