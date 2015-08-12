@@ -97,6 +97,8 @@ module.exports = React.createClass({
         var board = document.getElementById("DrawBoard");
         var canvas = document.createElement('canvas');
         var self = this;
+        // for detecting current mouse click event
+        var isClicked = false;
         // used to store previous mouse position
         var prev = {};
 
@@ -121,6 +123,7 @@ module.exports = React.createClass({
         function _completeDraw() {
             var drawTempStore = self.getStore(DrawTempStore);
             var localDraws = drawTempStore.getLocalDraws(self.props.channelId, self.props.boardId);
+            isClicked = false;
             self.executeAction(InitToDraw, {
                 channelId: self.props.channelId,
                 boardId: self.props.boardId,
@@ -150,7 +153,7 @@ module.exports = React.createClass({
         }
         
         board.addEventListener('mousemove',function(e){
-            if (!self.props.drawInfo.isInited) {
+            if (!self.props.drawInfo.isInited || !isClicked) {
                 return;
             }
             var cid = self.props.channelId;
@@ -179,6 +182,7 @@ module.exports = React.createClass({
             if (self.props.drawInfo.boardNums === 0) {
                 return;
             }
+            isClicked = true;
             prev = _getCanvasMouse(e);
             // to ensure the mouse pointer will not change to default behaviour
             e.preventDefault();
@@ -193,13 +197,13 @@ module.exports = React.createClass({
             if (self.props.drawInfo.boardNums === 0) {
                 return;
             }
-            if (self.props.drawInfo.isInited) {
+            if (self.props.drawInfo.isInited || isClicked) {
                 _completeDraw();
             }
         });
 
         board.addEventListener('mouseleave',function(){
-            if (self.props.drawInfo.isInited) {
+            if (self.props.drawInfo.isInited || isClicked) {
                 _completeDraw();
             }
         });
