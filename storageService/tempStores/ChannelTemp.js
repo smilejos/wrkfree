@@ -2,7 +2,6 @@
 var Promise = require('bluebird');
 var Redis = require('redis');
 var SharedUtils = require('../../sharedUtils/utils');
-var GLOBAL_ONLINE_USER_KEY = 'SYSTEM:onlineusers';
 var GLOBAL_KEY_EXPIRE_TIME_IN_SECONDS = 100;
 
 var Configs = require('../../configs/config');
@@ -91,25 +90,6 @@ exports.isMemberAsync = function(member, channelId) {
         }).catch(function(err) {
             SharedUtils.printError('ChannelTemp', 'isMemberAsync', err);
             return null;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: get channel online members
- * NOTE: channel member list should be pre-init on temp storage
- *
- * @param {String}      channelId, channel's id
- */
-exports.getOnlineMembersAsync = function(channelId) {
-    return SharedUtils.argsCheckAsync(channelId, 'md5')
-        .then(function(validChannelId) {
-            var redisKey = _getMemberKey(validChannelId);
-            return RedisClient.sinterAsync(redisKey, GLOBAL_ONLINE_USER_KEY);
-        }).catch(function(err) {
-            SharedUtils.printError('ChannelTemp', 'getOnlineMembersAsync', err);
-            return [];
         });
 };
 
