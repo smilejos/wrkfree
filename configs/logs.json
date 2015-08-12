@@ -5,12 +5,6 @@
                 {
                     "level":"debug",
                     "type": "console"
-                },
-                {
-                    "level": "info",
-                    "type": "loggly",
-                    "token": "3526c2f0-9d88-4287-bc45-60127deaaa2e",
-                    "subdomain": "wrkfree"
                 }
             ]
         },
