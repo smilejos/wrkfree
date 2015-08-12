@@ -27,8 +27,11 @@ exports.initToDrawAsync = function(socket, data) {
         function(cid, bid) {
             return DrawStorage.initDrawStreamAsync(cid, bid, socket.id);
         }).then(function(result) {
-            var errMsg = 'client fail to init draw on storage service';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (result === null) {
+                throw new Error('client fail to init draw on storage service');
+            }
+            data.clientId = socket.id;
+            return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
                 reqData: data,
