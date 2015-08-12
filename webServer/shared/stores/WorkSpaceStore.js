@@ -62,7 +62,7 @@ module.exports = CreateStore({
      * @param {Boolean}      data.isInited, to indicate user can start drawing or not
      */
     _onDrawInited: function(data) {
-        if (data.channelId === this.channel.channelId) {
+        if (data.channelId === this.channel.channelId && data.clientId === 'local') {
             this.draw.isInited = data.isInited;
             this.emitChange();
         }
