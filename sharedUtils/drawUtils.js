@@ -183,9 +183,11 @@ function _drawFromImage(ctx, imageElement, imageSrc) {
  */
 function _drawFromRecords(ctx, drawDocs) {
     return Promise.each(drawDocs, function(doc) {
-        SharedUtils.fastArrayMap(doc.record, function(rawData) {
-            exports.draw(ctx, rawData, doc.drawOptions);
-        });
+        if (!doc.isUndo) {
+            SharedUtils.fastArrayMap(doc.record, function(rawData) {
+                exports.draw(ctx, rawData, doc.drawOptions);
+            });
+        }
     });
 }
 
