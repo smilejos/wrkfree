@@ -32,6 +32,29 @@ if (!SharedUtils.isNumber(MISSING_DRAWS_LIMIT) || !SharedUtils.isNumber(ACTIVED_
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: init client draw stream on current client
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardId, the draw board id
+ * @param {String}          clientId, the client sid
+ */
+exports.initDrawStreamAsync = function(channelId, boardId, clientId) {
+    LogUtils.info(LogCategory, {
+        socketId: clientId
+    }, 'client is about to draw on board [' + boardId + '] of channel [' + channelId + ']');
+    return RecordTemp.initDrawStreamAsync(channelId, boardId, clientId)
+        .catch(function(err) {
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err.toString()
+            }, 'error in DrawService.initDrawStreamAsync()');
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: add draw board on current channel
  *
  * @param {String}          channelId, channel id

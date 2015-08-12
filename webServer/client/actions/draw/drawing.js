@@ -44,13 +44,13 @@ module.exports = function(actionContext, data, callback) {
         } else if (draws && draws.length === WARNING_DRAWS_LIMIT) {
             ActionUtils.showWarningEvent('Drawing', 'Too many draws at the same time');
         }
-        data.clientId = 'local';
-        actionContext.dispatch('ON_DRAW_CHANGE', data);
         return DrawService.drawAsync(recordData);
     }).then(function(result) {
         if (!result) {
             throw new Error('drawing got failure from server side');
         }
+        data.clientId = 'local';
+        actionContext.dispatch('ON_DRAW_CHANGE', data);
     }).catch(function(err) {
         SharedUtils.printError('drawing.js', 'core', err);
         ActionUtils.showErrorEvent('Drawing', 'current draws abnormal');
