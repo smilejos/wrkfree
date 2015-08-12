@@ -216,17 +216,9 @@ module.exports = CreateStore({
     getDrawInfo: function(channelId, boardId) {
         var collection = this.db.getCollection(this.dbName);
         var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
-        var drawView = _getDrawView(collection, channelId, boardId);
-        var condition = {
-            isUndo: false
-        };
-        var sort = {
-            field: 'drawTime',
-            isDesc: false
-        };
         return {
             baseImg: this.baseImgs[drawViewId],
-            records: LokiUtils.searchOnView(drawView, condition, sort).data()
+            records: _getDrawView(collection, channelId, boardId).data()
         };
     },
 
