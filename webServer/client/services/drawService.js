@@ -86,6 +86,19 @@ exports.saveSingleDrawAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: inform server that current client are ready to draw
+ *       
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardId, the draw board id
+ */
+exports.initToDrawAsync = function(data) {
+    var packet = _setPacket('initToDrawAsync', null, data);
+    return _request(packet, 'initToDrawAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: publish the realtime drawing to current channel
  *       
  * @param {String}          data.channelId, the channel id
@@ -191,7 +204,7 @@ exports.drawRedoAsync = function(data) {
  */
 exports.getDrawBoardAsync = function(data) {
     var packet = _setPacket('getDrawBoardAsync', null, data);
-    return _request(packet, 'getPreviewInfoAsync');
+    return _request(packet, 'getDrawBoardAsync');
 };
 
 /**

@@ -11,6 +11,36 @@ var LogCategory = 'HANDLER';
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for client to init his draw stream before drawing
+ * 
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardId, the draw board id
+ */
+exports.initToDrawAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken()
+    }, '[' + socket.id + '] drawing ... ');
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        function(cid, bid) {
+            return DrawStorage.initDrawStreamAsync(cid, bid, socket.id);
+        }).then(function(result) {
+            var errMsg = 'client fail to init draw on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on drawAsync');
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for handling realtime drawing chunks that user published
  *       
  * @param {Object}          socket, the client socket instance
