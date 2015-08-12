@@ -2,7 +2,7 @@
     "draw": {
         "boardWidth": 900,
         "boardHeight": 500,
-        "missingDrawLimit": 3,
+        "missingDrawLimit": 5,
         "activeRecordLimit": 10,
         "activeDrawsLimit": 200,
         "activeDrawsExpiration": 2,
