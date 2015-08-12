@@ -134,7 +134,6 @@ module.exports = React.createClass({
                     channelId: self.props.channelId,
                     boardId: self.props.boardId,
                     localDraws: localDraws,
-                    chunksNum: localDraws.length,
                     drawOptions: self.props.drawInfo.drawOptions
                 });
             }
