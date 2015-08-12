@@ -314,7 +314,9 @@ exports.countActivedRecordsAsync = function(channelId, boardId) {
  */
 function _find(isFindOne, condition, selectFields) {
     var fields = (selectFields ? selectFields : DbUtil.selectOriginDoc());
+    var sortOrder = DbUtil.getSort('drawTime', 'ascending');
     return (isFindOne ? Model.findOne(condition, fields) : Model.find(condition, fields))
+        .sort(sortOrder)
         .lean()
         .execAsync();
 }
