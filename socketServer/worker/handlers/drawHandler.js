@@ -5,6 +5,8 @@ var StorageManager = require('../../../storageService/storageManager');
 var DrawStorage = StorageManager.getService('Draw');
 var DrawWorker = require('../services/drawWorker');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
+var LogUtils = require('../../../sharedUtils/logUtils');
+var LogCategory = 'HANDLER';
 
 /**
  * Public API
@@ -17,6 +19,9 @@ var DrawUtils = require('../../../sharedUtils/drawUtils');
  * @param {Array}           data.chunks, the raw chunks of current drawing
  */
 exports.drawAsync = function(socket, data) {
+    LogUtils.debug(LogCategory, {
+        uid: socket.getAuthToken()
+    }, '[' + socket.id + '] drawing ... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -30,7 +35,10 @@ exports.drawAsync = function(socket, data) {
             var errMsg = 'drawing fail on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'drawAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on drawAsync');
             throw err;
         });
 };
@@ -50,6 +58,11 @@ exports.drawAsync = function(socket, data) {
  * @param {Object}          data.drawOptions, the draw options for this record
  */
 exports.saveRecordAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.boardId
+    }, '[' + socket.id + '] save draw record... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -67,7 +80,10 @@ exports.saveRecordAsync = function(socket, data) {
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'saveRecordAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on saveRecordAsync');
             // inform other members the latest draw saving failure
             socket.global.publish('channel:' + data.channelId, {
                 service: 'draw',
@@ -95,6 +111,11 @@ exports.saveRecordAsync = function(socket, data) {
  * @param {Object}          data.drawOptions, the draw options for this record
  */
 exports.saveSingleDrawAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.boardId
+    }, '[' + socket.id + '] save single draw point record... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -103,10 +124,15 @@ exports.saveSingleDrawAsync = function(socket, data) {
         function(cid, bid, chunks, drawOptions) {
             return DrawStorage.saveSingleDrawAsync(cid, bid, socket.id, chunks, drawOptions);
         }).then(function(result) {
-            var errMsg = 'fail to save single draw on storage service';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (result === null) {
+                throw new Error('fail to save single draw on storage service');
+            }
+            return result;
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'saveSingleDrawAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on saveSingleDrawAsync');
             throw err;
         });
 };
@@ -121,16 +147,26 @@ exports.saveSingleDrawAsync = function(socket, data) {
  * @param {Number}          data.boardId, the draw board id
  */
 exports.cleanDrawBoardAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.boardId
+    }, '[' + socket.id + '] clean current board... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
             return DrawStorage.cleanBoardAsync(cid, bid, socket.id);
         }).then(function(result) {
-            var errMsg = 'clean board fail';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (result === null) {
+                throw new Error('fail to clean drawboard');
+            }
+            return result;
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'cleanDrawBoardAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on cleanDrawBoardAsync');
             throw err;
         });
 };
@@ -145,6 +181,11 @@ exports.cleanDrawBoardAsync = function(socket, data) {
  * @param {Number}          data.boardId, the draw board id
  */
 exports.addBoardAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.newBoardId
+    }, '[' + socket.id + '] add new drawing board... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.newBoardId, 'boardId'),
@@ -155,7 +196,10 @@ exports.addBoardAsync = function(socket, data) {
             var errMsg = 'add new draw board fail';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'addBoardAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on addBoardAsync');
             throw err;
         });
 };
@@ -170,6 +214,11 @@ exports.addBoardAsync = function(socket, data) {
  * @param {Number}          data.boardId, the draw board id
  */
 exports.drawUndoAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.newBoardId
+    }, '[' + socket.id + '] try to undo last draw... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -180,7 +229,10 @@ exports.drawUndoAsync = function(socket, data) {
             var errMsg = 'fail to undo last draw on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'drawUndoAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on drawUndoAsync');
             throw err;
         });
 };
@@ -195,6 +247,11 @@ exports.drawUndoAsync = function(socket, data) {
  * @param {Number}          data.boardId, the draw board id
  */
 exports.drawRedoAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.newBoardId
+    }, '[' + socket.id + '] try to restore last undo draw... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -205,7 +262,10 @@ exports.drawRedoAsync = function(socket, data) {
             var errMsg = 'fail to restore last undo draw on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'drawRedoAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on drawRedoAsync');
             throw err;
         });
 };
@@ -222,6 +282,11 @@ exports.drawRedoAsync = function(socket, data) {
  * @param {Number}          data.boardId, the draw board id
  */
 exports.getDrawBoardAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.newBoardId
+    }, '[' + socket.id + '] get draw board info... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -237,7 +302,10 @@ exports.getDrawBoardAsync = function(socket, data) {
             var errMsg = 'fail to update board base image';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'getDrawBoardAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on getDrawBoardAsync');
             throw err;
         });
 };
@@ -252,6 +320,11 @@ exports.getDrawBoardAsync = function(socket, data) {
  * @param {String}          data.channelId, the channel id
  */
 exports.getLatestBoardIdAsync = function(socket, data) {
+    LogUtils.info(LogCategory, {
+        uid: socket.getAuthToken(),
+        channelId: data.channelId,
+        boardId: data.newBoardId
+    }, '[' + socket.id + '] get latest used board id... ');
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
         .then(function(cid) {
             return DrawStorage.getLatestBoardIdAsync(cid);
@@ -259,7 +332,10 @@ exports.getLatestBoardIdAsync = function(socket, data) {
             var errMsg = 'fail to get latest board id on stoarge service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
-            SharedUtils.printError('drawHandler.js', 'getLatestBoardIdAsync', err);
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on getLatestBoardIdAsync');
             throw err;
         });
 };
