@@ -10,6 +10,7 @@ module.exports = CreateStore({
         'ON_DRAW_RECEIVE': 'onDrawReceive',
         'ON_DRAW_CHANGE': 'onDrawChange',
         'ON_RECORD_SAVE': '_onTempDrawClean',
+        'ON_DRAW_INITED': '_onTempDrawClean',
         'CLEAN_FAILURE_DRAW': '_onTempDrawClean'
     },
 
