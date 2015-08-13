@@ -55,6 +55,26 @@ exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for getting error route resource
+ *         NOTE: currently we only polyfill current user information
+ *
+ * @param {Object}      actionContext, fluxible actionContext
+ * @param {Object}      routeInfo, route infomation for logiin user
+ */
+exports.getErrorAsync = function(actionContext, routeInfo) {
+    return Promise.props({
+        HeaderStore: routeInfo.user
+    }).then(function(resource) {
+        return _storesPolyfill(actionContext, resource);
+    }).catch(function(err) {
+        SharedUtils.printError('server-routeEntry', 'getErrorAsync', err);
+        throw err;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: getting the resoure for signup page
  *
  * @param {Object}      actionContext, fluxible actionContext
@@ -157,9 +177,9 @@ function _getWorkSpace(uid, channelId, storageManager) {
                 channel: channelStorage.getChannelInfoAsync(channelId),
                 members: channelStorage.getMembersAsync(channelId),
                 status: channelStorage.getMemberStatusAsync(uid, channelId)
-            }).then(function(resource){
+            }).then(function(resource) {
                 var props = Object.keys(resource);
-                SharedUtils.fastArrayMap(props, function(prop){
+                SharedUtils.fastArrayMap(props, function(prop) {
                     if (prop === null) {
                         throw new Error('getting workspace resource fail on storage service');
                     }

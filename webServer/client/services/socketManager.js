@@ -80,11 +80,11 @@ exports.init = function(callback) {
     });
 
     Socket.on('error', function() {
-        callback(new Error('server socket error'));
+        _handleConnectionFail('server socket error');
     });
 
     Socket.on('disconnect', function() {
-        callback(new Error('server connection lost'));
+        _handleConnectionFail('server connection lost');
     });
 };
 
@@ -257,6 +257,5 @@ function _evtWatcher(subscription, packet) {
  * @param {String}        errMsg, connection failure message
  */
 function _handleConnectionFail(errMsg) {
-    alert(errMsg);
-    location.assign(location.pathname);
+    location.assign('/app/error?status=503');
 }
