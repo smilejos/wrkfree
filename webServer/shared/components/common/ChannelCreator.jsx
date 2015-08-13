@@ -135,7 +135,7 @@ module.exports = React.createClass({
                     <FlatButton disabled={!channelWillCreate} primary={channelWillCreate} onClick={this._onCreateChannel}>
                         {'create'}
                     </FlatButton>
-                    <FlatButton disabled={!channelWillCreate} secondary={channelWillCreate} onClick={this._onCancelChannel}>
+                    <FlatButton secondary={channelWillCreate} onClick={this._onCancelChannel}>
                         {'cancel'}
                     </FlatButton>
                 </div>
