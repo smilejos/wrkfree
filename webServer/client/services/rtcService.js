@@ -6,6 +6,7 @@ var RtcHelper = require('../actions/rtc/rtcHelper');
 var OnConference = require('../actions/rtc/onConference');
 var OnConferenceStop = require('../actions/rtc/onConferenceStop');
 var OnRemoteStream = require('../actions/rtc/onRemoteStream');
+var OnConnectivityFail = require('../actions/rtc/onConnectivityFail');
 var NotifyConferenceCall = require('../actions/rtc/notifyConferenceCall');
 var Promise = require('bluebird');
 
@@ -23,10 +24,25 @@ if (!SharedUtils.isNumber(RTC_CANCEL_TIMEOUT_IN_MSECOND)) {
  * @Author: George_Chen
  * @Description: for handling remote client webrtc stream
  *         
- * @param {Object}          data, signaling data
+ * @param {String}          data.channelId, current channel id
+ * @param {String}          data.clientId, the remote client sid
+ * @param {Object}          data.stream, the remote rtc stream
  */
 exports.onRemoteStream = function(data) {
     return SocketUtils.execAction(OnRemoteStream, data, 'onRemoteStream');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to notify user that his/her rtc call got fail
+ *
+ * @param {String}          data.channelId, the channel id of current connection
+ * @param {String}          data.message, fail message
+ * @param {Boolean}         data.isLocal, to indicate sender is local or remote
+ */
+exports.onConnectivityFail = function(data) {
+    return SocketUtils.execAction(OnConnectivityFail, data, 'onConnectivityFail');
 };
 
 /**
@@ -129,11 +145,11 @@ exports.signaling = function(data) {
  *         NOTE: currently just pre-init device media support check
  */
 exports.initRtcAsync = function() {
-    return Promise.try(function(){
+    return Promise.try(function() {
         if (require('webrtcsupport').getUserMedia) {
             return RtcHelper.getDeviceSupportAsync();
         }
-    }).catch(function(err){
+    }).catch(function(err) {
         SharedUtils.printError('rtcService.js', 'initRtcAsync', err);
     });
 };

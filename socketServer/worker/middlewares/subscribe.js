@@ -20,9 +20,11 @@
  *     user can get specific channel's notification when he star a channel.
  */
 'use strict';
-var SharedUtils = require('../../../sharedUtils/utils');
-var StorageManager = require('../../../storageService/storageManager');
 var Promise = require('bluebird');
+var StorageManager = require('../../../storageService/storageManager');
+var SharedUtils = require('../../../sharedUtils/utils');
+var LogUtils = require('../../../sharedUtils/logUtils');
+var LogCategory = 'SOCKET';
 
 var AuthHandlers = {
     user: _getUserAuthAsync,
@@ -96,14 +98,19 @@ function _getNotificationAuthAsync(uid, channelId) {
  *
  ************************************************/
 
- /**
-  * Public API
-  * @Author: George_Chen
-  * @Description: to check socket client has valid socket token or not
-  */
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check socket client has valid socket token or not
+ */
 exports.ensureLogin = function(socket, channel, next) {
-    var isLogin = SharedUtils.isMd5Hex(socket.getAuthToken());
-    return (isLogin ? next() : next('did not get token before subscribe request'));
+    if (SharedUtils.isMd5Hex(socket.getAuthToken())) {
+        return next();
+    }
+    LogUtils.warn(LogCategory, {
+        pubsubChannel: channel
+    }, '[' + socket.id + '] did not get token before subscribe request');
+    next('reject subscribe request');
 };
 
 /**
@@ -112,8 +119,14 @@ exports.ensureLogin = function(socket, channel, next) {
  * @Description: to check channel argument is valid or not
  */
 exports.vertifyArgument = function(socket, channel, next) {
-    var isString = SharedUtils.isString(channel);
-    return (isString ? next() : next('not supported channel argument'));
+    if (SharedUtils.isString(channel)) {
+        return next();
+    }
+    LogUtils.warn(LogCategory, {
+        pubsubChannel: channel,
+        uid: socket.getAuthToken()
+    }, '[' + socket.id + '] vertify request argument fail');
+    next('reject subscribe request');
 };
 
 /**
@@ -125,17 +138,25 @@ exports.ensureAuthed = function(socket, channel, next) {
     var uid = socket.getAuthToken();
     var request = channel.split(':');
     var handler = AuthHandlers[request[0]];
+    var errData = {
+        pubsubChannel: channel,
+        uid: socket.getAuthToken()
+    };
     if (!handler) {
-        return next('subscribed type not supported');
+        LogUtils.warn(LogCategory, errData, '[' + socket.id + '] subscribed type not supported');
+        return next('reject subscribe request');
     }
     return handler(uid, request[1])
         .then(function(isAuth) {
-            if (isAuth === null) {
-                return next('authorization failure on storage service');
+            if (!isAuth) {
+                var msg = (isAuth === null ? 'subscribe fail on storage service' : 'authorization failure');
+                LogUtils.warn(LogCategory, errData, '[' + socket.id + '] ' + msg);
+                return next('reject subscribe request');
             }
-            return (isAuth ? next() : next('authorization failure'));
+            return next();
         }).catch(function(err) {
-            SharedUtils.printError('subscribe.js', 'ensureAuthed', err);
-            next('server error');
+            errData.error = err.toString();
+            LogUtils.error(LogCategory, errData, '[' + socket.id + '] got server error');
+            return next('reject subscribe request');
         });
 };

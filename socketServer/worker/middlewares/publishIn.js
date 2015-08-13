@@ -1,6 +1,8 @@
 'use strict';
 var Dispatcher = require('../dispatcher');
 var SharedUtils = require('../../../sharedUtils/utils');
+var LogUtils = require('../../../sharedUtils/logUtils');
+var LogCategory = 'SOCKET';
 
 /*
  * @Description: All publish middlewares has these arguments
@@ -27,7 +29,11 @@ exports.ensureLogin = function(socket, channel, data, next) {
     if (SharedUtils.isMd5Hex(uid)) {
         return next();
     }
-    next('did not get token before publish request');
+    LogUtils.warn(LogCategory, {
+        reqData: data,
+        pubsubChannel: channel
+    }, '[' + socket.id + '] did not get token before publish request');
+    next('reject publishIn request');
 };
 
 /**
@@ -39,7 +45,12 @@ exports.ensureSubscribed = function(socket, channel, data, next) {
     if (socket.isSubscribed(channel)) {
         return next();
     }
-    return next('did not subscribe target channel before publish request');
+    LogUtils.warn(LogCategory, {
+        reqData: data,
+        pubsubChannel: channel,
+        uid: socket.getAuthToken()
+    }, '[' + socket.id + '] did not subscribe target channel before publish request');
+    next('reject publishIn request');
 };
 
 /**
@@ -50,9 +61,23 @@ exports.ensureSubscribed = function(socket, channel, data, next) {
 exports.preprocessing = function(socket, channel, data, next) {
     return Dispatcher(socket, data)
         .then(function(result) {
-            return (result.error ? next(result.error.toString()) : next());
+            if (!result.error) {
+                return next();
+            }
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                pubsubChannel: channel,
+                uid: socket.getAuthToken(),
+                error: result.error.toString()
+            }, '[' + socket.id + '] publishIn request fail on server');
+            next('reject publishIn request');
         }).catch(function(err) {
-            SharedUtils.printError('publish.js', 'preprocessing', err);
-            return next('not supported request or server error');
+            LogUtils.error(LogCategory, {
+                reqData: data,
+                pubsubChannel: channel,
+                uid: socket.getAuthToken(),
+                error: err.toString()
+            }, '[' + socket.id + '] publishIn request is not supported or server error');
+            next('reject publishIn request');
         });
 };

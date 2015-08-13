@@ -1,5 +1,7 @@
 'use strict';
 var SharedUtils = require('../../../sharedUtils/utils');
+var LogUtils = require('../../../sharedUtils/logUtils');
+var LogCategory = 'SOCKET';
 
 /*
  * @Description: All subscribe middlewares has three arguments
@@ -31,5 +33,8 @@ exports.ensureLogin = function(socket, event, data, next) {
     if (SharedUtils.isMd5Hex(token)) {
         return next();
     }
-    next('did not get token before emit request');
+    LogUtils.warn(LogCategory, {
+        reqData: data
+    }, '[' + socket.id + '] did not get token before emit request');
+    next('reject socket emit request');
 };

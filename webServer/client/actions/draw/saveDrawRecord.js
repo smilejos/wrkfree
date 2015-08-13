@@ -2,8 +2,9 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
-var DrawTempStore = require('../../../shared/stores/DrawTempStore');
-var GetDrawBoardAction = require('./getDrawBoard');
+var ActionUtils = require('../actionUtils');
+var IsTriggered = false;
+var SAVE_DRAW_TIMEOUT_IN_MSECOND = 1000;
 
 /**
  * @Public API
@@ -21,38 +22,47 @@ var GetDrawBoardAction = require('./getDrawBoard');
  * @param {Object}      data.drawOptions, the draw related options
  * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
+    if (IsTriggered) {
+        return ActionUtils.showWarningEvent('WARN', 'repeatly save draw record');
+    }
     var clientId = 'local';
-    return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        chunksNum: SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
-        drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
-    }).then(function(validData) {
-        return DrawService.saveRecordAsync(validData);
-    }).then(function(result) {
-        if (!result) {
-            throw new Error('save draw record fail');
-        }
-        var drawTempStore = actionContext.getStore(DrawTempStore);
-        return actionContext.dispatch('ON_RECORD_SAVE', {
-            channelId: data.channelId,
-            boardId: data.boardId,
-            clientId: clientId,
-            record: drawTempStore.getLocalDraws(data.channelId, data.boardId),
-            drawOptions: _cloneOptions(data.drawOptions),
-            isUpdated: true
+    IsTriggered = true;
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        SharedUtils.argsCheckAsync(data.localDraws, 'array'),
+        SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
+        function(cid, bid, draws, options) {
+            return DrawService.saveRecordAsync({
+                channelId: cid,
+                boardId: bid,
+                chunksNum: draws.length,
+                drawOptions: options
+            });
+        }).timeout(SAVE_DRAW_TIMEOUT_IN_MSECOND).then(function(result) {
+            if (!result) {
+                throw new Error('save draw record fail');
+            }
+            IsTriggered = false;
+            return actionContext.dispatch('ON_RECORD_SAVE', {
+                channelId: data.channelId,
+                boardId: data.boardId,
+                clientId: clientId,
+                record: data.localDraws,
+                drawOptions: _cloneOptions(data.drawOptions),
+                isUpdated: true
+            });
+        }).catch(function(err) {
+            IsTriggered = false;
+            SharedUtils.printError('saveDrawRecord.js', 'core', err);
+            ActionUtils.showWarningEvent('WARN', 'save draw fail');
+            actionContext.dispatch('CLEAN_FAILURE_DRAW', {
+                channelId: data.channelId,
+                boardId: data.boardId,
+                clientId: clientId
+            });
         });
-    }).catch(function(err) {
-        SharedUtils.printError('saveDrawRecord.js', 'core', err);
-        actionContext.dispatch('CLEAN_FAILURE_DRAW', {
-            channelId: data.channelId,
-            boardId: data.boardId,
-            clientId: clientId
-        });
-        return null;
-        // show alert message ?
-    }).nodeify(callback);
 };
 
 /**

@@ -8,6 +8,7 @@ var BoardDao = require('../daos/DrawBoardDao');
 var PreviewDao = require('../daos/DrawPreviewDao');
 var MemberDao = require('../daos/ChannelMemberDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
+var UserTemp = require('../tempStores/UserTemp');
 
 /************************************************
  *
@@ -227,8 +228,7 @@ exports.getMembersAsync = function(channelId) {
         }).then(function(memberList) {
             ChannelTemp.importMemberListAsync(memberList, channelId);
             return Promise.props({
-                info: UserDao.findByGroupAsync(memberList),
-                onlineList: ChannelTemp.getOnlineMembersAsync(channelId)
+                info: UserDao.findByGroupAsync(memberList)
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getMembersAsync', err);
@@ -237,6 +237,8 @@ exports.getMembersAsync = function(channelId) {
 };
 
 /**
+ * TODO: ChanneTemp.getOnlineMembersAsync and UserTemp.getOnlineUsersAsync
+ *       should be refactor as a common used API
  * Public API
  * @Author: George_Chen
  * @Description: to get online channel member list
@@ -248,7 +250,9 @@ exports.getMembersAsync = function(channelId) {
 exports.getOnlineMembersAsync = function(channelId) {
     return exports.getMembersAsync(channelId)
         .then(function() {
-            return ChannelTemp.getOnlineMembersAsync(channelId);
+            return ChannelTemp.getMemberListAsync(channelId);
+        }).then(function(members) {
+            return UserTemp.getOnlineUsersAsync(members);
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getOnlineMembersAsync', err);
             return null;
