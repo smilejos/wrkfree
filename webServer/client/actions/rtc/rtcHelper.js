@@ -196,6 +196,22 @@ var rtcConnection = function(channelId, opts) {
         });
     });
 
+    this.webrtc.on('iceFailed', function (peer) {
+        RtcService.onConnectivityFail({
+            channelId: self.id,
+            message: 'call connectivity to server fail',
+            isLocal: true
+        });
+    });
+
+    this.webrtc.on('connectivityError', function (peer) {
+        RtcService.onConnectivityFail({
+            channelId: self.id,
+            message: 'call connectivity error',
+            isLocal: false
+        });
+    });
+
     // used for handling data channel message
     this.webrtc.on('channelMessage', function(peer, label, data) {
         if (data.type == 'volume') {
