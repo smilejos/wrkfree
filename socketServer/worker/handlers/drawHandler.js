@@ -160,6 +160,8 @@ exports.saveSingleDrawAsync = function(socket, data) {
             if (result === null) {
                 throw new Error('fail to save single draw on storage service');
             }
+            var uid = socket.getAuthToken();
+            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
@@ -194,6 +196,8 @@ exports.cleanDrawBoardAsync = function(socket, data) {
             if (result === null) {
                 throw new Error('fail to clean drawboard');
             }
+            var uid = socket.getAuthToken();
+            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
@@ -259,8 +263,12 @@ exports.drawUndoAsync = function(socket, data) {
             var uid = socket.getAuthToken();
             return DrawStorage.undoRecordAsync(cid, bid, uid);
         }).then(function(result) {
-            var errMsg = 'fail to undo last draw on storage service';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (result === null) {
+                throw new Error('fail to undo last draw on storage service');
+            }
+            var uid = socket.getAuthToken();
+            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
                 reqData: data,
@@ -292,8 +300,12 @@ exports.drawRedoAsync = function(socket, data) {
             var uid = socket.getAuthToken();
             return DrawStorage.restoreUndoAsync(cid, bid, uid);
         }).then(function(result) {
-            var errMsg = 'fail to restore last undo draw on storage service';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (result === null) {
+                throw new Error('fail to restore last undo draw on storage service');
+            }
+            var uid = socket.getAuthToken();
+            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
                 reqData: data,
