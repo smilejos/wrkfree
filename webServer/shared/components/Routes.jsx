@@ -16,13 +16,14 @@ var Error = require('./Error.jsx');
 //      <RouteHandler /> in the 'MainApp.jsx'
 var routes = (
     <Route name="app" handler={MainApp} >
-        <DefaultRoute handler={Dashboard}/>
+        <DefaultRoute handler={Error}/>
         <Route name="workspace" >
             <Route name=":channelId" handler={WorkSpace}/>
             <DefaultRoute handler={Error} />
         </Route>
         <Route name="dashboard" handler={Dashboard}/>
         <Route name="signup" handler={SignUp}/>
+        <Route name="error" handler={Error}/>
     </Route>
 );
 

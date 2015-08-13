@@ -14,7 +14,8 @@ var RoutesHandler = {
     '/app/': RouteEntry.getDashboardAsync,
     '/app/dashboard': RouteEntry.getDashboardAsync,
     '/app/workspace': RouteEntry.getWorkSpaceAsync,
-    '/app/signup': RouteEntry.getSignUpAsync
+    '/app/signup': RouteEntry.getSignUpAsync,
+    '/app/error': RouteEntry.getErrorAsync
 };
 
 /**
@@ -69,7 +70,7 @@ module.exports = {
                  * @Description: get the route info object on current action context
                  */
                 actionContext.getRouteInfo = function() {
-                    return routeInfo;
+                    return (routeInfo || {});
                 };
             }
         };
