@@ -51,18 +51,19 @@ app.rehydrate(dehydratedState, function(err, context) {
     window.context = context;
     // start the react-router
     return Router.run(app.getComponent(), HistoryLocation, function(Handler, state) {
+        if (state.pathname === '/app/error') {
+            return RenderApp(context, Handler);
+        }
         return _hasConnection(state).then(function(hasConnection) {
             if (!hasConnection) {
-                throw new Error('server connection lost');
+                return location.assign('/app/error?status=503');
             }
             // start the navigation action
             return context.executeAction(navigateAction, state).then(function(){
                 RenderApp(context, Handler);
             });
         }).catch(function(err) {
-            console.log('[ERROR]', err);
-            // TODO: we should redirect to error page
-            location.assign(location.pathname);
+            location.assign('/app/error');
         });
     });
 });
