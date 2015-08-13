@@ -76,6 +76,10 @@ exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
         });
 };
 
+exports.getErrorAsync = function(actionContext, routeInfo) {
+    // TODO:
+};
+
 /**
  * Public API
  * @Author: George_Chen

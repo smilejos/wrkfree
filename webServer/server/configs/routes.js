@@ -179,6 +179,13 @@ module.exports = function(server) {
         res.status(statusCode).end();
     });
 
+    ExpressRouter.get('/app/error', function(req, res) {
+        req.routeInfo = {
+            user: req.user
+        };
+        return reactRoute(req, res);
+    });
+
     /**
      * for serving protected files,
      * ex: file request "https://localhost/app/build/bundle.js"

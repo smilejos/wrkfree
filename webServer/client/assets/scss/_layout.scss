@@ -2,6 +2,10 @@ $app-header-height: 50px;
 $app-footer-height: 40px;
 $app-infoBox-width: 250px;
 
+body {
+    background-color: $color-background_2;
+}
+
 /**
  * application container
  * we have to cut the overflow area to avoid scroll bar.
