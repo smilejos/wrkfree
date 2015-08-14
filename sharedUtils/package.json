@@ -1,6 +1,6 @@
 {
   "name": "wrkfree-utils",
-  "version": "0.6.21",
+  "version": "0.6.22",
   "private": true,
   "dependencies": {
     "bluebird": "^2.9.9",
