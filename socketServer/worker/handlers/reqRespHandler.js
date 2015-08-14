@@ -47,11 +47,19 @@ exports.channelReqAsync = function(socket, data) {
  * @param {String}          data.targetUser, the uid of target user
  */
 exports.friendReqAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
     return SharedUtils.argsCheckAsync(data.targetUser, 'md5')
         .then(function(target) {
-            var uid = socket.getAuthToken();
-            var type = 'friend';
-            return ReqRespStorage.saveReqAsync(uid, target, type);
+            return ReqRespStorage.getFriendReqInfoAsync(target, uid);
+        }).then(function(doc) {
+            if (doc) {
+                return exports.friendRespAsync(socket, {
+                    reqId: doc.reqId,
+                    respTarget: data.targetUser,
+                    isPermitted: true
+                });
+            }
+            return ReqRespStorage.saveReqAsync(uid, data.targetUser, 'friend');
         }).then(function(result) {
             if (result === null) {
                 throw new Error('save friend request fail on storage service');
