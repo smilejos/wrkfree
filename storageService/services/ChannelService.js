@@ -82,21 +82,6 @@ exports.visitChannelAsync = function(member, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: used to search channels by its name
- *
- * @param {String}          name, channel name
- */
-exports.searchChannelAsync = function(name) {
-    return ChannelDao.searchByNameAsync(name)
-        .catch(function(err) {
-            SharedUtils.printError('ChannelService.js', 'searchChannelAsync', err);
-            return null;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: for channel host to add new channel member
  *
  * @param {String}          host, host's uid

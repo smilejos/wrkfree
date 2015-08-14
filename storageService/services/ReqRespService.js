@@ -107,6 +107,22 @@ exports.isReqSentAsync = function(reqSender, targetUser, reqType, info) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to find specific friend request infomation
+ *
+ * @param {String}          reqSender, the uid of req uesr
+ * @param {String}          targetUser, the uid of target user
+ */
+exports.getFriendReqInfoAsync = function(reqSender, targetUser) {
+    return ReqRespDao.findFriendReqAsync(reqSender, targetUser)
+        .catch(function(err){
+            SharedUtils.printError('ReqRespService.js', 'getFriendReqInfoAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: get user readed or unreaded requests and responses
  *
  * @param {Object}          socket, the client socket instance
