@@ -164,30 +164,6 @@ exports.findByChanelsAsync = function(channelIds) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to search channels that matched channel name
- *
- * @param {String}          name, channel name
- */
-exports.searchByNameAsync = function(name) {
-    return SharedUtils.argsCheckAsync(name, 'string')
-        .then(function(validName) {
-            var condition = {
-                name: new RegExp(validName + '.*', 'i'),
-                isPublic: true,
-                is1on1: false
-            };
-            return _find(false, condition);
-        }).map(function(doc) {
-            return DbUtil.transformToNewIdAsync(doc, 'channelId');
-        }).catch(function(err) {
-            SharedUtils.printError('ChannelDao.js', 'searchByNameAsync', err);
-            throw err;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: to delete normal channel document
  *
  * @param {String}          channelId, channel id
