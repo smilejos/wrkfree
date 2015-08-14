@@ -52,21 +52,6 @@ exports.oAuthLoginAsync = function(clientId, provider) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to find specifc user by partial of his name
- *
- * @param {String}      findString, the string used to find user
- */
-exports.findUsersAsync = function(findString) {
-    return UserDao.findByNameAsync(findString)
-        .catch(function(err) {
-            SharedUtils.printError('UserService', 'findUsersAsync', err);
-            return null;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: to check sepcific email has been used or not
  *
  * @param {String}      uid, user id

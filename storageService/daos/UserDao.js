@@ -106,30 +106,6 @@ exports.isEmailUsedAsync = function(email) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: used to find users by the partial name string
- *
- * @param {String} queryString, the string used to find specific user
- */
-exports.findByNameAsync = function(queryString) {
-    return SharedUtils.argsCheckAsync(queryString, 'alphabet')
-        .then(function() {
-            //  <code>abc.*</code> will match all the following words
-            //         since they including <code>abc</code>. ggabcde ccabcffg abceedff
-            var condition = {};
-            condition.nickName = new RegExp(queryString + '.*', 'i');
-            var selectField = _getBasicInfoFields();
-            return Model.find(condition, selectField).lean().execAsync();
-        }).map(function(info) {
-            return _transformUid(info);
-        }).catch(function(err) {
-            SharedUtils.printError('UserDao', 'findByNameAsync', err);
-            return [];
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: use oauth id to find the user's info
  *
  * @param {String} oAuthId, the oAuth valid id

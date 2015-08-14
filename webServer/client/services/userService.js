@@ -63,18 +63,6 @@ exports.getGroupInfoAsync = function(users) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: use query string to find search users
- *
- * @param {String}        data.queryStr, the query string
- */
-exports.searchAsync = function(data) {
-    var packet = _setPacket('searchAsync', null, data);
-    return _request(packet, 'searchAsync');
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: get user notifications.
  *         NOTE: if data.isReaded is not set, default will query all notifications
  *

@@ -108,24 +108,3 @@ exports.setDashboardLayoutAsync = function(socket, data) {
             throw err;
         });
 };
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: handle the request of searching users
- *
- * @param {Object}          socket, the client socket instance
- * @param {String}          data.queryStr, the string used to search users
- */
-exports.searchAsync = function(socket, data) {
-    return SharedUtils.argsCheckAsync(data.queryStr, 'alphabet')
-        .then(function(validString) {
-            return UserStorage.findUsersAsync(validString);
-        }).then(function(result) {
-            var errMsg = 'fail to search users on storage service';
-            return SharedUtils.checkExecuteResult(result, errMsg);
-        }).catch(function(err) {
-            SharedUtils.printError('userHandler.js', 'searchAsync', err);
-            throw new Error('search user fail');
-        });
-};
