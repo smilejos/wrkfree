@@ -79,10 +79,6 @@ exports.init = function(callback) {
         _clientInit();
     });
 
-    Socket.on('error', function() {
-        _handleConnectionFail('server socket error');
-    });
-
     Socket.on('disconnect', function() {
         _handleConnectionFail('server connection lost');
     });
