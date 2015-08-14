@@ -75,6 +75,33 @@ exports.findByTargetAsync = function(targetUser, isReaded) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to find specific friend request
+ *
+ * @param {String}          reqUser, the uid of req uesr
+ * @param {String}          targetUser, the uid of target user
+ */
+exports.findFriendReqAsync = function(reqUser, targetUser) {
+    return Promise.props({
+        sender: SharedUtils.argsCheckAsync(reqUser, 'md5'),
+        target: SharedUtils.argsCheckAsync(targetUser, 'md5'),
+        type: 'friend',
+        isReq: true
+    }).then(function(condition) {
+        var fields = {
+            __v: DbUtil.select(false)
+        };
+        return Model.findOne(condition).select(fields).lean().execAsync();
+    }).then(function(doc) {
+        return (doc ? DbUtil.transformToNewIdAsync(doc, 'reqId') : null);
+    }).catch(function(err) {
+        SharedUtils.printError('ReqRespDao', 'findFriendReqAsync', err);
+        throw err;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: used to check certain type of request has been sent or not
  *         e.g. we can check friend/channel request has been sent or not
  *
