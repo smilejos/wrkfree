@@ -20,6 +20,11 @@ if (!SharedUtils.isNumber(RTC_CANCEL_TIMEOUT_IN_MSECOND)) {
 }
 
 /**
+ * the runtime iceserver settings
+ */
+var RuntimeIceServers = null;
+
+/**
  * Public API
  * @Author: George_Chen
  * @Description: for handling remote client webrtc stream
@@ -145,13 +150,18 @@ exports.signaling = function(data) {
  *         NOTE: currently just pre-init device media support check
  */
 exports.initRtcAsync = function() {
-    return Promise.try(function() {
-        if (require('webrtcsupport').getUserMedia) {
-            return RtcHelper.getDeviceSupportAsync();
-        }
-    }).catch(function(err) {
-        SharedUtils.printError('rtcService.js', 'initRtcAsync', err);
-    });
+    var packet = _setPacket('getIceConfigsAsync', null, {});
+    return _request(packet, 'getIceConfigsAsync')
+        .then(function(data) {
+            if (SharedUtils.isArray(data.iceServers)) {
+                RuntimeIceServers = data.iceServers;
+            }
+            if (require('webrtcsupport').getUserMedia) {
+                return RtcHelper.getDeviceSupportAsync();
+            }
+        }).catch(function(err) {
+            SharedUtils.printError('rtcService.js', 'initRtcAsync', err);
+        });
 };
 
 /**
@@ -164,7 +174,13 @@ exports.initRtcAsync = function() {
 exports.startConferenceAsync = function(data) {
     return RtcHelper.getDeviceSupportAsync()
         .then(function(media) {
-            return RtcHelper.getConnection(data.channelId).getLocalStreamAsync(media);
+            var options = {};
+            if (RuntimeIceServers) {
+                options.peerConnectionConfig = {
+                    iceServers: RuntimeIceServers
+                };
+            }
+            return RtcHelper.getConnection(data.channelId, options).getLocalStreamAsync(media);
         }).then(function(stream) {
             if (!stream) {
                 throw new Error('get local stream fail');

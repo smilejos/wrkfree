@@ -81,6 +81,33 @@ exports.getTargetsSdpAsync = function(socket, data) {
 };
 
 /**
+ * TODO: we should use redis session based authenticated mechanism
+ * Public API
+ * @Author: George_Chen
+ * @Description: this is for override the client default ice confings
+ * 
+ */
+exports.getIceConfigsAsync = function(socket, data) {
+    return Promise.try(function() {
+        if (process.env.NODE_ENV !== 'production') {
+            return {};
+        }
+        return {
+            iceServers: [{
+                url: "stun:stun.l.google.com:19302"
+            }, {
+                url: "turn:turn.wrkfree.com:3478",
+                username: "wrkfree",
+                credential: "user@wrkfree"
+            }]
+        };
+    }).catch(function(err){
+        SharedUtils.printError('rtcHandler.js', 'getIceConfigsAsync', err);
+        throw err;
+    });
+};
+
+/**
  * Public API
  * @Author: George_Chen
  * @Description: used for conference signaling
