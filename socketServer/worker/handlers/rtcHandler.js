@@ -14,15 +14,19 @@ var RtcWorker = require('../services/rtcWorker');
  * @param {String}          data.channelId, the channel id
  */
 exports.startConferenceAsync = function(socket, data) {
-    return Promise.join(
-        RtcStorage.getSessionAsync(data.channelId),
-        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        function(session, cid) {
-            var sdp = _getDefaultSdp();
-            return RtcStorage.addClientAsync(cid, socket.id, sdp)
-                .then(function() {
-                    return (!session ? RtcWorker.pushNotification(cid) : true);
+    return SharedUtils.argsCheckAsync(data.channelId, 'md5')
+        .then(function(cid){
+            return RtcStorage.isSessionExistAsync(cid)
+                .then(function(isExist){
+                    var sdp = _getDefaultSdp();
+                    if (!isExist) {
+                        RtcWorker.pushNotification(cid);
+                    }
+                    return RtcStorage.joinSessionAsync(cid, socket.id, sdp);
                 });
+        }).then(function(result){
+            var errMsg = 'fail to join rtc session on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('rtcHandler.js', 'startConferenceAsync', err);
             throw err;
@@ -40,7 +44,7 @@ exports.startConferenceAsync = function(socket, data) {
 exports.hangupConferenceAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
         .then(function(cid) {
-            return RtcStorage.delClientAsync(cid, socket.id);
+            return RtcStorage.leaveSessionAsync(cid, socket.id);
         }).then(function(success) {
             var errMsg = 'fail to delete rtc client on storage service';
             return SharedUtils.checkExecuteResult(success, errMsg);
@@ -58,24 +62,20 @@ exports.hangupConferenceAsync = function(socket, data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Array}          data.targets, target client sockets
+ * @param {Array}           data.targets, target client sockets
  */
 exports.getTargetsSdpAsync = function(socket, data) {
     return Promise.join(
-        RtcStorage.getSessionAsync(data.channelId),
-        SharedUtils.argsCheckAsync(data.targets, 'array'),
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        function(session, targets) {
-            if (!session) {
-                throw new Error('fail to get current rtc session on storage service');
-            }
-            var sdps = {};
-            SharedUtils.fastArrayMap(targets, function(client) {
-                sdps[client] = session.sdps[client];
-            });
-            return sdps;
+        SharedUtils.argsCheckAsync(data.targets, 'array'),
+        function(cid, targetSids) {
+            return RtcStorage.keepClientAliveAsync(cid, socket.id)
+                .then(function(){
+                    var isEmpty = (targetSids.length === 0);
+                    return (isEmpty ? null : RtcStorage.getTargetsSdpAsync(cid, targetSids));
+                });
         }).catch(function(err) {
-            SharedUtils.printError('rtcHandler.js', 'getTargetsSdp', err);
+            SharedUtils.printError('rtcHandler.js', 'getTargetsSdpAsync', err);
             throw err;
         });
 };

@@ -209,7 +209,7 @@ function _disconnectChannel(socketId, subscriptions) {
     return Promise.map(subscriptions, function(subscription) {
         var info = subscription.split(':');
         if (info[0] === 'channel') {
-            return rtcStorage.delClientAsync(info[1], socketId);
+            return rtcStorage.leaveSessionAsync(info[1], socketId);
         }
     });
 }
