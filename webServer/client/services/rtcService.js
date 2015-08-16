@@ -71,11 +71,12 @@ exports.onSignaling = function(data) {
 exports.notifyConferenceCall = function(data) {
     var subscribeChannel = 'channel:' + data.channelId;
     if (!SocketManager.hasSubscription(subscribeChannel)) {
-        _trackRtcNotification(data);
-
+        if (data.clients.length > 0) {
+            _trackRtcNotification(data);
+        }
         SocketUtils.execAction(NotifyConferenceCall, {
             channelId: data.channelId,
-            hasCall: true
+            hasCall: (data.clients.length>0)
         });
     }
 };
@@ -90,6 +91,9 @@ exports.notifyConferenceCall = function(data) {
  * @param {Array}           data.clients, clients in conference
  */
 exports.onConference = function(data) {
+    if (data.clients.length === 0) {
+        return _conferenceStop(data);
+    }
     _trackConference({
         channelId: data.channelId
     });
@@ -111,9 +115,6 @@ exports.onConference = function(data) {
         }).filter(function(targetId) {
             return !connection.hasPeerConnected(targetId);
         }).then(function(targetIds) {
-            if (targetIds.length === 0) {
-                return null;
-            }
             var packet = _setPacket('getTargetsSdpAsync', null, {
                 channelId: data.channelId,
                 targets: targetIds
@@ -243,6 +244,15 @@ exports.controlMediaAsync = function(data) {
  *
  ************************************************/
 
+function _conferenceStop(data) {
+    return exports.hangupConferenceAsync(data)
+        .then(function() {
+            return SocketUtils.execAction(OnConferenceStop, data);
+        }).catch(function(err) {
+            SharedUtils.printError('rtcService.js', '_conferenceStop', err);
+        });
+}
+
 /**
  * @Author: George_Chen
  * @Description: used to track conference session state
@@ -256,12 +266,7 @@ function _trackConference(data) {
         clearTimeout(SessionsTimeout[data.channelId]);
     }
     SessionsTimeout[data.channelId] = setTimeout(function() {
-        return exports.hangupConferenceAsync(data)
-            .then(function() {
-                return SocketUtils.execAction(OnConferenceStop, data);
-            }).catch(function(err) {
-                SharedUtils.printError('rtcService.js', '_trackConference', err);
-            });
+        _conferenceStop(data);
     }, RTC_CANCEL_TIMEOUT_IN_MSECOND);
 }
 
