@@ -80,6 +80,22 @@ exports.isCreatedAsync = function(hostUid, channelName) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to check channel is 1on1 channel or not
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.is1on1Async = function(channelId) {
+    return Promise.props({
+        _id: SharedUtils.argsCheckAsync(channelId, 'md5'),
+        is1on1: true
+    }).then(function(condition) {
+        return _isExist(condition, 'is1on1Async');
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: check channel has turned on the anonymousLogin or not
  *
  * @param {String}          channelId, channel id
