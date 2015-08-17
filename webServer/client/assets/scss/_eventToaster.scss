@@ -10,12 +10,13 @@
         margin-left: 10px;
         padding: 10px;
         background-color: #FFF;
-        border-width: 2px;
-        border-color: $grey-500;
+        border-width: 1px;
+        border-color: $grey-300;
+        border-style: solid;
         z-index: 2;
         left: 0px;
         border-radius: 10px;
-        opacity: 0.8;
+        opacity: 0.9;
         transition: 0.3s;
     }
     .event-icon {
