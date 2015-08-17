@@ -2,6 +2,7 @@
 var SharedUtils = require('../../../../sharedUtils/utils');
 var ActionUtils = require('../actionUtils');
 var EventPrefix = 'Rtc';
+var PlaySystemSound = require('../playSystemSound');
 
 /**
  * @Public API
@@ -31,6 +32,9 @@ module.exports = function(actionContext, data) {
                     eventId: eid
                 });
             }
+            actionContext.executeAction(PlaySystemSound, {
+                type: 'phonecall'
+            });
             actionContext.dispatch('ON_CUSTOM_EVENT', {
                 eventId: eid,
                 ttl: data.ttl,
