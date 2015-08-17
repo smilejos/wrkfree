@@ -2,6 +2,8 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var ActionUtils = require('../actionUtils');
+var SubscriptionStore = require('../../../shared/stores/SubscriptionStore');
+var PlaySystemSound = require('../playSystemSound');
 
 /**
  * @Public API
@@ -19,6 +21,12 @@ module.exports = function(actionContext, data) {
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         hasCall: SharedUtils.argsCheckAsync(data.hasCall, 'boolean'),
     }).then(function(recvData) {
+        var subscriptionStore = actionContext.getStore(SubscriptionStore);
+        if (!subscriptionStore.isChannelStarred(recvData.channelId) && recvData.hasCall) {
+            actionContext.executeAction(PlaySystemSound, {
+                type: 'phonecall'
+            });
+        }
         actionContext.dispatch('RECV_NOTIFICATION_CONFERENCE', recvData);
     }).catch(function(err) {
         SharedUtils.printError('notifyConference.js', 'core', err);

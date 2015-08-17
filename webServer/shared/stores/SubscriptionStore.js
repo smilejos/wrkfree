@@ -202,6 +202,20 @@ module.exports = CreateStore({
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: to check current channel is started or not
+     * 
+     * @param {String}     cid, the channel id
+     */
+    isChannelStarred: function(cid) {
+        var collection = this.db.getCollection(this.dbName);
+        var query = {
+            channelId: cid
+        };
+        return (collection.chain().find(query).data().length > 0);
+    },
+
     getState: function() {
         var collection = this.db.getCollection(this.dbName);
         return {

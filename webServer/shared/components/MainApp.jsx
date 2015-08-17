@@ -16,6 +16,7 @@ var ChannelCreator = require('./common/ChannelCreator.jsx');
 var Hangouts = require('./Hangouts.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
+var SystemSounds = require('./SystemSounds.jsx');
 
 /**
  * below is for material-ui 9.0 up
@@ -83,6 +84,7 @@ module.exports = React.createClass({
                 <EventToaster />
                 <Hangouts />
                 <QuickSearch />
+                <SystemSounds />
             </div>
         );
     }

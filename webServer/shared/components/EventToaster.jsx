@@ -155,7 +155,7 @@ var EventMessage = React.createClass({
         var eventStyle = {
             'bottom': this.props.bottomHeight
         };
-        var eventIcon = this.state[this.props.type]
+        var eventIcon = this.state[this.props.type];
         return (
             <div className={eventClass} style={eventStyle}>
                 <div className="event-icon"
