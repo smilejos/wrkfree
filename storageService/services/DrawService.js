@@ -89,7 +89,7 @@ exports.addBoardAsync = function(channelId, boardId, member) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.addBoardAsync()');
             return null;
         });
@@ -113,7 +113,7 @@ exports.delBoardAsync = function(channelId, boardId, member) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.delBoardAsync()');
             return null;
         });
@@ -138,7 +138,7 @@ exports.cleanBoardAsync = function(channelId, boardId, clientId) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.cleanBoardAsync()');
             return null;
         });
@@ -163,7 +163,7 @@ exports.streamRecordDataAsync = function(channelId, boardId, clientId, rawData) 
         .catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.streamRecordDataAsync()');
             return null;
         });
@@ -204,7 +204,7 @@ exports.saveRecordAsync = function(channelId, boardId, clientId, rawDataNumbers,
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.saveRecordAsync()');
             return null;
         });
@@ -232,7 +232,7 @@ exports.saveSingleDrawAsync = function(channelId, boardId, clientId, rawData, dr
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.saveSingleDrawAsync()');
             return null;
         });
@@ -258,7 +258,7 @@ exports.undoRecordAsync = function(channelId, boardId, member) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.undoRecordAsync()');
             return null;
         });
@@ -282,7 +282,7 @@ exports.restoreUndoAsync = function(channelId, boardId, member) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.restoreUndoAsync()');
             return null;
         });
@@ -311,7 +311,7 @@ exports.getPreviewImgAsync = function(member, channelId, boardId) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.getPreviewImgAsync()');
             return null;
         });
@@ -334,7 +334,7 @@ exports.getPreviewStatusAsync = function(channelId, boardId, time) {
     }).catch(function(err) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
-            error: err
+            error: err.toString()
         }, 'error in DrawService.getPreviewStatusAsync()');
         return null;
     });
@@ -367,7 +367,7 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.getBoardInfoAsync()');
             return null;
         });
@@ -394,7 +394,7 @@ exports.getLatestBoardIdAsync = function(channelId) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.getLatestBoardIdAsync()');
             return null;
         });
@@ -422,7 +422,7 @@ exports.updateBaseImgAsync = function(channelId, boardId, img) {
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.updateBaseImgAsync()');
             return null;
         });
@@ -445,7 +445,7 @@ exports.updatePreviewImgAsync = function(channelId, boardId, img) {
         .catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService.updatePreviewImgAsync()');
             return null;
         });
@@ -476,7 +476,7 @@ function _addBoard(channelId, boardId) {
     }).catch(function(err) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
-            error: err
+            error: err.toString()
         }, 'error in DrawService _addBoard()');
         // clean previous related docs
         return _delBoard(channelId, boardId).then(function() {
@@ -553,7 +553,7 @@ function _removeArchives(channelId, boardId) {
         .catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
-                error: err
+                error: err.toString()
             }, 'error in DrawService _removeArchives()');
         });
 }

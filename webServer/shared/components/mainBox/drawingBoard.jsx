@@ -177,8 +177,14 @@ module.exports = React.createClass({
             prev = position;
         });
 
+
+        /**
+         * mouse click event
+         * reference: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+         */
         board.addEventListener('mousedown', function(e) {
-            if (self.props.drawInfo.boardNums === 0) {
+            // 0: left click, 1: middle click, 2: right click
+            if (self.props.drawInfo.boardNums === 0 || e.button !== 0) {
                 return;
             }
             isClicked = true;

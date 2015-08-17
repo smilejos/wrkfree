@@ -78,7 +78,7 @@ exports.pushNotification = function(channelId) {
  * @param {String}          cid, channel id
  * @param {Object}          session, the rtc session sdps
  */
-function _notifyConference(cid, session) {
+function _notifyConference(cid, members) {
     var channelPrefixes = ['channel', 'notification'];
     return Promise.map(channelPrefixes, function(prefix) {
         var channel = prefix + ':' + cid;
@@ -87,7 +87,7 @@ function _notifyConference(cid, session) {
             clientHandler: (prefix === 'channel' ? 'onConference' : 'notifyConferenceCall'),
             params: {
                 channelId: cid,
-                clients: session.clients
+                clients: members
             }
         };
         return new Promise(function(resolver, rejector) {
@@ -115,10 +115,7 @@ function _enqueueAsync(jobInfo, delay) {
             .ttl(NOTIFICATION_TIMEOUT)
             .delay(delayTime)
             .save(function(err) {
-                if (err) {
-                    return rejector(err);
-                }
-                resolver(true);
+                return (err ? rejector(err) : resolver(true));
             });
     });
 }
@@ -130,11 +127,12 @@ function _enqueueAsync(jobInfo, delay) {
  */
 Queue.process(QUEUE_TYPE, function(job, done) {
     var cid = job.data.cid;
-    return RtcStorage.getSessionAsync(cid)
-        .then(function(session) {
-            var shouldNotify = (session && session.clients.length > 0);
-            return (shouldNotify ? _notifyConference(cid, session) : false);
-        }).then(function(isRepeat) {
-            return (isRepeat ? _enqueueAsync(job.data) : false);
+    return RtcStorage.getSessionMembersAsync(cid)
+        .then(function(members){
+            return _notifyConference(cid, members)
+                .then(function(){
+                    var isRepeat = (members && members.length > 0);
+                    return (isRepeat ? _enqueueAsync(job.data) : false);
+                });
         }).nodeify(done);
 });

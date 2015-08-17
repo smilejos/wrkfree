@@ -7,9 +7,9 @@ var Configs = require('../../configs/config');
 /**
  * setup rtc params
  */
-var Params = Configs.get().params.rtc;
-if (!Params) {
-    throw new Error('can not get rtc params');
+var SESSION_TIMEOUT_IN_SECOND = Configs.get().params.rtc.sessionTimeoutInSecond;
+if (!SharedUtils.isNumber(SESSION_TIMEOUT_IN_SECOND)) {
+    throw new Error('not correct rtc parameters');
 }
 
 /**
@@ -34,34 +34,53 @@ var RedisClient = Redis.createClient(
 /**
  * Public API
  * @Author: George_Chen
- * @Description: set the current channel's rtc session
- *         NOTE: a client is a socketId
+ * @Description: add rtc client on current rtc session
  *
  * @param {String}      channelId, channel id
- * @param {Object}      session, channel rtc session
- * @param {Array}       session.clients, clients that join the rtc session
- * @param {Object}      session.sdps, sdps of each joined clients
+ * @param {String}      clientId, the client socket id
  */
-exports.setAsync = function(channelId, session) {
+exports.joinAsync = function(channelId, clientId) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
-        SharedUtils.argsCheckAsync(session.clients, 'array'),
-        _checkSdp(session.sdps),
-        function(cid) {
+        SharedUtils.argsCheckAsync(clientId, 'string'),
+        function(cid, client) {
             var redisKey = _getSessionKey(cid);
-            var expiredTime = Params.sessionTimeoutInSecond;
-            var rawSession = JSON.stringify(session);
-            return RedisClient.setexAsync(redisKey, expiredTime, rawSession);
+            return RedisClient
+                .multi()
+                .sadd(redisKey, client)
+                .expire(redisKey, SESSION_TIMEOUT_IN_SECOND)
+                .execAsync();
         }).catch(function(err) {
-            SharedUtils.printError('rtcSessionTemp.js', 'setAsync', err);
-            return null;
+            SharedUtils.printError('RtcSessionTemp.js', 'joinAsync', err);
+            throw err;
         });
 };
 
 /**
  * Public API
  * @Author: George_Chen
- * @Description: get rtc session of current channel
+ * @Description: remove rtc client from current rtc session
+ *
+ * @param {String}      channelId, channel id
+ * @param {String}      clientId, the client socket id
+ */
+exports.leaveAsync = function(channelId, clientId) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(clientId, 'string'),
+        function(cid, client) {
+            var redisKey = _getSessionKey(cid);
+            return RedisClient.sremAsync(redisKey, client);
+        }).catch(function(err) {
+            SharedUtils.printError('RtcSessionTemp.js', 'leaveAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get the infotmation(members) in current rtc session
  *
  * @param {String}      channelId, channel id
  */
@@ -69,9 +88,7 @@ exports.getAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(cid) {
             var redisKey = _getSessionKey(cid);
-            return RedisClient.getAsync(redisKey);
-        }).then(function(rawSession) {
-            return JSON.parse(rawSession);
+            return RedisClient.smembersAsync(redisKey);
         }).catch(function(err) {
             SharedUtils.printError('rtcSessionTemp.js', 'getAsync', err);
             return null;
@@ -81,7 +98,25 @@ exports.getAsync = function(channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: get sdps of channel rtc session
+ * @Description: to check current rtc session is exist or not
+ *
+ * @param {String}      channelId, channel id
+ */
+exports.isExistAsync = function(channelId) {
+    return SharedUtils.argsCheckAsync(channelId, 'md5')
+        .then(function(cid) {
+            var redisKey = _getSessionKey(cid);
+            return RedisClient.existsAsync(redisKey);
+        }).catch(function(err) {
+            SharedUtils.printError('rtcSessionTemp.js', 'isExistAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to release current rtc session
  *
  * @param {String}      channelId, channel id
  */
@@ -91,7 +126,7 @@ exports.deleteAsync = function(channelId) {
             var redisKey = _getSessionKey(cid);
             return RedisClient.delAsync(redisKey);
         }).catch(function(err) {
-            SharedUtils.printError('rtcSessionTemp.js', 'delAsync', err);
+            SharedUtils.printError('rtcSessionTemp.js', 'deleteAsync', err);
             return null;
         });
 };
@@ -99,24 +134,20 @@ exports.deleteAsync = function(channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: set the rtc session timeout value
+ * @Description: to keep cuurent rtc session alive
  *
  * @param {String}      channelId, channel id
  */
-exports.ttlAsync = function(channelId) {
+exports.keepAliveAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(cid) {
             var redisKey = _getSessionKey(cid);
-            return RedisClient.expireAsync(
-                redisKey,
-                Params.sessionTimeoutInSecond
-            );
+            return RedisClient.expireAsync(redisKey, SESSION_TIMEOUT_IN_SECOND);
         }).catch(function(err) {
-            SharedUtils.printError('rtcSessionTemp.js', 'delAsync', err);
-            return null;
+            SharedUtils.printError('RtcSessionTemp.js', 'keepAliveAsync', err);
+            throw err;
         });
 };
-
 
 /************************************************
  *
@@ -132,23 +163,4 @@ exports.ttlAsync = function(channelId) {
  */
 function _getSessionKey(cid) {
     return 'channel:' + cid + ':rtc:session';
-}
-
-/**
- * @Author: George_Chen
- * @Description: check the sdp props is valid or not
- *
- * @param {Object}      sdp, session's sdp
- */
-function _checkSdp(sdp) {
-    var sessionUids = Object.keys(sdp);
-    SharedUtils.fastArrayMap(sessionUids, function(uid) {
-        var props = ['video', 'audio', 'screen'];
-        SharedUtils.fastArrayMap(props, function(prop) {
-            if (!SharedUtils.isBoolean(sdp[uid][prop])) {
-                throw new Error('abnormal sdp prop');
-            }
-        });
-    });
-    return sdp;
 }
