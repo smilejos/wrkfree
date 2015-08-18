@@ -85,8 +85,8 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
         }
         .hangoutMessages {
             height: $hangout-messages-height;
-            overflow: scroll;
-
+            overflow: auto;
+            word-break:break-all;
             .message {
                 .messageAvatar {
                     width: 60px;
