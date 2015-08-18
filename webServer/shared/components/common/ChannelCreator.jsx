@@ -16,8 +16,6 @@ var NavToBoard = require('../../../client/actions/draw/navToBoard');
 /**
  * material UI compoents
  */
-var Paper = Mui.Paper;
-var LeftNav = Mui.LeftNav;
 var TextField = Mui.TextField;
 var FlatButton = Mui.FlatButton;
 

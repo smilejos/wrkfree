@@ -13,6 +13,7 @@ var Webcam = require('./Webcam.jsx');
 var EventToaster = require('./EventToaster.jsx');
 var Notifications = require('./common/Notifications.jsx');
 var ChannelCreator = require('./common/ChannelCreator.jsx');
+var PersonalInfo = require('./common/PersonalInfo.jsx');
 var Hangouts = require('./Hangouts.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
@@ -81,6 +82,7 @@ module.exports = React.createClass({
                 <FriendList />
                 <Notifications />
                 <ChannelCreator />
+                <PersonalInfo />
                 <EventToaster />
                 <Hangouts />
                 <QuickSearch />

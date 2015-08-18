@@ -27,6 +27,7 @@ app.registerStore(require('./stores/DashboardStore'));
 app.registerStore(require('./stores/MessageStore'));
 app.registerStore(require('./stores/WorkSpaceStore'));
 app.registerStore(require('./stores/FriendStore'));
+app.registerStore(require('./stores/PersonalStore'));
 app.registerStore(require('./stores/DrawStore'));
 app.registerStore(require('./stores/DrawTempStore'));
 app.registerStore(require('./stores/QuickSearchStore'));
