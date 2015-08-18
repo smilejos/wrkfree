@@ -110,7 +110,7 @@ exports.deleteByChannelAsync = function(channelId) {
  */
 exports.findByUidAsync = function(member, is1on1, period) {
     var visitTimePeriod = period || {};
-    var queryNums = (!!visitTimePeriod.start ? 0 : AUTH_CHANNEL_QUERY_NUMBER);
+    var queryNums = (!!visitTimePeriod.start || is1on1 ? 0 : AUTH_CHANNEL_QUERY_NUMBER);
     return Promise.props({
         member: SharedUtils.argsCheckAsync(member, 'md5')
     }).then(function(condition) {
