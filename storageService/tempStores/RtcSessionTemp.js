@@ -121,6 +121,7 @@ exports.isExistAsync = function(channelId) {
  * @param {String}      channelId, channel id
  */
 exports.deleteAsync = function(channelId) {
+    console.log('[DEBUG] =======delete rtc session=========> ', channelId);
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(cid) {
             var redisKey = _getSessionKey(cid);

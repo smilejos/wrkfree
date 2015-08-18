@@ -75,6 +75,7 @@ exports.leaveSessionAsync = function(channelId, socketId) {
 exports.getSessionMembersAsync = function(channelId) {
     return SessionTemp.getAsync(channelId)
         .then(function(members) {
+            console.log('[DEBUG] ========getSessionMembersAsync======> ', channelId);
             if (members.length === 0) {
                 return members;
             }
