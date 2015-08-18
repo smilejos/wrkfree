@@ -22,6 +22,8 @@ var DefaultMediaConfig = {
  */
 var DeviceMediaSupport = null;
 
+var VisibleStreamId = 'visible';
+
 /**
  * Public API
  * @Author: George_Chen
@@ -62,6 +64,27 @@ exports.getConnection = function(id, options) {
         return (Connections[id] = new rtcConnection(id, opts));
     }
     return Connections[id];
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get current visible webrtc stream
+ *         NOTE: this is used to render on UI
+ *       
+ * @param {Object}          media, the config of getting media
+ */
+exports.getVisibleStreamAsync = function(media) {
+    return this.getConnection(VisibleStreamId).getLocalStreamAsync(media);
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: stop current visible stream 
+ */
+exports.stopVisibleStreamAsync = function() {
+    exports.releaseConnection(VisibleStreamId);
 };
 
 /**
@@ -196,7 +219,7 @@ var rtcConnection = function(channelId, opts) {
         });
     });
 
-    this.webrtc.on('iceFailed', function (peer) {
+    this.webrtc.on('iceFailed', function(peer) {
         RtcService.onConnectivityFail({
             channelId: self.id,
             message: 'call connectivity to server fail',
@@ -204,7 +227,7 @@ var rtcConnection = function(channelId, opts) {
         });
     });
 
-    this.webrtc.on('connectivityError', function (peer) {
+    this.webrtc.on('connectivityError', function(peer) {
         RtcService.onConnectivityFail({
             channelId: self.id,
             message: 'call connectivity error',
