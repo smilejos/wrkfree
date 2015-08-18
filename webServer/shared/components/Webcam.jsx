@@ -1,5 +1,6 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var Draggable = require('react-draggable');
 
 /**
  * material ui components
@@ -39,10 +40,19 @@ module.exports = React.createClass({
         state.isVideoShown = !!state.stream;
         this.setState(state);
     },
+    
+    /**
+     * @Author: George_Chen
+     * @Description: disable default context menu when user drag the webcam
+     */
+    _disableMenu: function(e) {
+        e.preventDefault();
+    },
 
     /**
      * @Author: George_Chen
-     * @Description: simply toggle the local video shown or nott
+     * @Description: simply toggle the local video shown or not
+     *         NOTE: currently not used
      */
     _toggleVideo: function() {
         this.setState({
@@ -60,20 +70,18 @@ module.exports = React.createClass({
             videoComponent = (
                 <RtcVideo 
                     isMuted
+                    width={200}
                     videoId="localVideo"
                     stream={this.state.stream} />
             );
         }
         return (
-            <div className={this.state.isEnabled ? 'Webcam-shown' : 'Webcam-hidden'}>
-                <div className="icon">
-                    <IconButton 
-                        iconClassName="fa fa-dot-circle-o"
-                        tooltip={this.state.isVideoShown ? 'Hide Webcam' : 'Show Webcam'}
-                        iconStyle={{color:Colors.red600}}
-                        onClick={this._toggleVideo} />
-                </div>
-                {videoComponent}
+            <div onContextMenu={this._disableMenu} >
+                <Draggable >
+                    <div className={this.state.isEnabled ? 'Webcam-shown' : 'Webcam-hidden'} >
+                        {videoComponent}
+                    </div>
+                </Draggable>
             </div>
         );
     }
