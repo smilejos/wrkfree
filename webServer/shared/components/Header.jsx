@@ -8,6 +8,7 @@ var SubscriptionStore = require('../stores/SubscriptionStore');
 var ChannelCreatorStore = require('../stores/ChannelCreatorStore');
 var NotificationStore = require('../stores/NotificationStore');
 var FriendStore = require('../stores/FriendStore');
+var PersonalStore = require('../stores/PersonalStore');
 /**
  * actions
  */
@@ -17,6 +18,7 @@ var ToggleFriendList = require('../../client/actions/toggleFriendList');
 var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
 var ToggleNotifications = require('../../client/actions/toggleNotifications');
 var ToggleChannelCreator = require('../../client/actions/toggleChannelCreator');
+var TogglePersonalInfo = require('../../client/actions/togglePersonalInfo');
 var QuickSearchAction = require('../../client/actions/search/quickSearch');
 
 /**
@@ -51,7 +53,7 @@ module.exports = React.createClass({
     statics: {
         storeListeners: {
             'onStoreChange': [HeaderStore],
-            'onIconStateChange': [SubscriptionStore, ChannelCreatorStore, NotificationStore, FriendStore]
+            'onIconStateChange': [SubscriptionStore, ChannelCreatorStore, NotificationStore, FriendStore, PersonalStore]
         }
     },
 
@@ -76,7 +78,7 @@ module.exports = React.createClass({
             isChannelCreatorActive : this.getStore(ChannelCreatorStore).getState().isActive,
             isNotificationActive : this.getStore(NotificationStore).getState().isActive,
             isFriendListActive : this.getStore(FriendStore).getState().isActive
-            //isPersonalActive : this.getStore(SubscriptionStore).getState().isActive,
+            //isPersonalActive : this.getStore(PersonalStore).getState().isActive
         }
         this.setState(state);
     },
@@ -246,13 +248,13 @@ module.exports = React.createClass({
  * @param {String}        this.props.name, the current login user's name
  */
 var UserState = React.createClass({
+    mixins: [Router.Navigation, FluxibleMixin],
     /**
-     * TODO: show out the user settings pop-out
      * @Author: George_Chen
      * @Description: handle the user avatar click mechanism
      */
     _onAvatarClick: function() {
-        location.assign('/app/logout');
+        this.executeAction(TogglePersonalInfo);
     },
 
     render: function() {

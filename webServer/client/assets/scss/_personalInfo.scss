@@ -1,0 +1,19 @@
+/**
+ * @Author: Jos Tung
+ * @Description: this style for personal component using in personalInfo.jsx
+ */
+.PersonalInfo {
+    position: fixed;
+    top: -50px;
+    right: 5px;
+    transition: 0.4s;
+    visibility: hidden;
+    opacity: 0;
+    z-index: 3;
+}
+
+.PersonalInfoShow {
+    top: 50px;
+    opacity: 1;
+    visibility: visible;
+}
