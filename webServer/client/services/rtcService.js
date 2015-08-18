@@ -91,6 +91,7 @@ exports.notifyConferenceCall = function(data) {
  * @param {Array}           data.clients, clients in conference
  */
 exports.onConference = function(data) {
+    console.log('[DEBUG] current conference session ', data.clients);
     if (data.clients.length === 0) {
         return _conferenceStop(data);
     }
@@ -266,6 +267,7 @@ function _trackConference(data) {
         clearTimeout(SessionsTimeout[data.channelId]);
     }
     SessionsTimeout[data.channelId] = setTimeout(function() {
+        console.log('[DEBUG] conference session timeout .......');
         _conferenceStop(data);
     }, RTC_CANCEL_TIMEOUT_IN_MSECOND);
 }

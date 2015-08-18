@@ -28,6 +28,7 @@ var FloatingActionButton = Mui.FloatingActionButton;
 var Colors = Mui.Styles.Colors;
 var FontIcon = Mui.FontIcon;
 var Dialog = Mui.Dialog;
+var Tooltip = Mui.Tooltip;
 
 /**
  * workspace tool bar, now just a template
@@ -290,37 +291,31 @@ module.exports = React.createClass({
                         {this.props.channel.name}
                     </div>
                     <div className="pure-u-1-3">
-                        <FloatingActionButton mini secondary
-                            disabled={isConferenceExist}
-                            onClick={this._startConference} >
-                            <i className="material-icons" style={conferenceIconStyle}>
-                                {'settings_phone'}
-                            </i>
-                        </FloatingActionButton>
-                        &nbsp;
-                        <FloatingActionButton mini secondary
-                            disabled={!isConferenceExist || !isVideoSupported}
-                            onClick={this._controlMedia.bind(this, true)} >
-                            <i className="material-icons" style={cameraIconStyle}>
-                                {this.state.isVideoOn ? 'videocam_off' : 'videocam'}
-                            </i>
-                        </FloatingActionButton>
-                        &nbsp;
-                        <FloatingActionButton mini secondary
-                            disabled={!isConferenceExist || !isAudioSupported}
-                            onClick={this._controlMedia.bind(this, false)} >
-                            <i className="material-icons" style={micIconStyle}>
-                                {this.state.isAudioOn ? 'mic_off' : 'mic'}
-                            </i>
-                        </FloatingActionButton>
-                        &nbsp;
-                        <FloatingActionButton mini primary
-                            disabled={!this.state.isConferenceExist}
-                            onClick={this._hangupConference}>
-                            <i className="material-icons" style={hangupIconStyle}>
-                                {'call_end'}
-                            </i>
-                        </FloatingActionButton>
+                        <RtcAction 
+                            iconName="settings_phone"
+                            iconStyle={conferenceIconStyle}
+                            handler={this._startConference}
+                            isButtonDisabled={isConferenceExist}
+                            label="start call"/>
+                        <RtcAction 
+                            iconName={this.state.isVideoOn ? 'videocam_off' : 'videocam'}
+                            label={this.state.isVideoOn ? 'block camera' : 'unblock camera'}
+                            handler={this._controlMedia.bind(this, true)}
+                            isButtonDisabled={!isConferenceExist || !isVideoSupported}
+                            iconStyle={cameraIconStyle}/>
+                        <RtcAction 
+                            iconName={this.state.isAudioOn ? 'mic_off' : 'mic'}
+                            label={this.state.isAudioOn ? 'mute microphone' : 'unmute microphone'}
+                            handler={this._controlMedia.bind(this, false)}
+                            isButtonDisabled={!isConferenceExist || !isAudioSupported}
+                            iconStyle={micIconStyle}/>
+                        <RtcAction 
+                            isPramary
+                            iconName="call_end"
+                            label="hangup call"
+                            handler={this._hangupConference}
+                            isButtonDisabled={!this.state.isConferenceExist}
+                            iconStyle={hangupIconStyle}/>
                     </div>
                     <div className="pure-u-1-3">
                         <IconButton iconClassName="fa fa-user-plus"
@@ -358,5 +353,45 @@ module.exports = React.createClass({
                 </Dialog>
             </div>
         );
+    }
+});
+
+/**
+ * this is a temp workaround for adding tooltips on 
+ * current RTC FloatingActionButton
+ */
+var RtcAction = React.createClass({
+    getInitialState: function() {
+        return {
+            isTipsShown: false
+        };
+    },
+
+    _showTips: function(isShown) {
+        this.setState({
+            isTipsShown: (isShown && !this.props.isButtonDisabled)
+        });
+    },
+
+    render: function() {
+        return (
+            <div style={{float: 'left', marginLeft: 5}} 
+                onMouseEnter={this._showTips.bind(this, true)}
+                onMouseLeave={this._showTips.bind(this, false)}>
+                <Tooltip 
+                    touch
+                    show={this.state.isTipsShown}
+                    verticalPosition="top" 
+                    horizontalPosition="right" 
+                    label={this.props.label} />
+                <FloatingActionButton mini secondary={!this.props.isPramary}
+                    disabled={this.props.isButtonDisabled}
+                    onClick={this.props.handler} >
+                    <i className="material-icons" style={this.props.iconStyle}>
+                        {this.props.iconName}
+                    </i>
+                </FloatingActionButton>
+            </div>
+        )
     }
 });

@@ -3,6 +3,8 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 var HangoutStore = require('../../../shared/stores/HangoutStore');
+var SubscriptionStore = require('../../../shared/stores/SubscriptionStore');
+var PlaySystemSound = require('../playSystemSound');
 
 /**
  * @Public API
@@ -20,8 +22,14 @@ module.exports = function(actionContext, data) {
     }).then(function(recvMsg) {
         var workspaceStore = actionContext.getStore(WorkSpaceStore);
         var hangoutStore = actionContext.getStore(HangoutStore);
+        var subscriptionStore = actionContext.getStore(SubscriptionStore);
         var cid = recvMsg.channelId;
         if (!workspaceStore.isOpenedChannel(cid) && !hangoutStore.isHangoutExist(cid)) {
+            if (!subscriptionStore.isChannelStarred(cid)) {
+                actionContext.executeAction(PlaySystemSound, {
+                    type: 'message'
+                });
+            }
             return actionContext.dispatch('RECV_NOTIFICATION_MESSAGE', recvMsg);
         }
     }).catch(function(err) {

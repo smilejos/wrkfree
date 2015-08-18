@@ -1,5 +1,6 @@
 'use strict';
 var SharedUtils = require('../../../../sharedUtils/utils');
+var PlaySystemSound = require('../playSystemSound');
 
 /**
  * @Public API
@@ -12,6 +13,9 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 module.exports = function(actionContext, data) {
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
         .then(function(cid) {
+            actionContext.executeAction(PlaySystemSound, {
+                type: 'phonecall'
+            });
             actionContext.dispatch('ON_CONFERENCE', {
                 channelId: cid,
                 onConferenceCall: true
