@@ -33,8 +33,8 @@ var VisibleStreamId = 'visible';
  */
 exports.releaseConnection = function(id) {
     var connection = Connections[id];
-    connection.stopLocalVideo();
     if (connection) {
+        connection.stopLocalVideo();
         delete Connections[id];
     }
 };
