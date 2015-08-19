@@ -132,7 +132,13 @@ Queue.process(QUEUE_TYPE, function(job, done) {
             return _notifyConference(cid, members)
                 .then(function(){
                     var isRepeat = (members && members.length > 0);
-                    console.log('[DEBUG] ====should repeat to enqueue rtc job', members, isRepeat);
+                    console.log('[DEBUG] ====should repeat to enqueue rtc job', cid, members, isRepeat);
+                    if (!isRepeat) {
+                        RtcStorage.isSessionExistAsync(cid)
+                            .then(function(isExist){
+                                console.log('[DEBUG] ====is rtc session exist', cid, isExist);
+                            });
+                    }
                     return (isRepeat ? _enqueueAsync(job.data) : false);
                 });
         }).nodeify(done);

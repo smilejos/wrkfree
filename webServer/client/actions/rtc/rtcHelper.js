@@ -22,6 +22,8 @@ var DefaultMediaConfig = {
  */
 var DeviceMediaSupport = null;
 
+var VisibleStreamId = 'visible';
+
 /**
  * Public API
  * @Author: George_Chen
@@ -31,8 +33,8 @@ var DeviceMediaSupport = null;
  */
 exports.releaseConnection = function(id) {
     var connection = Connections[id];
-    connection.stopLocalVideo();
     if (connection) {
+        connection.stopMediaStream();
         delete Connections[id];
     }
 };
@@ -67,6 +69,27 @@ exports.getConnection = function(id, options) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to get current visible webrtc stream
+ *         NOTE: this is used to render on UI
+ *       
+ * @param {Object}          media, the config of getting media
+ */
+exports.getVisibleStreamAsync = function(media) {
+    return this.getConnection(VisibleStreamId).getMediaStreamAsync(media);
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: stop current visible stream 
+ */
+exports.stopVisibleStreamAsync = function() {
+    exports.releaseConnection(VisibleStreamId);
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: used to check current device support webcam and mic or not
  *         NOTE: in firefox env, user can decide device media support runtime,
  *               so just return "DefaultMediaConfig"
@@ -82,10 +105,10 @@ exports.getDeviceSupportAsync = function() {
             return DefaultMediaConfig;
         }
         return Promise.join(
-            connection.getLocalStreamAsync({
+            connection.getMediaStreamAsync({
                 video: true
             }),
-            connection.getLocalStreamAsync({
+            connection.getMediaStreamAsync({
                 audio: true
             }),
             function(vStream, aStream) {
@@ -93,7 +116,7 @@ exports.getDeviceSupportAsync = function() {
                     video: !!vStream,
                     audio: !!aStream
                 };
-                connection.stopLocalVideo();
+                connection.stopMediaStream();
                 return DeviceMediaSupport;
             });
     });
@@ -196,7 +219,7 @@ var rtcConnection = function(channelId, opts) {
         });
     });
 
-    this.webrtc.on('iceFailed', function (peer) {
+    this.webrtc.on('iceFailed', function(peer) {
         RtcService.onConnectivityFail({
             channelId: self.id,
             message: 'call connectivity to server fail',
@@ -204,7 +227,7 @@ var rtcConnection = function(channelId, opts) {
         });
     });
 
-    this.webrtc.on('connectivityError', function (peer) {
+    this.webrtc.on('connectivityError', function(peer) {
         RtcService.onConnectivityFail({
             channelId: self.id,
             message: 'call connectivity error',
@@ -355,7 +378,7 @@ rtcConnection.prototype.hangupAsync = function() {
  * 
  * @param {Object}          mediaConfig, the config of getting media
  */
-rtcConnection.prototype.getLocalStreamAsync = function(mediaConfig) {
+rtcConnection.prototype.getMediaStreamAsync = function(mediaConfig) {
     var self = this;
     var media = mediaConfig || this.config.media;
     return new Promise(function(resolver) {
@@ -372,7 +395,7 @@ rtcConnection.prototype.getLocalStreamAsync = function(mediaConfig) {
  * @Author: George_Chen
  * @Description: stop all local media
  */
-rtcConnection.prototype.stopLocalVideo = function() {
+rtcConnection.prototype.stopMediaStream = function() {
     this.webrtc.stopLocalMedia();
 };
 

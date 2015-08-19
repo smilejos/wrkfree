@@ -3,38 +3,17 @@
  */
 .Webcam-shown {
     position: fixed;
-    top: 0px;
-    left: 550px;
-    width: 250px;
-    z-index: 10;
-    /*
-     * add animation style to make icon twinkle more friendly
-     */
-    .icon {
-        width: 30px;
-        height: 50px;
-        margin-left: 110px;
-        animation-name: changeOpacity;
-        animation-iteration-count: infinite;
-        animation-direction: alternate;
-        animation-duration: 0.8s;
-        animation-timing-function: cubic-bezier(0.785, 0.135, 0.150, 0.860);
-    }
-
-}
-
-@keyframes changeOpacity {
-    0%   { 
-        opacity: 0.8;
-    }
-    100% { 
-        opacity: 0.5;
-    }
+    left: 50%;
+    margin-left: -100px;
+    top: 50px;
+    z-index: 100;
+    cursor: move;
+    box-shadow: -1px 4px 4px rgba(black,0.1), 2px 6px 12px rgba(black,0.1);
 }
 
 /**
  * style for hiding local video webcam
  */
 .Webcam-hidden {
-    display: none;
+    display: hidden;
 }

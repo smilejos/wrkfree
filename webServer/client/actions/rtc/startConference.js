@@ -20,7 +20,6 @@ module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5')
     }).then(function(reqData) {
-        ActionUtils.showInfoEvent('Conference', 'starting rtc conference...');
         return RtcService.startConferenceAsync(reqData);
     }).then(function(localStream) {
         actionContext.dispatch('CATCH_LOCAL_STREAM', {
