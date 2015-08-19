@@ -34,7 +34,7 @@ var VisibleStreamId = 'visible';
 exports.releaseConnection = function(id) {
     var connection = Connections[id];
     if (connection) {
-        connection.stopLocalVideo();
+        connection.stopMediaStream();
         delete Connections[id];
     }
 };
@@ -75,7 +75,7 @@ exports.getConnection = function(id, options) {
  * @param {Object}          media, the config of getting media
  */
 exports.getVisibleStreamAsync = function(media) {
-    return this.getConnection(VisibleStreamId).getLocalStreamAsync(media);
+    return this.getConnection(VisibleStreamId).getMediaStreamAsync(media);
 };
 
 /**
@@ -105,10 +105,10 @@ exports.getDeviceSupportAsync = function() {
             return DefaultMediaConfig;
         }
         return Promise.join(
-            connection.getLocalStreamAsync({
+            connection.getMediaStreamAsync({
                 video: true
             }),
-            connection.getLocalStreamAsync({
+            connection.getMediaStreamAsync({
                 audio: true
             }),
             function(vStream, aStream) {
@@ -116,7 +116,7 @@ exports.getDeviceSupportAsync = function() {
                     video: !!vStream,
                     audio: !!aStream
                 };
-                connection.stopLocalVideo();
+                connection.stopMediaStream();
                 return DeviceMediaSupport;
             });
     });
@@ -378,7 +378,7 @@ rtcConnection.prototype.hangupAsync = function() {
  * 
  * @param {Object}          mediaConfig, the config of getting media
  */
-rtcConnection.prototype.getLocalStreamAsync = function(mediaConfig) {
+rtcConnection.prototype.getMediaStreamAsync = function(mediaConfig) {
     var self = this;
     var media = mediaConfig || this.config.media;
     return new Promise(function(resolver) {
@@ -395,7 +395,7 @@ rtcConnection.prototype.getLocalStreamAsync = function(mediaConfig) {
  * @Author: George_Chen
  * @Description: stop all local media
  */
-rtcConnection.prototype.stopLocalVideo = function() {
+rtcConnection.prototype.stopMediaStream = function() {
     this.webrtc.stopLocalMedia();
 };
 

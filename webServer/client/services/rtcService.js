@@ -183,7 +183,7 @@ exports.startConferenceAsync = function(data) {
                 };
             }
             return RtcHelper.getConnection(data.channelId, options)
-                .getLocalStreamAsync(media)
+                .getMediaStreamAsync(media)
                 .then(function(stream) {
                     if (!stream) {
                         throw new Error('get local stream fail');
