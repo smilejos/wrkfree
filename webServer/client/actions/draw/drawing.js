@@ -45,7 +45,7 @@ module.exports = function(actionContext, data, callback) {
             ActionUtils.showWarningEvent('Drawing', 'Too many draws at the same time');
         }
         data.clientId = 'local';
-        actionContext.dispatch('ON_DRAW_CHANGE', data);
+        tempStore.saveDrawChange(data);
         return DrawService.drawAsync(recordData);
     }).then(function(result) {
         if (!result) {

@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
+var DrawTempStore = require('../../../shared/stores/DrawTempStore');
 
 /**
  * @Public API
@@ -23,16 +24,17 @@ module.exports = function(actionContext, data, callback) {
         clientId: SharedUtils.argsCheckAsync(data.clientId, 'string'),
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
-    }).then(function(recordData) {
+    }).then(function(recvdData) {
+        var tempStore = actionContext.getStore(DrawTempStore);
         var workspaceStore = actionContext.getStore(WorkSpaceStore);
         var state = workspaceStore.getState();
         var cid = state.channel.channelId;
         var bid = state.draw.currentBoardId;
         if (cid === data.channelId && bid === data.boardId) {
-            return actionContext.dispatch('ON_DRAW_CHANGE', recordData);
+            return tempStore.saveDrawChange(recvdData);
         }
         // client and remote drawer use different board, so just send receive event
-        return actionContext.dispatch('ON_DRAW_RECEIVE', recordData);
+        return actionContext.dispatch('ON_DRAW_RECEIVE', recvdData);
     }).catch(function(err) {
         SharedUtils.printError('onDrawing.js', 'core', err);
         return null;
