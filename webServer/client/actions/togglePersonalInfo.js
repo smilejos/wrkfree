@@ -12,7 +12,6 @@ var PersonalStore = require('../../shared/stores/PersonalStore');
  * @param {Boolean}     data.isActive, indicate component is visible or not
  */
 module.exports = function(actionContext, data) {
-    console.log('action');
     var store = actionContext.getStore(PersonalStore);
     return Promise.try(function() {
         if (SharedUtils.isBoolean(data.isActive)) {
