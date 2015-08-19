@@ -2,6 +2,10 @@
 var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
+var Cache = require('lru-cache');
+
+
+var DRAW_TEMP_TIMEOUT = 2000;
 
 module.exports = CreateStore({
     storeName: 'DrawTempStore',
@@ -17,7 +21,9 @@ module.exports = CreateStore({
     initialize: function() {
         this.tempDraws = {};
         this.tempDrawOptions = {};
-        this.lastDraw = {};
+        this.lastDraw = Cache({
+            maxAge: DRAW_TEMP_TIMEOUT
+        });
     },
 
     /**
@@ -33,10 +39,10 @@ module.exports = CreateStore({
      */
     onDrawChange: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        this.lastDraw[drawViewId] = {
+        this.lastDraw.set(drawViewId, {
             chunks: data.chunks,
             drawOptions: data.drawOptions
-        };
+        }, DRAW_TEMP_TIMEOUT);
         this._onReceive(data);
         this.emitChange();
     },
@@ -83,7 +89,7 @@ module.exports = CreateStore({
      */
     getLastDraw: function(channelId, boardId) {
         var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
-        return this.lastDraw[drawViewId];
+        return this.lastDraw.get(drawViewId);
     },
 
     /**
@@ -133,3 +139,7 @@ module.exports = CreateStore({
         this.tempDrawOptions[tempDrawId] = data.drawOptions;
     }
 });
+
+function _getTempClientId(cid, bid, client) {
+    return (cid + bid + client);
+}
