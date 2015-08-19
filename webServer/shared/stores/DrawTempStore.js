@@ -11,7 +11,7 @@ module.exports = CreateStore({
     storeName: 'DrawTempStore',
 
     handlers: {
-        'ON_DRAW_RECEIVE': 'onDrawReceive',
+        'ON_DRAW_RECEIVE': '_onDrawReceive',
         'ON_RECORD_SAVE': '_onTempDrawClean',
         'ON_DRAW_INITED': '_onTempDrawClean',
         'CLEAN_FAILURE_DRAW': '_onTempDrawClean'
@@ -60,7 +60,7 @@ module.exports = CreateStore({
      * @param {Array}       data.chunks, the rawData of draw record
      * @param {Object}      data.drawOptions, the draw related options
      */
-    onDrawReceive: function(data) {
+    _onDrawReceive: function(data) {
         this._onReceive(data);
     },
 
