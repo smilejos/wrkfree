@@ -331,8 +331,8 @@ function _changeBoardWheel(drawOptions) {
     var drawingBoard = document.getElementById('DrawBoard');
     var cursorGenerator = document.createElement('canvas');
     var currentRatio = drawingBoard.width / BOARD_WIDTH;
-    cursorGenerator.width = drawOptions.lineWidth;
-    cursorGenerator.height = drawOptions.lineWidth;
+    cursorGenerator.width = drawOptions.lineWidth * currentRatio;
+    cursorGenerator.height = drawOptions.lineWidth * currentRatio;
 
     var ctx = cursorGenerator.getContext('2d');
     var centerX = cursorGenerator.width/2;
@@ -348,7 +348,7 @@ function _changeBoardWheel(drawOptions) {
      * this is temp workaround for draw cursor not update its color
      */
     drawingBoard.style.cursor = '';
-    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + drawOptions.lineWidth/2 + ' ' + drawOptions.lineWidth/2 + ',crosshair';
+    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + centerX + ' ' + centerY + ',crosshair';
 }
 
 /**
