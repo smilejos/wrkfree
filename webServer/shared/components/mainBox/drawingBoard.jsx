@@ -129,7 +129,7 @@ module.exports = React.createClass({
                 boardId: self.props.boardId,
                 isInited: false
             });
-            if (SharedUtils.isArray(localDraws)) {
+            if (localDraws.length > 0) {
                 return self.executeAction(SaveDrawRecord, {
                     channelId: self.props.channelId,
                     boardId: self.props.boardId,

@@ -1,11 +1,11 @@
 'use strict';
 var CreateStore = require('fluxible/addons').createStore;
-var SharedUtils = require('../../../sharedUtils/utils');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
 var Cache = require('lru-cache');
-
+var Deque = require('double-ended-queue');
 
 var DRAW_TEMP_TIMEOUT = 2000;
+var DEFAULT_TEMP_DRAWS_LENGTH = 200;
 
 module.exports = CreateStore({
     storeName: 'DrawTempStore',
@@ -19,11 +19,12 @@ module.exports = CreateStore({
     },
 
     initialize: function() {
-        this.tempDraws = {};
-        this.tempDrawOptions = {};
-        this.lastDraw = Cache({
+        var cachePolicy = {
             maxAge: DRAW_TEMP_TIMEOUT
-        });
+        };
+        this.tempDraws = Cache();
+        this.tempDrawOptions = Cache(cachePolicy);
+        this.lastDraw = Cache(cachePolicy);
     },
 
     /**
@@ -71,12 +72,15 @@ module.exports = CreateStore({
      *
      * @param {String}          data.channelId, the channel id
      * @param {Number}          data.boardId, the draw board id
+     * @param {String}          data.clientId, the draw client id
      */
     _onTempDrawClean: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        var tempDrawId = drawViewId + data.clientId;
-        this.tempDraws[tempDrawId] = null;
-        this.tempDrawOptions[tempDrawId] = null;
+        var drawId = _getTempClientId(data.channelId, data.boardId, data.clientId);
+        var draws = this.tempDraws.get(drawId);
+        if (draws) {
+            draws.clear();
+        }
+        this.tempDrawOptions.del(drawId);
     },
 
     /**
@@ -114,9 +118,9 @@ module.exports = CreateStore({
      * @param {String}          data.clientId, the draw client id
      */
     getDraws: function(channelId, boardId, clientId) {
-        var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
-        var tempDrawId = drawViewId + clientId;
-        return this.tempDraws[tempDrawId];
+        var drawId = _getTempClientId(channelId, boardId, clientId);
+        var draws = this.tempDraws.get(drawId);
+        return (draws ? draws.toArray() : []);
     },
 
     /**
@@ -130,16 +134,27 @@ module.exports = CreateStore({
      * @param {Object}      data.drawOptions, the draw related options
      */
     _onReceive: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        var tempDrawId = drawViewId + data.clientId;
-        if (!SharedUtils.isArray(this.tempDraws[tempDrawId])) {
-            this.tempDraws[tempDrawId] = [];
+        var drawId = _getTempClientId(data.channelId, data.boardId, data.clientId);
+        var draws = null;
+        if (!this.tempDraws.has(drawId)) {
+            draws = new Deque(DEFAULT_TEMP_DRAWS_LENGTH);
+            this.tempDraws.set(drawId, draws);
+        } else {
+            draws = this.tempDraws.get(drawId);
         }
-        this.tempDraws[tempDrawId].push(data.chunks);
-        this.tempDrawOptions[tempDrawId] = data.drawOptions;
+        draws.push(data.chunks);
+        this.tempDrawOptions.set(drawId, data.drawOptions, DRAW_TEMP_TIMEOUT);
     }
 });
 
+/**
+ * @Author: George_Chen
+ * @Description: to generate a temp client id
+ *
+ * @param {String}      cid, target channel id
+ * @param {Number}      bid, target board id
+ * @param {String}      client, the draw client id
+ */
 function _getTempClientId(cid, bid, client) {
     return (cid + bid + client);
 }
