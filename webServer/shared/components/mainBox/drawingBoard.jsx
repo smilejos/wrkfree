@@ -85,6 +85,18 @@ module.exports = React.createClass({
         _changeBoardWheel(this.props.drawInfo.drawOptions);
     },
 
+    componentDidUpdate: function(prevProps) {
+        // this means canvas has resized, and we also need to change the scale
+        if (prevProps.width !== this.props.width) {
+            _getDrawBoardCtx().scale(this.props.width/BOARD_WIDTH, this.props.height/BOARD_HEIGHT);
+            _changeBoardWheel(this.props.drawInfo.drawOptions);
+            this.executeAction(GetDrawBoard, {
+                channelId: this.props.channelId,
+                boardId: this.props.boardId
+            });
+        }
+    },
+
     componentWillUnmount: function() {
         this._cleanBoard();
     },
@@ -101,7 +113,6 @@ module.exports = React.createClass({
         var isClicked = false;
         // used to store previous mouse position
         var prev = {};
-
         /**
          * this canvas and image element is for internal used
          * not for client drawing
@@ -294,10 +305,15 @@ module.exports = React.createClass({
             });
     },
 
-    render: function(){
+    render: function() {
+        // 50 is the height of drawing toolbar
+        var DrawAreaStyle = {
+            width : this.props.width,
+            height: this.props.height + 50
+        };
         return (
-            <div className="DrawingArea" >
-                <canvas width={BOARD_WIDTH} height={BOARD_HEIGHT} ref="mainCanvas" id="DrawBoard"></canvas>
+            <div className="DrawingArea" style={DrawAreaStyle} >
+                <canvas width={this.props.width} height={this.props.height} ref="mainCanvas" id="DrawBoard"></canvas>
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
@@ -312,27 +328,27 @@ module.exports = React.createClass({
  * @Description: auto change the mouse cursor to fit current pen color
  */
 function _changeBoardWheel(drawOptions) {
+    var drawingBoard = document.getElementById('DrawBoard');
     var cursorGenerator = document.createElement('canvas');
-    cursorGenerator.width = drawOptions.lineWidth;
-    cursorGenerator.height = drawOptions.lineWidth;
+    var currentRatio = drawingBoard.width / BOARD_WIDTH;
+    cursorGenerator.width = drawOptions.lineWidth * currentRatio;
+    cursorGenerator.height = drawOptions.lineWidth * currentRatio;
 
     var ctx = cursorGenerator.getContext('2d');
     var centerX = cursorGenerator.width/2;
     var centerY = cursorGenerator.height/2;
-    var arcRadius = (drawOptions.mode == "pen" ? drawOptions.lineWidth/2 : drawOptions.lineWidth/2 - 1.5);
+    var arcRadius = (drawOptions.mode == "pen" ? drawOptions.lineWidth/2 : drawOptions.lineWidth/2 - 1.5) * currentRatio;
     ctx.globalAlpha = drawOptions.mode == "pen" ? 1 : 0.2;
     ctx.beginPath();
     ctx.arc(centerX, centerY, arcRadius, 0, 2 * Math.PI, false);
     ctx.fillStyle = drawOptions.strokeStyle;
     ctx.fill();
 
-    var drawingBoard = document.getElementById('DrawBoard');
-
     /**
      * this is temp workaround for draw cursor not update its color
      */
     drawingBoard.style.cursor = '';
-    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + drawOptions.lineWidth/2 + ' ' + drawOptions.lineWidth/2 + ',crosshair';
+    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + centerX + ' ' + centerY + ',crosshair';
 }
 
 /**
@@ -354,7 +370,7 @@ function _getCanvasMouse(canvasEvent){
     // app-header-height = 50px defined in css
     var headerHeight = 50;
     return {
-        x: canvasEvent.pageX - board.parentElement.offsetLeft,
-        y: canvasEvent.pageY - headerHeight - board.parentElement.offsetTop
+        x: (canvasEvent.pageX - board.parentElement.offsetLeft) * (BOARD_WIDTH/board.width),
+        y: (canvasEvent.pageY - headerHeight - board.parentElement.offsetTop) * (BOARD_HEIGHT/board.height)
     };
 }
