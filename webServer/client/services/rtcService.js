@@ -76,7 +76,7 @@ exports.notifyConferenceCall = function(data) {
         }
         SocketUtils.execAction(NotifyConferenceCall, {
             channelId: data.channelId,
-            hasCall: (data.clients.length>0)
+            hasCall: (data.clients.length > 0)
         });
     }
 };
@@ -182,24 +182,35 @@ exports.startConferenceAsync = function(data) {
                     iceServers: RuntimeIceServers
                 };
             }
-            return RtcHelper.getConnection(data.channelId, options).getLocalStreamAsync(media);
-        }).then(function(stream) {
-            if (!stream) {
-                throw new Error('get local stream fail');
-            }
-            var packet = _setPacket('startConferenceAsync', null, data);
-            return _request(packet, 'startConferenceAsync')
-                .then(function(result) {
-                    if (!result) {
-                        throw new Error('start conference fail on server');
+            return RtcHelper.getConnection(data.channelId, options)
+                .getMediaStreamAsync(media)
+                .then(function(stream) {
+                    if (!stream) {
+                        throw new Error('get local stream fail');
                     }
-                    return stream;
+                    var packet = _setPacket('startConferenceAsync', null, data);
+                    return _request(packet, 'startConferenceAsync')
+                        .then(function(result) {
+                            if (!result) {
+                                throw new Error('start conference fail on server');
+                            }
+                            return RtcHelper.getVisibleStreamAsync(media);
+                        });
                 });
         }).catch(function(err) {
             RtcHelper.releaseConnection(data.channelId);
             SharedUtils.printError('rtcService.js', 'startConferenceAsync', err);
             throw err;
         });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to stop current rtc service
+ */
+exports.stopService = function() {
+    return RtcHelper.stopVisibleStreamAsync();
 };
 
 /**
