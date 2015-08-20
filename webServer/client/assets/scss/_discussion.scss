@@ -10,9 +10,6 @@
  *      --MsgTime
  */
 .MsgContainer {
-    position: absolute;
-    top: 0px;
-    bottom: 90px;
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -45,7 +42,8 @@
  * the style of reload component
  */
 .ReloadImg {
-    text-align: center;
+    position: absolute;
+    right: 5px;
     padding: 0px 0px;
     border-bottom-style: solid;
     border-bottom-color: #eee;
