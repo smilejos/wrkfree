@@ -16,7 +16,7 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        var videoWidth = (this.props.width ? this.props.width : 250);
+        var videoWidth = (this.props.width ? this.props.width : 180);
         return (
             <div className="rtcVideo">
                 <video 

@@ -5,10 +5,8 @@ var WorkSpaceStore = require('../stores/WorkSpaceStore');
 /**
  * child components
  */
-var WorkSpaceBar = require('./WorkSpaceBar.jsx');
-
 var MainWorkSpace = require('./mainBox/MainWorkSpace.jsx');
-var SubWorkSpace = require('./rightBox/SubWorkSpace.jsx');
+var WorkSpaceBar = require('./WorkSpaceBar.jsx');
 
 /**
  * the workspace.jsx is the main container of each channel
@@ -45,8 +43,6 @@ module.exports = React.createClass({
                 <MainWorkSpace 
                     channel={channelInfo} 
                     drawInfo={drawInfo}/>
-                <SubWorkSpace 
-                    channelId={channelInfo.channelId} />
                 <WorkSpaceBar 
                     onConferenceCall={this.state.rtc.onConferenceCall}
                     members={membersInfo} 
@@ -56,4 +52,3 @@ module.exports = React.createClass({
         );
     }
 });
-

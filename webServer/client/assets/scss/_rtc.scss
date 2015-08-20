@@ -3,9 +3,8 @@
  */
 .Webcam-shown {
     position: fixed;
-    left: 50%;
-    margin-left: -100px;
-    top: 50px;
+    bottom: 45px;
+    left: 5px;
     z-index: 100;
     cursor: move;
     box-shadow: -1px 4px 4px rgba(black,0.1), 2px 6px 12px rgba(black,0.1);

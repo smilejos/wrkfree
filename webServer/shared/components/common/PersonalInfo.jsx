@@ -29,7 +29,6 @@ module.exports = React.createClass({
     },
 
     onStoreChange: function(){
-        console.log('store change');
         var state = this.getStore(PersonalStore).getState();
         this.setState(state);
     },
@@ -49,7 +48,6 @@ module.exports = React.createClass({
         var logoutIcon = this._getFontIcon('directions_run');
         var profileIcon = this._getFontIcon('account_box');
         var settingsIcon = this._getFontIcon('settings');
-        console.log('this.state.isActive', this.state.isActive);
         return (
             <div className={ this.state.isActive ? "PersonalInfo PersonalInfoShow" : "PersonalInfo"} >
                 <Menu desktop={true} width={140}>

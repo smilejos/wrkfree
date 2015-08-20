@@ -19,6 +19,7 @@ var UserAvatar = require('../common/userAvatar.jsx');
  */
 var CircularProgress = require('material-ui').CircularProgress;
 var TextField = require('material-ui').TextField;
+var IconButton = require('material-ui').IconButton;
 
  /**
  * @Author: Jos Tung
@@ -81,7 +82,9 @@ var DiscussionArea = React.createClass({
     },
 
     getInitialState: function() {
-        return this._getStateFromStores();
+        var state = this._getStateFromStores();
+        state.isShown = false;
+        return state;
     },
 
     onStoreChange: function(){
@@ -166,12 +169,53 @@ var DiscussionArea = React.createClass({
         };
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: used to handle show discussion messages or not
+     */
+    _showMessages: function(shownState) {
+        this.setState({
+            isShown: shownState
+        });
+    },
+
     render: function(){
+        var isShown = this.state.isShown;
+        var ContainerStyle = {
+            bottom: (isShown ? 40 : -7),
+            boxShadow: (isShown ? '-1px 2px 2px rgba(0,0,0,0.1), 2px 6px 12px rgba(0,0,0,0.1)' : ''),
+        };
+        var headerStyle = {
+            backgroundColor: '#262626',
+            height: 40,
+            color: '#FFF',
+            opacity: 0.8,
+            lineHeight: 2.8,
+            fontWeight: 500
+        };
+        var enableContainerStyle = {
+            position: 'absolute',
+            top: -5,
+            right: 0
+        };
         return (
-            <div className="DiscussionArea" style={this.props.inlineStyle} >
+            <div className="DiscussionArea" style={ContainerStyle}>
+                <div style={headerStyle}>
+                    &nbsp;
+                    &nbsp;
+                    {'Messages'}
+                </div>
+                <div style={enableContainerStyle}>
+                    <IconButton iconClassName={isShown ? "fa fa-angle-down" : "fa fa-angle-up"}
+                        tooltipPosition="top-left"
+                        tooltip={isShown ? "hide message" : "show message"}
+                        onClick={this._showMessages.bind(this, !isShown)}
+                        touch
+                        iconStyle={{color: '#FFF'}} />
+                </div>
                 <ReloadImg isReload={this.state.isReloading} />
-                <MessageList data={this.state.messages} isReload={this.state.isReloading} />
-                <div className="DiscussionInput" >
+                <MessageList data={this.state.messages} isReload={this.state.isReloading} isShown={isShown}/>
+                <div className="DiscussionInput" style={{visibility: isShown ? 'visible' : 'hidden'}}>
                     <TextField 
                         hintText="say something ..." 
                         onKeyDown={this._handleKeyDown} 
@@ -183,14 +227,17 @@ var DiscussionArea = React.createClass({
     }
 });
 
+
 var ReloadImg = React.createClass({
     render: function(){
+        var isReload = this.props.isReload;
         var divStyle = {
-            opacity: this.props.isReload ? 1 : 0
+            marginBottom: -30,
+            opacity: isReload ? 1 : 0
         }
         return ( 
             <div className="ReloadImg" style={divStyle}>
-                <CircularProgress size={0.4}  color={'#888'} />
+                <CircularProgress size={0.4}   />
             </div> 
         );
     }
@@ -199,7 +246,9 @@ var ReloadImg = React.createClass({
 var MessageList = React.createClass({
     render: function(){
         var inlineStyle = {
-            top: this.props.isReload ? 40 : 0
+            top: this.props.isReload ? 40 : 0,
+            height: this.props.isShown ? 350 : 0,
+            backgroundColor: '#FFF'
         }
         var messages = this.props.data.map( function( message ){
             return <Message key={message.sentTime} data={message} />;

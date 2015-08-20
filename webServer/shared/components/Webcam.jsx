@@ -70,7 +70,6 @@ module.exports = React.createClass({
             videoComponent = (
                 <RtcVideo 
                     isMuted
-                    width={200}
                     videoId="localVideo"
                     stream={this.state.stream} />
             );
