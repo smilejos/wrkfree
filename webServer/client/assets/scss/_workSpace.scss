@@ -4,8 +4,8 @@
 .DrawingArea {
     position: absolute;
     background-color: #FFF;
-    left: 150px;
-    margin-top: 30px;
+    left: 50%;
+    margin-top: 1%;
 }
 
 /**
@@ -24,23 +24,24 @@
  */
 .ConferenceArea {
     overflow-y: scroll;
-    @extend .infoBox;
+    position: fixed;
+    left: 0px;
+    top: 50px;
 }
 
 /**
  * the style of discussion area on workspace
  */
 .DiscussionArea {
-    @extend .infoBox;
+    position: fixed;
+    @extend .baseFonts;
+    right: 5px;
+    width: 250px;
 }
 
 .DiscussionInput {
     width: 100%;
-    padding: 5px 5px;
-    position:absolute;
-    height: 50px;
-    bottom:$app-footer-height;
-    right:0px;
+    background-color: $grey-400;
 }
 
 .DiscussionArea .mui-text-field{

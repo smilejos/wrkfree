@@ -18,6 +18,8 @@ if (!SharedUtils.isNumber(BOARD_WIDTH) ||
  */
 var DrawingBoard = require('./drawingBoard.jsx');
 var DrawingPalette = require('./drawingPalette.jsx');
+var ConferenceArea = require('../rightBox/ConferenceArea.jsx');
+var DiscussionArea = require('../rightBox/DiscussionArea.jsx');
 
 var ResizeTimeout = null;
 
@@ -52,7 +54,7 @@ module.exports = React.createClass({
      */
     _resizeCanvas: function() {
         var ratio = (BOARD_WIDTH / BOARD_HEIGHT);
-        var width = (window.innerWidth - 200) * 0.8;
+        var width = (window.innerWidth - 250) * 0.8;
         var height = width / ratio;
         this.setState({
             canvasWidth: width,
@@ -61,15 +63,18 @@ module.exports = React.createClass({
     },
 
     render: function(){
+        var cid = this.props.channel.channelId;
         return (
             <div className="mainBox" >
                 <DrawingPalette isActive={this.props.drawInfo.drawOptions.palette}/>
                 <DrawingBoard 
                     width={this.state.canvasWidth}
                     height={this.state.canvasHeight}
-                    channelId={this.props.channel.channelId} 
+                    channelId={cid} 
                     boardId={this.props.drawInfo.currentBoardId}
                     drawInfo={this.props.drawInfo}/>
+                <ConferenceArea channelId={cid} />
+                <DiscussionArea channelId={cid} />
             </div>
         );
     }
