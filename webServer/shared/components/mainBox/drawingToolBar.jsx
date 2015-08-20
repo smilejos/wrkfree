@@ -247,18 +247,15 @@ module.exports = React.createClass({
                 <div className="pure-u-1-3 Left">
                     <IconButton 
                         iconClassName="fa fa-eyedropper"
-                        tooltip={'pick color'}
-                        touch 
+                        tooltip={'pick color'} 
                         onClick={this._openPalette} />
                     <IconButton 
                         iconClassName="fa fa-paint-brush"
-                        tooltip={'pen mode'}
-                        touch 
+                        tooltip={'pen mode'} 
                         onClick={this._changeToPen} />
                     <IconButton 
                         iconClassName="fa fa-eraser"
-                        tooltip={'eraser mode'}
-                        touch 
+                        tooltip={'eraser mode'} 
                         onClick={this._changeToEraser} />
                 </div>
                 <div className="pure-u-1-3 Center" >
@@ -284,29 +281,24 @@ module.exports = React.createClass({
                     <IconButton 
                         iconClassName="fa fa-plus-square-o"
                         tooltip={'add new board'}
-                        touch 
                         onClick={this._addBoard} />
                     <IconButton 
                         iconClassName="fa fa fa-square-o"
                         iconStyle={drawIconStyle}
                         tooltip={'clean current board'} 
-                        touch
                         onClick={this._cleanBoard} />
                     <IconButton 
                         iconClassName="fa fa-undo"
                         iconStyle={drawIconStyle}
                         tooltip={'undo to previous draw'} 
-                        touch
                         onClick={this._drawUndo} />
                     <IconButton 
                         iconClassName="fa fa-repeat"
                         iconStyle={drawIconStyle}
                         tooltip={'repeat to next draw'}
-                        touch
                         onClick={this._drawRedo} />
                     <IconButton 
                         iconClassName="fa fa-trash-o" 
-                        touch
                         tooltip={'delete current board'} />
                 </div>
             </div>
