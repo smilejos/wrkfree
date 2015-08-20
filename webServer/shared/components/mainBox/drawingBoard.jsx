@@ -319,6 +319,7 @@ module.exports = React.createClass({
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
                     drawInfo={this.props.drawInfo} />
+                <div style={{height: 70}} />
             </div>
         );
     }

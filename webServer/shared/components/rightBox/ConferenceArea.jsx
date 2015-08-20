@@ -49,7 +49,6 @@ module.exports = React.createClass({
                 return (
                     <div key={clientId} style={{marginTop: 10}}>
                         <RtcVideo 
-                            width={180}
                             videoId={clientId} 
                             stream={conference[clientId]} />
                     </div>
