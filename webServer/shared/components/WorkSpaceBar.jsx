@@ -235,21 +235,15 @@ module.exports = React.createClass({
         var hangupIconStyle = {
             color: isConferenceExist ? activeIconColor : inActiveIconColor
         };
-        var nameStyle = {
-            color: '#000',
-            fontSize: 18,
-            paddingLeft: 20,
-            paddingTop: 15
-        };
         return (
             <div className="footer" >
                 <div className={this.props.onConferenceCall ? "leftControl onRtcCall" : "leftControl"}>
-                    <div className="pure-u-1-3 baseFonts" style={nameStyle} >
+                    <div className="baseFonts" style={{position: 'absolute', fontSize: 20, left: 15, top: 10}}>
                         {this._setStarIcon()}
                         &nbsp;
                         {this.props.channel.name}
                     </div>
-                    <div className="pure-u-1-3">
+                    <div style={{position: 'absolute', left: '50%', marginLeft: -100, top: 0}}>
                         <RtcAction 
                             iconName="settings_phone"
                             iconStyle={conferenceIconStyle}
@@ -276,26 +270,26 @@ module.exports = React.createClass({
                             isButtonDisabled={!this.state.isConferenceExist}
                             iconStyle={hangupIconStyle}/>
                     </div>
-                    <div className="pure-u-1-3">
+                    <div style={{position: 'absolute', right: 10, top: 0}}>
                         <IconButton iconClassName="fa fa-user-plus"
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="invite member"
                                     touch
                                     iconStyle={this.state.defaultIconStyle} />
                         <IconButton iconClassName="fa fa-link"
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="copy link"
                                     touch
                                     iconStyle={this.state.defaultIconStyle} />
                         <IconButton iconClassName="fa fa-random"
                                     iconStyle={this.state.defaultIconStyle}
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="switch small window"
                                     touch
                                     onClick={this._siwthToHangout} />
                         <IconButton iconClassName="fa fa-sign-out"
                                     iconStyle={this.state.defaultIconStyle}
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="leave workspace"
                                     touch
                                     onClick={this._onLeave} />
