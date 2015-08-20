@@ -16,7 +16,6 @@ var OpenHangout = require('../../client/actions/openHangout');
  * stores
  */
 var ConferenceStore = require('../stores/ConferenceStore');
-var ToggleStore = require('../stores/ToggleStore');
 var WebcamStore = require('../stores/WebcamStore');
 
 /**
@@ -38,17 +37,13 @@ module.exports = React.createClass({
     statics: {
         storeListeners: {
             '_onConferenceChange': [ConferenceStore],
-            '_onStoreChange': [ToggleStore],
             '_onWebcamChange': [WebcamStore]
         }
     },
 
     getInitialState: function() {
-        var toggleStore = this.getStore(ToggleStore);
         return {
             isConferenceExist: false,
-            isConferenceVisible: toggleStore.conferenceVisible,
-            isDiscussionVisible: toggleStore.discussionVisible,
             isVideoSupported: true,
             isAudioSupported: true,
             isVideoOn: true,
@@ -78,18 +73,6 @@ module.exports = React.createClass({
         var channelId = this.props.channel.channelId;
         this.setState({
             isConferenceExist: conferenceStore.isExist(channelId)
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: for tracking channel's conference state
-     */
-    _onStoreChange: function() {
-        var toggleStore = this.getStore(ToggleStore);
-        this.setState({
-            isConferenceVisible: toggleStore.conferenceVisible,
-            isDiscussionVisible: toggleStore.discussionVisible
         });
     },
 
@@ -200,28 +183,6 @@ module.exports = React.createClass({
     },
 
     /**
-     * @Author: Jos Tung
-     * @Description: switch video display or not
-     */
-    _switchVideo: function() {
-        this.executeAction(ToggleComponent, {
-            param: 'conferenceVisible',
-            isVisible: !this.state.isConferenceVisible,
-        });
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: switch Discussion display or not
-     */
-    _switchChat: function() {
-        this.executeAction(ToggleComponent, {
-            param: 'discussionVisible',
-            isVisible: !this.state.isDiscussionVisible
-        });
-    },
-
-    /**
      * @Author: George_Chen
      * @Description: control current rtc media (video/audio)
      *
@@ -262,8 +223,6 @@ module.exports = React.createClass({
         var isConferenceExist = this.state.isConferenceExist;
         var isVideoSupported = this.state.isVideoSupported;
         var isAudioSupported = this.state.isAudioSupported;
-        var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
-        var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         var conferenceIconStyle = {
             color: isConferenceExist ? inActiveIconColor : activeIconColor
         };
@@ -341,10 +300,6 @@ module.exports = React.createClass({
                                     touch
                                     onClick={this._onLeave} />
                     </div>
-                </div>
-                <div className="rightControl" >
-                    <div className={switchVieoStyle} onClick={this._switchVideo}>Video</div>
-                    <div className={switchChatStyle} onClick={this._switchChat}>Chat</div>
                 </div>
                 <Dialog ref="dialog" 
                     actions={this.state.dialogInfo.actions}

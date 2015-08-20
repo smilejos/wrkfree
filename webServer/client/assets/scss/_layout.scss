@@ -143,18 +143,6 @@ body {
         transition: 0.2s;
         color: $grey-800;
     }
-    /**
-     * define the switch buuton style of bottom setting bar
-     */
-    .rightControl {
-        position: absolute;
-        background-color: $color-background_1;
-        box-shadow: 0 3px 10px rgba(0,0,0,.23);
-        right: 0px;
-        bottom: 0px;
-        height: 100%;
-        width: 250px;
-    }
     .onRtcCall {
         background-color: $grey-600;
         animation-name: barTwinkle;
