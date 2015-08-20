@@ -203,7 +203,7 @@ var DiscussionArea = React.createClass({
                 <div style={headerStyle}>
                     &nbsp;
                     &nbsp;
-                    {'Discussions'}
+                    {'Messages'}
                 </div>
                 <div style={enableContainerStyle}>
                     <IconButton iconClassName={isShown ? "fa fa-angle-down" : "fa fa-angle-up"}

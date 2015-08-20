@@ -54,7 +54,7 @@ module.exports = React.createClass({
      */
     _resizeCanvas: function() {
         var ratio = (BOARD_WIDTH / BOARD_HEIGHT);
-        var width = (window.innerWidth - 200) * 0.85;
+        var width = (window.innerWidth - 200) * 0.8;
         var height = width / ratio;
         if (height > 315) {
             this.setState({
