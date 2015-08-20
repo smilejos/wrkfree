@@ -309,7 +309,8 @@ module.exports = React.createClass({
         // 50 is the height of drawing toolbar
         var DrawAreaStyle = {
             width : this.props.width,
-            height: this.props.height + 50
+            height: this.props.height + 50,
+            marginLeft: -1 * (this.props.width / 2)
         };
         return (
             <div className="DrawingArea" style={DrawAreaStyle} >
@@ -318,6 +319,7 @@ module.exports = React.createClass({
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
                     drawInfo={this.props.drawInfo} />
+                <div style={{height: 70}} />
             </div>
         );
     }

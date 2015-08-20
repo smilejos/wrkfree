@@ -244,26 +244,31 @@ module.exports = React.createClass({
         };
         return (
             <div className="DrawingToolBar" >
-                <div className="pure-u-1-3 Left">
+                <div style={{position: 'absolute', left: 5, bottom: 0}}>
                     <IconButton 
                         iconClassName="fa fa-eyedropper"
-                        tooltip={'pick color'}
+                        tooltipPosition="top-right"
                         touch 
+                        tooltip={'pick color'} 
                         onClick={this._openPalette} />
                     <IconButton 
                         iconClassName="fa fa-paint-brush"
-                        tooltip={'pen mode'}
+                        tooltipPosition="top-right"
                         touch 
+                        tooltip={'pen mode'} 
                         onClick={this._changeToPen} />
                     <IconButton 
                         iconClassName="fa fa-eraser"
-                        tooltip={'eraser mode'}
+                        tooltipPosition="top-right"
                         touch 
+                        tooltip={'eraser mode'} 
                         onClick={this._changeToEraser} />
                 </div>
-                <div className="pure-u-1-3 Center" >
+                <div style={{position: 'absolute', left: '50%', marginLeft: -75, bottom: 0}}>
                     <IconButton 
-                        iconClassName="fa fa-chevron-left" 
+                        iconClassName="fa fa-chevron-left"
+                        tooltipPosition="top-center" 
+                        touch
                         tooltip={'go to previous board'}
                         onClick={this._goToPreviousBoard} />
                     <input type="text"
@@ -276,36 +281,43 @@ module.exports = React.createClass({
                         style={{width:'20', height:'26'}}/>
                         {" / " + this.props.drawInfo.boardNums}
                     <IconButton 
-                        iconClassName="fa fa-chevron-right" 
+                        iconClassName="fa fa-chevron-right"
+                        tooltipPosition="top-center" 
+                        touch
                         tooltip={'go to next board'}
                         onClick={this._goToNextBoard} />
                 </div>
-                <div className="pure-u-1-3 Right" >
+                <div style={{position: 'absolute', right: 10, bottom: 0}}>
                     <IconButton 
                         iconClassName="fa fa-plus-square-o"
+                        tooltipPosition="top-left"
+                        touch
                         tooltip={'add new board'}
-                        touch 
                         onClick={this._addBoard} />
                     <IconButton 
                         iconClassName="fa fa fa-square-o"
+                        tooltipPosition="top-left"
+                        touch
                         iconStyle={drawIconStyle}
                         tooltip={'clean current board'} 
-                        touch
                         onClick={this._cleanBoard} />
                     <IconButton 
                         iconClassName="fa fa-undo"
+                        tooltipPosition="top-left"
+                        touch
                         iconStyle={drawIconStyle}
                         tooltip={'undo to previous draw'} 
-                        touch
                         onClick={this._drawUndo} />
                     <IconButton 
                         iconClassName="fa fa-repeat"
+                        tooltipPosition="top-left"
+                        touch
                         iconStyle={drawIconStyle}
                         tooltip={'repeat to next draw'}
-                        touch
                         onClick={this._drawRedo} />
                     <IconButton 
                         iconClassName="fa fa-trash-o" 
+                        tooltipPosition="top-left"
                         touch
                         tooltip={'delete current board'} />
                 </div>

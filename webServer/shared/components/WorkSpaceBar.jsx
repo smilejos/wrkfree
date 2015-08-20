@@ -16,7 +16,6 @@ var OpenHangout = require('../../client/actions/openHangout');
  * stores
  */
 var ConferenceStore = require('../stores/ConferenceStore');
-var ToggleStore = require('../stores/ToggleStore');
 var WebcamStore = require('../stores/WebcamStore');
 
 /**
@@ -38,17 +37,13 @@ module.exports = React.createClass({
     statics: {
         storeListeners: {
             '_onConferenceChange': [ConferenceStore],
-            '_onStoreChange': [ToggleStore],
             '_onWebcamChange': [WebcamStore]
         }
     },
 
     getInitialState: function() {
-        var toggleStore = this.getStore(ToggleStore);
         return {
             isConferenceExist: false,
-            isConferenceVisible: toggleStore.conferenceVisible,
-            isDiscussionVisible: toggleStore.discussionVisible,
             isVideoSupported: true,
             isAudioSupported: true,
             isVideoOn: true,
@@ -78,18 +73,6 @@ module.exports = React.createClass({
         var channelId = this.props.channel.channelId;
         this.setState({
             isConferenceExist: conferenceStore.isExist(channelId)
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: for tracking channel's conference state
-     */
-    _onStoreChange: function() {
-        var toggleStore = this.getStore(ToggleStore);
-        this.setState({
-            isConferenceVisible: toggleStore.conferenceVisible,
-            isDiscussionVisible: toggleStore.discussionVisible
         });
     },
 
@@ -200,28 +183,6 @@ module.exports = React.createClass({
     },
 
     /**
-     * @Author: Jos Tung
-     * @Description: switch video display or not
-     */
-    _switchVideo: function() {
-        this.executeAction(ToggleComponent, {
-            param: 'conferenceVisible',
-            isVisible: !this.state.isConferenceVisible,
-        });
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: switch Discussion display or not
-     */
-    _switchChat: function() {
-        this.executeAction(ToggleComponent, {
-            param: 'discussionVisible',
-            isVisible: !this.state.isDiscussionVisible
-        });
-    },
-
-    /**
      * @Author: George_Chen
      * @Description: control current rtc media (video/audio)
      *
@@ -262,8 +223,6 @@ module.exports = React.createClass({
         var isConferenceExist = this.state.isConferenceExist;
         var isVideoSupported = this.state.isVideoSupported;
         var isAudioSupported = this.state.isAudioSupported;
-        var switchChatStyle = 'pure-u-1-2 switchButton ' + (this.state.isDiscussionVisible ? 'switchButtonActive' : '');
-        var switchVieoStyle = 'pure-u-1-2 switchButton ' + (this.state.isConferenceVisible ? 'switchButtonActive' : '');
         var conferenceIconStyle = {
             color: isConferenceExist ? inActiveIconColor : activeIconColor
         };
@@ -276,21 +235,15 @@ module.exports = React.createClass({
         var hangupIconStyle = {
             color: isConferenceExist ? activeIconColor : inActiveIconColor
         };
-        var nameStyle = {
-            color: '#000',
-            fontSize: 18,
-            paddingLeft: 20,
-            paddingTop: 15
-        };
         return (
             <div className="footer" >
                 <div className={this.props.onConferenceCall ? "leftControl onRtcCall" : "leftControl"}>
-                    <div className="pure-u-1-3 baseFonts" style={nameStyle} >
+                    <div className="baseFonts" style={{position: 'absolute', fontSize: 20, left: 15, top: 10}}>
                         {this._setStarIcon()}
                         &nbsp;
                         {this.props.channel.name}
                     </div>
-                    <div className="pure-u-1-3">
+                    <div style={{position: 'absolute', left: '50%', marginLeft: -100, top: 0}}>
                         <RtcAction 
                             iconName="settings_phone"
                             iconStyle={conferenceIconStyle}
@@ -317,34 +270,30 @@ module.exports = React.createClass({
                             isButtonDisabled={!this.state.isConferenceExist}
                             iconStyle={hangupIconStyle}/>
                     </div>
-                    <div className="pure-u-1-3">
+                    <div style={{position: 'absolute', right: 10, top: 0}}>
                         <IconButton iconClassName="fa fa-user-plus"
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="invite member"
                                     touch
                                     iconStyle={this.state.defaultIconStyle} />
                         <IconButton iconClassName="fa fa-link"
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="copy link"
                                     touch
                                     iconStyle={this.state.defaultIconStyle} />
                         <IconButton iconClassName="fa fa-random"
                                     iconStyle={this.state.defaultIconStyle}
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="switch small window"
                                     touch
                                     onClick={this._siwthToHangout} />
                         <IconButton iconClassName="fa fa-sign-out"
                                     iconStyle={this.state.defaultIconStyle}
-                                    tooltipPosition="top-center"
+                                    tooltipPosition="top-left"
                                     tooltip="leave workspace"
                                     touch
                                     onClick={this._onLeave} />
                     </div>
-                </div>
-                <div className="rightControl" >
-                    <div className={switchVieoStyle} onClick={this._switchVideo}>Video</div>
-                    <div className={switchChatStyle} onClick={this._switchChat}>Chat</div>
                 </div>
                 <Dialog ref="dialog" 
                     actions={this.state.dialogInfo.actions}
