@@ -37,6 +37,7 @@ var DrawStore = require('../../stores/DrawStore');
 /**
  * child components
  */
+var DrawingPalette = require('./drawingPalette.jsx');
 var DrawingToolBar = require('./drawingToolBar.jsx');
 
 /**
@@ -319,7 +320,9 @@ module.exports = React.createClass({
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
                     drawInfo={this.props.drawInfo} />
-                <div style={{height: 70}} />
+                <div style={{position: 'relative', height: 70}} >
+                    <DrawingPalette isActive={this.props.drawInfo.drawOptions.palette}/>
+                </div>
             </div>
         );
     }
