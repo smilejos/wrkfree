@@ -47,7 +47,6 @@ module.exports = React.createClass({
                     self={self.state.selfUid}
                     title={info[cid].hangoutTitle}
                     isCompressed={info[cid].isCompressed}
-                    hasConference={info[cid].hasConference}
                     isTwinkled={info[cid].isTwinkled}
                     onFocused={info[cid].onFocused}
                     onCall={info[cid].onCall}

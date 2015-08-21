@@ -138,7 +138,8 @@ module.exports = React.createClass({
                 var selfUid = this.getStore(HeaderStore).getSelfInfo().uid;
                 this.executeAction(OpenHangout, {
                     channelId: SharedUtils.get1on1ChannelId(cardInfo.targetUid, selfUid),
-                    hangoutTitle: cardInfo.nickName
+                    hangoutTitle: cardInfo.nickName,
+                    isforcedToOpen: false
                 });
                 this.executeAction(ToggleQuickSearch, {
                     isEnabled: false

@@ -36,7 +36,10 @@ module.exports = function(actionContext, data) {
     }).then(function(){
         var hangoutStore = actionContext.getStore(HangoutStore);
         if (hangoutStore.isHangoutExist(data.channelId)) {
-            actionContext.executeAction(CloseHangout, data);
+            actionContext.executeAction(CloseHangout, {
+                channelId: data.channelId,
+                isStayed: true
+            });
         }
     }).catch(function(err) {
         SharedUtils.printError('enterWorkspace.js', 'core', err);

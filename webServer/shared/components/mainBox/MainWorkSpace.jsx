@@ -17,7 +17,6 @@ if (!SharedUtils.isNumber(BOARD_WIDTH) ||
  * child components
  */
 var DrawingBoard = require('./drawingBoard.jsx');
-var DrawingPalette = require('./drawingPalette.jsx');
 var ConferenceArea = require('../rightBox/ConferenceArea.jsx');
 var DiscussionArea = require('../rightBox/DiscussionArea.jsx');
 
@@ -67,8 +66,7 @@ module.exports = React.createClass({
     render: function(){
         var cid = this.props.channel.channelId;
         return (
-            <div className="mainBox" >
-                <DrawingPalette isActive={this.props.drawInfo.drawOptions.palette}/>
+            <div className="mainBox">
                 <DrawingBoard 
                     width={this.state.canvasWidth}
                     height={this.state.canvasHeight}

@@ -9,6 +9,8 @@ module.exports = CreateStore({
 
     handlers: {
         'CATCH_LOCAL_STREAM': '_catchLocalStream',
+        'UPDATE_STREAM_STATE': '_updateStreamState',
+        'CLEAN_STREAM_STATE': '_cleanStreamState'
     },
 
     initialize: function() {
@@ -18,11 +20,51 @@ module.exports = CreateStore({
             video: false,
             audio: false
         };
+        this.streamStates = {};
     },
 
     /**
      * @Author: George_Chen
-     * @Description: 
+     * @Description: clean current webcam stream state settings
+     *
+     * @param {String}         channelId, the channel id
+     */
+    _cleanStreamState: function(data) {
+        delete this.streamStates[data.channelId];
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: get the default webcam stream settings
+     */
+    _getDefaultStreamState: function() {
+        return {
+            isVideoOn: true,
+            isAudioOn: true
+        };
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: get webcam stream state based on current channel
+     *
+     * @param {String}         channelId, the channel id
+     * @param {Boolean}        isVideo, indicate is video mode
+     * @param {Boolean}        isOn, indicate is trun-on or turn-off
+     */
+    _updateStreamState: function(data) {
+        var stream = this.streamStates[data.channelId];
+        if (data.isVideo) {
+            stream.isVideoOn = data.isOn;
+        } else {
+            stream.isAudioOn = data.isOn;
+        }
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: catch local stream and update on store
      *
      * @param {Boolean}         data.isEnabled, to control webcam div shown or not
      * @param {Object}          data.mediaStream, the media stream instance
@@ -36,9 +78,21 @@ module.exports = CreateStore({
             this.supportedMedia = {
                 video: (this.stream.getVideoTracks().length > 0),
                 audio: (this.stream.getAudioTracks().length > 0)
-            }
+            };
+            this.streamStates[data.channelId] = this._getDefaultStreamState();
         }
         this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: get webcam stream state based on current channel
+     *
+     * @param {String}         channelId, the channel id
+     */
+    getStreamState: function(channelId) {
+        var streamState = this.streamStates[channelId];
+        return (streamState ? streamState : this._getDefaultStreamState());
     },
 
     getState: function() {

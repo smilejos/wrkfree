@@ -54,7 +54,8 @@ module.exports = React.createClass({
         var info = this.props.info;
         this.executeAction(OpenHangout, {
             channelId: this.props.info.channelId,
-            hangoutTitle: info.nickName
+            hangoutTitle: info.nickName,
+            isforcedToOpen: false
         });
     },
 

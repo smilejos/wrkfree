@@ -21,6 +21,12 @@ module.exports = function(actionContext, data) {
         isOn: SharedUtils.argsCheckAsync(data.isOn, 'boolean'),
     }).then(function(reqData) {
         return RtcService.controlMediaAsync(reqData);
+    }).then(function() {
+        actionContext.dispatch('UPDATE_STREAM_STATE', {
+            channelId: data.channelId,
+            isVideo: data.isVideo,
+            isOn: data.isOn
+        });
     }).catch(function(err) {
         SharedUtils.printError('controlMedia.js', 'core', err);
         ActionUtils.showWarningEvent('RTC', 'control rtc media fail');
