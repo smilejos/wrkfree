@@ -2,7 +2,7 @@
 var CreateStore = require('fluxible/addons').createStore;
 
 // workspace bottom offset
-var WORKSPACE_BOTTOM = 45;
+var WORKSPACE_BOTTOM = 50;
 
 // dashboard bottom offset
 var NORMAL_BOTTOM = 5;
