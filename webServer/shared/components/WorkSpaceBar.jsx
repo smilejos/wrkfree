@@ -43,14 +43,17 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
-        var conferenceStore = this.getStore(ConferenceStore);
         var cid = this.props.channel.channelId;
+        var conferenceStore = this.getStore(ConferenceStore);
+        var webcamStore = this.getStore(WebcamStore);
+        var supportedMedia = webcamStore.getState().supportedMedia;
+        var streamState = webcamStore.getStreamState(cid);
         return {
             isConferenceExist: conferenceStore.isExist(cid),
-            isVideoSupported: true,
-            isAudioSupported: true,
-            isVideoOn: true,
-            isAudioOn: true,
+            isVideoSupported: supportedMedia.video,
+            isAudioSupported: supportedMedia.audio,
+            isVideoOn: streamState.isVideoOn,
+            isAudioOn: streamState.isAudioOn,
             defaultIconStyle: {
                 color: Colors.grey500
             },
@@ -61,9 +64,12 @@ module.exports = React.createClass({
     _onWebcamChange: function() {
         var webcamStore = this.getStore(WebcamStore);
         var supportedMedia = webcamStore.getState().supportedMedia;
+        var streamState = webcamStore.getStreamState(this.props.channel.channelId);
         this.setState({
             isVideoSupported: supportedMedia.video,
             isAudioSupported: supportedMedia.audio,
+            isVideoOn: streamState.isVideoOn,
+            isAudioOn: streamState.isAudioOn,
         });
     },
 
@@ -165,11 +171,6 @@ module.exports = React.createClass({
             this.executeAction(HangupConference, {
                 channelId: this.props.channel.channelId
             });
-            // reset video and audio back to default
-            this.setState({
-                isVideoOn: true,
-                isAudioOn: true,
-            });
         }
     },
 
@@ -197,6 +198,17 @@ module.exports = React.createClass({
 
     componentWillReceiveProps: function(nextProps) {
         var isChannelChange = (this.props.channel.channelId !== nextProps.channel.channelId);
+        var webcamStore = this.getStore(WebcamStore);
+        var supportedMedia = webcamStore.getState().supportedMedia;
+        var streamState = webcamStore.getStreamState(nextProps.channel.channelId);
+        if (isChannelChange && streamState) {
+            this.setState({
+                isVideoSupported: supportedMedia.video,
+                isAudioSupported: supportedMedia.audio,
+                isVideoOn: streamState.isVideoOn,
+                isAudioOn: streamState.isAudioOn,
+            });
+        }
         if (isChannelChange && this.state.isConferenceExist) {
             this._hangupConference();
         }

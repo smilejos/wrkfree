@@ -23,6 +23,7 @@ module.exports = function(actionContext, data) {
         return RtcService.startConferenceAsync(reqData);
     }).then(function(localStream) {
         actionContext.dispatch('CATCH_LOCAL_STREAM', {
+            channelId: data.channelId,
             mediaStream: localStream,
             isEnabled: true
         });
