@@ -20,8 +20,6 @@ module.exports = CreateStore({
         'UPDATE_CONFERENCE': '_updateConference',
         'ON_CONFERENCE': '_onCall',
         'CHANGE_ROUTE': '_onChangeRoute',
-        'ON_CONFERENCE_START': '_onConferenceStart',
-        'ON_CONFERENCE_END': '_onConferenceEnd',
         'UPDATE_HANGOUT_TWINKLE': '_updateHangoutTwinkle',
         'UPDATE_HANGOUT_FOCUS': '_updateHangoutFocus'
     },
@@ -83,32 +81,6 @@ module.exports = CreateStore({
     _resizeHangout: function(data) {
         if (this.isHangoutExist(data.channelId)) {
             this.hangoutsInfo[data.channelId].isCompressed = data.isCompressed;
-            this.emitChange();
-        }
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: to handle conference start on current hangout
-     *
-     * @param {String}     data.channelId, channel id
-     */
-    _onConferenceStart: function(data) {
-        if (this.isHangoutExist(data.channelId)) {
-            this.hangoutsInfo[data.channelId].hasConference = true;
-            this.emitChange();
-        }
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: to handle conference stop on current hangout
-     *
-     * @param {String}     data.channelId, channel id
-     */
-    _onConferenceEnd: function(data) {
-        if (this.isHangoutExist(data.channelId)) {
-            this.hangoutsInfo[data.channelId].hasConference = false;
             this.emitChange();
         }
     },

@@ -10,6 +10,7 @@ var HeaderStore = require('../shared/stores/HeaderStore');
 var FriendStore = require('../shared/stores/FriendStore');
 var DashboardStore = require('../shared/stores/DashboardStore');
 var WorkSpaceStore = require('../shared/stores/WorkSpaceStore');
+var HangoutStore = require('../shared/stores/HangoutStore');
 
 /**
  * socket services
@@ -31,9 +32,11 @@ var WorkSpaceChannel = null;
  */
 exports.getDashboardAsync = function(actionContext, routeInfo) {
     var headerStore = actionContext.getStore(HeaderStore);
+    var hangoutStore = actionContext.getStore(HangoutStore);
     var selfInfo = headerStore.getSelfInfo();
+    var isChannelKept = hangoutStore.isHangoutExist(WorkSpaceChannel);
     return Promise.try(function() {
-        return _setWorkSpace(null);
+        return _setWorkSpace(null, isChannelKept);
     }).then(function(result) {
         if (!result) {
             throw new Error('set workspace channel fail');
@@ -59,8 +62,10 @@ exports.getDashboardAsync = function(actionContext, routeInfo) {
  * @param {Object}      routeInfo, route infomation for dashboard route
  */
 exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
+    var hangoutStore = actionContext.getStore(HangoutStore);
+    var isChannelKept = hangoutStore.isHangoutExist(WorkSpaceChannel);
     var channelId = routeInfo.channelId;
-    return _isAuthToEnterChannel(channelId)
+    return _isAuthToEnterChannel(channelId, isChannelKept)
         .then(function(isAuth) {
             if (!isAuth) {
                 throw new Error('enter channel fail');
@@ -87,13 +92,10 @@ exports.getErrorAsync = function(actionContext, routeInfo) {
  *
  * @param {String}      channelId, the channel's id
  */
-function _isAuthToEnterChannel(channelId) {
+function _isAuthToEnterChannel(channelId, isChannelKept) {
     return ChannelService.enterAsync(channelId)
         .then(function(isAuth) {
-            if (!isAuth) {
-                return null;
-            }
-            return _setWorkSpace(channelId);
+            return (!isAuth ? null : _setWorkSpace(channelId, isChannelKept));
         });
 }
 
@@ -106,7 +108,7 @@ function _isAuthToEnterChannel(channelId) {
  *
  * @param {String}      channelId, the channel's id
  */
-function _setWorkSpace(channelId) {
+function _setWorkSpace(channelId, isChannelKept) {
     var setChannel = function(cid) {
         WorkSpaceChannel = cid;
         return true;
@@ -117,10 +119,11 @@ function _setWorkSpace(channelId) {
     if (WorkSpaceChannel === channelId) {
         return true;
     }
-    return ChannelService.leaveAsync(WorkSpaceChannel)
-        .then(function(result) {
-            return (result ? setChannel(channelId) : null);
-        });
+    return Promise.try(function(){
+        return (isChannelKept ? true : ChannelService.leaveAsync(WorkSpaceChannel));
+    }).then(function(result){
+        return (result ? setChannel(channelId) : null);
+    });
 }
 
 /**

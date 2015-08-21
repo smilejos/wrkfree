@@ -17,6 +17,7 @@ var OpenHangout = require('../../client/actions/openHangout');
  */
 var ConferenceStore = require('../stores/ConferenceStore');
 var WebcamStore = require('../stores/WebcamStore');
+var HangoutStore = require('../stores/HangoutStore');
 
 /**
  * material ui components
@@ -83,30 +84,14 @@ module.exports = React.createClass({
      * @Description: for switch current workspace into hangout window
      */
     _siwthToHangout: function() {
-        var dialog = this.refs.dialog;
         var channel = this.props.channel;
-        this.setState({
-            dialogInfo: {
-                title: 'Confirmation',
-                content: 'Your are about to switch into hangout window',
-                actions: [{
-                    text: 'Cancel',
-                    onClick: dialog.dismiss
-                }, {
-                    text: 'Continue',
-                    onClick: function(){
-                        this.transitionTo('/app/dashboard');
-                        setTimeout(function(){
-                            window.context.executeAction(OpenHangout, {
-                                channelId: channel.channelId,
-                                hangoutTitle: channel.name
-                            });
-                        }, 300);
-                    }.bind(this)
-                }]
-            }
+        return window.context.executeAction(OpenHangout, {
+            channelId: channel.channelId,
+            hangoutTitle: channel.name,
+            isforcedToOpen: true
+        }).bind(this).then(function(){
+            this.transitionTo('/app/dashboard');
         });
-        dialog.show();
     },
 
     /**
@@ -214,7 +199,9 @@ module.exports = React.createClass({
     },
 
     componentWillUnmount: function() {
-        if (this.state.isConferenceExist) {
+        var cid = this.props.channel.channelId;
+        var isHangoutExist = this.getStore(HangoutStore).isHangoutExist(cid);
+        if (this.state.isConferenceExist && !isHangoutExist) {
             this._hangupConference();
         }
     },

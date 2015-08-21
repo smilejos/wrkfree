@@ -2,6 +2,12 @@ var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 
 /**
+ * store
+ */
+var ConferenceStore = require('../../stores/ConferenceStore');
+
+
+/**
  * child components
  */
 var HangoutHeader = require('./HangoutHeader.jsx');
@@ -26,13 +32,35 @@ var HANGOUT_MESSAGE_LIST_HEIGHT = 280;
  * @param {String}      this.props.self, the self uid
  * @param {String}      this.props.title, the hangout header title
  * @param {Boolean}     this.props.isCompressed, indicate hangout window size state
- * @param {Boolean}     this.props.hasConference, indicate hangout has conference or not
  * @param {Boolean}     this.props.onCall, indicate hangout has oncall conference or not
  * @param {Number}      this.props.hangoutIndex, the index of current hangout window
  * @param {Number}      this.props.bottomOffset, the hangout bottom offset
  */
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
+
+    statics: {
+        storeListeners: {
+            '_onConferenceChange': [ConferenceStore]
+        }
+    },
+
+    getInitialState: function() {
+        var conferenceStore = this.getStore(ConferenceStore);
+        return {
+            hasConference: conferenceStore.isExist(this.props.channelId)
+        };
+    },
+
+    _onConferenceChange: function() {
+        var conferenceStore = this.getStore(ConferenceStore);
+        var storeConfernceState = conferenceStore.isExist(this.props.channelId);
+        if (storeConfernceState !== this.state.hasConference) {
+            this.setState({
+                hasConference: storeConfernceState
+            });
+        }
+    },
     
     /**
      * @Author: George_Chen
@@ -58,19 +86,19 @@ module.exports = React.createClass({
                 <div style={{'visibility': (this.props.isCompressed ? 'hidden': 'visible')}} onClick={this._onContentClick} >
                     <HangoutConference
                         conferenceHeight={HANGOUT_CONFERENCE_AREA_HEIGHT}
-                        hasConference={this.props.hasConference}
+                        hasConference={this.state.hasConference}
                         channelId={this.props.channelId} />
                     <HangoutMessages 
                         self={this.props.self}
                         conferenceHeight={HANGOUT_CONFERENCE_AREA_HEIGHT}
                         messagesHeight={HANGOUT_MESSAGE_LIST_HEIGHT}
-                        hasConference={this.props.hasConference}
+                        hasConference={this.state.hasConference}
                         onFocused={this.props.onFocused}
                         channelId={this.props.channelId} />
                     <HangoutInput 
                         ref="hangoutInput"
                         self={this.props.self}
-                        hasConference={this.props.hasConference}
+                        hasConference={this.state.hasConference}
                         onCall={this.props.onCall}
                         channelId={this.props.channelId} />
                 </div>
