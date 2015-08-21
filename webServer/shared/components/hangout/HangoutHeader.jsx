@@ -2,8 +2,14 @@ var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var Router = require('react-router');
 
+/**
+ * stores
+ */
+var WorkSpaceStore = require('../../stores/WorkSpaceStore');
+
 var EnterWorkspace = require('../../../client/actions/enterWorkspace');
 var CloseHangout = require('../../../client/actions/closeHangout');
+var OpenHangout = require('../../../client/actions/openHangout');
 var ResizeHangout = require('../../../client/actions/resizeHangout');
 
 /**
@@ -46,7 +52,8 @@ module.exports = React.createClass({
      */
     _close: function() {
         this.executeAction(CloseHangout, {
-            channelId: this.props.channelId
+            channelId: this.props.channelId,
+            isStayed: false
         });
     },
 
@@ -61,13 +68,28 @@ module.exports = React.createClass({
         return <span className={iconClass} onClick={iconHandler} />
     },
 
-    // TODO: a experimental feature, 
+    /**
+     * @Author: George_Chen
+     * @Description: switch current hangout sapce to workspace
+     */
     _switchWorkSpace: function() {
-        this.executeAction(EnterWorkspace, {
-            urlNavigator: this.transitionTo,
-            channelId: this.props.channelId
+        var context = window.context;
+        var wkState = this.getStore(WorkSpaceStore).getState();
+        var wkChannel = wkState.channel;
+        return Promise.try(function(){
+            if (wkChannel.channelId) {
+                return context.executeAction(OpenHangout, {
+                    channelId: wkChannel.channelId,
+                    hangoutTitle: wkChannel.name,
+                    isforcedToOpen: true
+                });
+            }
+        }).bind(this).then(function(){
+            context.executeAction(EnterWorkspace, {
+                urlNavigator: this.transitionTo,
+                channelId: this.props.channelId
+            });
         });
-        this._close();
     },
 
     render: function() {

@@ -20,10 +20,11 @@ var ActionUtils = require('./actionUtils');
 module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        hangoutTitle: SharedUtils.argsCheckAsync(data.hangoutTitle, 'string')
+        hangoutTitle: SharedUtils.argsCheckAsync(data.hangoutTitle, 'string'),
+        isforcedToOpen: SharedUtils.argsCheckAsync(data.isforcedToOpen, 'boolean')
     }).then(function(reqData) {
         var workSpaceStore = actionContext.getStore(WorkSpaceStore);
-        if (workSpaceStore.isOpenedChannel(reqData.channelId)) {
+        if (!reqData.isforcedToOpen && workSpaceStore.isOpenedChannel(reqData.channelId)) {
             return ActionUtils.showInfoEvent('Tips', 'You already open on current workspace');
         }
         return ChannelService.enterAsync(reqData.channelId)

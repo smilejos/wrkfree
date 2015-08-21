@@ -42,7 +42,8 @@ module.exports = React.createClass({
         var info = this.props.info;
         this.executeAction(OpenHangout, {
             channelId: SharedUtils.get1on1ChannelId(info.sender.uid, info.target),
-            hangoutTitle: info.sender.nickName
+            hangoutTitle: info.sender.nickName,
+            isforcedToOpen: false
         });
     },
     

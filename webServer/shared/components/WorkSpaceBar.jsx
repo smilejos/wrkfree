@@ -17,6 +17,7 @@ var OpenHangout = require('../../client/actions/openHangout');
  */
 var ConferenceStore = require('../stores/ConferenceStore');
 var WebcamStore = require('../stores/WebcamStore');
+var HangoutStore = require('../stores/HangoutStore');
 
 /**
  * material ui components
@@ -42,12 +43,17 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
+        var cid = this.props.channel.channelId;
+        var conferenceStore = this.getStore(ConferenceStore);
+        var webcamStore = this.getStore(WebcamStore);
+        var supportedMedia = webcamStore.getState().supportedMedia;
+        var streamState = webcamStore.getStreamState(cid);
         return {
-            isConferenceExist: false,
-            isVideoSupported: true,
-            isAudioSupported: true,
-            isVideoOn: true,
-            isAudioOn: true,
+            isConferenceExist: conferenceStore.isExist(cid),
+            isVideoSupported: supportedMedia.video,
+            isAudioSupported: supportedMedia.audio,
+            isVideoOn: streamState.isVideoOn,
+            isAudioOn: streamState.isAudioOn,
             defaultIconStyle: {
                 color: Colors.grey500
             },
@@ -58,9 +64,12 @@ module.exports = React.createClass({
     _onWebcamChange: function() {
         var webcamStore = this.getStore(WebcamStore);
         var supportedMedia = webcamStore.getState().supportedMedia;
+        var streamState = webcamStore.getStreamState(this.props.channel.channelId);
         this.setState({
             isVideoSupported: supportedMedia.video,
             isAudioSupported: supportedMedia.audio,
+            isVideoOn: streamState.isVideoOn,
+            isAudioOn: streamState.isAudioOn,
         });
     },
 
@@ -81,30 +90,14 @@ module.exports = React.createClass({
      * @Description: for switch current workspace into hangout window
      */
     _siwthToHangout: function() {
-        var dialog = this.refs.dialog;
         var channel = this.props.channel;
-        this.setState({
-            dialogInfo: {
-                title: 'Confirmation',
-                content: 'Your are about to switch into hangout window',
-                actions: [{
-                    text: 'Cancel',
-                    onClick: dialog.dismiss
-                }, {
-                    text: 'Continue',
-                    onClick: function(){
-                        this.transitionTo('/app/dashboard');
-                        setTimeout(function(){
-                            window.context.executeAction(OpenHangout, {
-                                channelId: channel.channelId,
-                                hangoutTitle: channel.name
-                            });
-                        }, 300);
-                    }.bind(this)
-                }]
-            }
+        return window.context.executeAction(OpenHangout, {
+            channelId: channel.channelId,
+            hangoutTitle: channel.name,
+            isforcedToOpen: true
+        }).bind(this).then(function(){
+            this.transitionTo('/app/dashboard');
         });
-        dialog.show();
     },
 
     /**
@@ -172,14 +165,13 @@ module.exports = React.createClass({
      * @Description: to hangup current conference
      */
     _hangupConference: function() {
-        this.executeAction(HangupConference, {
-            channelId: this.props.channel.channelId
-        });
-        // reset video and audio back to default
-        this.setState({
-            isVideoOn: true,
-            isAudioOn: true,
-        });
+        var cid = this.props.channel.channelId;
+        var isHangoutExist = this.getStore(HangoutStore).isHangoutExist(cid);
+        if (!isHangoutExist) {
+            this.executeAction(HangupConference, {
+                channelId: this.props.channel.channelId
+            });
+        }
     },
 
     /**
@@ -206,6 +198,17 @@ module.exports = React.createClass({
 
     componentWillReceiveProps: function(nextProps) {
         var isChannelChange = (this.props.channel.channelId !== nextProps.channel.channelId);
+        var webcamStore = this.getStore(WebcamStore);
+        var supportedMedia = webcamStore.getState().supportedMedia;
+        var streamState = webcamStore.getStreamState(nextProps.channel.channelId);
+        if (isChannelChange && streamState) {
+            this.setState({
+                isVideoSupported: supportedMedia.video,
+                isAudioSupported: supportedMedia.audio,
+                isVideoOn: streamState.isVideoOn,
+                isAudioOn: streamState.isAudioOn,
+            });
+        }
         if (isChannelChange && this.state.isConferenceExist) {
             this._hangupConference();
         }

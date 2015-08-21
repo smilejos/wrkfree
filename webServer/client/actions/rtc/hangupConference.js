@@ -29,6 +29,10 @@ module.exports = function(actionContext, data) {
                 mediaStream: null,
                 isEnabled: false
             });
+        } else {
+            actionContext.dispatch('CLEAN_STREAM_STATE', {
+                channelId: data.channelId
+            });
         }
     }).catch(function(err) {
         SharedUtils.printError('hangupConference.js', 'core', err);
