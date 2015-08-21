@@ -159,14 +159,18 @@ module.exports = React.createClass({
      * @Description: to hangup current conference
      */
     _hangupConference: function() {
-        this.executeAction(HangupConference, {
-            channelId: this.props.channel.channelId
-        });
-        // reset video and audio back to default
-        this.setState({
-            isVideoOn: true,
-            isAudioOn: true,
-        });
+        var cid = this.props.channel.channelId;
+        var isHangoutExist = this.getStore(HangoutStore).isHangoutExist(cid);
+        if (!isHangoutExist) {
+            this.executeAction(HangupConference, {
+                channelId: this.props.channel.channelId
+            });
+            // reset video and audio back to default
+            this.setState({
+                isVideoOn: true,
+                isAudioOn: true,
+            });
+        }
     },
 
     /**
@@ -199,9 +203,7 @@ module.exports = React.createClass({
     },
 
     componentWillUnmount: function() {
-        var cid = this.props.channel.channelId;
-        var isHangoutExist = this.getStore(HangoutStore).isHangoutExist(cid);
-        if (this.state.isConferenceExist && !isHangoutExist) {
+        if (this.state.isConferenceExist) {
             this._hangupConference();
         }
     },
