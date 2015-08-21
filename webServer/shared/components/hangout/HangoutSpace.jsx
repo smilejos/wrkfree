@@ -1,6 +1,5 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
-var HangupConference = require('../../../client/actions/rtc/hangupConference');
 
 /**
  * child components
@@ -41,14 +40,6 @@ module.exports = React.createClass({
      */
     _onContentClick: function() {
         this.refs.hangoutInput.focusInput();
-    },
-
-    componentWillUnmount: function() {
-        if (this.props.hasConference) {
-            this.executeAction(HangupConference, {
-                channelId: this.props.channelId
-            });
-        }
     },
 
     render: function() {

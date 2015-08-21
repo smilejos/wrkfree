@@ -42,8 +42,10 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
+        var conferenceStore = this.getStore(ConferenceStore);
+        var cid = this.props.channel.channelId;
         return {
-            isConferenceExist: false,
+            isConferenceExist: conferenceStore.isExist(cid),
             isVideoSupported: true,
             isAudioSupported: true,
             isVideoOn: true,

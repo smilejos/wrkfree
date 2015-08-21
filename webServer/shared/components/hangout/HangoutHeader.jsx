@@ -46,7 +46,8 @@ module.exports = React.createClass({
      */
     _close: function() {
         this.executeAction(CloseHangout, {
-            channelId: this.props.channelId
+            channelId: this.props.channelId,
+            isStayed: false
         });
     },
 
@@ -61,13 +62,15 @@ module.exports = React.createClass({
         return <span className={iconClass} onClick={iconHandler} />
     },
 
-    // TODO: a experimental feature, 
+    /**
+     * @Author: George_Chen
+     * @Description: switch current hangout sapce to workspace
+     */
     _switchWorkSpace: function() {
         this.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
             channelId: this.props.channelId
         });
-        this._close();
     },
 
     render: function() {
