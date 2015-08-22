@@ -9,6 +9,7 @@ module.exports = CreateStore({
 
     handlers: {
         'CATCH_LOCAL_STREAM': '_catchLocalStream',
+        'CREATE_STREAM_STATE': '_createStreamState',
         'UPDATE_STREAM_STATE': '_updateStreamState',
         'CLEAN_STREAM_STATE': '_cleanStreamState'
     },
@@ -31,6 +32,18 @@ module.exports = CreateStore({
      */
     _cleanStreamState: function(data) {
         delete this.streamStates[data.channelId];
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: setup channel dependent stream state
+     *
+     * @param {String}         data.channelId, the channel id
+     */
+    _createStreamState: function(data) {
+        this.streamStates[data.channelId] = this._getDefaultStreamState();
+        this.isEnabled = true;
+        this.emitChange();
     },
 
     /**
@@ -79,9 +92,17 @@ module.exports = CreateStore({
                 video: (this.stream.getVideoTracks().length > 0),
                 audio: (this.stream.getAudioTracks().length > 0)
             };
-            this.streamStates[data.channelId] = this._getDefaultStreamState();
         }
         this.emitChange();
+    },
+
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: check webcam stream has setup or not
+     */
+    hasLocalStream: function() {
+        return !!this.stream;
     },
 
     /**

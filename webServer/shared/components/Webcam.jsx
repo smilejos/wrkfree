@@ -65,7 +65,7 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        var videoComponent = '';
+        var videoComponent = (<div style={{width: 180, height: 140, backgroundColor: '#000'}}/>);
         if (this.state.stream && this.state.isVideoShown) {
             videoComponent = (
                 <RtcVideo 
