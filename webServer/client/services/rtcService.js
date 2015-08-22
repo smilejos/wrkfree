@@ -7,6 +7,7 @@ var OnConference = require('../actions/rtc/onConference');
 var OnConferenceStop = require('../actions/rtc/onConferenceStop');
 var OnRemoteStream = require('../actions/rtc/onRemoteStream');
 var OnConnectivityFail = require('../actions/rtc/onConnectivityFail');
+var SetupWebcam = require('../actions/rtc/setupWebcam');
 var NotifyConferenceCall = require('../actions/rtc/notifyConferenceCall');
 var Promise = require('bluebird');
 
@@ -182,25 +183,42 @@ exports.startConferenceAsync = function(data) {
                     iceServers: RuntimeIceServers
                 };
             }
-            return RtcHelper.getConnection(data.channelId, options)
-                .getMediaStreamAsync(media)
-                .then(function(stream) {
-                    if (!stream) {
-                        throw new Error('get local stream fail');
-                    }
-                    var packet = _setPacket('startConferenceAsync', null, data);
-                    return _request(packet, 'startConferenceAsync')
-                        .then(function(result) {
-                            if (!result) {
-                                throw new Error('start conference fail on server');
-                            }
-                            return RtcHelper.getVisibleStreamAsync(media);
-                        });
-                });
+            var connection = RtcHelper.getConnection(data.channelId, options);
+            return connection.getMediaStreamAsync(media);
+        }).then(function(stream) {
+            if (!stream) {
+                throw new Error('get sharing stream fail');
+            }
+            var packet = _setPacket('startConferenceAsync', null, data);
+            return _request(packet, 'startConferenceAsync');
         }).catch(function(err) {
             RtcHelper.releaseConnection(data.channelId);
             SharedUtils.printError('rtcService.js', 'startConferenceAsync', err);
             throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to setup the visible stream on client side
+ */
+exports.setupVisibleStream = function() {
+    return RtcHelper.getDeviceSupportAsync()
+        .then(function(media) {
+            return RtcHelper.getVisibleStreamAsync(media);
+        }).then(function(visibleStream) {
+            var hasAliveConnections = RtcHelper.hasAliveConnections();
+            if (hasAliveConnections) {
+                SocketUtils.execAction(SetupWebcam, {
+                    stream: visibleStream
+                });
+            } else {
+                RtcHelper.stopVisibleStreamAsync();
+            }
+        }).catch(function(err) {
+            SharedUtils.printError('rtcService.js', 'setupVisibleStream', err);
+            RtcHelper.stopVisibleStreamAsync();
         });
 };
 

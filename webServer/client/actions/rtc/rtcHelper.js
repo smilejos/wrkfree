@@ -34,8 +34,10 @@ var VisibleStreamId = 'visible';
 exports.releaseConnection = function(id) {
     var connection = Connections[id];
     var connectionCounts = Object.keys(Connections).length;
-    // check visible stream should be removed or not
-    if (connectionCounts === 2) {
+    var visibleConnection = Connections[VisibleStreamId];
+    // check visible stream should be removed or not,
+    // NOTE: visibleConnection.webrtc.localStreams.length == 0 means it's not inited yet
+    if (connectionCounts === 2 && visibleConnection.webrtc.localStreams.length > 0) {
         Connections[VisibleStreamId].stopMediaStream();
         delete Connections[VisibleStreamId];
     }
@@ -92,6 +94,20 @@ exports.getVisibleStreamAsync = function(media) {
 exports.stopVisibleStreamAsync = function() {
     exports.releaseConnection(VisibleStreamId);
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check has alive connections or not
+ *         NOTE:  we don't count the visible stream
+ */
+exports.hasAliveConnections = function() {
+    var connectionIds = Object.keys(Connections);
+    var aliveConnections = connectionIds.filter(function(id) {
+        return (id !== VisibleStreamId);
+    });
+    return (aliveConnections.length > 0);
+}
 
 /**
  * Public API
