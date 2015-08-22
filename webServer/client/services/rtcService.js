@@ -207,15 +207,6 @@ exports.startConferenceAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to stop current rtc service
- */
-exports.stopService = function() {
-    return RtcHelper.stopVisibleStreamAsync();
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: release and hangup current channel conference
  *       
  * @param {String}          data.channelId, the channel id
