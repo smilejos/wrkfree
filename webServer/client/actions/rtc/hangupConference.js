@@ -24,7 +24,6 @@ module.exports = function(actionContext, data) {
     }).then(function() {
         var conferenceStore = actionContext.getStore(ConferenceStore);
         if (!conferenceStore.hasConference()) {
-            RtcService.stopService();
             actionContext.dispatch('CATCH_LOCAL_STREAM', {
                 mediaStream: null,
                 isEnabled: false
