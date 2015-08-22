@@ -47,7 +47,7 @@ module.exports = React.createClass({
     render: function() {
         var contentStyle ={
             height: (this.props.hasConference ? this.props.conferenceHeight : 0),
-            overflow: 'scroll'
+            overflow: 'auto'
         };
         var conference = this.state.conference;
         var rtcComponents = '';
