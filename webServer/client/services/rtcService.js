@@ -94,6 +94,7 @@ exports.notifyConferenceCall = function(data) {
 exports.onConference = function(data) {
     console.log('[DEBUG] current conference session ', data.clients);
     if (data.clients.length === 0) {
+        clearTimeout(SessionsTimeout[data.channelId]);
         return _conferenceStop(data);
     }
     _trackConference({
@@ -230,6 +231,7 @@ exports.setupVisibleStream = function() {
  * @param {String}          data.channelId, the channel id
  */
 exports.hangupConferenceAsync = function(data) {
+    clearTimeout(SessionsTimeout[data.channelId]);
     var packet = _setPacket('hangupConferenceAsync', null, data);
     return _request(packet, 'hangupConferenceAsync')
         .then(function() {
@@ -283,9 +285,7 @@ function _conferenceStop(data) {
  * @param {String}          data.channelId, the channel id
  */
 function _trackConference(data) {
-    if (SessionsTimeout[data.channelId]) {
-        clearTimeout(SessionsTimeout[data.channelId]);
-    }
+    clearTimeout(SessionsTimeout[data.channelId]);
     SessionsTimeout[data.channelId] = setTimeout(function() {
         console.log('[DEBUG] conference session timeout .......');
         _conferenceStop(data);
@@ -300,9 +300,7 @@ function _trackConference(data) {
  * @param {String}          data.channelId, the channel id
  */
 function _trackRtcNotification(data) {
-    if (NotificationsTimeout[data.channelId]) {
-        clearTimeout(NotificationsTimeout[data.channelId]);
-    }
+    clearTimeout(NotificationsTimeout[data.channelId]);
     NotificationsTimeout[data.channelId] = setTimeout(function() {
         SocketUtils.execAction(NotifyConferenceCall, {
             channelId: data.channelId,
