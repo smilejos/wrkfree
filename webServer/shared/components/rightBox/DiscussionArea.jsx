@@ -78,7 +78,7 @@ var DiscussionArea = React.createClass({
      */
     componentDidMount: function(){
         var container = document.getElementById("MsgContainer");
-        var channelId = this._getChannelId();
+        var channelId = this.props.channelId;
         this._pullLatestMessages(channelId);
 
         // Add scroll event listener to control reload message action.
@@ -127,7 +127,7 @@ var DiscussionArea = React.createClass({
      * @Description: pull older messages on current channel
      */
     _pullOlderMessages: function() {
-        var cid = this._getChannelId();
+        var cid = this.props.channelId;
         var oldestMessage = this.getStore(MessageStore).getOldestMessage(cid);
         var timePeriod = {};
         if (oldestMessage) {
@@ -164,7 +164,7 @@ var DiscussionArea = React.createClass({
             var headerStore = this.getStore(HeaderStore);
             var selfInfo = headerStore.getSelfInfo();
             var message = {
-                channelId: this._getChannelId(),
+                channelId: this.props.channelId,
                 message : this.refs.send.getValue(),
                 from: selfInfo.uid
             };
@@ -184,13 +184,10 @@ var DiscussionArea = React.createClass({
         this.setState(state);
     },
 
-    _getChannelId: function(){
-        return this.props.channelId;
-    },
-
     _getStateFromStores: function () {
+        var cid = this.props.channelId;
         return { 
-            messages : this.getStore(MessageStore).getMessages(this._getChannelId()),
+            messages : this.getStore(MessageStore).getMessages(cid),
             isReloading : false
         };
     },
