@@ -4,8 +4,11 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 var ActionUtils = require('../actionUtils');
 var DrawTempStore = require('../../../shared/stores/DrawTempStore');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
+var DrawStore = require('../../../shared/stores/DrawStore');
 var ChannelService = require('../../services/channelService');
+var GetDrawBoard = require('./getDrawBoard');
 var NavToBoard = require('./navToBoard');
+
 // to indicate current tips is showing or not
 var TipsShowing = null;
 
@@ -17,7 +20,6 @@ var MISSING_DRAWS_LIMIT = Configs.get().params.draw.missingDrawLimit;
 if (!SharedUtils.isNumber(MISSING_DRAWS_LIMIT)) {
     throw new Error('draw parameters missing');
 }
-
 
 /**
  * @Public API
@@ -42,14 +44,21 @@ module.exports = function(actionContext, data, callback) {
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
     }).then(function(validData) {
         var drawTempStore = actionContext.getStore(DrawTempStore);
+        var drawStore = actionContext.getStore(DrawStore);
         var wkStore = actionContext.getStore(WorkSpaceStore);
-        var tempRecord = drawTempStore.getDraws(validData.channelId, validData.boardId, validData.clientId);
-        var missingDraws = Math.abs(tempRecord.length - validData.chunksNum);
-        if (missingDraws > MISSING_DRAWS_LIMIT) {
-            throw new Error('record is broken');
-        }
+        var tempRecord, missingDraws;
+        // check to show tips or not
         if (!wkStore.isCurrentUsedBoard(data.channelId, data.boardId)) {
             _showNavigationTips(actionContext, data.channelId, data.boardId);
+        }
+        // check target board is polyfilled or not
+        if (!drawStore.isPolyFilled(data.channelId, data.boardId)) {
+            return actionContext.executeAction(GetDrawBoard, data);
+        }
+        tempRecord = drawTempStore.getDraws(validData.channelId, validData.boardId, validData.clientId);
+        missingDraws = Math.abs(tempRecord.length - validData.chunksNum);
+        if (missingDraws > MISSING_DRAWS_LIMIT) {
+            throw new Error('record is broken');
         }
         return actionContext.dispatch('ON_RECORD_SAVE', {
             channelId: data.channelId,
