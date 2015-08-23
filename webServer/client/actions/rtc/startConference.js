@@ -3,6 +3,7 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 var Promise = require('bluebird');
 var RtcService = require('../../services/rtcService');
 var ActionUtils = require('../actionUtils');
+var WebcamStore = require('../../../shared/stores/WebcamStore');
 
 /**
  * @Public API
@@ -21,13 +22,18 @@ module.exports = function(actionContext, data) {
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5')
     }).then(function(reqData) {
         return RtcService.startConferenceAsync(reqData);
-    }).then(function(localStream) {
-        actionContext.dispatch('CATCH_LOCAL_STREAM', {
-            channelId: data.channelId,
-            mediaStream: localStream,
-            isEnabled: true
+    }).then(function(result) {
+        if (result === null) {
+            throw new Error('start conference fail');
+        }
+        actionContext.dispatch('CREATE_STREAM_STATE', {
+            channelId: data.channelId
         });
     }).then(function() {
+        var store = actionContext.getStore(WebcamStore);
+        if (!store.hasLocalStream()) {
+            RtcService.setupVisibleStream();
+        }
         actionContext.dispatch('ON_CONFERENCE_START', {
             channelId: data.channelId
         });

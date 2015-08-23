@@ -7,6 +7,7 @@ var OnConference = require('../actions/rtc/onConference');
 var OnConferenceStop = require('../actions/rtc/onConferenceStop');
 var OnRemoteStream = require('../actions/rtc/onRemoteStream');
 var OnConnectivityFail = require('../actions/rtc/onConnectivityFail');
+var SetupWebcam = require('../actions/rtc/setupWebcam');
 var NotifyConferenceCall = require('../actions/rtc/notifyConferenceCall');
 var Promise = require('bluebird');
 
@@ -93,6 +94,7 @@ exports.notifyConferenceCall = function(data) {
 exports.onConference = function(data) {
     console.log('[DEBUG] current conference session ', data.clients);
     if (data.clients.length === 0) {
+        clearTimeout(SessionsTimeout[data.channelId]);
         return _conferenceStop(data);
     }
     _trackConference({
@@ -182,21 +184,14 @@ exports.startConferenceAsync = function(data) {
                     iceServers: RuntimeIceServers
                 };
             }
-            return RtcHelper.getConnection(data.channelId, options)
-                .getMediaStreamAsync(media)
-                .then(function(stream) {
-                    if (!stream) {
-                        throw new Error('get local stream fail');
-                    }
-                    var packet = _setPacket('startConferenceAsync', null, data);
-                    return _request(packet, 'startConferenceAsync')
-                        .then(function(result) {
-                            if (!result) {
-                                throw new Error('start conference fail on server');
-                            }
-                            return RtcHelper.getVisibleStreamAsync(media);
-                        });
-                });
+            var connection = RtcHelper.getConnection(data.channelId, options);
+            return connection.getMediaStreamAsync(media);
+        }).then(function(stream) {
+            if (!stream) {
+                throw new Error('get sharing stream fail');
+            }
+            var packet = _setPacket('startConferenceAsync', null, data);
+            return _request(packet, 'startConferenceAsync');
         }).catch(function(err) {
             RtcHelper.releaseConnection(data.channelId);
             SharedUtils.printError('rtcService.js', 'startConferenceAsync', err);
@@ -207,10 +202,25 @@ exports.startConferenceAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to stop current rtc service
+ * @Description: to setup the visible stream on client side
  */
-exports.stopService = function() {
-    return RtcHelper.stopVisibleStreamAsync();
+exports.setupVisibleStream = function() {
+    return RtcHelper.getDeviceSupportAsync()
+        .then(function(media) {
+            return RtcHelper.getVisibleStreamAsync(media);
+        }).then(function(visibleStream) {
+            var hasAliveConnections = RtcHelper.hasAliveConnections();
+            if (hasAliveConnections) {
+                SocketUtils.execAction(SetupWebcam, {
+                    stream: visibleStream
+                });
+            } else {
+                RtcHelper.stopVisibleStreamAsync();
+            }
+        }).catch(function(err) {
+            SharedUtils.printError('rtcService.js', 'setupVisibleStream', err);
+            RtcHelper.stopVisibleStreamAsync();
+        });
 };
 
 /**
@@ -221,6 +231,7 @@ exports.stopService = function() {
  * @param {String}          data.channelId, the channel id
  */
 exports.hangupConferenceAsync = function(data) {
+    clearTimeout(SessionsTimeout[data.channelId]);
     var packet = _setPacket('hangupConferenceAsync', null, data);
     return _request(packet, 'hangupConferenceAsync')
         .then(function() {
@@ -274,9 +285,7 @@ function _conferenceStop(data) {
  * @param {String}          data.channelId, the channel id
  */
 function _trackConference(data) {
-    if (SessionsTimeout[data.channelId]) {
-        clearTimeout(SessionsTimeout[data.channelId]);
-    }
+    clearTimeout(SessionsTimeout[data.channelId]);
     SessionsTimeout[data.channelId] = setTimeout(function() {
         console.log('[DEBUG] conference session timeout .......');
         _conferenceStop(data);
@@ -291,9 +300,7 @@ function _trackConference(data) {
  * @param {String}          data.channelId, the channel id
  */
 function _trackRtcNotification(data) {
-    if (NotificationsTimeout[data.channelId]) {
-        clearTimeout(NotificationsTimeout[data.channelId]);
-    }
+    clearTimeout(NotificationsTimeout[data.channelId]);
     NotificationsTimeout[data.channelId] = setTimeout(function() {
         SocketUtils.execAction(NotifyConferenceCall, {
             channelId: data.channelId,

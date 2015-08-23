@@ -95,6 +95,18 @@ module.exports = CreateStore({
     /**
      * @Public API
      * @Author: George_Chen
+     * @Description: to check the same drwing board is currently used or not
+     *
+     * @param {String}      cid, the channel id
+     * @param {Number}      bid, the board id
+     */
+    isCurrentUsedBoard: function(cid, bid) {
+        return (cid === this.channel.channelId && bid === this.draw.currentBoardId);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
      * @Description: set current board id to target board id
      *
      * @param {Number}      boardId, the target board id
@@ -143,9 +155,7 @@ module.exports = CreateStore({
         var self = this;
         if (data.channelId === this.channel.channelId) {
             this.rtc.onConferenceCall = data.onConferenceCall;
-            if (this.rtcTimeout) {
-                clearTimeout(this.rtcTimeout);
-            }
+            clearTimeout(this.rtcTimeout);
             this.rtcTimeout = setTimeout(function() {
                 self.rtc.onConferenceCall = false;
                 self.emitChange();

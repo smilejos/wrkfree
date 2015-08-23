@@ -40,6 +40,14 @@ module.exports = React.createClass({
         return this._getStoreState();
     },
 
+    componentWillReceiveProps: function(nextProps) {
+        var nextState = null;
+        if (this.props.channelId !== nextProps.channelId) {
+            nextState = this.getStore(ConferenceStore).getState(nextProps.channelId);
+            this.setState(nextState);
+        }
+    },
+
     render: function() {
         var conference = this.state.conference;
         var rtcComponents = '';
