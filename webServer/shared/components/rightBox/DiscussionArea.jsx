@@ -206,7 +206,10 @@ var DiscussionArea = React.createClass({
         var isTwinkled = this.state.isTwinkled;
         var ContainerStyle = {
             bottom: (isShown ? 40 : -7),
-            boxShadow: (isShown ? '-1px 2px 2px rgba(0,0,0,0.1), 2px 6px 12px rgba(0,0,0,0.1)' : ''),
+            boxShadow: (isShown ? '-1px 2px 2px rgba(0,0,0,0.2), 2px 6px 12px rgba(0,0,0,0.2)' : ''),
+            borderRight: 1,
+            borderRightStyle: 'solid',
+            borderColor: '#E0E0E0'
         };
         var headerStyle = {
             backgroundColor: '#262626',
@@ -214,7 +217,8 @@ var DiscussionArea = React.createClass({
             color: '#FFF',
             opacity: 0.8,
             lineHeight: 2.8,
-            fontWeight: 500
+            fontWeight: 500,
+            cursor: 'pointer'
         };
         var enableContainerStyle = {
             position: 'absolute',
@@ -223,7 +227,7 @@ var DiscussionArea = React.createClass({
         };
         return (
             <div className={isTwinkled ? 'DiscussionArea onTwinkle' : 'DiscussionArea'} style={ContainerStyle}>
-                <div style={headerStyle}>
+                <div style={headerStyle} onClick={this._showMessages.bind(this, !isShown)}>
                     &nbsp;
                     &nbsp;
                     <span className="fa fa-comment" />
@@ -247,13 +251,15 @@ var DiscussionArea = React.createClass({
                     isReload={this.state.isReloading} 
                     onClick={this._focusInput} />
                 <div className="DiscussionInput" style={{visibility: isShown ? 'visible' : 'hidden'}}>
-                    <TextField 
-                        onFocus={this._updateFocusedState.bind(this, true)}
-                        onBlur={this._updateFocusedState.bind(this, false)}
-                        hintText="say something ..." 
-                        onKeyDown={this._handleKeyDown} 
-                        getValue={this._getMessage}
-                        ref="send" />
+                    <div style={{width: 230, overflow: 'hidden'}}>
+                        <TextField 
+                            onFocus={this._updateFocusedState.bind(this, true)}
+                            onBlur={this._updateFocusedState.bind(this, false)}
+                            hintText="say something ..." 
+                            onKeyDown={this._handleKeyDown} 
+                            getValue={this._getMessage}
+                            ref="send" />
+                    </div>
                 </div>
             </div>
         );
