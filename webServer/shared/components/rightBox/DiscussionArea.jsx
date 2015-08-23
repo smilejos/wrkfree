@@ -30,7 +30,7 @@ var DiscussionArea = React.createClass({
     mixins: [FluxibleMixin],
     statics: {
         storeListeners: {
-            'onStoreChange': [MessageStore]
+            '_onStoreChange': [MessageStore]
         }
     },
     
@@ -39,11 +39,10 @@ var DiscussionArea = React.createClass({
      * @Description: use this function to scroll-down div after component receive message
      */    
     componentDidUpdate: function(prevProps, prevState){
-        var container = document.getElementById("MsgContainer");
         var currentLastMsg = this.state.messages[this.state.messages.length-1];
         var prevLastMsg = prevState.messages[prevState.messages.length-1];
         if (!prevLastMsg) {
-            return container.scrollTop = container.scrollHeight;
+            return this.refs.msgList.scrollToBottom();
         }
         // new incoming message
         if (prevLastMsg && currentLastMsg.sentTime > prevLastMsg.sentTime) {
@@ -53,10 +52,6 @@ var DiscussionArea = React.createClass({
                     isTwinkled: true
                 });
             }
-            // the normal message list height is less than "500" currently
-            if (container.scrollHeight - container.scrollTop < 500) {
-                container.scrollTop = container.scrollHeight;
-            }
         }
     },
 
@@ -65,8 +60,7 @@ var DiscussionArea = React.createClass({
      * @Description: only switch between different channels will trigger _pullLatestMessages
      */
     componentWillReceiveProps: function(nextProps) {
-        var container = document.getElementById("MsgContainer");
-        container.scrollTop = container.scrollHeight;
+        this.refs.msgList.scrollToBottom();
         if (this.props.channelId !== nextProps.channelId) {            
             this._pullLatestMessages(nextProps.channelId);
         }
@@ -77,20 +71,8 @@ var DiscussionArea = React.createClass({
      * @Description: start to load channel messages from server
      */
     componentDidMount: function(){
-        var container = document.getElementById("MsgContainer");
         var channelId = this.props.channelId;
         this._pullLatestMessages(channelId);
-
-        // Add scroll event listener to control reload message action.
-        // We also use isReloading to avoid user duplicate reload message.
-        container.addEventListener('scroll',function(e){
-            if( e.srcElement.scrollTop == 0 && !this.state.isReloading) {
-                this._pullOlderMessages();
-                this.setState({ 
-                    isReloading: true
-                });
-            }
-        }.bind(this));
     },
 
     getInitialState: function() {
@@ -101,7 +83,7 @@ var DiscussionArea = React.createClass({
         return state;
     },
 
-    onStoreChange: function(){
+    _onStoreChange: function(){
         var state = this._getStateFromStores;
         this.setState(state);
     },
@@ -133,6 +115,9 @@ var DiscussionArea = React.createClass({
         if (oldestMessage) {
             timePeriod.end = oldestMessage.sentTime;
         }
+        this.setState({ 
+            isReloading: true
+        });
         return this._pullMessages(cid, timePeriod);
     },
 
@@ -145,7 +130,7 @@ var DiscussionArea = React.createClass({
      * @param {String}      cid, the channel's id
      * @param {Object}      timePeriod, the time period object, [optional]
      */
-    _pullMessages: function(cid, timePeriod){
+    _pullMessages: function(cid, timePeriod) {
         setTimeout(function(){
             this.executeAction(PullMessagesAction, {
                 channelId: cid,
@@ -160,7 +145,6 @@ var DiscussionArea = React.createClass({
      */
     _handleKeyDown: function(e){
         if( e.which === 13 ) {
-            var container = document.getElementById("MsgContainer");
             var headerStore = this.getStore(HeaderStore);
             var selfInfo = headerStore.getSelfInfo();
             var message = {
@@ -168,14 +152,13 @@ var DiscussionArea = React.createClass({
                 message : this.refs.send.getValue(),
                 from: selfInfo.uid
             };
-            container.scrollTop = container.scrollHeight;
             this.refs.send.clearValue();
+            this.refs.msgList.scrollToBottom();
             this.context.executeAction(SendMessageAction, message);
         }
     },
 
     _updateFocusedState: function(focusState) {
-        var container = document.getElementById("MsgContainer");
         var state = {};
         state.isFocused = focusState;
         if (focusState) {
@@ -193,13 +176,12 @@ var DiscussionArea = React.createClass({
     },
 
     /**
-     * @Author: Jos Tung
+     * @Author: George_Chen
      * @Description: used to handle show discussion messages or not
      */
     _showMessages: function(shownState) {
-        var container = document.getElementById("MsgContainer");
         if (shownState) {
-            container.scrollTop = container.scrollHeight;
+            this.refs.msgList.scrollToBottom();
         }
         this.setState({
             isShown: shownState
@@ -255,9 +237,11 @@ var DiscussionArea = React.createClass({
                 </div>
                 <ReloadImg isReload={this.state.isReloading} />
                 <MessageList isShown={isShown}
-                    data={this.state.messages} 
+                    ref="msgList"
+                    data={this.state.messages}
+                    pullMsgAction={this._pullOlderMessages}
                     isReload={this.state.isReloading} 
-                    clickHandler={this._focusInput} />
+                    onClick={this._focusInput} />
                 <div className="DiscussionInput" style={{visibility: isShown ? 'visible' : 'hidden'}}>
                     <TextField 
                         onFocus={this._updateFocusedState.bind(this, true)}
@@ -289,6 +273,26 @@ var ReloadImg = React.createClass({
 });
 
 var MessageList = React.createClass({
+    scrollToBottom: function() {
+        var container = React.findDOMNode(this);
+        container.scrollTop = container.scrollHeight;
+    },
+
+    componentDidUpdate: function() {
+        var node = React.findDOMNode(this);
+        // the normal message list height is less than "500" currently
+        if (node.scrollHeight - node.scrollTop < 500) {
+            node.scrollTop = node.scrollHeight;
+        }
+    },
+
+    _onScroll: function() {
+        var node = React.findDOMNode(this);
+        if (node.scrollTop === 0 && !this.props.isReload) {
+            this.props.pullMsgAction();
+        }
+    },
+
     render: function(){
         var inlineStyle = {
             top: this.props.isReload ? 40 : 0,
@@ -298,9 +302,12 @@ var MessageList = React.createClass({
         var messages = this.props.data.map( function( message ){
             return <Message key={message.sentTime} data={message} />;
         });
-        return ( 
-            <div onClick={this.props.clickHandler} className="MsgContainer" id="MsgContainer" style={inlineStyle}>
-                {messages}
+        return (
+            <div className="MsgContainer" 
+                style={inlineStyle}
+                onClick={this.props.onClick} 
+                onScroll={this._onScroll} >
+                    {messages}
             </div> 
         );
     }
