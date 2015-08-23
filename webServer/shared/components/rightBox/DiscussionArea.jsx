@@ -53,6 +53,10 @@ var DiscussionArea = React.createClass({
                 });
             }
         }
+        // focus the message input field
+        if (!prevState.isShown && this.state.isShown) {
+            this.refs.send.focus();
+        }
     },
 
     /**
