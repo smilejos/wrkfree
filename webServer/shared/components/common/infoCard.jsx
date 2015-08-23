@@ -18,6 +18,8 @@ var CheckChannelReq = require('../../../client/actions/channel/checkChannelReq')
 var CheckFriendReq = require('../../../client/actions/friend/checkFriendReq');
 var OpenHangout = require('../../../client/actions/openHangout');
 var ToggleQuickSearch = require('../../../client/actions/search/toggleQuickSearch');
+var EnterWorkspace = require('../../../client/actions/enterWorkspace');
+
 
 /**
  * stores
@@ -116,12 +118,15 @@ module.exports = React.createClass({
             value: 'WorkSpace',
             style: 'fa fa-sign-in',
             handler: function(cardInfo){
-                this.transitionTo('/app/workspace/' + cardInfo.channelId + '?board=1');
-                setTimeout(function(){
-                    this.executeAction(ToggleQuickSearch, {
+                var context = window.context;
+                return context.executeAction(EnterWorkspace, {
+                    urlNavigator: this.transitionTo,
+                    channelId: cardInfo.channelId
+                }).then(function(){
+                    context.executeAction(ToggleQuickSearch, {
                         isEnabled: false
-                    });
-                }.bind(this), 200);
+                    });                  
+                });
             }
         };
     },

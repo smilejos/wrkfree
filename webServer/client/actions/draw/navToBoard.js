@@ -1,6 +1,8 @@
 'use strict';
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var HangoutStore = require('../../../shared/stores/HangoutStore');
+var CloseHangout = require('../closeHangout');
 
 /**
  * @Public API
@@ -23,6 +25,14 @@ module.exports = function(actionContext, data) {
                 throw new Error('get url navigator fail');
             }
             navigator('/app/workspace/' + cid + '?board=' + boardIndex);
+        }).then(function() {
+            var hangoutStore = actionContext.getStore(HangoutStore);
+            if (hangoutStore.isHangoutExist(data.channelId)) {
+                actionContext.executeAction(CloseHangout, {
+                    channelId: data.channelId,
+                    isStayed: true
+                });
+            }
         }).catch(function(err) {
             SharedUtils.printError('navToBoard.js', 'core', err);
         });

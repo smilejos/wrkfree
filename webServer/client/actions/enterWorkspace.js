@@ -4,8 +4,6 @@ var SharedUtils = require('../../../sharedUtils/utils');
 var DrawService = require('../services/drawService');
 var NavToBoard = require('./draw/navToBoard');
 var ActionUtils = require('./actionUtils');
-var CloseHangout = require('./closeHangout');
-var HangoutStore = require('../../shared/stores/HangoutStore');
 
 
 /**
@@ -33,14 +31,6 @@ module.exports = function(actionContext, data) {
             channelId: data.channelId,
             boardId: latestBoardId
         });
-    }).then(function(){
-        var hangoutStore = actionContext.getStore(HangoutStore);
-        if (hangoutStore.isHangoutExist(data.channelId)) {
-            actionContext.executeAction(CloseHangout, {
-                channelId: data.channelId,
-                isStayed: true
-            });
-        }
     }).catch(function(err) {
         SharedUtils.printError('enterWorkspace.js', 'core', err);
         ActionUtils.showErrorEvent('Channel', err.toString());
