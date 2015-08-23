@@ -38,13 +38,25 @@ var DiscussionArea = React.createClass({
      * @Author: Jos Tung
      * @Description: use this function to scroll-down div after component receive message
      */    
-    componentDidUpdate: function(nextProps, nextState){
+    componentDidUpdate: function(prevProps, prevState){
         var container = document.getElementById("MsgContainer");
-
-        // if channel is not "reload message"
-        // we don't auto scroll to bottom. 
-        if( container.scrollTop != 0) {
-            container.scrollTop = container.scrollHeight;    
+        var currentLastMsg = this.state.messages[this.state.messages.length-1];
+        var prevLastMsg = prevState.messages[prevState.messages.length-1];
+        if (!prevLastMsg) {
+            return container.scrollTop = container.scrollHeight;
+        }
+        // new incoming message
+        if (prevLastMsg && currentLastMsg.sentTime > prevLastMsg.sentTime) {
+            // if message input is current not focused, then twinkle the discussion area
+            if (!this.state.isFocused) {
+                this.setState({
+                    isTwinkled: true
+                });
+            }
+            // the normal message list height is less than "500" currently
+            if (container.scrollHeight - container.scrollTop < 500) {
+                container.scrollTop = container.scrollHeight;
+            }
         }
     },
 
@@ -84,6 +96,8 @@ var DiscussionArea = React.createClass({
     getInitialState: function() {
         var state = this._getStateFromStores();
         state.isShown = false;
+        state.isFocused = false;
+        state.isTwinkled = false;
         return state;
     },
 
@@ -146,6 +160,7 @@ var DiscussionArea = React.createClass({
      */
     _handleKeyDown: function(e){
         if( e.which === 13 ) {
+            var container = document.getElementById("MsgContainer");
             var headerStore = this.getStore(HeaderStore);
             var selfInfo = headerStore.getSelfInfo();
             var message = {
@@ -153,9 +168,20 @@ var DiscussionArea = React.createClass({
                 message : this.refs.send.getValue(),
                 from: selfInfo.uid
             };
+            container.scrollTop = container.scrollHeight;
             this.refs.send.clearValue();
             this.context.executeAction(SendMessageAction, message);
         }
+    },
+
+    _updateFocusedState: function(focusState) {
+        var container = document.getElementById("MsgContainer");
+        var state = {};
+        state.isFocused = focusState;
+        if (focusState) {
+            state.isTwinkled = false;
+        }
+        this.setState(state);
     },
 
     _getChannelId: function(){
@@ -174,13 +200,27 @@ var DiscussionArea = React.createClass({
      * @Description: used to handle show discussion messages or not
      */
     _showMessages: function(shownState) {
+        var container = document.getElementById("MsgContainer");
+        if (shownState) {
+            container.scrollTop = container.scrollHeight;
+        }
         this.setState({
             isShown: shownState
         });
     },
 
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: focusing current message input area
+     */
+    _focusInput: function() {
+        this.refs.send.focus();
+    },
+
     render: function(){
         var isShown = this.state.isShown;
+        var isTwinkled = this.state.isTwinkled;
         var ContainerStyle = {
             bottom: (isShown ? 40 : -7),
             boxShadow: (isShown ? '-1px 2px 2px rgba(0,0,0,0.1), 2px 6px 12px rgba(0,0,0,0.1)' : ''),
@@ -199,8 +239,11 @@ var DiscussionArea = React.createClass({
             right: 0
         };
         return (
-            <div className="DiscussionArea" style={ContainerStyle}>
+            <div className={isTwinkled ? 'DiscussionArea onTwinkle' : 'DiscussionArea'} style={ContainerStyle}>
                 <div style={headerStyle}>
+                    &nbsp;
+                    &nbsp;
+                    <span className="fa fa-comment" />
                     &nbsp;
                     &nbsp;
                     {'Messages'}
@@ -214,9 +257,14 @@ var DiscussionArea = React.createClass({
                         iconStyle={{color: '#FFF'}} />
                 </div>
                 <ReloadImg isReload={this.state.isReloading} />
-                <MessageList data={this.state.messages} isReload={this.state.isReloading} isShown={isShown}/>
+                <MessageList isShown={isShown}
+                    data={this.state.messages} 
+                    isReload={this.state.isReloading} 
+                    clickHandler={this._focusInput} />
                 <div className="DiscussionInput" style={{visibility: isShown ? 'visible' : 'hidden'}}>
                     <TextField 
+                        onFocus={this._updateFocusedState.bind(this, true)}
+                        onBlur={this._updateFocusedState.bind(this, false)}
                         hintText="say something ..." 
                         onKeyDown={this._handleKeyDown} 
                         getValue={this._getMessage}
@@ -254,7 +302,7 @@ var MessageList = React.createClass({
             return <Message key={message.sentTime} data={message} />;
         });
         return ( 
-            <div className="MsgContainer" id="MsgContainer" style={inlineStyle}>
+            <div onClick={this.props.clickHandler} className="MsgContainer" id="MsgContainer" style={inlineStyle}>
                 {messages}
             </div> 
         );
