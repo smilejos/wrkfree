@@ -45,8 +45,9 @@
 }
 
 .DiscussionInput {
-    width: 100%;
-    background-color: $grey-400;
+    width: auto;
+    padding-left: 10px;
+    background-color: $grey-200;
 }
 
 .DiscussionArea .mui-text-field{
