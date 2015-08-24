@@ -14,7 +14,8 @@ module.exports = CreateStore({
         'ON_DRAW_RECEIVE': '_onDrawReceive',
         'ON_RECORD_SAVE': '_onTempDrawClean',
         'ON_DRAW_INITED': '_onTempDrawClean',
-        'CLEAN_FAILURE_DRAW': '_onTempDrawClean'
+        'CLEAN_FAILURE_DRAW': '_onTempDrawClean',
+        'ON_BOARD_POLYFILL': '_cleanLocalTemp'
     },
 
     initialize: function() {
@@ -80,6 +81,22 @@ module.exports = CreateStore({
             draws.clear();
         }
         this.tempDrawOptions.del(drawId);
+    },
+
+    /**
+     * Public API
+     * @Author: George_Chen
+     * @Description: for clean local temp draws
+     *
+     * @param {String}          data.channelId, the channel id
+     * @param {Number}          data.boardId, the draw board id
+     */
+    _cleanLocalTemp:function(data) {
+        this._onTempDrawClean({
+            channelId: data.channelId,
+            boardId: data.boardId,
+            clientId: 'local'
+        });
     },
 
     /**
