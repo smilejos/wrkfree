@@ -37,6 +37,6 @@ module.exports = function(actionContext, data) {
     }).catch(function(err) {
         SharedUtils.printError('startConference.js', 'core', err);
         // TODO: some error handling
-        ActionUtils.showErrorEvent('Error', 'entering conference fail');
+        ActionUtils.showWarningEvent('Conference Fail', 'server reject your request');
     });
 };
