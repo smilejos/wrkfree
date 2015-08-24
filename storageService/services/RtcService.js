@@ -14,10 +14,10 @@ var ChannelDao = require('../daos/ChannelDao');
  * @param {String}      socketId, the client socket id
  * @param {Object}      sdp, session's sdp
  */
-exports.joinSessionAsync = function(channelId, socketId, sdp) {
+exports.joinSessionAsync = function(channelId, uid, socketId, sdp) {
     return Promise.join(
         SessionTemp.joinAsync(channelId, socketId),
-        ClientTemp.setSdpAsync(channelId, socketId, sdp),
+        ClientTemp.setSdpAsync(channelId, uid, socketId, sdp),
         function(joinResult, setResult) {
             return (joinResult || setResult);
         }).catch(function(err) {
@@ -36,8 +36,8 @@ exports.joinSessionAsync = function(channelId, socketId, sdp) {
  * @param {String}      socketId, the client socket id
  * @param {Object}      sdp, session's sdp
  */
-exports.setSdpAsync = function(channelId, socketId, sdp) {
-    return ClientTemp.setSdpAsync(channelId, socketId, sdp)
+exports.setSdpAsync = function(channelId, uid, socketId, sdp) {
+    return ClientTemp.setSdpAsync(channelId, uid, socketId, sdp)
         .catch(function(err) {
             SharedUtils.printError('RtcService.js', 'setSdpAsync', err);
             return null;
@@ -52,9 +52,11 @@ exports.setSdpAsync = function(channelId, socketId, sdp) {
  * @param {String}      channelId, channel id
  * @param {String}      socketId, the client socket id
  */
-exports.leaveSessionAsync = function(channelId, socketId) {
-    return ChannelDao.is1on1Async(channelId)
-        .then(function(is1on1) {
+exports.leaveSessionAsync = function(channelId, uid, socketId) {
+    return Promise.join(
+        ChannelDao.is1on1Async(channelId),
+        ClientTemp.deleteClientAsync(channelId, uid, socketId),
+        function(is1on1) {
             if (is1on1) {
                 return SessionTemp.deleteAsync(channelId);
             }
@@ -121,8 +123,8 @@ exports.getTargetsSdpAsync = function(channelId, targets) {
  * @param {String}      channelId, channel id
  * @param {String}      socketId, the client socket id
  */
-exports.keepClientAliveAsync = function(channelId, socketId) {
-    return ClientTemp.keepAliveAsync(channelId, socketId)
+exports.keepClientAliveAsync = function(channelId, uid, socketId) {
+    return ClientTemp.keepAliveAsync(channelId, uid, socketId)
         .catch(function(err) {
             SharedUtils.printError('RtcService.js', 'keepClientAliveAsync', err);
             return null;
@@ -140,6 +142,22 @@ exports.isSessionExistAsync = function(channelId) {
     return SessionTemp.isExistAsync(channelId)
         .catch(function(err) {
             SharedUtils.printError('RtcService.js', 'isSessionExistAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check current user has joined the current rtc session or not
+ *
+ * @param {String}      channelId, channel id
+ * @param {String}      uid, the user id
+ */
+exports.isSessionJoinedAsync = function(channelId, uid) {
+    return ClientTemp.isUserJoinedAsync(channelId, uid)
+        .catch(function(err) {
+            SharedUtils.printError('RtcService.js', 'isSessionJoinedAsync', err);
             return null;
         });
 };
