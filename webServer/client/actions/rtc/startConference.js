@@ -23,9 +23,6 @@ module.exports = function(actionContext, data) {
     }).then(function(reqData) {
         return RtcService.startConferenceAsync(reqData);
     }).then(function(result) {
-        if (result === null) {
-            throw new Error('start conference fail');
-        }
         actionContext.dispatch('CREATE_STREAM_STATE', {
             channelId: data.channelId
         });
