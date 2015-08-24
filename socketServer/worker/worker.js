@@ -118,7 +118,9 @@ module.exports.run = function(worker) {
         LogUtils.info(LogCategory, {
             socketId: sid
         }, 'user [' + uid + '] leave ...');
-        return _disconnectChannel(sid, subscriptions);
+        if (uid) {
+            return _disconnectChannel(uid, sid, subscriptions);
+        }
     }
 
     /*
@@ -204,12 +206,12 @@ module.exports.run = function(worker) {
  * @param {String}        socketId, the client socket id
  * @param {Array}         subscriptions, subscription channels
  */
-function _disconnectChannel(socketId, subscriptions) {
+function _disconnectChannel(uid, socketId, subscriptions) {
     var rtcStorage = StorageManager.getService('Rtc');
     return Promise.map(subscriptions, function(subscription) {
         var info = subscription.split(':');
         if (info[0] === 'channel') {
-            return rtcStorage.leaveSessionAsync(info[1], socketId);
+            return rtcStorage.leaveSessionAsync(info[1], uid, socketId);
         }
     });
 }
