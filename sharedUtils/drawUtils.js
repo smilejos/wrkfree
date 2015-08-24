@@ -105,12 +105,18 @@ exports.generateCleanRecord = function(cid, bid) {
  * Public API
  * @Author: George_Chen
  * @Description: clean all pixels on target canvas
+ *         NOTE: http://www.w3schools.com/tags/canvas_settransform.asp
+ *               due to resizing canvas, so clear method has much works to do
  *
  * @param {Object}          canvas, html5 canvas object
  */
 exports.cleanCanvas = function(canvas) {
     var ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    // Will always clear the right space
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.restore();
 };
 
 /**
