@@ -1,5 +1,6 @@
 'use strict';
 var Promise = require('bluebird');
+var Deque = require('double-ended-queue');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var DrawStorage = StorageManager.getService('Draw');
@@ -7,6 +8,13 @@ var DrawWorker = require('../services/drawWorker');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
 var LogUtils = require('../../../sharedUtils/logUtils');
 var LogCategory = 'HANDLER';
+
+var Configs = require('../../../configs/config');
+
+// used to limit the active reocrds number
+var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
+
+var DEFAULT_TEMP_DRAWS_LENGTH = 200;
 
 /**
  * Public API
@@ -20,23 +28,21 @@ var LogCategory = 'HANDLER';
 exports.initToDrawAsync = function(socket, data) {
     LogUtils.info(LogCategory, {
         uid: socket.getAuthToken()
-    }, '[' + socket.id + '] drawing ... ');
+    }, '[' + socket.id + '] initToDrawAsync ... ');
+
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            return DrawStorage.initDrawStreamAsync(cid, bid, socket.id);
-        }).then(function(result) {
-            if (result === null) {
-                throw new Error('client fail to init draw on storage service');
-            }
+            var drawId = DrawUtils.getDrawViewId(cid, bid);
             data.clientId = socket.id;
-            return result;
+            _clearTempDraws(socket, drawId);
+            return true;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
                 reqData: data,
                 error: err.toString()
-            }, '[' + socket.id + '] fail on drawAsync');
+            }, '[' + socket.id + '] fail on initToDrawAsync');
             throw err;
         });
 };
@@ -60,13 +66,19 @@ exports.drawAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         DrawUtils.checkDrawChunksAsync(data.chunks),
         function(cid, bid, chunks) {
-            return DrawStorage.streamRecordDataAsync(cid, bid, socket.id, chunks);
-        }).then(function(result) {
-            if (result) {
-                data.clientId = socket.id;
+            var drawId = DrawUtils.getDrawViewId(cid, bid);
+            data.clientId = socket.id;
+            if (!socket.drawTemp) {
+                throw new Error('drawTemp data has not inited');
             }
-            var errMsg = 'drawing fail on storage service';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            if (!socket.drawTemp[drawId]) {
+                throw new Error('temp data on current board has not inited');
+            }
+            if (socket.drawTemp[drawId].length > ACTIVED_DRAWS_LIMIT) {
+                throw new Error('draws exceed limit');
+            }
+            socket.drawTemp[drawId].push(chunks);
+            return true;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
                 reqData: data,
@@ -96,40 +108,43 @@ exports.saveRecordAsync = function(socket, data) {
         channelId: data.channelId,
         boardId: data.boardId
     }, '[' + socket.id + '] save draw record... ');
+    var drawId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, chunksLength, drawOptions) {
-            return DrawStorage.saveRecordAsync(cid, bid, socket.id, chunksLength, drawOptions);
+            var tempRecord = socket.drawTemp[drawId].toArray();
+            return DrawStorage.saveRecordAsync(cid, bid, tempRecord, chunksLength, drawOptions);
         }).then(function(result) {
-            if (!result) {
-                throw new Error('save draw record fail on storage service');
+        var uid = socket.getAuthToken();
+        if (!result) {
+            throw new Error('save draw record fail on storage service');
+        }
+        _clearTempDraws(socket, drawId);
+        data.clientId = socket.id;
+        // enqueue a preview image update job
+        DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+        return result;
+    }).catch(function(err) {
+        LogUtils.warn(LogCategory, {
+            reqData: data,
+            error: err.toString()
+        }, '[' + socket.id + '] fail on saveRecordAsync');
+        // inform other members the latest draw saving failure
+        socket.global.publish('channel:' + data.channelId, {
+            service: 'draw',
+            clientHandler: 'onSaveDrawRecord',
+            socketId: socket.id,
+            params: {
+                channelId: data.channelId,
+                boardId: data.boardId,
+                clientId: socket.id
             }
-            data.clientId = socket.id;
-            // enqueue a preview image update job
-            var uid = socket.getAuthToken();
-            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
-            return result;
-        }).catch(function(err) {
-            LogUtils.warn(LogCategory, {
-                reqData: data,
-                error: err.toString()
-            }, '[' + socket.id + '] fail on saveRecordAsync');
-            // inform other members the latest draw saving failure
-            socket.global.publish('channel:' + data.channelId, {
-                service: 'draw',
-                clientHandler: 'onSaveDrawRecord',
-                socketId: socket.id,
-                params: {
-                    channelId: data.channelId,
-                    boardId: data.boardId,
-                    clientId: socket.id
-                }
-            });
-            throw err;
         });
+        throw err;
+    });
 };
 
 /**
@@ -149,18 +164,20 @@ exports.saveSingleDrawAsync = function(socket, data) {
         channelId: data.channelId,
         boardId: data.boardId
     }, '[' + socket.id + '] save single draw point record... ');
+    var drawId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         DrawUtils.checkDrawChunksAsync(data.chunks),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, chunks, drawOptions) {
-            return DrawStorage.saveSingleDrawAsync(cid, bid, socket.id, chunks, drawOptions);
+            return DrawStorage.saveSingleDrawAsync(cid, bid, chunks, drawOptions);
         }).then(function(result) {
+            var uid = socket.getAuthToken();
             if (result === null) {
                 throw new Error('fail to save single draw on storage service');
             }
-            var uid = socket.getAuthToken();
+            _clearTempDraws(socket, drawId);
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
@@ -187,16 +204,18 @@ exports.cleanDrawBoardAsync = function(socket, data) {
         channelId: data.channelId,
         boardId: data.boardId
     }, '[' + socket.id + '] clean current board... ');
+    var drawId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            return DrawStorage.cleanBoardAsync(cid, bid, socket.id);
+            return DrawStorage.cleanBoardAsync(cid, bid);
         }).then(function(result) {
             if (result === null) {
                 throw new Error('fail to clean drawboard');
             }
             var uid = socket.getAuthToken();
+            _clearTempDraws(socket, drawId);
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
@@ -256,6 +275,7 @@ exports.drawUndoAsync = function(socket, data) {
         channelId: data.channelId,
         boardId: data.newBoardId
     }, '[' + socket.id + '] try to undo last draw... ');
+    var drawId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -267,6 +287,7 @@ exports.drawUndoAsync = function(socket, data) {
                 throw new Error('fail to undo last draw on storage service');
             }
             var uid = socket.getAuthToken();
+            _clearTempDraws(socket, drawId);
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
@@ -293,6 +314,7 @@ exports.drawRedoAsync = function(socket, data) {
         channelId: data.channelId,
         boardId: data.newBoardId
     }, '[' + socket.id + '] try to restore last undo draw... ');
+    var drawId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -304,6 +326,7 @@ exports.drawRedoAsync = function(socket, data) {
                 throw new Error('fail to restore last undo draw on storage service');
             }
             var uid = socket.getAuthToken();
+            _clearTempDraws(socket, drawId);
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;
         }).catch(function(err) {
@@ -384,3 +407,21 @@ exports.getLatestBoardIdAsync = function(socket, data) {
             throw err;
         });
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: for user to clear his temp draws on current drawingBoard
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          drawId, the drawing id
+ */
+function _clearTempDraws(socket, drawId) {
+    if (!socket.drawTemp) {
+        socket.drawTemp = {};
+    }
+    if (!socket.drawTemp[drawId]) {
+        socket.drawTemp[drawId] = new Deque(DEFAULT_TEMP_DRAWS_LENGTH);
+    } else {
+        socket.drawTemp[drawId].clear();
+    }
+}
