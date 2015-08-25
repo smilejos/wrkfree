@@ -15,16 +15,21 @@ var RtcWorker = require('../services/rtcWorker');
  */
 exports.startConferenceAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
-        .then(function(cid){
-            return RtcStorage.isSessionExistAsync(cid)
-                .then(function(isExist){
-                    var sdp = _getDefaultSdp();
+        .then(function(cid) {
+            var uid = socket.getAuthToken();
+            return Promise.join(
+                RtcStorage.isSessionExistAsync(cid),
+                RtcStorage.isSessionJoinedAsync(cid, uid),
+                function(isExist, isJoined) {
+                    if (isJoined) {
+                        throw new Error('conference has aleready joined');
+                    }
                     if (!isExist) {
                         RtcWorker.pushNotification(cid);
                     }
-                    return RtcStorage.joinSessionAsync(cid, socket.id, sdp);
+                    return RtcStorage.joinSessionAsync(cid, uid, socket.id, _getDefaultSdp());
                 });
-        }).then(function(result){
+        }).then(function(result) {
             var errMsg = 'fail to join rtc session on storage service';
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
@@ -44,7 +49,8 @@ exports.startConferenceAsync = function(socket, data) {
 exports.hangupConferenceAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
         .then(function(cid) {
-            return RtcStorage.leaveSessionAsync(cid, socket.id);
+            var uid = socket.getAuthToken();
+            return RtcStorage.leaveSessionAsync(cid, uid, socket.id);
         }).then(function(success) {
             var errMsg = 'fail to delete rtc client on storage service';
             return SharedUtils.checkExecuteResult(success, errMsg);
@@ -69,8 +75,9 @@ exports.getTargetsSdpAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.targets, 'array'),
         function(cid, targetSids) {
-            return RtcStorage.keepClientAliveAsync(cid, socket.id)
-                .then(function(){
+            var uid = socket.getAuthToken();
+            return RtcStorage.keepClientAliveAsync(cid, uid, socket.id)
+                .then(function() {
                     var isEmpty = (targetSids.length === 0);
                     return (isEmpty ? null : RtcStorage.getTargetsSdpAsync(cid, targetSids));
                 });
@@ -101,7 +108,7 @@ exports.getIceConfigsAsync = function(socket, data) {
                 credential: "user@wrkfree"
             }]
         };
-    }).catch(function(err){
+    }).catch(function(err) {
         SharedUtils.printError('rtcHandler.js', 'getIceConfigsAsync', err);
         throw err;
     });

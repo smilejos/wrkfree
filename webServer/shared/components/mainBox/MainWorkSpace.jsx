@@ -8,6 +8,9 @@ var Configs = require('../../../../configs/config');
 var BOARD_WIDTH = Configs.get().params.draw.boardWidth;
 var BOARD_HEIGHT = Configs.get().params.draw.boardHeight;
 
+var MINIMUM_BOARD_WIDTH = 568;
+var MINIMUM_BOARD_HEIGHT = 315;
+
 if (!SharedUtils.isNumber(BOARD_WIDTH) || 
     !SharedUtils.isNumber(BOARD_HEIGHT)) {
     throw new Error('error while on getting draw related params');
@@ -55,12 +58,10 @@ module.exports = React.createClass({
         var ratio = (BOARD_WIDTH / BOARD_HEIGHT);
         var width = (window.innerWidth - 200) * 0.8;
         var height = width / ratio;
-        if (height > 315) {
-            this.setState({
-                canvasWidth: width,
-                canvasHeight: height
-            });   
-        }
+        this.setState({
+            canvasWidth: (width > MINIMUM_BOARD_WIDTH ? width : MINIMUM_BOARD_WIDTH),
+            canvasHeight: (width > MINIMUM_BOARD_WIDTH ? height : MINIMUM_BOARD_HEIGHT)
+        });
     },
 
     render: function(){

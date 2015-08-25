@@ -1,6 +1,6 @@
 {
   "name": "wrkfree-socket-server",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "private": true,
   "scripts": {
     "dev": "gulp",
@@ -10,6 +10,7 @@
     "bluebird": "^2.9.24",
     "canvas": "1.2.3",
     "cookie": "^0.1.2",
+    "double-ended-queue": "^2.1.0-0",
     "generic-pool": "^2.2.0",
     "kue": "^0.9.3",
     "socketcluster": "2.2.26"

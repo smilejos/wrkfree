@@ -3,6 +3,8 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
 var ActionUtils = require('../actionUtils');
+var GetDrawBoard = require('./getDrawBoard');
+
 var IsTriggered = false;
 var SAVE_DRAW_TIMEOUT_IN_MSECOND = 1000;
 
@@ -34,24 +36,31 @@ module.exports = function(actionContext, data) {
         SharedUtils.argsCheckAsync(data.localDraws, 'array'),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, draws, options) {
-            return DrawService.saveRecordAsync({
-                channelId: cid,
-                boardId: bid,
-                chunksNum: draws.length,
-                drawOptions: options
-            });
-        }).timeout(SAVE_DRAW_TIMEOUT_IN_MSECOND).then(function(result) {
-            if (!result) {
-                throw new Error('save draw record fail');
-            }
-            IsTriggered = false;
-            return actionContext.dispatch('ON_RECORD_SAVE', {
-                channelId: data.channelId,
-                boardId: data.boardId,
-                clientId: clientId,
-                record: data.localDraws,
-                drawOptions: _cloneOptions(data.drawOptions),
-                isUpdated: true
+            return Promise.delay(50).then(function() {
+                return DrawService.saveRecordAsync({
+                    channelId: cid,
+                    boardId: bid,
+                    chunksNum: draws.length,
+                    drawOptions: options
+                });
+            }).timeout(SAVE_DRAW_TIMEOUT_IN_MSECOND).then(function(result) {
+                if (!result) {
+                    throw new Error('save draw record fail');
+                }
+                IsTriggered = false;
+                return actionContext.dispatch('ON_RECORD_SAVE', {
+                    channelId: data.channelId,
+                    boardId: data.boardId,
+                    clientId: clientId,
+                    record: data.localDraws,
+                    drawOptions: _cloneOptions(data.drawOptions),
+                    isUpdated: true
+                });
+            }).catch(function() {
+                ActionUtils.showWarningEvent('WARN', 'server response timeout');
+                IsTriggered = false;
+                actionContext.dispatch('ON_BOARD_CLEAN', data);
+                actionContext.executeAction(GetDrawBoard, data);
             });
         }).catch(function(err) {
             IsTriggered = false;
