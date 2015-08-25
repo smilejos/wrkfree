@@ -24,6 +24,9 @@ module.exports = CreateStore({
      * @Description: update the search results
      */
     _updateChannelVisitors: function(data) {
+        if (!data.visitors) {
+            return this.channels.del(data.channelId);
+        }
         this.channels.set(data.channelId, data.visitors);
         this.emitChange();
     },

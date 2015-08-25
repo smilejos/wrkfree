@@ -4,6 +4,7 @@ var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var OnChannelAdded = require('../actions/channel/onChannelAdded');
 var OnUpdateVisitor = require('../actions/channel/onUpdateVisitor');
+var ResetVisitors = require('../actions/channel/resetVisitors');
 
 /**
  * Public API
@@ -71,6 +72,9 @@ exports.leaveAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(validChannelId) {
             var channel = SocketUtils.setChannelReq(validChannelId);
+            SocketUtils.execAction(ResetVisitors, {
+                channelId: channelId
+            });
             return SocketManager.unSubscribeAsync(channel);
         }).catch(function(err) {
             SharedUtils.printError('channelService.js', 'leaveAsync', err);
