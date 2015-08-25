@@ -101,6 +101,18 @@ exports.getMemberListAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to get channel visitors
+ *
+ * @param {String}          data.channelId, channel id
+ */
+exports.getVisitorysAsync = function(data) {
+    var packet = _setPacket('getVisitorysAsync', null, data);
+    return _request(packet, 'getVisitorysAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for user to get his member status on current channel
  *
  * @param {String}        data.channelId, channel's id
