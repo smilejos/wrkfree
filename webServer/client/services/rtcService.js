@@ -191,7 +191,12 @@ exports.startConferenceAsync = function(data) {
                 throw new Error('get sharing stream fail');
             }
             var packet = _setPacket('startConferenceAsync', null, data);
-            return _request(packet, 'startConferenceAsync');
+            return _request(packet, 'startConferenceAsync')
+                .then(function(result){
+                    if (result === null) {
+                        throw new Error('start conference fail');
+                    }
+                });
         }).catch(function(err) {
             RtcHelper.releaseConnection(data.channelId);
             SharedUtils.printError('rtcService.js', 'startConferenceAsync', err);

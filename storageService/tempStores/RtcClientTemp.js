@@ -37,18 +37,24 @@ var RedisClient = Redis.createClient(
  * @Description: to set current client's session sdp
  *
  * @param {String}      channelId, channel id
+ * @param {String}      user, the user id
  * @param {String}      clientId, the client socket id
  * @param {Object}      sessionSdp, the client sdp
  */
-exports.setSdpAsync = function(channelId, clinetId, sessionSdp) {
+exports.setSdpAsync = function(channelId, user, clinetId, sessionSdp) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(user, 'md5'),
         SharedUtils.argsCheckAsync(clinetId, 'string'),
         _checkSdp(sessionSdp),
-        function(cid, client, sdp) {
-            var redisKey = _getClientKey(cid, client);
+        function(cid, uid, client, sdp) {
+            var socketKey = _getClientKey(cid, client);
+            var userKey = _getUserKey(cid, uid);
             var rawSdp = JSON.stringify(sdp);
-            return RedisClient.setexAsync(redisKey, SDP_TIMEOUT_IN_SECOND, rawSdp);
+            return RedisClient.multi()
+                .setex(socketKey, SDP_TIMEOUT_IN_SECOND, rawSdp)
+                .setex(userKey, SDP_TIMEOUT_IN_SECOND, 1)
+                .execAsync();
         }).catch(function(err) {
             SharedUtils.printError('RtcClientTemp.js', 'setSdpAsync', err);
             throw err;
@@ -89,15 +95,21 @@ exports.getSdpsAsync = function(channelId, targetClients) {
  * @Description: to keep rtc client sdp still alive.
  *
  * @param {String}      channelId, channel id
+ * @param {String}      user, the user id
  * @param {String}      clientId, the client socket id
  */
-exports.keepAliveAsync = function(channelId, clientId) {
+exports.keepAliveAsync = function(channelId, user, clientId) {
     return Promise.join(
         SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(user, 'md5'),
         SharedUtils.argsCheckAsync(clientId, 'string'),
-        function(cid, client) {
-            var redisKey = _getClientKey(cid, client);
-            return RedisClient.expireAsync(redisKey, SDP_TIMEOUT_IN_SECOND);
+        function(cid, uid, client) {
+            var socketKey = _getClientKey(cid, client);
+            var userKey = _getUserKey(cid, uid);
+            return RedisClient.multi()
+                .expire(socketKey, SDP_TIMEOUT_IN_SECOND)
+                .expire(userKey, SDP_TIMEOUT_IN_SECOND)
+                .execAsync();
         }).catch(function(err) {
             SharedUtils.printError('RtcClientTemp.js', 'keepAliveAsync', err);
             throw err;
@@ -129,6 +141,54 @@ exports.getAliveCountsAsync = function(channelId, targetClients) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to check current user has joined the conference or not
+ *
+ * @param {String}      channelId, channel id
+ * @param {String}      user, the user id
+ */
+exports.isUserJoinedAsync = function(channelId, user) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(user, 'md5'),
+        function(cid, uid) {
+            var userKey = _getUserKey(cid, uid);
+            return RedisClient.existsAsync(userKey);
+        }).catch(function(err) {
+            SharedUtils.printError('RtcClientTemp.js', 'isUserJoinedAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to delete client related data
+ *
+ * @param {String}      channelId, channel id
+ * @param {String}      user, the user id
+ * @param {String}      clientId, the client socket id
+ */
+exports.deleteClientAsync = function(channelId, user, clientId) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(user, 'md5'),
+        SharedUtils.argsCheckAsync(clientId, 'string'),
+        function(cid, uid, client) {
+            var socketKey = _getClientKey(cid, client);
+            var userKey = _getUserKey(cid, uid);
+            return RedisClient.multi()
+                .del(socketKey)
+                .del(userKey)
+                .execAsync();
+        }).catch(function(err) {
+            SharedUtils.printError('RtcClientTemp.js', 'keepAliveAsync', err);
+            throw err;
+        });
+};
+
 /************************************************
  *
  *          internal functions
@@ -156,6 +216,18 @@ function _checkClientIds(targetClients) {
  */
 function _getClientKey(cid, client) {
     return 'channel:' + cid + ':rtc:' + client;
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to get the redis key based on current user id
+ *         NOTE: used to check which user has joined specific session or not
+ *
+ * @param {String}      cid, channel id
+ * @param {String}      uid, the user id
+ */
+function _getUserKey(cid, uid) {
+    return 'channel:' + cid + ':rtc:uids:' + uid;
 }
 
 /**
