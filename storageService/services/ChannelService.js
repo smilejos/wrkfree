@@ -72,9 +72,64 @@ exports.removeChannelAsync = function(creator, channelId) {
 exports.visitChannelAsync = function(member, channelId) {
     return MemberDao.isExistAsync(member, channelId)
         .then(function(isMember) {
-            return (isMember ? MemberDao.updateVisitAsync(member, channelId) : null);
+            if (!isMember) {
+                return null;
+            }
+            return Promise.all([
+                MemberDao.updateVisitAsync(member, channelId),
+                ChannelTemp.visitAsync(member, channelId)
+            ]);
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'visitChannelAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to keep member still on the channel visitor list
+ *
+ * @param {String}          member, member's uid
+ * @param {String}          channelId, channel id
+ */
+exports.keepVisistedAsync = function(member, channelId) {
+    return MemberDao.isExistAsync(member, channelId)
+        .then(function(isMember) {
+            return (isMember ? ChannelTemp.visitAsync(member, channelId) : null);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'keepVisistedAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get visitor list on current channel
+ *
+ * @param {String}          channelId, channel id
+ */
+exports.getVisitorsAsync = function(channelId) {
+    return ChannelTemp.getVisitorsAsync(channelId)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'getVisitedMembersAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to remove member from current visitor list
+ *
+ * @param {String}          member, member's uid
+ * @param {String}          channelId, channel id
+ */
+exports.removeVisitorAsync = function(member, channelId) {
+    return ChannelTemp.removeVisitorAsync(member, channelId)
+        .catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'removeVisitorAsync', err);
             return null;
         });
 };

@@ -27,6 +27,7 @@ module.exports.run = function(worker) {
     // Get a reference to our realtime SocketCluster server
     var scServer = worker.getSCServer();
     var UserStorage = StorageManager.getService('User');
+    var ChannelStorage = StorageManager.getService('Channel');
 
     /**
      * register middlewares
@@ -136,14 +137,23 @@ module.exports.run = function(worker) {
             _publishUserOnlineStatus(UserStorage, socket, socketUid);
         }
 
-        socket.on('message', function(data){
+        socket.on('message', function(data) {
             /**
              * socketCluster use "ping (1)" and "pong (2)" to detect socket alive
              * so we inform user online when getting "pong (2)" message
              */
             if (data === '2' && socket.getAuthToken()) {
                 var uid = socket.getAuthToken();
-                return _publishUserOnlineStatus(UserStorage, socket, uid);
+                var subscriptions = socket.subscriptions();
+                return Promise.all([
+                    _visitSubscribedChannels(ChannelStorage, uid, subscriptions),
+                    _publishUserOnlineStatus(UserStorage, socket, uid)
+                ]).catch(function(err) {
+                    LogUtils.warn(LogCategory, {
+                        user: uid,
+                        error: err.toString()
+                    }, 'error in tracking user status ...');
+                });
             }
         });
 
@@ -157,7 +167,9 @@ module.exports.run = function(worker) {
                 ];
             }).spread(function(uid, isAuth) {
                 if (isAuth) {
-                    LogUtils.info(LogCategory, {user: uid}, 'socket [' + socket.id + '] get auth ...');
+                    LogUtils.info(LogCategory, {
+                        user: uid
+                    }, 'socket [' + socket.id + '] get auth ...');
                     // configure uid as token
                     // TODO: should we use uid in cookie as token? is it secure ?
                     socket.setAuthToken(uid);
@@ -176,7 +188,9 @@ module.exports.run = function(worker) {
         });
 
         socket.on('req', function(data, res) {
-            LogUtils.debug(LogCategory, {reqData: data}, 'request from socket [' + socket.id + ']');
+            LogUtils.debug(LogCategory, {
+                reqData: data
+            }, 'request from socket [' + socket.id + ']');
             return Dispatcher(socket, data)
                 .then(function(result) {
                     return res(result.error, result.data);
@@ -184,7 +198,9 @@ module.exports.run = function(worker) {
         });
 
         socket.on('disconnect', function() {
-            LogUtils.info(LogCategory, {user: uid}, 'socket [' + socket.id + '] disconnect ...');
+            LogUtils.info(LogCategory, {
+                user: uid
+            }, 'socket [' + socket.id + '] disconnect ...');
             var uid = socket.getAuthToken();
             var subscriptions = socket.subscriptions();
             return _userLeaveAsync(uid, socket.id, subscriptions)
@@ -208,10 +224,14 @@ module.exports.run = function(worker) {
  */
 function _disconnectChannel(uid, socketId, subscriptions) {
     var rtcStorage = StorageManager.getService('Rtc');
+    var channelStorage = StorageManager.getService('Channel');
     return Promise.map(subscriptions, function(subscription) {
         var info = subscription.split(':');
         if (info[0] === 'channel') {
-            return rtcStorage.leaveSessionAsync(info[1], uid, socketId);
+            return Promise.all([
+                channelStorage.removeVisitorAsync(uid, info[1]),
+                rtcStorage.leaveSessionAsync(info[1], uid, socketId)
+            ]);
         }
     });
 }
@@ -290,11 +310,11 @@ function _configPublishOut(server) {
  * @param {String}        uid, the socket server instance
  */
 function _publishUserOnlineStatus(userStorage, socket, uid) {
-    LogUtils.debug(LogCategory, null, 'inform user ['+uid+'] online status');
+    LogUtils.debug(LogCategory, null, 'inform user [' + uid + '] online status');
     return userStorage.userEnterAsync(uid)
         .then(function(result) {
             if (result === null) {
-                return LogUtils.warn(LogCategory, null, 'fail to set user ['+uid+'] online on storage service');
+                return LogUtils.warn(LogCategory, null, 'fail to set user [' + uid + '] online on storage service');
             }
             socket.global.publish('activity:' + uid, {
                 clientHandler: 'updateOnlineFriend',
@@ -302,6 +322,24 @@ function _publishUserOnlineStatus(userStorage, socket, uid) {
                 params: {
                     uid: uid
                 }
-            }); 
+            });
         });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to update the channel visit information on each subscribed channel
+ *
+ * @param {Object}        channelStorage, the channel storage service instance
+ * @param {String}        uid, the socket server instance
+ * @param {Array}         subscriptions, an array of socket subscriptions
+ */
+function _visitSubscribedChannels(channelStorage, uid, subscriptions) {
+    LogUtils.debug(LogCategory, null, 'update visited channel status of user [' + uid + ']');
+    return Promise.map(subscriptions, function(target) {
+        var info = target.split(':');
+        if (info[0] === 'channel') {
+            return channelStorage.keepVisistedAsync(uid, info[1]);
+        }
+    });
 }
