@@ -160,6 +160,32 @@ exports.getMemberListAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to keep channel visitor state
+ *
+ * @param {String}          data.channelId, channel id
+ */
+exports.keepVisitorAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    return SharedUtils.argsCheckAsync(data.channelId, 'md5')
+        .then(function() {
+            return ChannelStorage.getAuthAsync(uid, data.channelId);
+        }).then(function(isAuth) {
+            if (!isAuth) {
+                throw new Error('keepVisitorAsync Auth fail');
+            }
+            return ChannelStorage.keepVisistedAsync(uid, data.channelId);
+        }).then(function(result) {
+            var errMsg = 'fail to keep visitor state on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            SharedUtils.printError('channelHandler.js', 'keepVisitorAsync', err);
+            throw new Error('keep visitor state fail');
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to get current channel online visitors
  *
  * @param {String}          data.channelId, channel id
@@ -171,7 +197,7 @@ exports.getVisitorysAsync = function(socket, data) {
             return ChannelStorage.getAuthAsync(uid, data.channelId);
         }).then(function(isAuth) {
             if (!isAuth) {
-                throw new Error('get Auth fail');
+                throw new Error('getVisitorysAsync Auth fail');
             }
             return ChannelStorage.getVisitorsAsync(data.channelId);
         }).then(function(visitors) {

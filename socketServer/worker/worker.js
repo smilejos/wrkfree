@@ -157,6 +157,20 @@ module.exports.run = function(worker) {
             }
         });
 
+        socket.on('subscribe', function(target) {
+            var info = target.split(':');
+            if (info[0] === 'channel') {
+                _notifyVisitorInfo(ChannelStorage, socket, info, true);
+            }
+        });
+
+        socket.on('unsubscribe', function(target) {
+            var info = target.split(':');
+            if (info[0] === 'channel') {
+                _notifyVisitorInfo(ChannelStorage, socket, info, false);
+            }
+        });
+
         socket.on('auth', function(cookieStr, callback) {
             LogUtils.info(LogCategory, null, 'socket [' + socket.id + '] auth ...');
             return Promise.try(function() {
@@ -335,11 +349,48 @@ function _publishUserOnlineStatus(userStorage, socket, uid) {
  * @param {Array}         subscriptions, an array of socket subscriptions
  */
 function _visitSubscribedChannels(channelStorage, uid, subscriptions) {
-    LogUtils.debug(LogCategory, null, 'update visited channel status of user [' + uid + ']');
+    LogUtils.debug(LogCategory, null, 'update visited channels of user [' + uid + ']');
     return Promise.map(subscriptions, function(target) {
         var info = target.split(':');
         if (info[0] === 'channel') {
             return channelStorage.keepVisistedAsync(uid, info[1]);
         }
+    });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to update the channel visit information on each subscribed channel
+ *
+ * @param {Object}        channelStorage, the channel storage service instance
+ * @param {Object}        socket, the socket object
+ * @param {Array}         subscriptionInfo, the target subscriptionInfo
+ * @param {Boolean}       isVisited, to indicate visitor is currently visit or not
+ */
+function _notifyVisitorInfo(channelStorage, socket, subscriptionInfo, isVisited) {
+    var uid = socket.getAuthToken();
+    LogUtils.debug(LogCategory, {
+        isVisited: isVisited
+    }, 'notify information of channel visitor [' + uid + ']');
+    return Promise.try(function() {
+        var target = subscriptionInfo[0] + ':' + subscriptionInfo[1];
+        socket.global.publish(target, {
+            clientHandler: 'onUpdateVisitor',
+            service: 'channel',
+            socketId: socket.id,
+            params: {
+                channelId: subscriptionInfo[1],
+                uid: uid,
+                isVisited: isVisited
+            }
+        });
+        if (!isVisited) {
+            return channelStorage.removeVisitorAsync(uid, subscriptionInfo[1]);
+        }
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            user: uid,
+            error: err.toString()
+        }, 'error in notify channel visitor information ...');
     });
 }
