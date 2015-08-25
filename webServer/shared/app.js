@@ -39,4 +39,5 @@ app.registerStore(require('./stores/NotificationStore'));
 app.registerStore(require('./stores/HangoutStore'));
 app.registerStore(require('./stores/PreviewStore'));
 app.registerStore(require('./stores/ChannelCreatorStore'));
+app.registerStore(require('./stores/ChannelVisitorStore'));
 module.exports = app;
