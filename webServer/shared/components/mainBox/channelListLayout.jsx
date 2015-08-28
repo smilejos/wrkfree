@@ -1,5 +1,4 @@
 var React = require('react');
-var ReactGridLayout = require('react-grid-layout');
 var SharedUtils = require('../../../../sharedUtils/utils');
 
 var ChannelListItem = require('./channelListItem.jsx');
