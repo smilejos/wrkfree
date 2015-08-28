@@ -7,7 +7,7 @@ var SharedUtils = require('../../sharedUtils/utils');
 var ObjectAssign = require('object-assign');
 
 var BOARD_NUM_MAXIMU = 100;
-var AUTH_CHANNEL_QUERY_NUMBER = 10;
+var AUTH_CHANNEL_QUERY_NUMBER = 30;
 
 /************************************************
  *
