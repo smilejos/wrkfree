@@ -63,18 +63,19 @@ exports.addMemberAsync = function(socket, data) {
  *
  * @param {Object}          socket, the client socket instance
  */
-exports.getAuthChannelsAsync = function(socket) {
-    var uid = socket.getAuthToken();
-    return SharedUtils.argsCheckAsync(uid, 'md5')
-        .then(function(validUid) {
-            return ChannelStorage.getAuthChannelsAsync(validUid);
-        }).then(function(channels) {
-            var errMsg = 'get authorized channels fail on storage service';
-            return SharedUtils.checkExecuteResult(channels, errMsg);
-        }).catch(function(err) {
-            SharedUtils.printError('channelHandler.js', 'getAuthChannelsAsync', err);
-            throw new Error('get authorized channels fail');
-        });
+exports.getAuthChannelsAsync = function(socket, data) {
+    return Promise.props({
+        period: SharedUtils.setQueryPeriod(data.period)
+    }).then(function(reqData) {
+        var uid = socket.getAuthToken();
+        return ChannelStorage.getAuthChannelsAsync(uid, reqData.period);
+    }).then(function(channels) {
+        var errMsg = 'get authorized channels fail on storage service';
+        return SharedUtils.checkExecuteResult(channels, errMsg);
+    }).catch(function(err) {
+        SharedUtils.printError('channelHandler.js', 'getAuthChannelsAsync', err);
+        throw new Error('get authorized channels fail');
+    });
 };
 
 /**

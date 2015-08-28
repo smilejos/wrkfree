@@ -87,9 +87,9 @@ exports.leaveAsync = function(channelId) {
  * @Author: George_Chen
  * @Description: find all authorized channels info
  */
-exports.findByAuthorizedAsync = function() {
-    var packet = _setPacket('getAuthChannelsAsync', null, null);
-    return _request(packet, 'findByAuthorizedAsync');
+exports.getAuthChannelsAsync = function(data) {
+    var packet = _setPacket('getAuthChannelsAsync', null, data);
+    return _request(packet, 'getAuthChannelsAsync');
 };
 
 /**

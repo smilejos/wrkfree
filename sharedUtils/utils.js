@@ -148,6 +148,28 @@ exports.get1on1ChannelId = function(user1, user2) {
     return CryptoUtils.getMd5Hex(str);
 };
 
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: to set the formatted time period object
+ *
+ * @param {Number}      period.start, the start timestamp of this period
+ * @param {Number}      period.end, the end timestamp of this period
+ */
+exports.setQueryPeriod = function(period) {
+    var queryPeriod = {};
+    if (!period) {
+        return queryPeriod;
+    }
+    if (period.start && this.isNumber(period.start)) {
+        queryPeriod.start = period.start;
+    }
+    if (period.end && this.isNumber(period.end)) {
+        queryPeriod.end = period.end;
+    }
+    return queryPeriod;
+};
+
 /************************************************
  *
  *           args checker
