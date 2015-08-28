@@ -2,13 +2,15 @@
 var Promise = require('bluebird');
 var Redis = require('redis');
 var SharedUtils = require('../../sharedUtils/utils');
-var GLOBAL_KEY_EXPIRE_TIME_IN_SECONDS = 100;
 
 var Configs = require('../../configs/config');
 var DbConfigs = Configs.get().db;
 if (!DbConfigs) {
     throw new Error('DB configurations broken');
 }
+
+var GLOBAL_KEY_EXPIRE_TIME_IN_SECONDS = 100;
+var VISITOR_KEY_TIMEOUT_IN_SECOND = 60
 
 /**
  * Channel temp is currently kept at global cache
@@ -38,7 +40,7 @@ exports.getMemberListAsync = function(channelId) {
             var redisKey = _getMemberKey(validChannelId);
             return RedisClient.smembersAsync(redisKey);
         }).catch(function(err) {
-            SharedUtils.printError('ChannelTemp', 'getMemberListAsync', err);
+            SharedUtils.printError('ChannelTemp.js', 'getMemberListAsync', err);
             return [];
         });
 };
@@ -64,7 +66,7 @@ exports.importMemberListAsync = function(members, channelId) {
                     return (exist ? _ttlMemberList(redisKey) : _importMembers(membersUid, redisKey));
                 });
         }).catch(function(err) {
-            SharedUtils.printError('ChannelTemp', 'importMemberListAsync', err);
+            SharedUtils.printError('ChannelTemp.js', 'importMemberListAsync', err);
             return null;
         });
 };
@@ -88,7 +90,7 @@ exports.isMemberAsync = function(member, channelId) {
                 memberExist: RedisClient.sismemberAsync(redisKey, memberUid)
             });
         }).catch(function(err) {
-            SharedUtils.printError('ChannelTemp', 'isMemberAsync', err);
+            SharedUtils.printError('ChannelTemp.js', 'isMemberAsync', err);
             return null;
         });
 };
@@ -106,8 +108,76 @@ exports.deleteListAsync = function(channelId) {
             var redisKey = _getMemberKey(validChannelId);
             return RedisClient.delAsync(redisKey);
         }).catch(function(err) {
-            SharedUtils.printError('ChannelTemp', 'deleteListAsync', err);
+            SharedUtils.printError('ChannelTemp.js', 'deleteListAsync', err);
             return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: add member to channel visitors list
+ *
+ * @param {String}      member, member uid
+ * @param {String}      channelId, channel's id
+ */
+exports.visitAsync = function(member, channelId) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(member, 'md5'),
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        function(uid, cid) {
+            var visitKey = _getVisitKey(cid);
+            return RedisClient.multi()
+                .sadd(visitKey, uid)
+                .expire(visitKey, VISITOR_KEY_TIMEOUT_IN_SECOND)
+                .execAsync();
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelTemp.js', 'visitAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: get 
+ *
+ * @param {String}      channelId, channel's id
+ */
+exports.getVisitorsAsync = function(channelId) {
+    return SharedUtils.argsCheckAsync(channelId, 'md5')
+        .then(function(cid) {
+            var currentVisitKey = _getVisitKey(cid);
+            var idledVisitKey = _getVisitKey(cid, true);
+            return RedisClient.sunionAsync(currentVisitKey, idledVisitKey);
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelTemp.js', 'visitAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: remove member from channel visitor list
+ *
+ * @param {String}      member, member uid
+ * @param {String}      channelId, channel's id
+ */
+exports.removeVisitorAsync = function(member, channelId) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(member, 'md5'),
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        function(uid, cid) {
+            var currentVisitKey = _getVisitKey(cid);
+            var idledVisitKey = _getVisitKey(cid, true);
+            return RedisClient.multi()
+                .srem(currentVisitKey, uid)
+                .srem(idledVisitKey, uid)
+                .execAsync();
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelTemp.js', 'removeVisitorAsync', err);
+            throw err;
         });
 };
 
@@ -125,6 +195,23 @@ exports.deleteListAsync = function(channelId) {
  */
 function _getMemberKey(channelId) {
     return 'channel:' + channelId + ':members';
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: used to cacluate the redis key to store current channel visitors
+ *         NOTE: for getting channel visitors, we find visitors stored on redis based on 
+ *               the key "current minute" and "last minute"
+ *
+ * @param {String}             cid, channel's id
+ * @param  {Boolean}           isIdled, to get idled user key or not
+ */
+function _getVisitKey(cid, isIdled) {
+    var min = ~~(Date.now() / 30000);
+    if (isIdled) {
+        --min;
+    }
+    return 'channel:' + cid + ':visitusers:' + min.toString();
 }
 
 /**

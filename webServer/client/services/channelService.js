@@ -3,6 +3,8 @@ var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var SharedUtils = require('../../../sharedUtils/utils');
 var OnChannelAdded = require('../actions/channel/onChannelAdded');
+var OnUpdateVisitor = require('../actions/channel/onUpdateVisitor');
+var ResetVisitors = require('../actions/channel/resetVisitors');
 
 /**
  * Public API
@@ -14,6 +16,19 @@ var OnChannelAdded = require('../actions/channel/onChannelAdded');
  */
 exports.onChannelAdded = function(data) {
     SocketUtils.execAction(OnChannelAdded, data, 'onChannelAdded');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for updating channel visitor information
+ *
+ * @param {String}        data.uid, the visitor uid
+ * @param {String}        data.channelId, the visited channel id
+ * @param {String}        data.isVisited, check currently is visit or not
+ */
+exports.onUpdateVisitor = function(data) {
+    SocketUtils.execAction(OnUpdateVisitor, data, 'onUpdateVisitor');
 };
 
 /**
@@ -57,6 +72,9 @@ exports.leaveAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(validChannelId) {
             var channel = SocketUtils.setChannelReq(validChannelId);
+            SocketUtils.execAction(ResetVisitors, {
+                channelId: channelId
+            });
             return SocketManager.unSubscribeAsync(channel);
         }).catch(function(err) {
             SharedUtils.printError('channelService.js', 'leaveAsync', err);
@@ -101,6 +119,18 @@ exports.getMemberListAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: to get channel visitors
+ *
+ * @param {String}          data.channelId, channel id
+ */
+exports.getVisitorysAsync = function(data) {
+    var packet = _setPacket('getVisitorysAsync', null, data);
+    return _request(packet, 'getVisitorysAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for user to get his member status on current channel
  *
  * @param {String}        data.channelId, channel's id
@@ -139,6 +169,20 @@ exports.starContrlAsync = function(data) {
     return _request(packet, 'starContrlAsync');
 };
 
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for client to keep in channel visitor
+ *
+ * @param {String}        data.channelId, the channel id
+ */
+exports.keepVisitorAsync = function(data) {
+    var channel = SocketUtils.setChannelReq(data.channelId);
+    var packet = _setPacket('keepVisitorAsync', 'onUpdateVisitor', data);
+    return _publish(channel, packet, 'keepVisitorAsync');
+};
+
 /************************************************
  *
  *           internal functions
@@ -159,6 +203,25 @@ function _request(packet, caller) {
     return SocketManager.requestAsync(packet)
         .catch(function(err) {
             SharedUtils.printError('channelService.js', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a sugar sytanx function for handling socekt publish
+ *              events on drawService
+ *         NOTE: caller is just for print error log; if error happen,
+ *              we can know the root cause from which caller
+ *
+ * @param {String}          subscription, socketCluster subscription
+ * @param {Object}          packet, the packet for request
+ * @param {String}          caller, the caller function name
+ */
+function _publish(subscription, packet, caller) {
+    return SocketManager.publishAsync(subscription, packet)
+        .catch(function(err) {
+            SharedUtils.printError('channeltService.js', caller, err);
             return null;
         });
 }

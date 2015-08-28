@@ -46,7 +46,9 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
-        return this.getStore(MainAppStore).getState();
+        var state = this.getStore(MainAppStore).getState();
+        state.isInited = false;
+        return state;
     },
 
     // Important!
@@ -62,8 +64,21 @@ module.exports = React.createClass({
             muiTheme: ThemeManager.getCurrentTheme()
         };
     },
+
+    componentDidMount: function() {
+        var delayTime = 1000;
+        if (this.state.route.path === '/app/error') {
+            delayTime = 0;
+        }
+        setTimeout(function(){
+            this.setState({
+                isInited: true
+            });
+        }.bind(this), delayTime);
+    },
     
     render: function(){
+        var isInited = this.state.isInited;
         if (this.state.route.path === '/app/signup') {
             return (
                 <div>
@@ -75,18 +90,26 @@ module.exports = React.createClass({
         // RouteHandler will take care of Routes while url change
         return (
             <div>
-                <Header />
-                <Webcam />
-                <Subscription />
-                <RouteHandler route={this.state.route}/>
-                <FriendList />
-                <Notifications />
-                <ChannelCreator />
-                <PersonalInfo />
-                <EventToaster />
-                <Hangouts />
-                <QuickSearch />
-                <SystemSounds />
+                <div style={{opacity: isInited ? 1 : 0}}>
+                    <Header />
+                    <Webcam />
+                    <Subscription />
+                    <RouteHandler route={this.state.route}/>
+                    <FriendList />
+                    <Notifications />
+                    <ChannelCreator />
+                    <PersonalInfo />
+                    <EventToaster />
+                    <Hangouts />
+                    <QuickSearch />
+                    <SystemSounds />
+                </div>
+                <div style={{width: '100%', height: '100%', display: isInited ? 'none' : 'inline'}} >
+                    <div style={{position: 'fixed', top: '50%', marginTop: -100, left: '50%', marginLeft: -50}}>
+                        <div><img width="100" src="/assets/imgs/logo.svg" /></div>
+                        <div style={{marginLeft: 25}}><img width="50" src="/assets/imgs/hourglass.svg" /></div>
+                    </div>
+                </div>
             </div>
         );
     }

@@ -119,7 +119,6 @@ exports.hasAliveConnections = function() {
 exports.getDeviceSupportAsync = function() {
     return Promise.try(function() {
         var connection = new rtcConnection('temp');
-        var webrtc = connection.webrtc;
         if (DeviceMediaSupport) {
             return DeviceMediaSupport;
         }
@@ -138,7 +137,9 @@ exports.getDeviceSupportAsync = function() {
                     video: !!vStream,
                     audio: !!aStream
                 };
-                connection.stopMediaStream();
+                setTimeout(function(){
+                    connection.stopMediaStream();
+                }, 3000);
                 return DeviceMediaSupport;
             });
     });
