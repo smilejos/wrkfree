@@ -160,9 +160,6 @@ exports.initRtcAsync = function() {
             if (SharedUtils.isArray(data.iceServers)) {
                 RuntimeIceServers = data.iceServers;
             }
-            if (require('webrtcsupport').getUserMedia) {
-                return RtcHelper.getDeviceSupportAsync();
-            }
         }).catch(function(err) {
             SharedUtils.printError('rtcService.js', 'initRtcAsync', err);
         });
