@@ -11,7 +11,8 @@ module.exports = CreateStore({
     handlers: {
         'CHANGE_ROUTE': '_onChangeRoute',
         'SET_DASHBOARD_LAYOUT': 'setLayout',
-        'ON_CHANNEL_ADDED': '_onChannelAdded'
+        'ON_CHANNEL_ADDED': '_onChannelAdded',
+        'ON_CHANNELS_APPENDED': '_onChannelsAppended'
     },
 
     initialize: function() {
@@ -45,10 +46,15 @@ module.exports = CreateStore({
      * @param {Object}       state.channels, an array of channel info
      */
     polyfillAsync: function(state) {
-        var collection = this.db.getCollection(this.dbName);
         // clean dashboard store before polyfill
-        collection.removeDataOnly();
-        return Promise.map(state.channels, function(item) {
+        this.db.getCollection(this.dbName).removeDataOnly();
+        this._setOutdatedTimer();
+        return this._onChannelsAppended(state);
+    },
+
+    _onChannelsAppended: function(data) {
+        var collection = this.db.getCollection(this.dbName);
+        return Promise.map(data.channels, function(item) {
             return _saveDashboardChannel(collection, {
                 channelId: item.channel.channelId,
                 channelName: item.channel.name,
@@ -58,10 +64,9 @@ module.exports = CreateStore({
                 visitTime: item.visitTime
             });
         }).bind(this).then(function() {
-            this._setOutdatedTimer();
             this.emitChange();
         }).catch(function(err) {
-            SharedUtils.printError('DashboardStore', 'polyfillAsync', err);
+            SharedUtils.printError('DashboardStore', '_onChannelsAppended', err);
             return null;
         });
     },

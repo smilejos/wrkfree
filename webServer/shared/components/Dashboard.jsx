@@ -1,4 +1,5 @@
 var React = require('react');
+var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var DashboardStore = require('../stores/DashboardStore');
 
@@ -7,6 +8,7 @@ var DashboardStore = require('../stores/DashboardStore');
  */
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var SetDashboardLayout = require('../../client/actions/setDashboardLayout');
+var GetDashboardStream = require('../../client/actions/getDashboardStream');
 
 /**
  * child components
@@ -68,10 +70,56 @@ module.exports = React.createClass({
         return this._getStoreState();
     },
 
+    componentDidUpdate: function(prevProps, prevState) {
+        var isLoading = this.state.isLoading;
+        if (this.state.isLoading) {
+            return Promise
+                .delay(1000)
+                .bind(this)
+                .then(function() {
+                    this.setState({
+                        isLoading: false
+                    });
+                });
+        }
+    },
+
+    componentDidMount: function() {
+        this.setState({
+            scrollTop: 0,
+            isLoading: false
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to control when to load the older channel stream
+     */
+    _handleScroll: function(e) {
+        var container = React.findDOMNode(this);
+        var visibleHeight = container.offsetHeight + container.scrollTop;
+        var channels = this.state.channels;
+        if (container.scrollHeight - visibleHeight > 0 || this.state.isLoading) {
+            return;
+        }
+        // to check current scroll direction is top or bottom
+        if (container.scrollTop - this.state.scrollTop >= 0) {
+            this.setState({
+                scrollTop: container.scrollTop,
+                isLoading: true
+            });
+            this.executeAction(GetDashboardStream, {
+                period: {
+                    end: channels[channels.length-1].visitTime
+                }
+            });
+        }
+    },
+
     render: function() {
         var isGrid = this.state.isDashboardGrid;
         return (
-            <div className="mainBox" onClick={this._onContentClick}>
+            <div className="mainBox" onClick={this._onContentClick} onScroll={this._handleScroll}>
                 <div className="DashboardContentLayout">
                     <div className="DashboardToolBar" >
                         <StateIcon
@@ -86,6 +134,9 @@ module.exports = React.createClass({
                     <div className="DashboardItems" >
                         {this._generateItems()}
                     </div>
+                </div>
+                <div style={{position: 'fixed', left: '50%', bottom: 10, opacity: this.state.isLoading ? 0.9: 0}}>
+                    <img width="30" src="/assets/imgs/loading.svg" />
                 </div>
             </div>
         );
