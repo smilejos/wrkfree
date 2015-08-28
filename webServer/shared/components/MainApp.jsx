@@ -90,7 +90,7 @@ module.exports = React.createClass({
         // RouteHandler will take care of Routes while url change
         return (
             <div>
-                <div style={{opacity: isInited ? 1 : 0}}>
+                <div style={{visibility: isInited ? 'visible' : 'hidden'}}>
                     <Header />
                     <Webcam />
                     <Subscription />
