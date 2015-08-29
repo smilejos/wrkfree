@@ -10,6 +10,8 @@ var React = require('react');
  * @param {String}      this.props.defaultIconClass, the default button icon class
  * @param {String}      this.props.submitIconClass, the submit button icon class
  * @param {String}      this.props.hintText, the form input hint text
+ * @param {String}      this.props.label, the form button label text
+ * @param {Boolean}     this.props.isFiexedWidth, make formbtuuon with initial fixed width or not
  * @param {Function}    this.props.defaultIconHandler, the default icon click handler
  * @param {Function}    this.props.submitHandler, the submit icon click handler
  * @param {Function}    this.props.onChangeHandler, the form input change handler
@@ -37,12 +39,11 @@ module.exports = React.createClass({
             this.props.submitHandler(e.target.value);
         }
         if (e.keyCode === 27) {
-            input.value = '';
-            this._onBlur();
+            this.clearValue();
         }
     },
 
-    _labelClick: function() {
+    _onContentClick: function() {
         if (this.state.isActived) {
             return;
         }
@@ -68,21 +69,38 @@ module.exports = React.createClass({
         }
     },
 
+    clearValue: function() {
+        var input = React.findDOMNode(this.refs.input);
+        input.value = '';
+        this._onBlur();
+    },
+
     render: function() {
         var containerWidth = this.props.width;
+        var isFiexedWidth = this.props.isFiexedWidth;
+        var label = this.props.label;
         var isActived = this.state.isActived;
         var containerClass = (isActived ? 'form-button active ' : 'form-button ');
+        var containerStyle = {
+            position: 'relative',
+            width: isActived || isFiexedWidth ? containerWidth : 'auto'
+        };
         var inputStyle = {
             display: this.state.inputDisplay,
             width: this.state.inputWidth
         };
+        var labelStyle = {
+            marginLeft: (label ? 5 : 0),
+            visibility: (isActived ? 'hidden' : 'visible')
+        };
         containerClass += this.props.colorType;
         return (
-            <div className={containerClass} style={{width: isActived ? containerWidth : 'auto', position: 'relative'}}>
-                <label for="name" className="cta" onClick={this._labelClick}>
-                  <i ref="defaultIcon" className={'icon '+ this.props.defaultIconClass}></i>
+            <div className={containerClass} style={containerStyle} onClick={this._onContentClick}>
+                <label for="name" className="cta" >
+                    <i ref="defaultIcon" className={'icon '+ this.props.defaultIconClass}></i>
+                    <span style={labelStyle}> {label} </span>
                 </label>
-                <div style={{position: 'absolute', top: 0, left: 35}}>
+                <div style={{position: 'absolute', top: 0, left: 35, visibility: isActived ? 'visible' : 'hidden'}}>
                     <input ref="input" 
                         style={inputStyle} 
                         className="input" 
