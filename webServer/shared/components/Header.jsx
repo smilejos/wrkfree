@@ -9,6 +9,7 @@ var ChannelCreatorStore = require('../stores/ChannelCreatorStore');
 var NotificationStore = require('../stores/NotificationStore');
 var FriendStore = require('../stores/FriendStore');
 var PersonalStore = require('../stores/PersonalStore');
+
 /**
  * actions
  */
@@ -26,13 +27,13 @@ var QuickSearchAction = require('../../client/actions/search/quickSearch');
  */
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
-var TextField = Mui.TextField;
 
 /**
  * child components
  */
 var UserAvatar = require('./common/userAvatar.jsx');
 var StateIcon = require('./common/stateIcon.jsx');
+var FormButton = require('./common/formButton.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
 
 var SEARCH_DELAY_IN_MSECOND = 500;
@@ -95,17 +96,6 @@ module.exports = React.createClass({
     },
 
     /**
-     * TODO: impl search actions
-     * @Author: George_Chen
-     * @Description: handle the search channels mechanism
-     */
-    _onSearchKeyDown: function(e) {
-        if (e.keyCode === 27) {
-            return this._onSearchCancel();
-        }
-    },
-
-    /**
      * @Author: George_Chen
      * @Description: focus on search field after click search icon
      */
@@ -116,9 +106,6 @@ module.exports = React.createClass({
         this.executeAction(ToggleChannelNav, {
             open: false
         });
-        setTimeout(function(){
-            this.refs.search.focus();
-        }.bind(this));
     },
 
     /**
@@ -139,14 +126,21 @@ module.exports = React.createClass({
      */
     _onSearchChange: function(e){
         var queryText = e.target.value;
-        if (CurrentSearch) {
-            clearTimeout(CurrentSearch);
-        }
+        clearTimeout(CurrentSearch);
         CurrentSearch = setTimeout(function(){
-            this.executeAction(QuickSearchAction, {
-                query: queryText
-            });            
+            if (queryText !== '') {
+                this.executeAction(QuickSearchAction, {
+                    query: queryText
+                }); 
+            }           
         }.bind(this), SEARCH_DELAY_IN_MSECOND);
+    },
+
+    _onSearch: function(queryText) {
+        clearTimeout(CurrentSearch);
+        this.executeAction(QuickSearchAction, {
+            query: queryText
+        });
     },
 
     _onInboxToggle: function(){
@@ -161,45 +155,6 @@ module.exports = React.createClass({
         this.executeAction(ToggleChannelCreator);
     },
 
-    /**
-     * @Author: George_Chen
-     * @Description: generate the search icon component
-     */
-    _setSearchIcon: function(){
-        if (this.state.isSearchable) {
-            return '';
-        }
-        return (
-            <StateIcon 
-                stateClass="leftState" 
-                iconClass="fa fa-search"
-                handler={this._onSearchIconClick} />
-        );
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: generate the cancel search icon component
-     */
-    _setCancelIcon: function(){
-        if (!this.state.isSearchable) {
-            return '';
-        }
-        return (
-            <StateIcon 
-                stateClass="leftState" 
-                iconClass="fa fa-times"
-                handler={this._onSearchCancel} />
-        );
-    },
-
-    componentDidUpdate: function() {
-        if (!this.state.isSearchable) {
-            this.refs.search.clearValue();
-            this.refs.search.blur();
-        }
-    },
-
     render: function() {
         return (
             <div className="Header">
@@ -209,14 +164,18 @@ module.exports = React.createClass({
                         iconClass={this.state.isChannelListActive ? "fa fa-bars active" : "fa fa-bars"}
                         counts={this.state.unreadDiscussions}
                         handler={this._onMenuIconButtonTouchTap} />
-                    {this._setSearchIcon()}
-                    <TextField 
-                        hintText="search channels, users, ...." 
-                        ref="search"
-                        onClick={this._onSearchIconClick}
-                        onChange={this._onSearchChange}
-                        onKeyDown={this._onSearchKeyDown} />
-                    {this._setCancelIcon()}
+                    <div className="headerSearch" style={{marginTop: 10}}>
+                        <FormButton 
+                            width={300}
+                            colorType="blue"
+                            defaultIconClass="fa fa-search"
+                            submitIconClass="fa fa-times"
+                            hintText="search channels, users, ...."
+                            defaultIconHandler={this._onSearchIconClick}
+                            submitHandler={this._onSearch}
+                            onChangeHandler={this._onSearchChange} 
+                            onBlurHandler={this._onSearchCancel} />
+                    </div>
                 </div>
                 <div className="headerRightMenu" >
                     <StateIcon
