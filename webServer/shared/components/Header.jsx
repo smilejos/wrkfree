@@ -31,6 +31,7 @@ var IconButton = Mui.IconButton;
 /**
  * child components
  */
+var ChannelCreator = require('./common/ChannelCreator.jsx');
 var UserAvatar = require('./common/userAvatar.jsx');
 var StateIcon = require('./common/stateIcon.jsx');
 var FormButton = require('./common/formButton.jsx');
@@ -167,10 +168,12 @@ module.exports = React.createClass({
                     <div className="headerSearch" style={{marginTop: 10}}>
                         <FormButton 
                             width={300}
+                            isFiexedWidth
                             colorType="blue"
                             defaultIconClass="fa fa-search"
                             submitIconClass="fa fa-times"
                             hintText="search channels, users, ...."
+                            label="search channels, users, ...."
                             defaultIconHandler={this._onSearchIconClick}
                             submitHandler={this._onSearch}
                             onChangeHandler={this._onSearchChange} 
@@ -178,10 +181,9 @@ module.exports = React.createClass({
                     </div>
                 </div>
                 <div className="headerRightMenu" >
-                    <StateIcon
-                        stateClass="rightState" 
-                        iconClass={this.state.isChannelCreatorActive ? "fa fa-plus active" : "fa fa-plus"} 
-                        handler={this._onChannelCreatorToggle} />
+                    <ChannelCreator 
+                        containerClass="creatorState" 
+                        containerStyle={{marginTop: 10}} />
                     <StateIcon
                         stateClass="rightState" 
                         iconClass={this.state.isNotificationActive ? "fa fa-bell active" : "fa fa-bell"}
@@ -233,3 +235,4 @@ var UserState = React.createClass({
         );
     }
 });
+
