@@ -38,7 +38,6 @@ var Expression = {
                     name: {
                         query: text,
                         type: 'phrase_prefix',
-                        fuzziness: 2,
                         prefix_length: 2,
                         max_expansions: 10
                     }
