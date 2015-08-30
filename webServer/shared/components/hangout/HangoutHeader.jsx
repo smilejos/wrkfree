@@ -12,6 +12,8 @@ var CloseHangout = require('../../../client/actions/closeHangout');
 var OpenHangout = require('../../../client/actions/openHangout');
 var ResizeHangout = require('../../../client/actions/resizeHangout');
 
+var Tooltip = require('material-ui').Tooltip;
+
 /**
  * Public API
  * @Author: George_Chen
@@ -59,17 +61,6 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: handler for setting resize icon
-     */
-    _setResizeIcon: function() {
-        var isCompressed = this.props.isCompressed;
-        var iconClass = (isCompressed ? 'controlIcon fa fa-expand' : 'controlIcon fa fa-minus');
-        var iconHandler = (isCompressed ? this._expand : this._compress);
-        return <span className={iconClass} onClick={iconHandler} />
-    },
-
-    /**
-     * @Author: George_Chen
      * @Description: switch current hangout sapce to workspace
      */
     _switchWorkSpace: function() {
@@ -93,23 +84,67 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        // because the fontawesome close icon size looks smaller, so we adjust here
-        var closeIconStyle = {
-            'fontSize': 20
-        };
+        var isCompressed = this.props.isCompressed;
         return (
             <div className="hangoutHeader">
                 <div className="hangoutHeaderTitle">
                     {this.props.title}
                 </div>
                 <div className="hangoutHeaderControls">
-                    {this._setResizeIcon()}
-                    <span className="controlIcon fa fa-random"
-                        onClick={this._switchWorkSpace} />
-                    <span className="controlIcon fa fa-times"
-                        style={closeIconStyle}
-                        onClick={this._close} />
+                    <HangoutTool
+                        containerClass={isCompressed ? 'controlIcon fa fa-expand' : 'controlIcon fa fa-minus'}
+                        tips={isCompressed ? 'expand window' : 'compress window'}
+                        clickHandler={isCompressed ? this._expand : this._compress} />
+                    <HangoutTool
+                        containerClass="controlIcon fa fa-random"
+                        tips="swith to workspace"
+                        clickHandler={this._switchWorkSpace} />
+                    <HangoutTool
+                        containerClass="controlIcon fa fa-times"
+                        tips="close window"
+                        containerStyle={{fontSize: 20}}
+                        clickHandler={this._close} />
                 </div>
+            </div>
+        );
+    }
+});
+
+var HangoutTool = React.createClass({
+    getInitialState: function() {
+        return {
+            isShown: false
+        };
+    },
+
+    _onTipsShown: function(shownState) {
+        if (this.props.tips) {
+            this.setState({
+                isShown: shownState
+            });
+        }
+    },
+
+    _onClick: function() {
+        if (this.props.clickHandler) {
+            this.props.clickHandler();
+        }
+    },
+
+    render: function() {
+        var containerClass = this.props.containerClass || '';
+        var containerStyle = this.props.containerStyle || {};
+        return (
+            <div className={containerClass} 
+                style={containerStyle}
+                onClick={this._onClick}
+                onMouseEnter={this._onTipsShown.bind(this, true)}
+                onMouseLeave={this._onTipsShown.bind(this, false)}>
+                <Tooltip 
+                    show={this.state.isShown}
+                    verticalPosition="top" 
+                    horizontalPosition="right" 
+                    label={this.props.tips} />
             </div>
         );
     }
