@@ -36,6 +36,10 @@ module.exports = function(actionContext, data) {
         SharedUtils.argsCheckAsync(data.localDraws, 'array'),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, draws, options) {
+            actionContext.dispatch('CLEAN_LOCAL_DRAW', {
+                channelId: cid,
+                boardId: bid
+            });
             return Promise.delay(50).then(function() {
                 return DrawService.saveRecordAsync({
                     channelId: cid,

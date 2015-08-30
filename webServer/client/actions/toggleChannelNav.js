@@ -1,20 +1,29 @@
 'use strict';
+var Promise = require('bluebird');
 var SubscriptionStore = require('../../shared/stores/SubscriptionStore');
+var SharedUtils = require('../../../sharedUtils/utils');
+var ActionUtils = require('./actionUtils');
 
 /**
  * @Public API
  * @Author: George_Chen
- * @Description: toggle the channel navigation bar, more detail,
- * NOTE: if "mode.open" is missing, channel nav bar will be toggle to another mode.
- *       channelNav=on will be toggle to "off"
- *       channelNav=off will be toggle to "on"
+ * @Description: toggle the subscription list to active or not
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {Object}      mode.open, indicate toggle channel nav bar to open or not
- * @param {Function}    callback, callback function
+ * @param {Boolean}     data.isActive, indicate component is active or not
  */
-module.exports = function(actionContext, mode, callback) {
-    var navStore = actionContext.getStore(SubscriptionStore);
-    // let navStore to detect his toggle mechanism
-    return navStore.toggleAsync(mode.open).nodeify(callback);
+module.exports = function(actionContext, data) {
+    return Promise.try(function() {
+        if (SharedUtils.isBoolean(data.isActive)) {
+            return data.isActive;
+        }
+        return !actionContext.getStore(SubscriptionStore).getState().isActive;
+    }).then(function(toggleToActive) {
+        actionContext.dispatch('TOGGLE_SUBSCRIPTIONLIST', {
+            isActive: toggleToActive
+        });
+    }).catch(function(err) {
+        SharedUtils.printError('toogleChannelNav.js', 'core', err);
+        ActionUtils.showWarningEvent('WARN', 'toggle subscription list fail');
+    });
 };

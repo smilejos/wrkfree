@@ -80,7 +80,7 @@ module.exports = React.createClass({
                         channelId: cardInfo.channelId
                     });
                     this.executeAction(ToggleQuickSearch, {
-                        isEnabled: false
+                        isActive: false
                     });
                 }
             }
@@ -102,7 +102,7 @@ module.exports = React.createClass({
                         targetUser: cardInfo.targetUid
                     });
                     this.executeAction(ToggleQuickSearch, {
-                        isEnabled: false
+                        isActive: false
                     });
                 }
             }
@@ -124,7 +124,7 @@ module.exports = React.createClass({
                     channelId: cardInfo.channelId
                 }).then(function(){
                     context.executeAction(ToggleQuickSearch, {
-                        isEnabled: false
+                        isActive: false
                     });                  
                 });
             }
@@ -147,7 +147,7 @@ module.exports = React.createClass({
                     isforcedToOpen: false
                 });
                 this.executeAction(ToggleQuickSearch, {
-                    isEnabled: false
+                    isActive: false
                 });
             }
         };

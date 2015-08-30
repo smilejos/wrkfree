@@ -18,10 +18,11 @@ module.exports = function(actionContext, data, callback) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
-    }).then(function(validData) {
+    }).then(function(reqData) {
         var drawStore = actionContext.getStore(DrawStore);
-        if (!drawStore.isPolyFilled(validData.channelId, validData.boardId)) {
-            return DrawService.getDrawBoardAsync(validData);
+        actionContext.dispatch('CLEAN_LOCAL_DRAW', reqData);
+        if (!drawStore.isPolyFilled(reqData.channelId, reqData.boardId)) {
+            return DrawService.getDrawBoardAsync(reqData);
         }
         // don't need to polyfill, just trigger store change for update component
         drawStore.emitChange();

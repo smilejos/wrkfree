@@ -1,0 +1,133 @@
+/**
+ * the formbuttons definitions
+ */
+
+$white: #fff;
+$red: #E74C3C;
+$dark-red: #D64541;
+
+$blue: #4e92bb;
+$dark-blue: #7aadcc;
+
+$green: #26C281;
+$dark-green: #03A678;
+
+$purple: #8E44AD;
+$dark-purple: #674172;
+
+$formbutton-height: 30px;
+
+.form-button {
+    @extend .baseFonts;
+    vertical-align: top;
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 0;
+    border-radius: 6px;
+    color: $white;
+    display: inline-block;
+    cursor: pointer;
+    &.red {
+        background: $red;
+        &:hover, .submit:hover {
+            background: $dark-red;
+        }
+
+        &.active, .input, .submit{
+            color: $dark-red;
+        }
+    }
+    &.blue {
+        background: $blue;
+        &:hover, .submit:hover {
+            background: $dark-blue;
+        }
+
+        &.active, .input, .submit {
+            color: $dark-blue;
+        }
+    }
+        
+    &.green {
+        background: $green;
+        &:hover, .submit:hover {
+            background: $dark-green;
+        }
+        &.active, .input, .submit {
+            color: $dark-green;
+        }
+    }
+    &.purple {
+        background: $purple;
+        &:hover, .submit:hover {
+            background: $dark-purple;
+        }
+        &.active, .input, .submit {
+            color: $dark-purple;
+        }
+    }
+    label, input, button {
+        vertical-align: top;
+        font-family: inherit;
+        color: inherit;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        font-size: 14px;
+        height: $formbutton-height;
+        line-height: $formbutton-height;
+        &:focus {
+            outline: none;
+        }
+        &.cta {
+            cursor: pointer;
+            padding-right: 10px;
+            .icon {
+                vertical-align: top;
+                font-size: 16px;
+                height: $formbutton-height;
+                line-height: $formbutton-height;
+                padding-left: 10px;
+                color: inherit;
+            }
+            .text {
+                text-transform: uppercase;
+                margin-left: 12px;
+                font-size: 14px;
+            }
+        }
+        &.input, &.submit {
+            display: none;
+        }
+
+        &.input {
+            width: 0;
+            height: 16px;
+            line-height: 20px;
+            padding: 15px 5px 17px 0px;
+        }
+        &.submit {
+            cursor: pointer;
+            height: $formbutton-height;
+            line-height: $formbutton-height;
+            font-size: 16px;
+            padding: 0 10px;
+            display: inline-block;
+            &:hover {
+                color: $white;
+            }
+        }
+    }
+    &.active {
+        // .input { display: inline-block } is done in JS to prevent Firefox bug
+        background: $white !important;
+        .cta {
+            cursor: auto;
+            padding-right: 0;
+            .text {
+                display: none;
+            }
+        }
+    }
+}

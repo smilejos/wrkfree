@@ -4,6 +4,7 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 var DrawTempStore = require('../../../shared/stores/DrawTempStore');
+var ActionUtils = require('../actionUtils');
 
 /**
  * @Public API
@@ -15,9 +16,8 @@ var DrawTempStore = require('../../../shared/stores/DrawTempStore');
  * @param {Number}      data.boardId, target board id
  * @param {Array}       data.chunks, the rawData of draw record
  * @param {Object}      data.drawOptions, the draw related options
- * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number'),
@@ -37,7 +37,6 @@ module.exports = function(actionContext, data, callback) {
         return actionContext.dispatch('ON_DRAW_RECEIVE', recvdData);
     }).catch(function(err) {
         SharedUtils.printError('onDrawing.js', 'core', err);
-        return null;
-        // show alert message ?
-    }).nodeify(callback);
+        ActionUtils.showErrorEvent('Drawing', 'remote drawing abnormal');
+    });
 };

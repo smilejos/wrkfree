@@ -33,6 +33,6 @@ module.exports = function(actionContext, data) {
         });
     }).catch(function(err) {
         SharedUtils.printError('onSaveSingleDraw.js', 'core', err);
-        ActionUtils.showWarningEvent('Drawing', 'remote drawing fail');
+        ActionUtils.showWarningEvent('Drawing', 'unexpectedly single draw from remote');
     });
 };

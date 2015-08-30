@@ -35,8 +35,10 @@ module.exports = function(actionContext, data) {
             default:
                 return _search(actionContext, reqData);
         }
-    }).then(function(data) {
-        actionContext.dispatch('ON_QUICKSEARCH_UPDATE', data);
+    }).then(function(result) {
+        if (result) {
+            actionContext.dispatch('ON_QUICKSEARCH_UPDATE', result);
+        }
     }).catch(function(err) {
         SharedUtils.printError('quickSearch.js', 'core', err);
     });

@@ -68,6 +68,7 @@ module.exports = React.createClass({
         var prevBid = this.props.boardId;
         var isChannelChange = (prevCid !== nextProps.channelId);
         var isBoardChange = (prevBid !== nextProps.boardId);
+        var context = window.context;
         if (isChannelChange) {
             this._cleanBoard();
         }
@@ -75,9 +76,15 @@ module.exports = React.createClass({
             return;
         }
         if (isChannelChange || isBoardChange) {
-            this.executeAction(GetDrawBoard, {
-                channelId: nextProps.channelId,
-                boardId: nextProps.boardId
+            context.executeAction(InitToDraw, {
+                channelId: prevCid,
+                boardId: prevBid,
+                isInited: false            
+            }).then(function(){
+                context.executeAction(GetDrawBoard, {
+                    channelId: nextProps.channelId,
+                    boardId: nextProps.boardId
+                });
             });
         }
         /**

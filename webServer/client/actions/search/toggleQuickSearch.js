@@ -1,5 +1,8 @@
 'use strict';
+var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var QuickSearchStore = require('../../../shared/stores/QuickSearchStore');
+var ActionUtils = require('../actionUtils');
 
 /**
  * @Public API
@@ -7,22 +10,26 @@ var SharedUtils = require('../../../../sharedUtils/utils');
  * @Description: enable/disable the quickSearch mode 
  * 
  * @param {Object}      actionContext, the fluxible's action context
- * @param {String}      data.isEnabled, 
+ * @param {String}      data.isActive, 
  */
 module.exports = function(actionContext, data) {
-    return SharedUtils.argsCheckAsync(data.isEnabled, 'boolean')
-        .then(function(searchEnable) {
-            if (!searchEnable) {
-                actionContext.dispatch('ON_QUICKSEARCH_UPDATE', {
-                    users: [],
-                    channels: []
-                });
-            }
-            actionContext.dispatch('TOGGLE_QUICKSEARCH', {
-                isEnabled: searchEnable
+    return Promise.try(function() {
+        if (SharedUtils.isBoolean(data.isActive)) {
+            return data.isActive;
+        }
+        return !actionContext.getStore(QuickSearchStore).isActive;
+    }).then(function(toggleToActive) {
+        if (!toggleToActive) {
+            actionContext.dispatch('ON_QUICKSEARCH_UPDATE', {
+                users: [],
+                channels: []
             });
-        }).catch(function(err) {
-            SharedUtils.printError('navToBoard.js', 'core', err);
-            return null;
+        }
+        actionContext.dispatch('TOGGLE_QUICKSEARCH', {
+            isActive: toggleToActive
         });
+    }).catch(function(err) {
+        SharedUtils.printError('_toggleQuickSearch.js', 'core', err);
+        ActionUtils.showWarningEvent('WARN', 'toggle quicksearch bar fail');
+    });
 };

@@ -7,6 +7,7 @@ var SharedUtils = require('../../../sharedUtils/utils');
  * actions
  */
 var GetVisitors = require('../../client/actions/channel/getVisitors');
+var ToggleMainViewpoint = require('../../client/actions/toggleMainViewpoint');
 
 /**
  * stores
@@ -49,6 +50,12 @@ module.exports = React.createClass({
         return this.getStore(WorkSpaceStore).getState();
     },
 
+    _onContentClick: function() {
+        this.executeAction(ToggleMainViewpoint, {
+            isActive: true
+        });
+    },
+
     render: function(){
         var channelInfo= this.state.channel;
         var membersInfo= this.state.members;
@@ -56,7 +63,7 @@ module.exports = React.createClass({
         var boardIndex = this.props.route.query.board;
         drawInfo.currentBoardId = (boardIndex ? boardIndex -1 : 0);
         return (
-            <div>
+            <div onClick={this._onContentClick}>
                 <MainWorkSpace 
                     channel={channelInfo} 
                     drawInfo={drawInfo}/>

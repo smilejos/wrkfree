@@ -46,18 +46,6 @@ $header-active-state-color: #fff;
         top: 0px;
         left: 10px;
         .leftState {
-            @extend .baseCounterContainer;       
-            padding-left: 15px; 
-            float: left;
-            position: relative;
-            .counter {
-                @extend .baseCounter;
-                position: absolute;
-                top: 5px;
-                right: 5px;
-            }
-        }
-        .headerSearch {
             float:left;
         }
     }
@@ -86,18 +74,8 @@ $header-active-state-color: #fff;
             }
         }
         .rightState {
-            @extend .baseCounterContainer;
-            position: relative;
             float: left;
-            .counter {
-                @extend .baseCounter;
-                position: absolute;
-                top: 5px;
-                right: 20px;
-            }
-        }
-        .rightState:hover {
-            color: #0d2f44;
+            padding-right: 10;
         }
     }
 

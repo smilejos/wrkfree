@@ -33,9 +33,8 @@ if (!SharedUtils.isNumber(MISSING_DRAWS_LIMIT)) {
  * @param {Number}      data.boardId, target board id
  * @param {Number}      data.chunksNum, number of chunks in current record
  * @param {Object}      data.drawOptions, the draw related options
- * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -70,16 +69,16 @@ module.exports = function(actionContext, data, callback) {
         });
     }).catch(function(err) {
         SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
-        ActionUtils.showWarningEvent('WARN', 'remote drawing fail !');
-        // TODO:
-        // what if channel id and board id is null ?
-        actionContext.dispatch('CLEAN_FAILURE_DRAW', {
-            channelId: data.channelId,
-            boardId: data.boardId,
-            clientId: data.clientId
-        });
-        return null;
-    }).nodeify(callback);
+        var reason = data.reason || 'save draw fail !';
+        ActionUtils.showWarningEvent('WARN', 'remote ' + reason);
+        if (data.channelId && data.boardId && data.clientId) {
+            actionContext.dispatch('CLEAN_FAILURE_DRAW', {
+                channelId: data.channelId,
+                boardId: data.boardId,
+                clientId: data.clientId
+            });
+        }
+    });
 };
 
 /**

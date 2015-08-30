@@ -143,7 +143,13 @@ exports.keepAliveAsync = function(channelId) {
     return SharedUtils.argsCheckAsync(channelId, 'md5')
         .then(function(cid) {
             var redisKey = _getSessionKey(cid);
-            return RedisClient.expireAsync(redisKey, SESSION_TIMEOUT_IN_SECOND);
+            return RedisClient.multi()
+                .expire(redisKey, SESSION_TIMEOUT_IN_SECOND)
+                .ttl(redisKey)
+                .execAsync().then(function(multiResult){
+                    console.log('[DEBUG] ================set result: %s, time to live: %s', multiResult[0], multiResult[1]);
+                    return multiResult[0];
+                });
         }).catch(function(err) {
             SharedUtils.printError('RtcSessionTemp.js', 'keepAliveAsync', err);
             throw err;

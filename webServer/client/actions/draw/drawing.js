@@ -28,9 +28,8 @@ var WARNING_DRAWS_LIMIT = (ACTIVED_DRAWS_LIMIT / 2);
  * @param {Number}      data.boardId, target board id
  * @param {Array}       data.chunks, the rawData of draw record
  * @param {Object}      data.drawOptions, the draw related options
- * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -54,5 +53,9 @@ module.exports = function(actionContext, data, callback) {
     }).catch(function(err) {
         SharedUtils.printError('drawing.js', 'core', err);
         ActionUtils.showErrorEvent('Drawing', 'current draws abnormal');
-    }).nodeify(callback);
+        actionContext.dispatch('CLEAN_LOCAL_DRAW', {
+            channelId: data.channelId,
+            boardId: data.boardId
+        });
+    });
 };
