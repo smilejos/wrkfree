@@ -26,6 +26,7 @@ var QuickSearchAction = require('../../client/actions/search/quickSearch');
  */
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
+var Tooltip = Mui.Tooltip;
 
 /**
  * child components
@@ -147,6 +148,9 @@ module.exports = React.createClass({
     },
 
     render: function() {
+        var subscriptionTips = (this.state.isChannelListActive ? 'hide' : 'show') + ' starred channels';
+        var notificationTips = (this.state.isNotificationActive ? 'hide' : 'show') + ' notifications';
+        var frinedListTiips = (this.state.isFriendListActive ? 'hide' : 'show') + ' friends';
         return (
             <div className="Header">
                 <div className="headerLeftMenu">
@@ -156,6 +160,7 @@ module.exports = React.createClass({
                         containerClass="leftState" 
                         containerStyle={{marginTop: 10, paddingRight: 10}} 
                         iconClass="fa fa-bars"
+                        tips={subscriptionTips}
                         iconHandler={this._onMenuIconButtonTouchTap}/>
                     <div className="leftState" style={{marginTop: 10}}>
                         <FormButton 
@@ -186,6 +191,7 @@ module.exports = React.createClass({
                         containerClass="rightState" 
                         containerStyle={{marginTop: 10}} 
                         iconClass="fa fa-bell"
+                        tips={notificationTips}
                         iconHandler={this._onNoticeToggle}/>
                     <StateButton
                         isActived={this.state.isFriendListActive}
@@ -193,6 +199,7 @@ module.exports = React.createClass({
                         containerClass="rightState" 
                         containerStyle={{marginTop: 10}} 
                         iconClass="fa fa-comments"
+                        tips={frinedListTiips}
                         iconHandler={this._onInboxToggle}/>
                     <UserState avatar={this.state.userInfo.avatar} name={this.state.userInfo.nickName} />
                 </div>
@@ -237,11 +244,28 @@ var UserState = React.createClass({
 });
 
 var StateButton = React.createClass({
+    getInitialState: function() {
+        return {
+            isShown: false
+        };
+    },
+
+    _onTipsShown: function(shownState) {
+        if (this.props.tips) {
+            this.setState({
+                isShown: shownState
+            });
+        }
+    },
+
     render: function() {
         var containerClass = this.props.containerClass || '';
         var containerStyle = this.props.containerStyle || {};
         return (
-            <div className={containerClass} style={containerStyle}>
+            <div className={containerClass} 
+                style={containerStyle}
+                onMouseEnter={this._onTipsShown.bind(this, true)}
+                onMouseLeave={this._onTipsShown.bind(this, false)}>
                 <FormButton 
                     isActived={this.props.isActived}
                     ref="button"
@@ -249,6 +273,12 @@ var StateButton = React.createClass({
                     colorType="blue"
                     defaultIconClass={this.props.iconClass} 
                     defaultIconHandler={this.props.iconHandler}/>
+                <Tooltip 
+                    show={this.state.isShown}
+                    verticalPosition="bottom" 
+                    horizontalPosition="right" 
+                    touch
+                    label={this.props.tips} />
             </div>
         );
     }
