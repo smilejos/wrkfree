@@ -41,7 +41,7 @@ var Socket = null;
  */
 exports.init = function(callback) {
     if (Socket !== null) {
-        return (Socket.getState() === 'open' ? callback() : location.assign(location.pathname));
+        return (Socket.getState() === 'open' ? callback() : _handleConnectionFail('connection initialize fail'));
     }
 
     function _clientInit() {
@@ -253,5 +253,5 @@ function _evtWatcher(subscription, packet) {
  * @param {String}        errMsg, connection failure message
  */
 function _handleConnectionFail(errMsg) {
-    location.assign('/app/error?status=503');
+    location.assign('/app/error?status=503&explaination=' + errMsg);
 }
