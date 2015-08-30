@@ -5,7 +5,7 @@ $hangout-space-width: 260px;
 $hangout-space-height: 350px;
 $hangout-header-height: 40px;
 $hangout-messages-height: 275px;
-$hangout-header-background-color: $light-blue-800;
+$hangout-header-background-color: rgba(2,119,189, .8);
 $hangout-video-background-color: rgba(0,0,0, .8);
 $hangout-client-message-bubble-color: #FFF;
 $hangout-host-message-bubble-color: $grey-400;
@@ -41,7 +41,6 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
             height: $hangout-header-height;
             line-height: $hangout-header-height;
             padding-left: 10px;
-            opacity: 0.8;
             color: #FFF;
             .hangoutHeaderTitle {
                 font-size: 12px;
@@ -49,7 +48,7 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
             }
             .hangoutHeaderControls {
                 position: absolute;
-                color: $light-blue-900;
+                color: rgba(1,87,155, .8);
                 font-size: 18px;
                 top: 10px;
                 right: 0px;
