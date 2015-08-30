@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
+var ActionUtils = require('../actionUtils');
 
 /**
  * @Public API
@@ -12,14 +13,14 @@ var DrawUtils = require('../../../../sharedUtils/drawUtils');
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
  * @param {Number}      data.boardId, target board id
- * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number')
-    }).then(function(validData) {
-        return DrawService.cleanDrawBoardAsync(validData);
+    }).then(function(reqData) {
+        actionContext.dispatch('CLEAN_LOCAL_DRAW', reqData);
+        return DrawService.cleanDrawBoardAsync(reqData);
     }).then(function(result) {
         if (!result) {
             throw new Error('clean draw board fail from server side');
@@ -29,7 +30,6 @@ module.exports = function(actionContext, data, callback) {
         return actionContext.dispatch('ON_RECORD_SAVE', cleanDoc);
     }).catch(function(err) {
         SharedUtils.printError('cleanDrawBoard.js', 'core', err);
-        return null;
-        // show alert message ?
-    }).nodeify(callback);
+        ActionUtils.showWarningEvent('WARN', 'fail to clean on current board');
+    });
 };

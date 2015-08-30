@@ -17,8 +17,9 @@ module.exports = function(actionContext, data, callback) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
-    }).then(function(data) {
-        return DrawService.drawUndoAsync(data);
+    }).then(function(reqData) {
+        actionContext.dispatch('CLEAN_LOCAL_DRAW', reqData);
+        return DrawService.drawUndoAsync(reqData);
     }).then(function(result) {
         if (!result) {
             throw new Error('draw undo error from server side');

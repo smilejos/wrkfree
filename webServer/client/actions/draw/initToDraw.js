@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
 var ActionUtils = require('../actionUtils');
+var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 
 var REQUEST_TIMEOUT_IN_MSECOND = 1000;
 
@@ -21,6 +22,10 @@ module.exports = function(actionContext, data) {
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number')
     }).then(function(reqData) {
+        var store = actionContext.getStore(WorkSpaceStore);
+        if (!!store.getState().draw.isInited && !!data.isInited) {
+            return;
+        }
         data.clientId = 'local';
         if (data.isInited === true) {
             _sendInitRequest(actionContext, reqData, data);
