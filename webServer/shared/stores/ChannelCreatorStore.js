@@ -1,13 +1,18 @@
 'use strict';
 var CreateStore = require('fluxible/addons').createStore;
-var SharedUtils = require('../../../sharedUtils/utils');
-var Promise = require('bluebird');
 
 module.exports = CreateStore({
     storeName: 'ChannelCreatorStore',
 
     handlers: {
-        'ON_CHANNEL_CREATE': 'onChannelCreate'
+        'ON_CHANNEL_CREATE': 'onChannelCreate',
+        'TOGGLE_CHANNELCREATOR': '_toggleChannelCreator',
+        'TOGGLE_SUBSCRIPTIONLIST': '_deactiveChannelCreator',
+        'TOGGLE_FRIENDLIST': '_deactiveChannelCreator',
+        'TOGGLE_QUICKSEARCH': '_deactiveChannelCreator',
+        'TOGGLE_PERSONALINFO': '_deactiveChannelCreator',
+        'TOGGLE_NOTIFICATION': '_deactiveChannelCreator',
+        'TOGGLE_MAIN_VIEWPOINT': '_deactiveChannelCreator'
     },
 
 
@@ -25,20 +30,28 @@ module.exports = CreateStore({
     },
 
     /**
-     * Public API
      * @Author: George_Chen
-     * @Description: used to show or hide channelNav bar
-     * NOTE: if is "isOpen" is invalid, we will change "actived" state different from current
-     * 
-     * @param {Boolean}        isOpen, to indicate channelNav bar should open or not
+     * @Description: to toggle the active status of channel creator
+     *
+     * @param {Boolean}          data.isActive, indicate is active or not
      */
-    toggleAsync: function(isOpen) {
-        var self = this;
-        return Promise.try(function() {
-            self.createdChannel = -1;
-            self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
-            self.emitChange();
-        });
+    _toggleChannelCreator: function(data) {
+        this.isActive = data.isActive;
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to deactive channel creator status
+     *         NOTE: when other component is active, then deactive current component
+     *
+     * @param {Boolean}          data.isActive, indicate other component is active or not
+     */
+    _deactiveChannelCreator: function(data) {
+        if (data.isActive && this.isActive) {
+            this.isActive = false;
+            this.emitChange();
+        }
     },
 
     getState: function() {

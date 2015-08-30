@@ -1,5 +1,8 @@
 'use strict';
+var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var QuickSearchStore = require('../../../shared/stores/QuickSearchStore');
+var ActionUtils = require('../actionUtils');
 
 /**
  * @Public API
@@ -10,19 +13,23 @@ var SharedUtils = require('../../../../sharedUtils/utils');
  * @param {String}      data.isActive, 
  */
 module.exports = function(actionContext, data) {
-    return SharedUtils.argsCheckAsync(data.isActive, 'boolean')
-        .then(function(searchEnable) {
-            if (!searchEnable) {
-                actionContext.dispatch('ON_QUICKSEARCH_UPDATE', {
-                    users: [],
-                    channels: []
-                });
-            }
-            actionContext.dispatch('TOGGLE_QUICKSEARCH', {
-                isActive: searchEnable
+    return Promise.try(function() {
+        if (SharedUtils.isBoolean(data.isActive)) {
+            return data.isActive;
+        }
+        return !actionContext.getStore(QuickSearchStore).isActive;
+    }).then(function(toggleToActive) {
+        if (!toggleToActive) {
+            actionContext.dispatch('ON_QUICKSEARCH_UPDATE', {
+                users: [],
+                channels: []
             });
-        }).catch(function(err) {
-            SharedUtils.printError('navToBoard.js', 'core', err);
-            return null;
+        }
+        actionContext.dispatch('TOGGLE_QUICKSEARCH', {
+            isActive: toggleToActive
         });
+    }).catch(function(err) {
+        SharedUtils.printError('_toggleQuickSearch.js', 'core', err);
+        ActionUtils.showWarningEvent('WARN', 'toggle quicksearch bar fail');
+    });
 };

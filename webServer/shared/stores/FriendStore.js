@@ -14,7 +14,14 @@ module.exports = CreateStore({
         'ON_FRIEND_ADDED': '_onFriendAdded',
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
         'RECV_NOTIFICATION_CONFERENCE': '_recvNotificationConference',
-        'RECV_MESSAGE': '_recvMessage'
+        'RECV_MESSAGE': '_recvMessage',
+        'TOGGLE_FRIENDLIST': '_toggleFriendList',
+        'TOGGLE_SUBSCRIPTIONLIST': '_deactiveFriendList',
+        'TOGGLE_CHANNELCREATOR': '_deactiveFriendList',
+        'TOGGLE_QUICKSEARCH': '_deactiveFriendList',
+        'TOGGLE_PERSONALINFO': '_deactiveFriendList',
+        'TOGGLE_NOTIFICATION': '_deactiveFriendList',
+        'TOGGLE_MAIN_VIEWPOINT': '_deactiveFriendList'
     },
 
     /**
@@ -183,19 +190,28 @@ module.exports = CreateStore({
     },
 
     /**
-     * Public API
      * @Author: George_Chen
-     * @Description: used to show or hide channelNav bar
-     * NOTE: if is "isOpen" is invalid, we will change "actived" state different from current
-     * 
-     * @param {Boolean}        isOpen, to indicate channelNav bar should open or not
+     * @Description: to toggle the active status of friend list
+     *
+     * @param {Boolean}          data.isActive, indicate is active or not
      */
-    toggleAsync: function(isOpen) {
-        var self = this;
-        return Promise.try(function() {
-            self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
-            self.emitChange();
-        });
+    _toggleFriendList: function(data) {
+        this.isActive = data.isActive;
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to deactive friend list status
+     *         NOTE: when other component is active, then deactive current component
+     *
+     * @param {Boolean}          data.isActive, indicate other component is active or not
+     */
+    _deactiveFriendList: function(data) {
+        if (data.isActive && this.isActive) {
+            this.isActive = false;
+            this.emitChange();
+        }
     },
 
 

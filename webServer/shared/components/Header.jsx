@@ -8,7 +8,6 @@ var SubscriptionStore = require('../stores/SubscriptionStore');
 var ChannelCreatorStore = require('../stores/ChannelCreatorStore');
 var NotificationStore = require('../stores/NotificationStore');
 var FriendStore = require('../stores/FriendStore');
-var PersonalStore = require('../stores/PersonalStore');
 var QuickSearchStore = require('../stores/QuickSearchStore');
 
 /**
@@ -54,7 +53,7 @@ module.exports = React.createClass({
     statics: {
         storeListeners: {
             'onStoreChange': [HeaderStore],
-            'onIconStateChange': [SubscriptionStore, ChannelCreatorStore, NotificationStore, FriendStore, PersonalStore, QuickSearchStore]
+            'onIconStateChange': [SubscriptionStore, ChannelCreatorStore, NotificationStore, FriendStore, QuickSearchStore]
         }
     },
 
@@ -81,7 +80,6 @@ module.exports = React.createClass({
             isNotificationActive : this.getStore(NotificationStore).getState().isActive,
             isFriendListActive : this.getStore(FriendStore).getState().isActive,
             isSearchActive: this.getStore(QuickSearchStore).getState().isActive
-            //isPersonalActive : this.getStore(PersonalStore).getState().isActive
         }
         this.setState(state);
     },
@@ -91,10 +89,7 @@ module.exports = React.createClass({
      * @Description: handle "menu" icon tap mechanism
      */
     _onMenuIconButtonTouchTap: function() {
-        this.executeAction(ToggleChannelNav, {});
-        this.executeAction(ToggleQuickSearch, {
-            isActive: false
-        });
+        this.executeAction(ToggleChannelNav);
     },
 
     /**
@@ -102,9 +97,6 @@ module.exports = React.createClass({
      * @Description: focus on search field after click search icon
      */
     _onSearchIconClick: function() {
-        this.executeAction(ToggleChannelNav, {
-            open: false
-        });
         if (this.state.isSearchActive) {
             return this.refs.headerSearch.clearValue();
         }

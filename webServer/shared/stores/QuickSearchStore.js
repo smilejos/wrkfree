@@ -15,7 +15,13 @@ module.exports = CreateStore({
     handlers: {
         'ON_QUICKSEARCH_UPDATE': '_onQuickSearchUpdate',
         'ON_QUICKSEARCH_CACHE_HIT': '_onQuickSearchCacheHit',
-        'TOGGLE_QUICKSEARCH': '_toggleQuickSearch'
+        'TOGGLE_QUICKSEARCH': '_toggleQuickSearch',
+        'TOGGLE_SUBSCRIPTIONLIST': '_deactiveQuickSearch',
+        'TOGGLE_FRIENDLIST': '_deactiveQuickSearch',
+        'TOGGLE_CHANNELCREATOR': '_deactiveQuickSearch',
+        'TOGGLE_PERSONALINFO': '_deactiveQuickSearch',
+        'TOGGLE_NOTIFICATION': '_deactiveQuickSearch',
+        'TOGGLE_MAIN_VIEWPOINT': '_deactiveQuickSearch'
     },
 
     /**
@@ -62,13 +68,27 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
-     * @Description: to toggle the enable status of quickSearch
+     * @Description: to toggle the active status of quickSearch
      *
-     * @param {Boolean}          isActive, indicate quick search state
+     * @param {Boolean}          data.isActive, indicate is active or not
      */
     _toggleQuickSearch: function(data) {
         this.isActive = data.isActive;
         this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to deactive quicksearch status
+     *         NOTE: when other component is active, then deactive current component
+     *
+     * @param {Boolean}          data.isActive, indicate other component is active or not
+     */
+    _deactiveQuickSearch: function(data) {
+        if (data.isActive && this.isActive) {
+            this.isActive = false;
+            this.emitChange();
+        }
     },
 
     initialize: function() {
