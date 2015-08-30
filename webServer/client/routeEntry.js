@@ -175,7 +175,7 @@ function _getFriendResource(actionContext, userInfo) {
 function _getDashboardResource(actionContext) {
     var dashboardStore = actionContext.getStore(DashboardStore);
     if (dashboardStore.isStoreOutdated()) {
-        return ChannelService.getAuthChannelsAsync()
+        return ChannelService.getAuthChannelsAsync({})
             .map(function(doc) {
                 return UserService.getInfoAsync(doc.channel.host)
                     .then(function(hostInfo) {
