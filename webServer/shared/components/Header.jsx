@@ -180,6 +180,10 @@ module.exports = React.createClass({
                             onBlurHandler={this._onSearchCancel} />
                     </div>
                 </div>
+                <div className="headerLogo"> 
+                    {'Wrkfree'}
+                    <div className="headerVersion"> {'Beta'} </div> 
+                </div>
                 <div className="headerRightMenu" >
                     <ChannelCreator 
                         isActived={this.state.isChannelCreatorActive}

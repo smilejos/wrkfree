@@ -38,6 +38,7 @@ $header-active-state-color: #fff;
     color: $header-main-color;
     z-index: 5;
     position: relative;
+
     /**
      * the left part of header menu
      */
@@ -49,6 +50,24 @@ $header-active-state-color: #fff;
             float:left;
         }
     }
+
+    .headerLogo {
+        position: absolute;
+        top: 0px;
+        left: 50%;
+        margin-left: -20px;
+        font-size: 20px;
+        line-height: 50px;
+        .headerVersion {
+            position: absolute;
+            line-height: none;
+            bottom: -13px;
+            right: -13px;
+            font-size: 11px;
+            color: #F5A120;
+        }
+    }
+
     /**
      * the right part of header menu
      */
