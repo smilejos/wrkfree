@@ -15,7 +15,7 @@ module.exports = CreateStore({
         'ON_RECORD_SAVE': '_onTempDrawClean',
         'ON_DRAW_INITED': '_onTempDrawClean',
         'CLEAN_FAILURE_DRAW': '_onTempDrawClean',
-        'ON_BOARD_POLYFILL': '_cleanLocalTemp'
+        'CLEAN_LOCAL_DRAW': '_cleanLocalTemp'
     },
 
     initialize: function() {
@@ -91,7 +91,7 @@ module.exports = CreateStore({
      * @param {String}          data.channelId, the channel id
      * @param {Number}          data.boardId, the draw board id
      */
-    _cleanLocalTemp:function(data) {
+    _cleanLocalTemp: function(data) {
         this._onTempDrawClean({
             channelId: data.channelId,
             boardId: data.boardId,

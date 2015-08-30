@@ -11,14 +11,14 @@ var DrawService = require('../../services/drawService');
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
  * @param {Number}      data.boardId, target board id
- * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
-    }).then(function(data) {
-        return DrawService.drawRedoAsync(data);
+    }).then(function(reqData) {
+        actionContext.dispatch('CLEAN_LOCAL_DRAW', reqData);
+        return DrawService.drawRedoAsync(reqData);
     }).then(function(result) {
         if (!result) {
             throw new Error('draw redo error from server side');
@@ -28,5 +28,5 @@ module.exports = function(actionContext, data, callback) {
         SharedUtils.printError('drawRedo.js', 'core', err);
         return null;
         // show alert message ?
-    }).nodeify(callback);
+    });
 };

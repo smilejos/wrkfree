@@ -21,6 +21,6 @@ module.exports = function(actionContext, data) {
         actionContext.dispatch('ON_DRAW_INITED', recvData);
     }).catch(function(err) {
         SharedUtils.printError('onRemoteDrawInit.js', 'core', err);
-        ActionUtils.showWarningEvent('Warning', 'abnormal infomration from remote');
+        ActionUtils.showWarningEvent('Warning', 'unexpectedly initialize on remote');
     });
 };
