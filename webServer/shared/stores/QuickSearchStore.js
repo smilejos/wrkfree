@@ -64,15 +64,15 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: to toggle the enable status of quickSearch
      *
-     * @param {Boolean}          isEnabled, indicate quick search state
+     * @param {Boolean}          isActive, indicate quick search state
      */
     _toggleQuickSearch: function(data) {
-        this.isEnabled = data.isEnabled;
+        this.isActive = data.isActive;
         this.emitChange();
     },
 
     initialize: function() {
-        this.isEnabled = false;
+        this.isActive = false;
         this.currentQuery = null;
         this.userQueries = Cache(CachePolicy);
         this.channelQueries = Cache(CachePolicy);
@@ -81,7 +81,7 @@ module.exports = CreateStore({
     getState: function() {
         var query = this.currentQuery;
         return {
-            isEnabled: this.isEnabled,
+            isActive: this.isActive,
             results: {
                 channels: this.channelQueries.get(query) || [],
                 users: this.userQueries.get(query) || []

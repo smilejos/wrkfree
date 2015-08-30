@@ -57,7 +57,7 @@ module.exports = React.createClass({
 
     render: function(){
         var searchClass = 'QuickSearch Center';
-        if (!this.state.isEnabled) {
+        if (!this.state.isActive) {
             searchClass = 'hide Center';
         }
         var users = this.state.results.users;

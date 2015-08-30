@@ -7,6 +7,7 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 /**
  * actions
  */
+var ToggleChannelCreator = require('../../../client/actions/toggleChannelCreator');
 var CreateChannel = require('../../../client/actions/channel/createChannel');
 
 /**
@@ -36,6 +37,7 @@ module.exports = React.createClass({
     },
 
     _onInputBlur: function() {
+        this.executeAction(ToggleChannelCreator);
         this.setState({
             isErrorShown: false
         });
@@ -49,6 +51,7 @@ module.exports = React.createClass({
     },
 
     _onInputSubmit: function(value) {
+        this.executeAction(ToggleChannelCreator);
         if (value === '' || !SharedUtils.isChannelName(value)) {
             return this.refs.channelCreator.clearValue();
         }
@@ -59,28 +62,34 @@ module.exports = React.createClass({
         });
     },
 
+    _onIconClick: function() {
+        this.executeAction(ToggleChannelCreator);
+    },
+
     render: function() {
         var isErrorShown = this.state.isErrorShown;
         return (
             <div className={this.props.containerClass} style={this.props.containerStyle} >
+                <FormButton 
+                    ref="channelCreator"
+                    isActived={this.props.isActived}
+                    hasInput
+                    width={250}
+                    colorType="green"
+                    defaultIconClass="fa fa-plus"
+                    submitIconClass={isErrorShown ? 'fa fa-exclamation-triangle' : 'fa fa-arrow-right'}
+                    hintText="the channel name ... "
+                    label="CREATE CHANNEL" 
+                    defaultIconHandler={this._onIconClick}
+                    onChangeHandler={this._onInputChange}
+                    submitHandler={this._onInputSubmit}
+                    onBlurHandler={this._onInputBlur}/>
                 <Tooltip 
                     show={this.state.isErrorShown}
                     verticalPosition="bottom" 
                     horizontalPosition="right" 
                     touch
                     label={'not support special characters, e.g. !@#$%^&*()'} />
-                <FormButton 
-                    ref="channelCreator"
-                    hasInput
-                    width={250}
-                    colorType="green"
-                    defaultIconClass="fa fa-plus"
-                    submitIconClass={isErrorShown ? 'fa fa-times' : 'fa fa-arrow-right'}
-                    hintText="the channel name ... "
-                    label="CREATE CHANNEL" 
-                    onChangeHandler={this._onInputChange}
-                    submitHandler={this._onInputSubmit}
-                    onBlurHandler={this._onInputBlur}/>
             </div>
         )
     }

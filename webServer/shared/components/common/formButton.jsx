@@ -21,7 +21,6 @@ module.exports = React.createClass({
     getInitialState: function() {
         return {
             defaultWidth: 35,
-            isActived: false,
             inputWidth: 0,
             inputDisplay: 'none'
         };
@@ -29,15 +28,12 @@ module.exports = React.createClass({
 
     componentDidUpdate: function() {
         var input = React.findDOMNode(this.refs.input);
-        if (this.state.isActived) {
+        if (this.props.isActived) {
             input.focus();
         }
     },
 
     dismiss: function() {
-        this.setState({
-            isActived: false
-        });
         if (this.props.onBlurHandler) {
             this.props.onBlurHandler();
         }
@@ -59,8 +55,10 @@ module.exports = React.createClass({
     },
 
     _onContentClick: function() {
-        var input = React.findDOMNode(this.refs.input);
-        if (this.state.isActived) {
+        if (this.props.defaultIconHandler) {
+            this.props.defaultIconHandler();
+        }
+        if (this.props.isActived) {
             return this.dismiss();
         }
         var icon = React.findDOMNode(this.refs.defaultIcon);
@@ -68,13 +66,9 @@ module.exports = React.createClass({
         var input = React.findDOMNode(this.refs.input);
         var width = (this.props.width ? this.props.width : this.state.defaultWidth);
         this.setState({
-            isActived: true,
             inputDisplay: (this.props.hasInput ? 'inline-block' : 'none'),
             inputWidth: width - icon.offsetWidth - submitIcon.offsetWidth
         });
-        if (this.props.defaultIconHandler) {
-            this.props.defaultIconHandler();
-        }
     },
 
     _onSubmit: function() {
@@ -111,7 +105,7 @@ module.exports = React.createClass({
         var containerWidth = (this.props.width ? this.props.width : this.state.defaultWidth);
         var isFiexedWidth = this.props.isFiexedWidth;
         var label = this.props.label;
-        var isActived = this.state.isActived;
+        var isActived = this.props.isActived;
         var containerClass = (isActived ? 'form-button active ' : 'form-button ');
         var containerStyle = {
             position: 'relative',
@@ -131,7 +125,7 @@ module.exports = React.createClass({
                 {this._setCounter()}
                 <div className={containerClass} style={containerStyle} >
                     <label for="name" className="cta" onClick={this._onContentClick} style={{width: containerStyle.width}}>
-                        <i ref="defaultIcon" className={'icon '+ this.props.defaultIconClass}></i>
+                        <i ref="defaultIcon" style={{cursor: 'pointer'}} className={'icon '+ this.props.defaultIconClass}></i>
                         <span style={labelStyle}> {label} </span>
                     </label>
                     <div style={{position: 'absolute', top: 0, left: this.state.defaultWidth, visibility: isActived ? 'visible' : 'hidden'}}>
