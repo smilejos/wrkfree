@@ -89,7 +89,7 @@ module.exports = React.createClass({
         // RouteHandler will take care of Routes while url change
         return (
             <div>
-                <div style={{visibility: isInited ? 'visible' : 'hidden'}}>
+                <div style={{opacity: isInited ? 1 : 0, visibility: isInited ? 'visible' : 'hidden', transition: '0.6s'}}>
                     <Header />
                     <Webcam />
                     <Subscription />
@@ -102,7 +102,7 @@ module.exports = React.createClass({
                     <QuickSearch />
                     <SystemSounds />
                 </div>
-                <div style={{width: '100%', height: '100%', display: isInited ? 'none' : 'inline'}} >
+                <div style={{width: '100%', height: '100%', opacity: isInited ? 0 : 1, transition: '0.8s'}} >
                     <div style={{position: 'fixed', top: '50%', marginTop: -100, left: '50%', marginLeft: -50}}>
                         <div><img width="100" src="/assets/imgs/logo.svg" /></div>
                         <div style={{marginLeft: 25}}><img width="50" src="/assets/imgs/hourglass.svg" /></div>
