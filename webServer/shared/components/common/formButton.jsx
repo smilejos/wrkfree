@@ -29,8 +29,9 @@ module.exports = React.createClass({
     componentDidUpdate: function() {
         var input = React.findDOMNode(this.refs.input);
         if (this.props.isActived) {
-            input.focus();
+            return input.focus();
         }
+        input.value= '';
     },
 
     dismiss: function() {

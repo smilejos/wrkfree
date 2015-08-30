@@ -65,6 +65,15 @@ module.exports = React.createClass({
         this.executeAction(ToggleChannelCreator);
     },
 
+    componentDidUpdate: function(prevProps) {
+        if (prevProps.isActived && !this.props.isActived) {
+            // this.refs.channelCreator.clearValue();
+            this.setState({
+                isErrorShown: false
+            });            
+        }
+    },
+
     render: function() {
         var isErrorShown = this.state.isErrorShown;
         return (
