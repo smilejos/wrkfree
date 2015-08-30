@@ -168,6 +168,7 @@ module.exports = React.createClass({
                     <div className="headerSearch" style={{marginTop: 10}}>
                         <FormButton 
                             width={300}
+                            hasInput
                             isFiexedWidth
                             colorType="blue"
                             defaultIconClass="fa fa-search"

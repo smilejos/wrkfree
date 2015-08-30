@@ -1,6 +1,5 @@
 var React = require('react');
 
-
 /**
  * @Author: George_Chen
  * @Description: form button componet works like "trello" search icon
@@ -11,6 +10,7 @@ var React = require('react');
  * @param {String}      this.props.submitIconClass, the submit button icon class
  * @param {String}      this.props.hintText, the form input hint text
  * @param {String}      this.props.label, the form button label text
+ * @param {Boolean}     this.props.hasInput, indicate current formbutton has input or not
  * @param {Boolean}     this.props.isFiexedWidth, make formbtuuon with initial fixed width or not
  * @param {Function}    this.props.defaultIconHandler, the default icon click handler
  * @param {Function}    this.props.submitHandler, the submit icon click handler
@@ -20,6 +20,7 @@ var React = require('react');
 module.exports = React.createClass({
     getInitialState: function() {
         return {
+            defaultWidth: 35,
             isActived: false,
             inputWidth: 0,
             inputDisplay: 'none'
@@ -33,34 +34,7 @@ module.exports = React.createClass({
         }
     },
 
-    _onKeyDown: function(e) {
-        var input = React.findDOMNode(this.refs.input);
-        if (e.keyCode === 13) {
-            this.props.submitHandler(e.target.value);
-        }
-        if (e.keyCode === 27) {
-            this.clearValue();
-        }
-    },
-
-    _onContentClick: function() {
-        if (this.state.isActived) {
-            return;
-        }
-        var icon = React.findDOMNode(this.refs.defaultIcon);
-        var submitIcon = React.findDOMNode(this.refs.submitIcon);
-        var input = React.findDOMNode(this.refs.input);
-        this.setState({
-            isActived: true,
-            inputDisplay: 'inline-block',
-            inputWidth: this.props.width - icon.offsetWidth - submitIcon.offsetWidth
-        });
-        if (this.props.defaultIconHandler) {
-            this.props.defaultIconHandler();
-        }
-    },
-
-    _onBlur: function() {
+    dismiss: function() {
         this.setState({
             isActived: false
         });
@@ -72,11 +46,69 @@ module.exports = React.createClass({
     clearValue: function() {
         var input = React.findDOMNode(this.refs.input);
         input.value = '';
-        this._onBlur();
+        this.dismiss();
+    },
+
+    _onKeyDown: function(e) {
+        if (e.keyCode === 13) {
+            this._onSubmit();
+        }
+        if (e.keyCode === 27) {
+            this.clearValue();
+        }
+    },
+
+    _onContentClick: function() {
+        var input = React.findDOMNode(this.refs.input);
+        if (this.state.isActived) {
+            return this.dismiss();
+        }
+        var icon = React.findDOMNode(this.refs.defaultIcon);
+        var submitIcon = React.findDOMNode(this.refs.submitIcon);
+        var input = React.findDOMNode(this.refs.input);
+        var width = (this.props.width ? this.props.width : this.state.defaultWidth);
+        this.setState({
+            isActived: true,
+            inputDisplay: (this.props.hasInput ? 'inline-block' : 'none'),
+            inputWidth: width - icon.offsetWidth - submitIcon.offsetWidth
+        });
+        if (this.props.defaultIconHandler) {
+            this.props.defaultIconHandler();
+        }
+    },
+
+    _onSubmit: function() {
+        var input = React.findDOMNode(this.refs.input);
+        if (input.value === '') {
+            return this.dismiss();
+        }
+        if (this.props.submitHandler) {
+            this.props.submitHandler(input.value);
+        }
+    },
+
+    _setCounter: function() {
+        if (this.props.counts > 0) {
+            var counterStyle = {
+                position: 'absolute',
+                width: 17,
+                height: 17,
+                top: -2,
+                right: -2,
+                backgroundColor: '#FF0000',
+                fontSize: 9,
+                borderRadius: 10,
+                textAlign: 'center',
+                lineHeight: 1.8,
+                zIndex: 2
+            };
+            return <div style={counterStyle}>{this.props.counts}</div>
+        }
+        return '';
     },
 
     render: function() {
-        var containerWidth = this.props.width;
+        var containerWidth = (this.props.width ? this.props.width : this.state.defaultWidth);
         var isFiexedWidth = this.props.isFiexedWidth;
         var label = this.props.label;
         var isActived = this.state.isActived;
@@ -95,27 +127,30 @@ module.exports = React.createClass({
         };
         containerClass += this.props.colorType;
         return (
-            <div className={containerClass} style={containerStyle} onClick={this._onContentClick}>
-                <label for="name" className="cta" >
-                    <i ref="defaultIcon" className={'icon '+ this.props.defaultIconClass}></i>
-                    <span style={labelStyle}> {label} </span>
-                </label>
-                <div style={{position: 'absolute', top: 0, left: 35, visibility: isActived ? 'visible' : 'hidden'}}>
-                    <input ref="input" 
-                        style={inputStyle} 
-                        className="input" 
-                        type="text"
-                        placeholder={this.props.hintText} 
-                        name="name" 
-                        onKeyDown={this._onKeyDown}
-                        onChange={this.props.onChangeHandler}
-                        onBlur={this._onBlur}/>
-                    <button ref="submitIcon" 
-                        style={{paddingRight: 20}} 
-                        className="submit" 
-                        type="submit" >
-                        <i className={this.props.submitIconClass}></i>
-                    </button>
+            <div style={{position: 'relative'}} >
+                {this._setCounter()}
+                <div className={containerClass} style={containerStyle} >
+                    <label for="name" className="cta" onClick={this._onContentClick} style={{width: containerStyle.width}}>
+                        <i ref="defaultIcon" className={'icon '+ this.props.defaultIconClass}></i>
+                        <span style={labelStyle}> {label} </span>
+                    </label>
+                    <div style={{position: 'absolute', top: 0, left: this.state.defaultWidth, visibility: isActived ? 'visible' : 'hidden'}}>
+                        <input ref="input" 
+                            style={inputStyle} 
+                            className="input" 
+                            type="text"
+                            placeholder={this.props.hintText} 
+                            name="name" 
+                            onKeyDown={this._onKeyDown}
+                            onChange={this.props.onChangeHandler} />
+                        <button ref="submitIcon" 
+                            onClick={this._onSubmit}
+                            style={{paddingRight: 20}} 
+                            className="submit" 
+                            type="submit" >
+                            <i className={this.props.submitIconClass}></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         );

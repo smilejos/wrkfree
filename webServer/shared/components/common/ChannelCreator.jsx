@@ -71,6 +71,7 @@ module.exports = React.createClass({
                     label={'not support special characters, e.g. !@#$%^&*()'} />
                 <FormButton 
                     ref="channelCreator"
+                    hasInput
                     width={250}
                     colorType="green"
                     defaultIconClass="fa fa-plus"
