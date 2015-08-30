@@ -121,16 +121,14 @@ module.exports = React.createClass({
      * 
      * @param {Object}      e, the react onChange event
      */
-    _onSearchChange: function(e){
-        var queryText = e.target.value;
+    _onSearchChange: function(queryText){
+        var time = (queryText === '' ? 0 : SEARCH_DELAY_IN_MSECOND);
         clearTimeout(CurrentSearch);
         CurrentSearch = setTimeout(function(){
-            if (queryText !== '') {
-                this.executeAction(QuickSearchAction, {
-                    query: queryText
-                }); 
-            }           
-        }.bind(this), SEARCH_DELAY_IN_MSECOND);
+            this.executeAction(QuickSearchAction, {
+                query: queryText
+            });
+        }.bind(this), time);
     },
 
     _onSearch: function(queryText) {

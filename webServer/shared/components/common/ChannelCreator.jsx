@@ -43,10 +43,9 @@ module.exports = React.createClass({
         });
     },
 
-    _onInputChange: function(e) {
-        var value = e.target.value;
+    _onInputChange: function(value) {
         this.setState({
-            isErrorShown: (value !== '' && !SharedUtils.isChannelName(e.target.value))
+            isErrorShown: (value !== '' && !SharedUtils.isChannelName(value))
         });
     },
 

@@ -54,6 +54,13 @@ module.exports = React.createClass({
         }
     },
 
+    _onChange: function(e) {
+        var value = e.target.value;
+        if (this.props.onChangeHandler) {
+            this.props.onChangeHandler(value);
+        }
+    },
+
     _onContentClick: function() {
         if (this.props.defaultIconHandler) {
             this.props.defaultIconHandler();
@@ -136,7 +143,7 @@ module.exports = React.createClass({
                             placeholder={this.props.hintText} 
                             name="name" 
                             onKeyDown={this._onKeyDown}
-                            onChange={this.props.onChangeHandler} />
+                            onChange={this._onChange} />
                         <button ref="submitIcon" 
                             onClick={this._onSubmit}
                             style={{paddingRight: 20}} 
