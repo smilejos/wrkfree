@@ -14,33 +14,46 @@ module.exports = CreateStore({
         'RECV_NOTIFICATION_MESSAGE': '_recvNotificationMessage',
         'RECV_NOTIFICATION_CONFERENCE': '_recvNotificationConference',
         'UPDATE_UNREAD_SUBSCRIBED_MSG_COUNTS': '_updateUnreadSubscribedMsgCounts',
-        'UPDATE_CHANNEL_STAR': '_updateChannelStar'
+        'UPDATE_CHANNEL_STAR': '_updateChannelStar',
+        'TOGGLE_SUBSCRIPTIONLIST': '_toggleSubscriiptionList',
+        'TOGGLE_FRIENDLIST': '_deactiveSubscriiptionList',
+        'TOGGLE_CHANNELCREATOR': '_deactiveSubscriiptionList',
+        'TOGGLE_QUICKSEARCH': '_deactiveSubscriiptionList',
+        'TOGGLE_PERSONALINFO': '_deactiveSubscriiptionList',
+        'TOGGLE_NOTIFICATION': '_deactiveSubscriiptionList',
+        'TOGGLE_MAIN_VIEWPOINT': '_deactiveSubscriiptionList'
     },
 
     initialize: function() {
-        // test data for channelNav Info
         this.isActive = false;
-        // use "-1" to indicate that no channel create action
         this.dbName = 'SubscriptionStore';
         this.db = this.getContext().getLokiDb(this.dbName);
         this.db.addCollection(this.dbName).ensureIndex('channelId');
     },
 
     /**
-     * Public API
      * @Author: George_Chen
-     * @Description: used to show or hide channelNav bar
-     * NOTE: if is "isOpen" is invalid, we will change "actived" state different from current
-     * 
-     * @param {Boolean}        isOpen, to indicate channelNav bar should open or not
+     * @Description: to toggle the active status of subscription list
+     *
+     * @param {Boolean}          data.isActive, indicate is active or not
      */
-    toggleAsync: function(isOpen) {
-        var self = this;
-        return Promise.try(function() {
-            self.createdChannel = -1;
-            self.isActive = (SharedUtils.isBoolean(isOpen) ? isOpen : !self.isActive);
-            self.emitChange();
-        });
+    _toggleSubscriiptionList: function(data) {
+        this.isActive = data.isActive;
+        this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to deactive subscription list status
+     *         NOTE: when other component is active, then deactive current component
+     *
+     * @param {Boolean}          data.isActive, indicate other component is active or not
+     */
+    _deactiveSubscriiptionList: function(data) {
+        if (data.isActive && this.isActive) {
+            this.isActive = false;
+            this.emitChange();
+        }
     },
 
     /**

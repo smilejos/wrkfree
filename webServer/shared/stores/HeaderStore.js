@@ -6,7 +6,6 @@ var SharedUtils = require('../../../sharedUtils/utils');
 var HeaderStore = CreateStore({
     storeName: 'HeaderStore',
     handlers: {
-        'TOGGLE_QUICKSEARCH': '_toggleQuickSearch',
         'TOGGLE_NOTIFICATION': '_toggleNotification',
         'UPDATE_HEADER_CONVERSATIONS': '_updateUnreadConversations',
         'UPDATE_HEADER_DISCUSSIONS': '_updateUnreadDisscussions',
@@ -15,7 +14,6 @@ var HeaderStore = CreateStore({
 
     initialize: function() {
         this.user = {};
-        this.isSearchable = false;
         this.unreadDiscussions = 0;
         this.unreadConversations = 0;
         this.unreadNoticeCounts = 0;
@@ -50,17 +48,6 @@ var HeaderStore = CreateStore({
 
     _toggleNotification: function() {
         this.unreadNoticeCounts = 0;
-        this.emitChange();
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: to update the status of quick search bar
-     *
-     * @param {Boolean}      data.isEnabled, indicate quickSearch is enable or not
-     */
-    _toggleQuickSearch: function(data) {
-        this.isSearchable = data.isEnabled;
         this.emitChange();
     },
 
@@ -103,8 +90,7 @@ var HeaderStore = CreateStore({
             userInfo: this.user,
             unreadDiscussions: this.unreadDiscussions,
             unreadConversations: this.unreadConversations,
-            unreadNoticeCounts: this.unreadNoticeCounts,
-            isSearchable: this.isSearchable
+            unreadNoticeCounts: this.unreadNoticeCounts
         };
     },
 

@@ -6,7 +6,7 @@ var DashboardStore = require('../stores/DashboardStore');
 /**
  * actions
  */
-var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
+var ToggleMainViewpoint = require('../../client/actions/toggleMainViewpoint');
 var SetDashboardLayout = require('../../client/actions/setDashboardLayout');
 var GetDashboardStream = require('../../client/actions/getDashboardStream');
 
@@ -39,8 +39,8 @@ module.exports = React.createClass({
      * @Description: handler for mouse click event on dashboard container
      */
     _onContentClick: function() {
-        this.executeAction(ToggleChannelNav, {
-            open: false
+        this.executeAction(ToggleMainViewpoint, {
+            isActive: true
         });
     },
 

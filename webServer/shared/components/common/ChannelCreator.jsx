@@ -3,21 +3,22 @@ var Router = require('react-router');
 var Mui = require('material-ui');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../../sharedUtils/utils');
-var ChannelCreatorStore = require('../../stores/ChannelCreatorStore');
-var HeaderStore = require('../../stores/HeaderStore');
 
 /**
  * actions
  */
-var CreateChannel = require('../../../client/actions/channel/createChannel');
 var ToggleChannelCreator = require('../../../client/actions/toggleChannelCreator');
-var NavToBoard = require('../../../client/actions/draw/navToBoard');
+var CreateChannel = require('../../../client/actions/channel/createChannel');
 
 /**
  * material UI compoents
  */
-var TextField = Mui.TextField;
-var FlatButton = Mui.FlatButton;
+var Tooltip = Mui.Tooltip;
+
+/**
+ * component
+ */
+var FormButton = require('./formButton.jsx');
 
 /**
  * @Author: Jos Tung
@@ -27,117 +28,68 @@ var FlatButton = Mui.FlatButton;
  * @param {Boolean}       this.state.isActive, indicate that channel nav should open or close
  */
 module.exports = React.createClass({
-    mixins: [Router.Navigation, Router.State, FluxibleMixin],
-    statics: {
-        storeListeners: {
-            'onStoreChange': [ChannelCreatorStore]
-        }
-    },
-
-    /**
-     * handler for component visiable change
-     */
-    onStoreChange: function() {
-        var state = this.getStore(ChannelCreatorStore).getState();
-         if (state.createdChannel !== -1) {
-            return this._checkCreatedChannel(state.createdChannel);
-        }
-        this.setState(state);
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: used to check the result of create channel
-     *
-     * @param {Object}        createdChannel, the created channel
-     */
-    _checkCreatedChannel: function(createdChannel) {
-        if (!createdChannel) {
-            return;
-            // TODO: create Channel fail
-        }        
-        this.refs.channelName.clearValue();
-        this.executeAction(NavToBoard, {
-            urlNavigator: this.transitionTo,
-            channelId: createdChannel.channelId,
-            boardId: 0
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for user create channel
-     */
-    _onCreateChannel: function() {
-        this.executeAction(CreateChannel, {
-            name: this.refs.channelName.getValue()
-        });
-        this.executeAction(ToggleChannelCreator, {
-            isActived : false
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for user to cancel channel create
-     */
-    _onCancelChannel: function() {
-        this.refs.channelName.clearValue();
-        this.executeAction(ToggleChannelCreator, {
-            isActived : false
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for checking channel name
-     */
-    _checkChannelName: function(e) {
-        var self = this;
-        setTimeout(function(){
-            if (e.keyCode === 13) {
-                self._onCreateChannel();
-            }
-            var name = self.refs.channelName.getValue();
-            var isChannelName = SharedUtils.isChannelName(name);
-            // TODO: we should trigger another actiion flow 
-            self.setState({
-                channelWillCreate: isChannelName,
-                hasError: (name !== '' && !isChannelName)
-            });
-        }, 100);
-    },
+    mixins: [FluxibleMixin, Router.Navigation],
 
     getInitialState: function() {
-        return this.getStore(ChannelCreatorStore).getState();
+        return {
+            isErrorShown: false
+        };
+    },
+
+    _onInputBlur: function() {
+        this.executeAction(ToggleChannelCreator);
+        this.setState({
+            isErrorShown: false
+        });
+    },
+
+    _onInputChange: function(value) {
+        this.setState({
+            isErrorShown: (value !== '' && !SharedUtils.isChannelName(value))
+        });
+    },
+
+    _onInputSubmit: function(value) {
+        this.executeAction(ToggleChannelCreator);
+        if (value === '' || !SharedUtils.isChannelName(value)) {
+            return this.refs.channelCreator.clearValue();
+        }
+        this.refs.channelCreator.clearValue();
+        this.executeAction(CreateChannel, {
+            name: value,
+            urlNavigator: this.transitionTo
+        });
+    },
+
+    _onIconClick: function() {
+        this.executeAction(ToggleChannelCreator);
     },
 
     render: function() {
-        var channelWillCreate = this.state.channelWillCreate;
-        var style = this.state.isActive ? "ChannelCreator ChannelCreatorShow" : "ChannelCreator";
-        var channelNmaeErrorMsg = 'channl name do not allowed special characters';
-        var buttonContainerStyle = {
-            marginTop: this.state.hasError ? 20 : 0
-        };
+        var isErrorShown = this.state.isErrorShown;
         return (
-            <div className={style}>
-                {'Create Cannel'}
-                <div className="ChannelHead" >
-                    <TextField 
-                        hintText="channel name" 
-                        ref={'channelName'}
-                        errorText={this.state.hasError ? channelNmaeErrorMsg : ''}
-                        onKeyDown={this._checkChannelName} />
-                </div>
-                <div className="ChannelButton" style={buttonContainerStyle}>
-                    <FlatButton disabled={!channelWillCreate} primary={channelWillCreate} onClick={this._onCreateChannel}>
-                        {'create'}
-                    </FlatButton>
-                    <FlatButton secondary={channelWillCreate} onClick={this._onCancelChannel}>
-                        {'cancel'}
-                    </FlatButton>
-                </div>
+            <div className={this.props.containerClass} style={this.props.containerStyle} >
+                <FormButton 
+                    ref="channelCreator"
+                    isActived={this.props.isActived}
+                    hasInput
+                    width={250}
+                    colorType="green"
+                    defaultIconClass="fa fa-plus"
+                    submitIconClass={isErrorShown ? 'fa fa-exclamation-triangle' : 'fa fa-arrow-right'}
+                    hintText="the channel name ... "
+                    label="CREATE CHANNEL" 
+                    defaultIconHandler={this._onIconClick}
+                    onChangeHandler={this._onInputChange}
+                    submitHandler={this._onInputSubmit}
+                    onBlurHandler={this._onInputBlur}/>
+                <Tooltip 
+                    show={this.state.isErrorShown}
+                    verticalPosition="bottom" 
+                    horizontalPosition="right" 
+                    touch
+                    label={'not support special characters, e.g. !@#$%^&*()'} />
             </div>
-        );
+        )
     }
 });

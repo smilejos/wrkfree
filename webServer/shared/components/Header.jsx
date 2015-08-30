@@ -8,7 +8,8 @@ var SubscriptionStore = require('../stores/SubscriptionStore');
 var ChannelCreatorStore = require('../stores/ChannelCreatorStore');
 var NotificationStore = require('../stores/NotificationStore');
 var FriendStore = require('../stores/FriendStore');
-var PersonalStore = require('../stores/PersonalStore');
+var QuickSearchStore = require('../stores/QuickSearchStore');
+
 /**
  * actions
  */
@@ -17,7 +18,6 @@ var ToggleComponent = require('../../client/actions/toggleComponent');
 var ToggleFriendList = require('../../client/actions/toggleFriendList');
 var ToggleQuickSearch = require('../../client/actions/search/toggleQuickSearch');
 var ToggleNotifications = require('../../client/actions/toggleNotifications');
-var ToggleChannelCreator = require('../../client/actions/toggleChannelCreator');
 var TogglePersonalInfo = require('../../client/actions/togglePersonalInfo');
 var QuickSearchAction = require('../../client/actions/search/quickSearch');
 
@@ -26,13 +26,14 @@ var QuickSearchAction = require('../../client/actions/search/quickSearch');
  */
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
-var TextField = Mui.TextField;
+var Tooltip = Mui.Tooltip;
 
 /**
  * child components
  */
+var ChannelCreator = require('./common/ChannelCreator.jsx');
 var UserAvatar = require('./common/userAvatar.jsx');
-var StateIcon = require('./common/stateIcon.jsx');
+var FormButton = require('./common/formButton.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
 
 var SEARCH_DELAY_IN_MSECOND = 500;
@@ -53,12 +54,13 @@ module.exports = React.createClass({
     statics: {
         storeListeners: {
             'onStoreChange': [HeaderStore],
-            'onIconStateChange': [SubscriptionStore, ChannelCreatorStore, NotificationStore, FriendStore, PersonalStore]
+            'onIconStateChange': [SubscriptionStore, ChannelCreatorStore, NotificationStore, FriendStore, QuickSearchStore]
         }
     },
 
     getInitialState: function() {
         var state = this.getStore(HeaderStore).getState();
+        state.isSearchActive = false;
         state.isChannelListActive = false;
         state.isChannelCreatorActive = false;
         state.isNotificationActive = false;
@@ -77,8 +79,8 @@ module.exports = React.createClass({
             isChannelListActive : this.getStore(SubscriptionStore).getState().isActive,
             isChannelCreatorActive : this.getStore(ChannelCreatorStore).getState().isActive,
             isNotificationActive : this.getStore(NotificationStore).getState().isActive,
-            isFriendListActive : this.getStore(FriendStore).getState().isActive
-            //isPersonalActive : this.getStore(PersonalStore).getState().isActive
+            isFriendListActive : this.getStore(FriendStore).getState().isActive,
+            isSearchActive: this.getStore(QuickSearchStore).getState().isActive
         }
         this.setState(state);
     },
@@ -88,21 +90,7 @@ module.exports = React.createClass({
      * @Description: handle "menu" icon tap mechanism
      */
     _onMenuIconButtonTouchTap: function() {
-        this.executeAction(ToggleChannelNav, {});
-        this.executeAction(ToggleQuickSearch, {
-            isEnabled: false
-        });
-    },
-
-    /**
-     * TODO: impl search actions
-     * @Author: George_Chen
-     * @Description: handle the search channels mechanism
-     */
-    _onSearchKeyDown: function(e) {
-        if (e.keyCode === 27) {
-            return this._onSearchCancel();
-        }
+        this.executeAction(ToggleChannelNav);
     },
 
     /**
@@ -110,15 +98,12 @@ module.exports = React.createClass({
      * @Description: focus on search field after click search icon
      */
     _onSearchIconClick: function() {
+        if (this.state.isSearchActive) {
+            return this.refs.headerSearch.clearValue();
+        }
         this.executeAction(ToggleQuickSearch, {
-            isEnabled: true
+            isActive: true
         });
-        this.executeAction(ToggleChannelNav, {
-            open: false
-        });
-        setTimeout(function(){
-            this.refs.search.focus();
-        }.bind(this));
     },
 
     /**
@@ -127,7 +112,7 @@ module.exports = React.createClass({
      */
     _onSearchCancel: function() {
         this.executeAction(ToggleQuickSearch, {
-            isEnabled: false
+            isActive: false
         });
     },
 
@@ -137,16 +122,21 @@ module.exports = React.createClass({
      * 
      * @param {Object}      e, the react onChange event
      */
-    _onSearchChange: function(e){
-        var queryText = e.target.value;
-        if (CurrentSearch) {
-            clearTimeout(CurrentSearch);
-        }
+    _onSearchChange: function(queryText){
+        var time = (queryText === '' ? 0 : SEARCH_DELAY_IN_MSECOND);
+        clearTimeout(CurrentSearch);
         CurrentSearch = setTimeout(function(){
             this.executeAction(QuickSearchAction, {
                 query: queryText
-            });            
-        }.bind(this), SEARCH_DELAY_IN_MSECOND);
+            });
+        }.bind(this), time);
+    },
+
+    _onSearch: function(queryText) {
+        clearTimeout(CurrentSearch);
+        this.executeAction(QuickSearchAction, {
+            query: queryText
+        });
     },
 
     _onInboxToggle: function(){
@@ -157,82 +147,60 @@ module.exports = React.createClass({
         this.executeAction(ToggleNotifications);
     },
 
-    _onChannelCreatorToggle: function(){
-        this.executeAction(ToggleChannelCreator);
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: generate the search icon component
-     */
-    _setSearchIcon: function(){
-        if (this.state.isSearchable) {
-            return '';
-        }
-        return (
-            <StateIcon 
-                stateClass="leftState" 
-                iconClass="fa fa-search"
-                handler={this._onSearchIconClick} />
-        );
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: generate the cancel search icon component
-     */
-    _setCancelIcon: function(){
-        if (!this.state.isSearchable) {
-            return '';
-        }
-        return (
-            <StateIcon 
-                stateClass="leftState" 
-                iconClass="fa fa-times"
-                handler={this._onSearchCancel} />
-        );
-    },
-
-    componentDidUpdate: function() {
-        if (!this.state.isSearchable) {
-            this.refs.search.clearValue();
-            this.refs.search.blur();
-        }
-    },
-
     render: function() {
+        var subscriptionTips = (this.state.isChannelListActive ? 'hide' : 'show') + ' starred channels';
+        var notificationTips = (this.state.isNotificationActive ? 'hide' : 'show') + ' notifications';
+        var frinedListTiips = (this.state.isFriendListActive ? 'hide' : 'show') + ' friends';
         return (
             <div className="Header">
                 <div className="headerLeftMenu">
-                    <StateIcon
-                        stateClass="leftState" 
-                        iconClass={this.state.isChannelListActive ? "fa fa-bars active" : "fa fa-bars"}
+                    <StateButton
+                        isActived={this.state.isChannelListActive}
                         counts={this.state.unreadDiscussions}
-                        handler={this._onMenuIconButtonTouchTap} />
-                    {this._setSearchIcon()}
-                    <TextField 
-                        hintText="search channels, users, ...." 
-                        ref="search"
-                        onClick={this._onSearchIconClick}
-                        onChange={this._onSearchChange}
-                        onKeyDown={this._onSearchKeyDown} />
-                    {this._setCancelIcon()}
+                        containerClass="leftState" 
+                        containerStyle={{marginTop: 10, paddingRight: 10}} 
+                        iconClass="fa fa-bars"
+                        tips={subscriptionTips}
+                        iconHandler={this._onMenuIconButtonTouchTap}/>
+                    <div className="leftState" style={{marginTop: 10}}>
+                        <FormButton 
+                            ref="headerSearch"
+                            width={300}
+                            isActived={this.state.isSearchActive}
+                            hasInput
+                            isFiexedWidth
+                            colorType="blue"
+                            defaultIconClass={this.state.isSearchActive ? "fa fa-times" : "fa fa-search"}
+                            submitIconClass="fa fa-arrow-right"
+                            hintText="search channels, users, ...."
+                            label="search channels, users, ...."
+                            defaultIconHandler={this._onSearchIconClick}
+                            submitHandler={this._onSearch}
+                            onChangeHandler={this._onSearchChange} 
+                            onBlurHandler={this._onSearchCancel} />
+                    </div>
                 </div>
                 <div className="headerRightMenu" >
-                    <StateIcon
-                        stateClass="rightState" 
-                        iconClass={this.state.isChannelCreatorActive ? "fa fa-plus active" : "fa fa-plus"} 
-                        handler={this._onChannelCreatorToggle} />
-                    <StateIcon
-                        stateClass="rightState" 
-                        iconClass={this.state.isNotificationActive ? "fa fa-bell active" : "fa fa-bell"}
-                        counts={this.state.unreadNoticeCounts} 
-                        handler={this._onNoticeToggle} />
-                    <StateIcon
-                        stateClass="rightState" 
-                        iconClass={this.state.isFriendListActive ? "fa fa-comments active" : "fa fa-comments"}
-                        counts={this.state.unreadConversations}  
-                        handler={this._onInboxToggle} />
+                    <ChannelCreator 
+                        isActived={this.state.isChannelCreatorActive}
+                        containerClass="rightState" 
+                        containerStyle={{marginTop: 10}} />
+                    <StateButton
+                        isActived={this.state.isNotificationActive}
+                        counts={this.state.unreadNoticeCounts}
+                        containerClass="rightState" 
+                        containerStyle={{marginTop: 10}} 
+                        iconClass="fa fa-bell"
+                        tips={notificationTips}
+                        iconHandler={this._onNoticeToggle}/>
+                    <StateButton
+                        isActived={this.state.isFriendListActive}
+                        counts={this.state.unreadConversations}
+                        containerClass="rightState" 
+                        containerStyle={{marginTop: 10}} 
+                        iconClass="fa fa-comments"
+                        tips={frinedListTiips}
+                        iconHandler={this._onInboxToggle}/>
                     <UserState avatar={this.state.userInfo.avatar} name={this.state.userInfo.nickName} />
                 </div>
             </div>
@@ -270,6 +238,47 @@ var UserState = React.createClass({
             <div className="userState" onClick={this._onAvatarClick}>
                 <UserAvatar avatar={this.props.avatar} isCircle />
                 <div className="UserStateName" style={nameStyle}> {this.props.name} </div>
+            </div>
+        );
+    }
+});
+
+var StateButton = React.createClass({
+    getInitialState: function() {
+        return {
+            isShown: false
+        };
+    },
+
+    _onTipsShown: function(shownState) {
+        if (this.props.tips) {
+            this.setState({
+                isShown: shownState
+            });
+        }
+    },
+
+    render: function() {
+        var containerClass = this.props.containerClass || '';
+        var containerStyle = this.props.containerStyle || {};
+        return (
+            <div className={containerClass} 
+                style={containerStyle}
+                onMouseEnter={this._onTipsShown.bind(this, true)}
+                onMouseLeave={this._onTipsShown.bind(this, false)}>
+                <FormButton 
+                    isActived={this.props.isActived}
+                    ref="button"
+                    counts={this.props.counts}
+                    colorType="blue"
+                    defaultIconClass={this.props.iconClass} 
+                    defaultIconHandler={this.props.iconHandler}/>
+                <Tooltip 
+                    show={this.state.isShown}
+                    verticalPosition="bottom" 
+                    horizontalPosition="right" 
+                    touch
+                    label={this.props.tips} />
             </div>
         );
     }

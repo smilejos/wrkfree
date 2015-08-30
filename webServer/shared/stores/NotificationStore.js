@@ -15,7 +15,13 @@ module.exports = CreateStore({
         'ON_NOTIFICATION': '_onNotification',
         'TOGGLE_NOTIFICATION': '_toggleNotification',
         'DELETE_NOTIFICATION': '_deleteNotification',
-        'UPDATE_NOTIFICATIONS': '_updateNotifications'
+        'UPDATE_NOTIFICATIONS': '_updateNotifications',
+        'TOGGLE_SUBSCRIPTIONLIST': '_deactiveNotification',
+        'TOGGLE_FRIENDLIST': '_deactiveNotification',
+        'TOGGLE_CHANNELCREATOR': '_deactiveNotification',
+        'TOGGLE_QUICKSEARCH': '_deactiveNotification',
+        'TOGGLE_PERSONALINFO': '_deactiveNotification',
+        'TOGGLE_MAIN_VIEWPOINT': '_deactiveNotification'
     },
 
     initialize: function() {
@@ -28,13 +34,27 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
-     * @Description: for user to control notifications should be shown ro not
+     * @Description: to toggle the active status of notification list
      *
-     * @param {Boolean}      isVisible, control notifications shown status
+     * @param {Boolean}          data.isActive, indicate is active or not
      */
     _toggleNotification: function(data) {
         this.isActive = data.isActive;
         this.emitChange();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to deactive notification list status
+     *         NOTE: when other component is active, then deactive current component
+     *
+     * @param {Boolean}          data.isActive, indicate other component is active or not
+     */
+    _deactiveNotification: function(data) {
+        if (data.isActive && this.isActive) {
+            this.isActive = false;
+            this.emitChange();
+        }
     },
 
     /**
