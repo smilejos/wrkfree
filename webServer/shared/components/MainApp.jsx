@@ -17,6 +17,7 @@ var Hangouts = require('./Hangouts.jsx');
 var QuickSearch = require('./QuickSearch.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
 var SystemSounds = require('./SystemSounds.jsx');
+var ClientReport = require('./ClientReport.jsx');
 
 /**
  * below is for material-ui 9.0 up
@@ -86,23 +87,25 @@ module.exports = React.createClass({
                 </div>
             );
         }
+        var inWorkspace = this.state.route.params.channelId;
         // RouteHandler will take care of Routes while url change
         return (
             <div>
                 <div style={{opacity: isInited ? 1 : 0, visibility: isInited ? 'visible' : 'hidden', transition: '0.6s'}}>
                     <Header />
-                    <Webcam />
+                    <Webcam inWorkspace={inWorkspace}/>
                     <Subscription />
                     <RouteHandler route={this.state.route}/>
                     <FriendList />
                     <Notifications />
                     <PersonalInfo />
-                    <EventToaster />
+                    <EventToaster inWorkspace={inWorkspace}/>
                     <Hangouts />
                     <QuickSearch />
                     <SystemSounds />
+                    <ClientReport inWorkspace={inWorkspace}/>
                 </div>
-                <div style={{position: 'fixed', width: '100%', height: '100%', opacity: isInited ? 0 : 1, transition: '0.8s'}} >
+                <div style={{position: 'fixed', width: '100%', height: '100%', opacity: isInited ? 0 : 1, zIndex: isInited ? -1 : 1, transition: '0.8s'}} >
                     <div style={{position: 'fixed', top: '50%', marginTop: -100, left: '50%', marginLeft: -50}}>
                         <div><img width="100" src="/assets/imgs/logo.svg" /></div>
                         <div style={{marginLeft: 25}}><img width="50" src="/assets/imgs/hourglass.svg" /></div>

@@ -1,6 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
+var LogUtils = require('../../../sharedUtils/logUtils');
 var StorageManager = require('../../../storageService/storageManager');
 var UserStorage = StorageManager.getService('User');
 var ReqRespStorage = StorageManager.getService('ReqResp');
@@ -105,6 +106,31 @@ exports.setDashboardLayoutAsync = function(socket, data) {
             return SharedUtils.checkExecuteResult(result, errMsg);
         }).catch(function(err) {
             SharedUtils.printError('userHandler.js', 'resetUnreadNoticeAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: handle the client's opinion and send it to slack channel
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}      data.message, the content of this message
+ */
+exports.clientReportAsync = function(socket, data) {
+    return SharedUtils.argsCheckAsync(data.message, 'string')
+        .then(function(msg) {
+            var uid = socket.getAuthToken();
+            return UserStorage.getUserAsync(uid)
+                .then(function(info) {
+                    if (info === null) {
+                        throw new Error('get user info fail');
+                    }
+                    LogUtils.info('REPORT', null, '[' + uid + '][' + info.nickName + '] says: ' + msg);
+                });
+        }).catch(function(err) {
+            SharedUtils.printError('userHandler.js', 'clientReportAsync', err);
             throw err;
         });
 };
