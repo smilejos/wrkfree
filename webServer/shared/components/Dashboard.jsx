@@ -41,6 +41,18 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
+     * @Description: generate content items by layout type
+     */
+    _generateItems: function() {
+        var channels = this.state.channels;
+        if (this.state.isDashboardGrid) {
+            return (<ChannelGridLayout channels={channels} />);
+        }
+        return (<ChannelListLayout channels={channels} containerWdith={this.state.width} />);
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: handler for mouse click event on dashboard container
      */
     _onContentClick: function() {
@@ -54,6 +66,10 @@ module.exports = React.createClass({
      * @Description: handle the layout type change while user select
      */
     _onLayoutChang: function(isGrid) {
+        var contentWidth = this._getContentWidth();
+        if (!isGrid && contentWidth < MAXIMUM_LIST_CONTENT_WIDTH) {
+            return;
+        }
         this.executeAction(SetDashboardLayout, {
             isDashboardGrid: isGrid
         });
@@ -61,14 +77,51 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: generate content items by layout type
+     * @Description: used to calculate the dashboard content width
      */
-    _generateItems: function() {
-        var channels = this.state.channels;
-        if (this.state.isDashboardGrid) {
-            return (<ChannelGridLayout channels={channels} />);
+    _getContentWidth: function() {
+        var width = window.innerWidth * 0.75;
+        var columns = Math.round(width / DEFAULT_GRID_WIDTH);
+        return (DEFAULT_GRID_WIDTH * columns);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: resize the current canvas
+     */
+    _resizeContent: function() {
+        var contentWidth = this._getContentWidth();
+        this.setState({
+            width: contentWidth
+        });
+        if (!this.state.isDashboardGrid && contentWidth < MAXIMUM_LIST_CONTENT_WIDTH) {
+            return this._onLayoutChang(true);
         }
-        return (<ChannelListLayout channels={channels} containerWdith={this.state.width} />);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: to control when to load the older channel stream
+     */
+    _handleScroll: function(e) {
+        var container = React.findDOMNode(this);
+        var visibleHeight = container.offsetHeight + container.scrollTop;
+        var channels = this.state.channels;
+        if (container.scrollHeight - visibleHeight > 0 || this.state.isLoading) {
+            return;
+        }
+        // to check current scroll direction is top or bottom
+        if (container.scrollTop - this.state.scrollTop >= 0) {
+            this.setState({
+                scrollTop: container.scrollTop,
+                isLoading: true
+            });
+            this.executeAction(GetDashboardStream, {
+                period: {
+                    end: channels[channels.length-1].visitTime
+                }
+            });
+        }
     },
 
     getInitialState: function() {
@@ -98,31 +151,6 @@ module.exports = React.createClass({
         });
     },
 
-    /**
-     * @Author: George_Chen
-     * @Description: to control when to load the older channel stream
-     */
-    _handleScroll: function(e) {
-        var container = React.findDOMNode(this);
-        var visibleHeight = container.offsetHeight + container.scrollTop;
-        var channels = this.state.channels;
-        if (container.scrollHeight - visibleHeight > 0 || this.state.isLoading) {
-            return;
-        }
-        // to check current scroll direction is top or bottom
-        if (container.scrollTop - this.state.scrollTop >= 0) {
-            this.setState({
-                scrollTop: container.scrollTop,
-                isLoading: true
-            });
-            this.executeAction(GetDashboardStream, {
-                period: {
-                    end: channels[channels.length-1].visitTime
-                }
-            });
-        }
-    },
-
     componentDidMount: function() {
         var self = this;
         self._resizeContent();
@@ -131,22 +159,6 @@ module.exports = React.createClass({
             ResizeTimeout = setTimeout(function() {
                 self._resizeContent();
             }, 100);
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: resize the current canvas
-     */
-    _resizeContent: function() {
-        var width = window.innerWidth * 0.8;
-        var columns = Math.round(width / DEFAULT_GRID_WIDTH);
-        var contentWidth = DEFAULT_GRID_WIDTH * columns;
-        if (!this.state.isDashboardGrid && contentWidth < MAXIMUM_LIST_CONTENT_WIDTH) {
-            contentWidth = MAXIMUM_LIST_CONTENT_WIDTH;
-        }
-        this.setState({
-            width: contentWidth
         });
     },
 
@@ -164,7 +176,6 @@ module.exports = React.createClass({
             marginRight: 30,
             height: 30
         };
-
         return (
             <div className="mainBox" onClick={this._onContentClick} onScroll={this._handleScroll}>
                 <div className="DashboardContentLayout" style={contentStyle}>
