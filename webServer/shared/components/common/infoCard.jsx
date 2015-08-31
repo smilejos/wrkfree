@@ -79,9 +79,6 @@ module.exports = React.createClass({
                         targetUser: cardInfo.targetUid,
                         channelId: cardInfo.channelId
                     });
-                    this.executeAction(ToggleQuickSearch, {
-                        isActive: false
-                    });
                 }
             }
         };
@@ -100,9 +97,6 @@ module.exports = React.createClass({
                 if (isReqSent !== null && !isReqSent) {
                     this.executeAction(SendFriendReq, {
                         targetUser: cardInfo.targetUid
-                    });
-                    this.executeAction(ToggleQuickSearch, {
-                        isActive: false
                     });
                 }
             }
