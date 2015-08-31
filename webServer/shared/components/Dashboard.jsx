@@ -20,6 +20,7 @@ var StateIcon = require('./common/stateIcon.jsx');
 var ResizeTimeout = null;
 var DEFAULT_CONTENT_WIDTH = 900;
 var DEFAULT_GRID_WIDTH = 300;
+var MAXIMUM_LIST_CONTENT_WIDTH = 600;
 
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
@@ -67,7 +68,7 @@ module.exports = React.createClass({
         if (this.state.isDashboardGrid) {
             return (<ChannelGridLayout channels={channels} />);
         }
-        return (<ChannelListLayout channels={channels} />);
+        return (<ChannelListLayout channels={channels} containerWdith={this.state.width} />);
     },
 
     getInitialState: function() {
@@ -140,8 +141,12 @@ module.exports = React.createClass({
     _resizeContent: function() {
         var width = window.innerWidth * 0.8;
         var columns = Math.round(width / DEFAULT_GRID_WIDTH);
+        var contentWidth = DEFAULT_GRID_WIDTH * columns;
+        if (!this.state.isDashboardGrid && contentWidth < MAXIMUM_LIST_CONTENT_WIDTH) {
+            contentWidth = MAXIMUM_LIST_CONTENT_WIDTH;
+        }
         this.setState({
-            width: DEFAULT_GRID_WIDTH * columns
+            width: contentWidth
         });
     },
 

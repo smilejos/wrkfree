@@ -2,10 +2,7 @@ $channel-grid-width: 250px;
 $channel-grid-height: 250px;
 $channel-grid-field-height: 45px;
 
-$channel-list-min-width: 600px;
-$channel-list-max-width: 800px;
 $channel-list-height: 70px;
-$channel-list-field-height: 45px;
 
 /**
  * the base width of channel grid item
@@ -126,18 +123,6 @@ $channel-list-field-height: 45px;
  */
 .ChannelListItem {
     @extend .baseFonts;
-    position: relative;
-    margin-left: 10px;
-    margin-right: 100px;
-    height: $channel-list-height;
-    min-width: 400px;
-    margin-bottom: 2px;
-    border-color: $grey-300;
-    border-style: solid;
-    border-width: 1px;
-    background-color: #fff;
-    transition: 0.3s;
-
     /**
      * the container style of channel drawing snapshot
      */
