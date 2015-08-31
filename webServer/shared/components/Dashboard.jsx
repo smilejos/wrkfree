@@ -17,6 +17,10 @@ var ChannelGridLayout = require('./mainBox/channelGridLayout.jsx');
 var ChannelListLayout = require('./mainBox/channelListLayout.jsx');
 var StateIcon = require('./common/stateIcon.jsx');
 
+var ResizeTimeout = null;
+var DEFAULT_CONTENT_WIDTH = 900;
+var DEFAULT_GRID_WIDTH = 300;
+
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
     statics: {
@@ -67,7 +71,9 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
-        return this._getStoreState();
+        var state = this._getStoreState();
+        state.width = DEFAULT_CONTENT_WIDTH;
+        return state;
     },
 
     componentDidUpdate: function(prevProps, prevState) {
@@ -116,12 +122,48 @@ module.exports = React.createClass({
         }
     },
 
+    componentDidMount: function() {
+        var self = this;
+        self._resizeContent();
+        window.addEventListener('resize', function(e) {
+            clearTimeout(ResizeTimeout);
+            ResizeTimeout = setTimeout(function() {
+                self._resizeContent();
+            }, 100);
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: resize the current canvas
+     */
+    _resizeContent: function() {
+        var width = window.innerWidth * 0.8;
+        var columns = Math.round(width / DEFAULT_GRID_WIDTH);
+        this.setState({
+            width: DEFAULT_GRID_WIDTH * columns
+        });
+    },
+
     render: function() {
         var isGrid = this.state.isDashboardGrid;
+        var contentStyle = {
+            position: 'relative',
+            width: this.state.width,
+            marginLeft: (this.state.width / 2 * -1),
+            paddingTop: '3%',
+            left: '50%'
+        };
+        var toolbarStyle = {
+            float: 'right',
+            marginRight: 30,
+            height: 30
+        };
+
         return (
             <div className="mainBox" onClick={this._onContentClick} onScroll={this._handleScroll}>
-                <div className="DashboardContentLayout">
-                    <div className="DashboardToolBar" >
+                <div className="DashboardContentLayout" style={contentStyle}>
+                    <div className="DashboardToolBar" style={toolbarStyle}>
                         <StateIcon
                             stateClass={isGrid ? "toolIcon" : "toolIcon active"} 
                             iconClass="fa fa-th-list"
