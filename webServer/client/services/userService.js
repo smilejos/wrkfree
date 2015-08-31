@@ -116,6 +116,18 @@ exports.polyfillAsync = function(userInfos) {
         });
 };
 
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: for sending client report message
+ * 
+ * @param {String}      data.message, the content of this message
+ */
+exports.clientReportAsync = function(data) {
+    var packet = _setPacket('clientReportAsync', null, data);
+    return _request(packet, 'clientReportAsync');
+};
+
 /************************************************
  *
  *           internal functions

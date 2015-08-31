@@ -17,6 +17,11 @@ var ChannelGridLayout = require('./mainBox/channelGridLayout.jsx');
 var ChannelListLayout = require('./mainBox/channelListLayout.jsx');
 var StateIcon = require('./common/stateIcon.jsx');
 
+var ResizeTimeout = null;
+var DEFAULT_CONTENT_WIDTH = 900;
+var DEFAULT_GRID_WIDTH = 300;
+var MAXIMUM_LIST_CONTENT_WIDTH = 600;
+
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
     statics: {
@@ -36,6 +41,18 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
+     * @Description: generate content items by layout type
+     */
+    _generateItems: function() {
+        var channels = this.state.channels;
+        if (this.state.isDashboardGrid) {
+            return (<ChannelGridLayout channels={channels} />);
+        }
+        return (<ChannelListLayout channels={channels} containerWdith={this.state.width} />);
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: handler for mouse click event on dashboard container
      */
     _onContentClick: function() {
@@ -49,6 +66,10 @@ module.exports = React.createClass({
      * @Description: handle the layout type change while user select
      */
     _onLayoutChang: function(isGrid) {
+        var contentWidth = this._getContentWidth();
+        if (!isGrid && contentWidth < MAXIMUM_LIST_CONTENT_WIDTH) {
+            return;
+        }
         this.executeAction(SetDashboardLayout, {
             isDashboardGrid: isGrid
         });
@@ -56,39 +77,26 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: generate content items by layout type
+     * @Description: used to calculate the dashboard content width
      */
-    _generateItems: function() {
-        var channels = this.state.channels;
-        if (this.state.isDashboardGrid) {
-            return (<ChannelGridLayout channels={channels} />);
-        }
-        return (<ChannelListLayout channels={channels} />);
+    _getContentWidth: function() {
+        var width = window.innerWidth * 0.75;
+        var columns = Math.round(width / DEFAULT_GRID_WIDTH);
+        return (DEFAULT_GRID_WIDTH * columns);
     },
 
-    getInitialState: function() {
-        return this._getStoreState();
-    },
-
-    componentDidUpdate: function(prevProps, prevState) {
-        var isLoading = this.state.isLoading;
-        if (this.state.isLoading) {
-            return Promise
-                .delay(1000)
-                .bind(this)
-                .then(function() {
-                    this.setState({
-                        isLoading: false
-                    });
-                });
-        }
-    },
-
-    componentDidMount: function() {
+    /**
+     * @Author: George_Chen
+     * @Description: resize the current canvas
+     */
+    _resizeContent: function() {
+        var contentWidth = this._getContentWidth();
         this.setState({
-            scrollTop: 0,
-            isLoading: false
+            width: contentWidth
         });
+        if (!this.state.isDashboardGrid && contentWidth < MAXIMUM_LIST_CONTENT_WIDTH) {
+            return this._onLayoutChang(true);
+        }
     },
 
     /**
@@ -116,12 +124,62 @@ module.exports = React.createClass({
         }
     },
 
+    getInitialState: function() {
+        var state = this._getStoreState();
+        state.width = DEFAULT_CONTENT_WIDTH;
+        return state;
+    },
+
+    componentDidUpdate: function(prevProps, prevState) {
+        var isLoading = this.state.isLoading;
+        if (this.state.isLoading) {
+            return Promise
+                .delay(1000)
+                .bind(this)
+                .then(function() {
+                    this.setState({
+                        isLoading: false
+                    });
+                });
+        }
+    },
+
+    componentDidMount: function() {
+        this.setState({
+            scrollTop: 0,
+            isLoading: false
+        });
+    },
+
+    componentDidMount: function() {
+        var self = this;
+        self._resizeContent();
+        window.addEventListener('resize', function(e) {
+            clearTimeout(ResizeTimeout);
+            ResizeTimeout = setTimeout(function() {
+                self._resizeContent();
+            }, 100);
+        });
+    },
+
     render: function() {
         var isGrid = this.state.isDashboardGrid;
+        var contentStyle = {
+            position: 'relative',
+            width: this.state.width,
+            marginLeft: (this.state.width / 2 * -1),
+            paddingTop: '3%',
+            left: '50%'
+        };
+        var toolbarStyle = {
+            float: 'right',
+            marginRight: 30,
+            height: 30
+        };
         return (
             <div className="mainBox" onClick={this._onContentClick} onScroll={this._handleScroll}>
-                <div className="DashboardContentLayout">
-                    <div className="DashboardToolBar" >
+                <div className="DashboardContentLayout" style={contentStyle}>
+                    <div className="DashboardToolBar" style={toolbarStyle}>
                         <StateIcon
                             stateClass={isGrid ? "toolIcon" : "toolIcon active"} 
                             iconClass="fa fa-th-list"

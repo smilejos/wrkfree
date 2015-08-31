@@ -54,6 +54,14 @@
                     "type": "console"
                 }
             ]
+        },
+        "REPORT": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                }
+            ]
         }
     },
 
@@ -121,6 +129,17 @@
                     "webhook": "https://hooks.slack.com/services/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",
                     "slackChannel": "#operation",
                     "slackUser": "wrkfreeApp"
+                }
+            ]
+        },
+        "REPORT": {
+            "settings": [
+                {
+                    "level": "info",
+                    "type": "slack",
+                    "webhook": "https://hooks.slack.com/services/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",
+                    "slackChannel": "#client_report",
+                    "slackUser": "client"
                 }
             ]
         }
