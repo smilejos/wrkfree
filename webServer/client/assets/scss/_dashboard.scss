@@ -6,18 +6,10 @@ $dashboard-toolbar-height: 30px;
  * the content layout on dashboard
  */
 .DashboardContentLayout {
-    position: relative;
-    left: 10%;
-    padding-top: 3%;
-
     /**
      * the style of toolbar on dashboard
      */    
     .DashboardToolBar {
-        position: absolute;
-        right: 5%;
-        margin-bottom: 10px;
-        height: $dashboard-toolbar-height;
         .toolIcon {
             float: left;
             width: 30px;

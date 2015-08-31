@@ -93,8 +93,22 @@ module.exports = React.createClass({
     render: function(){
         var info = this.props.channelInfo;
         var summary = this._getChannelSummary(info);
+        var listStyle = {
+            position: 'relative',
+            width: this.props.width,
+            left: '50%',
+            marginLeft: (this.props.width / 2 * -1),
+            height: 70,
+            minWidth: 500,
+            marginBottom: 2,
+            borderColor: Colors.grey300,
+            borderStyle: 'solid',
+            borderWidth: 1,
+            backgroundColor: '#fff',
+            transition: '0.3s'
+        };
         return (
-            <div className="ChannelListItem">
+            <div className="ChannelListItem" style={listStyle}>
                 <BoardPreview isGrid={false}
                     channelId={info.channelId}
                     clickHandler={this._onEnter}
