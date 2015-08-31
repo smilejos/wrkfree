@@ -66,6 +66,10 @@ module.exports = React.createClass({
 
     render: function(){
         var videoComponent = (<div style={{width: 180, height: 140, backgroundColor: '#000'}}/>);
+        var webcamStyle = {};
+        if (this.props.inWorkspace) {
+            webcamStyle.bottom = 77;
+        }
         if (this.state.stream && this.state.isVideoShown) {
             videoComponent = (
                 <RtcVideo 
@@ -77,7 +81,8 @@ module.exports = React.createClass({
         return (
             <div onContextMenu={this._disableMenu} >
                 <Draggable >
-                    <div className={this.state.isEnabled ? 'Webcam-shown' : 'Webcam-hidden'} >
+                    <div className={this.state.isEnabled ? 'Webcam-shown' : 'Webcam-hidden'}
+                        style={webcamStyle} >
                         {videoComponent}
                     </div>
                 </Draggable>

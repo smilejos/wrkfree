@@ -60,6 +60,7 @@ module.exports = React.createClass({
     render: function(){
         var events = this.state.eventList;
         var eventIds = Object.keys(this.state.eventList).sort();
+        var bottomHeight = (this.props.inWorkspace ? 77 : BOTTOM_HEIGHT);
         var eventMessages = SharedUtils.fastArrayMap(eventIds, function(id, index){
             return (
                 <EventMessage 
@@ -70,7 +71,7 @@ module.exports = React.createClass({
                     message={events[id].message}
                     actionLabel={events[id].actionLabel}
                     actionHandler={events[id].actionHandler}
-                    bottomHeight={BOTTOM_HEIGHT + index * EVENT_HEIGHT } />
+                    bottomHeight={bottomHeight + index * EVENT_HEIGHT } />
             );
         });
         return (
@@ -153,7 +154,7 @@ var EventMessage = React.createClass({
     render:function() {
         var eventClass = 'event event-' + this.props.type;
         var eventStyle = {
-            'bottom': this.props.bottomHeight
+            bottom: this.props.bottomHeight
         };
         var eventIcon = this.state[this.props.type];
         return (

@@ -117,7 +117,8 @@ module.exports = React.createClass({
         var containerClass = (isActived ? 'form-button active ' : 'form-button ');
         var containerStyle = {
             position: 'relative',
-            width: isActived || isFiexedWidth ? containerWidth : 'auto'
+            width: isActived || isFiexedWidth ? containerWidth : 'auto',
+            transition: '0.3s'
         };
         var inputStyle = {
             display: this.state.inputDisplay,
@@ -125,7 +126,8 @@ module.exports = React.createClass({
         };
         var labelStyle = {
             marginLeft: (label ? 5 : 0),
-            visibility: (isActived ? 'hidden' : 'visible')
+            visibility: (isActived ? 'hidden' : 'visible'),
+            transition: '0.2s'
         };
         containerClass += this.props.colorType;
         return (
