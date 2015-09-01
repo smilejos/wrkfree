@@ -29,6 +29,8 @@ var ListDivider = Mui.ListDivider;
 var FontIcon = Mui.FontIcon;
 var Colors = Mui.Styles.Colors;
 
+var ResizeTimeout = null;
+
 /**
  * @Author: George_Chen
  * @Description: container component of application header
@@ -105,19 +107,33 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function() {
-        var list = React.findDOMNode(this.refs.favoritesList);
+        var self = this;
         var cids = SharedUtils.fastArrayMap(this.state.subscriptions, function(info){
             return info.channelId;
         });
         if (cids.length > 0) {
             this.executeAction(GetUnreadSubscribedMsgCounts);
         }
-        if (list.offsetHeight > (window.innerHeight * 0.9)) {
-            this.setState({
-                listHeight: window.innerHeight - 100
-            });
-        }
+        this._resizeHeight();
+        window.addEventListener('resize', function(e) {
+            if (ResizeTimeout) {
+                clearTimeout(ResizeTimeout);
+            }
+            ResizeTimeout = setTimeout(function() {
+                self._resizeHeight();
+            }, 100);
+        });
     },
+
+    /**
+     * @Author: George_Chen
+     * @Description: resize current list height when window height change
+     */
+    _resizeHeight: function() {
+        this.setState({
+            listHeight: window.innerHeight - 100
+        });
+    },    
 
     /**
      * @Author: George_Chen
