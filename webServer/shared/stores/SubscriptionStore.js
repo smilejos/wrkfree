@@ -210,8 +210,10 @@ module.exports = CreateStore({
     _resetUnreadCounts: function(collection, query) {
         var self = this;
         collection.chain().find(query).update(function(obj) {
-            obj.unreadMsgNumbers = 0;
-            self.emitChange();
+            if (obj.unreadMsgNumbers > 0) {
+                obj.unreadMsgNumbers = 0;
+                self.emitChange();
+            }
         });
     },
 
