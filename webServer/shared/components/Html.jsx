@@ -26,7 +26,8 @@ module.exports = React.createClass({
           <html>
             <head>
                 <meta charSet="utf-8" />
-                <title>{this.props.title}</title>
+                <title>Wrkfree</title>
+                <link rel="shortcut icon" href="/assets/imgs/favicon.ico" />
                 <meta name="viewport" content="width=device-width, user-scalable=no" />
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/pure/0.5.0/pure-min.css" />
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontawesome/4.4.0/css/font-awesome.min.css"/>

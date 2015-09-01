@@ -25,6 +25,13 @@ var ClientReport = require('./ClientReport.jsx');
 var Mui = require('material-ui');
 var ThemeManager = new Mui.Styles.ThemeManager();
 
+/**
+ * for handling material-ui ontouch tap related events
+ * should be removed after react v1.0 released 
+ */
+var InjectTapEventPlugin = require("react-tap-event-plugin");
+
+
 module.exports = React.createClass({
     /**
      * after mixin, mainApp can have this.getStore()
@@ -63,6 +70,12 @@ module.exports = React.createClass({
         return {
             muiTheme: ThemeManager.getCurrentTheme()
         };
+    },
+
+    componentWillMount: function() {
+        if (typeof window !== 'undefined') {
+            InjectTapEventPlugin();
+        }
     },
 
     componentDidMount: function() {

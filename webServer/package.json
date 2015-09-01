@@ -1,6 +1,6 @@
 {
   "name": "wrkfree-web-server",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "private": true,
   "scripts": {
     "dev": "gulp",
@@ -20,7 +20,7 @@
     "jsx-loader": "^0.12.2",
     "lokijs": "~1.2.0",
     "lru-cache": "^2.6.4",
-    "material-ui": "~0.10.0",
+    "material-ui": "0.11.0",
     "material-ui-sass": "0.7.1",
     "node-jsx": "^0.12.4",
     "object-assign": "^2.0.0",
