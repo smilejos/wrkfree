@@ -76,8 +76,8 @@ module.exports = React.createClass({
      * @Description: used to set channel left icon
      */
     _setLeftIcon: function() {
-        var iconColor = Colors.grey500;
-        var iconAction = 'people';
+        var iconColor = '#27A';
+        var iconAction = 'bookmark_border';
         if (this.props.hasConferenceCall) {
             iconColor = Colors.green500;
             iconAction = 'phone_in_talk';
