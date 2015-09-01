@@ -11,6 +11,17 @@ var EnterWorkspace = require('../../client/actions/enterWorkspace');
 var ToggleChannelNav = require('../../client/actions/toggleChannelNav');
 var SubscribeChannelNotification = require('../../client/actions/channel/subscribeChannelNotification');
 
+/**
+ * material-ui components
+ */
+var Mui = require('material-ui');
+var List = Mui.List;
+var ListItem = Mui.ListItem;
+var ListDivider = Mui.ListDivider;
+var FontIcon = Mui.FontIcon;
+var Avatar = Mui.Avatar;
+var Colors = Mui.Styles.Colors;
+
 
 module.exports = React.createClass({
     mixins: [Router.Navigation, Router.State, FluxibleMixin],
@@ -20,7 +31,6 @@ module.exports = React.createClass({
      * @Description: used to enter the workspace of current channel
      */
     _enterWorkspace: function() {
-        this.executeAction(ToggleChannelNav, {});
         this.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
             channelId: this.props.channelId
@@ -61,22 +71,60 @@ module.exports = React.createClass({
         }
     },
 
-    render: function() {
+    /**
+     * @Author: George_Chen
+     * @Description: used to set channel left icon
+     */
+    _setLeftIcon: function() {
+        var iconColor = Colors.grey500;
+        var iconAction = 'people';
+        if (this.props.hasConferenceCall) {
+            iconColor = Colors.green500;
+            iconAction = 'phone_in_talk';
+        }
         return (
-            <div className="Channel" 
-                onClick={this._enterWorkspace}>
-                <div className="ChannelText">
-                    <div className="ChannelName">
-                        {this.props.name}    
-                    </div>
-                    <div className="ChannelHost">
-                        {'@' + this.props.hostInfo.nickName}
-                    </div>
-                </div>
-                <div className="Signal">
-                    {this.props.hasConferenceCall ? <div className="Conference fa fa-users" /> : ''}
-                    {this.props.unreadMsgNumbers > 0 ? <div className="Counter">{this.props.unreadMsgNumbers}</div> : '' }
-                </div>
+            <FontIcon className="material-icons" color={iconColor}>
+                {iconAction}
+            </FontIcon>
+        );
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to set channel right icon
+     */
+    _setRightIcon: function() {
+        if (this.props.unreadMsgNumbers > 0) {
+            return (
+                <Avatar size={20} style={{marginTop: 10, fontSize: 11}} backgroundColor={Colors.red500}>
+                    {this.props.unreadMsgNumbers}
+                </Avatar>
+            );
+        }
+        return '';
+    },
+
+    render: function() {
+        var cNameStyle = {
+            overflow: 'hidden', 
+            marginLeft: -20,
+            fontSize: 14
+        };
+        var uNameStyle = {
+            overflow: 'hidden', 
+            marginLeft: -20,
+            fontSize: 12
+        };
+        return (
+            <div >
+                <ListItem 
+                    onTouchTap={this._enterWorkspace}
+                    style={{paddingLeft: 10, height: 65}}
+                    primaryText={<div style={cNameStyle}>{this.props.name}</div>} 
+                    secondaryText={<div style={uNameStyle}>{'@' + this.props.hostInfo.nickName}</div>} 
+                    leftIcon={this._setLeftIcon()}
+                    rightAvatar={this._setRightIcon()} />
+                <ListDivider inset />
             </div>
         );
     } 

@@ -20,6 +20,16 @@ var NavToBoard = require('../../client/actions/draw/navToBoard');
 var SubscribedChannel = require('./SubscribedChannel.jsx');
 
 /**
+ * material-ui components
+ */
+var Mui = require('material-ui');
+var List = Mui.List;
+var ListItem = Mui.ListItem;
+var ListDivider = Mui.ListDivider;
+var FontIcon = Mui.FontIcon;
+var Colors = Mui.Styles.Colors;
+
+/**
  * @Author: George_Chen
  * @Description: container component of application header
  *
@@ -70,7 +80,10 @@ module.exports = React.createClass({
     },
 
     getInitialState: function() {
-        return this.getStore(SubscriptionStore).getState();
+        var state = this.getStore(SubscriptionStore).getState();
+        state.isScrollShown = false;
+        state.listHeight = 0;
+        return state;
     },
 
     /**
@@ -92,20 +105,63 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function() {
+        var list = React.findDOMNode(this.refs.favoritesList);
         var cids = SharedUtils.fastArrayMap(this.state.subscriptions, function(info){
             return info.channelId;
         });
         if (cids.length > 0) {
             this.executeAction(GetUnreadSubscribedMsgCounts);
         }
+        if (list.offsetHeight > (window.innerHeight * 0.9)) {
+            this.setState({
+                listHeight: window.innerHeight - 100
+            });
+        }
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to handle scroll bar shown or not
+     */
+    _onScrollShown: function(showState) {
+        this.setState({
+            isScrollShown: showState
+        });
     },
 
     render: function() {
-        var ChannelList = this._getChannelList();
-        var style = "SubscriptionChannels" + ( this.state.isActive ? " SubscriptionChannelsShow" : " SubscriptionChannelsHide" );
+        var subscriptions = this.state.subscriptions;
+        var containerClass = "SubscriptionChannels" + ( this.state.isActive ? " SubscriptionChannelsShow" : " SubscriptionChannelsHide" );
+        var channelList = SharedUtils.fastArrayMap(subscriptions, function(item){
+            return (
+                <SubscribedChannel 
+                    key={item.channelId}
+                    channelId={item.channelId}
+                    name={item.name}
+                    hostInfo={item.hostInfo}
+                    unreadMsgNumbers={item.unreadMsgNumbers}
+                    hasConferenceCall={item.hasConferenceCall} />
+            );
+        });
+        var listContainerStyle = {
+            overflow: this.state.isScrollShown ? 'auto' : 'hidden',
+        };
+        if (this.state.listHeight > 0) {
+            listContainerStyle.height = this.state.listHeight;
+        }
         return (
-            <div className={style}>
-                {ChannelList}
+            <div className={containerClass}>
+                <List >
+                    <ListItem disabled primaryText="Favorites"
+                        leftIcon={<FontIcon color={Colors.yellow700} className="material-icons">{'star'}</FontIcon>} />
+                </List>
+                <ListDivider />
+                <List ref="favoritesList"
+                    onMouseEnter={this._onScrollShown.bind(this, true)}
+                    onMouseLeave={this._onScrollShown.bind(this, false)} 
+                    style={listContainerStyle}>
+                    {channelList}
+                </List>
             </div>
         );
     }
