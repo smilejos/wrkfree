@@ -145,13 +145,6 @@ module.exports = React.createClass({
     },
 
     componentDidMount: function() {
-        this.setState({
-            scrollTop: 0,
-            isLoading: false
-        });
-    },
-
-    componentDidMount: function() {
         var self = this;
         self._resizeContent();
         window.addEventListener('resize', function(e) {
@@ -159,6 +152,10 @@ module.exports = React.createClass({
             ResizeTimeout = setTimeout(function() {
                 self._resizeContent();
             }, 100);
+        });
+        this.setState({
+            scrollTop: 0,
+            isLoading: false
         });
     },
 
