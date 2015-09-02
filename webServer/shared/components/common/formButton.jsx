@@ -134,7 +134,7 @@ module.exports = React.createClass({
             <div style={{position: 'relative'}} >
                 {this._setCounter()}
                 <div className={containerClass} style={containerStyle} >
-                    <label for="name" className="cta" onClick={this._onContentClick} style={{width: containerStyle.width}}>
+                    <label htmlFor="name" className="cta" onClick={this._onContentClick} style={{width: containerStyle.width}}>
                         <i ref="defaultIcon" style={{cursor: 'pointer'}} className={'icon '+ this.props.defaultIconClass}></i>
                         <span style={labelStyle}> {label} </span>
                     </label>
