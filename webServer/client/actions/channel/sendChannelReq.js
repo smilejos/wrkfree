@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var ReqRespService = require('../../services/reqRespService');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var ActionUtils = require('../actionUtils');
 
 /**
  * @Public API
@@ -17,18 +18,26 @@ module.exports = function(actionContext, data) {
         targetUser: SharedUtils.argsCheckAsync(data.targetUser, 'md5'),
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
     }).then(function(reqData) {
-        return ReqRespService.channelReqAsync(reqData);
-    }).then(function(result) {
-        if (!result) {
-            throw new Error('send channel request fail');
-        }
         actionContext.dispatch('ON_INFOCARD_UPDATE', {
-            cardId: data.channelId,
+            cardId: reqData.channelId,
             state: {
                 isReqSent: true
             }
         });
+        return ReqRespService.channelReqAsync(reqData);
+    }).then(function(result) {
+        if (result === null) {
+            actionContext.dispatch('ON_INFOCARD_UPDATE', {
+                cardId: data.channelId,
+                state: {
+                    isReqSent: false
+                }
+            });
+            throw new Error('send channel request fail');
+        }
+        ActionUtils.showSuccessEvent('Success', 'sent channel request done');
     }).catch(function(err) {
         SharedUtils.printError('sendChannelReq.js', 'core', err);
+        ActionUtils.showWarningEvent('WARN', 'send channel request fail');
     });
 };
