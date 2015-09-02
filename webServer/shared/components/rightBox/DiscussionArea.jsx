@@ -1,6 +1,7 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
 var SharedUtils = require('../../../../sharedUtils/utils');
+var Linkify = require('react-linkify');
 
 /**
  * wrkfree store/action on workspace
@@ -18,9 +19,11 @@ var UserAvatar = require('../common/userAvatar.jsx');
 /**
  * Material-ui circle progress
  */
-var CircularProgress = require('material-ui').CircularProgress;
-var TextField = require('material-ui').TextField;
-var IconButton = require('material-ui').IconButton;
+var Mui = require('material-ui');
+var CircularProgress = Mui.CircularProgress;
+var TextField = Mui.TextField;
+var IconButton = Mui.IconButton;
+var Colors = Mui.Styles.Colors;
 
  /**
  * @Author: Jos Tung
@@ -56,7 +59,7 @@ var DiscussionArea = React.createClass({
         }
         // focus the message input field
         if (!prevState.isShown && this.state.isShown) {
-            this.refs.send.focus();
+            this._focusInput();
         }
     },
 
@@ -267,7 +270,6 @@ var DiscussionArea = React.createClass({
     }
 });
 
-
 var ReloadImg = React.createClass({
     render: function(){
         var isReload = this.props.isReload;
@@ -314,9 +316,9 @@ var MessageList = React.createClass({
             return <Message key={message.sentTime} data={message} />;
         });
         return (
-            <div className="MsgContainer" 
+            <div className="MsgContainer"
                 style={inlineStyle}
-                onClick={this.props.onClick} 
+                onClick={this.props.onClick}
                 onScroll={this._onScroll} >
                     {messages}
             </div> 
@@ -325,6 +327,13 @@ var MessageList = React.createClass({
 });
 
 var Message = React.createClass({
+
+    shouldComponentUpdate: function(nextProps) {
+        var isMsgChanged = (nextProps.data.message !== this.props.data.message);
+        var isTimeChanged = (nextProps.data.sentTime !== this.props.data.sentTime);
+        return (isMsgChanged || isTimeChanged);
+    },
+
     render: function(){
         var time = SharedUtils.formatDateTime(new Date(this.props.data.sentTime), 'y/mm/dd hh:ii');
         return (
@@ -336,9 +345,11 @@ var Message = React.createClass({
                     <div className="MsgSender">  
                         {this.props.data.nickName}
                     </div>
-                    <div className="MsgText">  
-                        {this.props.data.message}
-                    </div>
+                    <Linkify properties={{target: '_blank', style: {color: Colors.blue700, fontWeight: 300}}}>
+                        <div className="MsgText">  
+                            {this.props.data.message}
+                        </div>
+                    </Linkify>
                     <div className="MsgTime">  
                         {time}
                     </div>

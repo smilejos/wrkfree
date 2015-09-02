@@ -2,6 +2,7 @@ var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var CircularProgress = require('material-ui').CircularProgress;
+var Linkify = require('react-linkify');
 
 /**
  * stores
@@ -18,6 +19,9 @@ var UpdateHangoutTwinkle = require('../../../client/actions/updateHangoutTwinkle
  * child components
  */
 var UserAvatar = require('../common/userAvatar.jsx');
+
+var Mui = require('material-ui');
+var Colors = Mui.Styles.Colors;
 
 /**
  * Public API
@@ -230,6 +234,12 @@ var HangoutMsg = React.createClass({
         );
     },
 
+    shouldComponentUpdate: function(nextProps) {
+        var isMsgChanged = (nextProps.content !== this.props.content);
+        var isTimeChanged = (nextProps.sentTime !== this.props.sentTime);
+        return (isMsgChanged || isTimeChanged);
+    },
+
     render: function() {
         var bubbleClass = (this.props.avatar ? 'msgBubble left': 'msgBubble right');
         return (
@@ -238,7 +248,9 @@ var HangoutMsg = React.createClass({
                 <div className="messageContent">
                     <div className={bubbleClass}>
                         <span className='msgBubbleTail'>&nbsp;</span>
-                        {this.props.content}
+                        <Linkify properties={{target: '_blank', style: {color: Colors.blue700, fontWeight: 300}}}>
+                            {this.props.content}
+                        </Linkify>
                     </div>
                 </div>
             </div>
