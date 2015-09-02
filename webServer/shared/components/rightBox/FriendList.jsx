@@ -18,6 +18,16 @@ var GetLastMessages = require('../../../client/actions/chat/getLastMessages');
 var SetUnreadConverations = require('../../../client/actions/setUnreadConverations');
 
 /**
+ * material-ui components
+ */
+var Mui = require('material-ui');
+var List = Mui.List;
+var ListItem = Mui.ListItem;
+var ListDivider = Mui.ListDivider;
+var FontIcon = Mui.FontIcon;
+var Colors = Mui.Styles.Colors;
+
+/**
  * @Author: George_Chen
  * @Description: An sub-container component to handle friend list
  */
@@ -106,11 +116,25 @@ module.exports = React.createClass({
                 hasIncomingCall={friendInfo.hasIncomingCall}
                 info={friendInfo} />
         });
+        var listContainerStyle = {
+            overflow: this.state.isScrollShown ? 'auto' : 'hidden',
+        };
+        if (this.state.listHeight > 0) {
+            listContainerStyle.height = this.state.listHeight;
+        }
         return (
             <div className={this.state.isActive ? 'FriendsShow' : 'Friends'}
                 onMouseEnter={this._showTime.bind(this, true)} 
                 onMouseLeave={this._showTime.bind(this, false)} >
-                {friendList}
+                <List style={{marginTop: 1}}>
+                    <ListItem disabled primaryText="Friends"
+                        leftIcon={<FontIcon color={'#27A'} className="material-icons">{'people'}</FontIcon>} />
+                </List>
+                <ListDivider />
+                <List ref="friendList"
+                    style={listContainerStyle}>
+                    {friendList}
+                </List>
             </div>
         );
     }
