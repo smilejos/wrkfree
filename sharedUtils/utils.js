@@ -17,7 +17,7 @@ exports.fastArrayMap = function(array, fn) {
     var nweArray = [];
     if (this.isArray(array) && this.isFunction(fn)) {
         for (var i = 0; i < array.length; ++i) {
-            nweArray[i] = fn(array[i], i);
+            nweArray[i] = fn(array[i], i, array);
         }
     }
     return nweArray;
