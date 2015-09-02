@@ -142,7 +142,8 @@ module.exports = React.createClass({
             listContainerStyle.height = this.state.listHeight;
         }
         return (
-            <div className={containerClass} style={{marginTop: 3, borderRadius: 5, height: this.state.listHeight + 93}}>
+            <div className={containerClass} 
+                style={{marginTop: 1, borderRadius: 5, borderTopLeftRadius: 0, height: this.state.listHeight + 93}}>
                 <List style={{marginTop: 1}}>
                     <ListItem disabled primaryText="Favorites"
                         leftIcon={<FontIcon color={Colors.yellow700} className="material-icons">{'star'}</FontIcon>} />

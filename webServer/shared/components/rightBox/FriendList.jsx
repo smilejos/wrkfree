@@ -144,7 +144,8 @@ module.exports = React.createClass({
             listContainerStyle.height = this.state.listHeight;
         }
         return (
-            <div className={this.state.isActive ? 'FriendsShow' : 'Friends'} >
+            <div className={this.state.isActive ? 'FriendsShow' : 'Friends'} 
+                style={{marginTop: 1, borderRadius: 5, borderTopRightRadius: 0, height: this.state.listHeight + 93}}>
                 <List style={{marginTop: 1}}>
                     <ListItem disabled primaryText="Friends"
                         leftIcon={<FontIcon color={'#27A'} className="material-icons">{'people'}</FontIcon>} />
