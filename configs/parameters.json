@@ -18,7 +18,7 @@
     "rtc": {
         "workQueueType": "rtc",
         "sessionTimeoutInSecond": 30,
-        "sdpTimeoutInSecond": 5,
+        "sdpTimeoutInSecond": 10,
         "sessionCancelInMScend": 10000,
         "notificationTimeoutInMSecond": 3000,
         "notificationDelayInMSecond": 2000
