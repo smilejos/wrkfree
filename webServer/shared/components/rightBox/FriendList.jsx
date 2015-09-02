@@ -138,7 +138,8 @@ module.exports = React.createClass({
                 info={friendInfo} />
         });
         var listContainerStyle = {
-            overflow: this.state.isInfoVisible ? 'auto' : 'hidden',
+            overflowY: this.state.isInfoVisible ? 'auto' : 'hidden',
+            overflowX: 'hidden'
         };
         if (this.state.listHeight > 0) {
             listContainerStyle.height = this.state.listHeight;

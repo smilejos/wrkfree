@@ -18,7 +18,8 @@ module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         message: SharedUtils.argsCheckAsync(data.message, 'string'),
-        from: SharedUtils.argsCheckAsync(data.from, 'md5')
+        from: SharedUtils.argsCheckAsync(data.from, 'md5'),
+        sentTime: Date.now()
     }).then(function(recvMsg) {
         var workspaceStore = actionContext.getStore(WorkSpaceStore);
         var hangoutStore = actionContext.getStore(HangoutStore);

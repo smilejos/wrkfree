@@ -131,9 +131,10 @@ module.exports = React.createClass({
         var iconColor = '#27A';
         var iconAction = 'textsms';
         var timeStyle = {
+            position: 'absolute',
             opacity: this.props.timeVisible ? 1 : 0,
-            marginTop: 5,
-            marginLeft: -10,
+            top: 40,
+            right: -10,
             fontSize: 9,
             transition: '0.5s',
             color: Colors.grey700
