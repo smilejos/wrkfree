@@ -121,7 +121,7 @@ var SearchResults = React.createClass({
             );
         });
         return (
-            <div >
+            <div style={{paddingLeft: 40}}>
                 <div className="searchTitle">{this.props.type}</div>
                 {this._setResults(listLayout, listContent)}
             </div>
