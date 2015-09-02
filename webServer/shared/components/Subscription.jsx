@@ -45,40 +45,8 @@ module.exports = React.createClass({
     mixins: [Router.Navigation, Router.State, FluxibleMixin],
     statics: {
         storeListeners: {
-            'onStoreChange': [SubscriptionStore]
+            '_onStoreChange': [SubscriptionStore]
         }
-    },
-
-    /**
-     * handler for channelNavStore change
-     */
-    onStoreChange: function() {
-        var state = this.getStore(SubscriptionStore).getState();
-        this.setState(state);
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: handler for Subscription of channels 
-     */
-    _getChannelList: function(){
-        var subscriptions = this.state.subscriptions;
-        var channelList = SharedUtils.fastArrayMap(subscriptions, function(item){
-            return (
-                <SubscribedChannel 
-                    key={item.channelId}
-                    channelId={item.channelId}
-                    name={item.name}
-                    hostInfo={item.hostInfo}
-                    unreadMsgNumbers={item.unreadMsgNumbers}
-                    hasConferenceCall={item.hasConferenceCall} />
-            );
-        });
-        return (
-            <div className="ChannelList">
-                {channelList}
-            </div>
-        );
     },
 
     getInitialState: function() {
@@ -126,12 +94,20 @@ module.exports = React.createClass({
     },
 
     /**
+     * handler for SubscriptionStore change
+     */
+    _onStoreChange: function() {
+        var state = this.getStore(SubscriptionStore).getState();
+        this.setState(state);
+    },
+
+    /**
      * @Author: George_Chen
      * @Description: resize current list height when window height change
      */
     _resizeHeight: function() {
         this.setState({
-            listHeight: window.innerHeight - 100
+            listHeight: window.innerHeight - 150
         });
     },    
 
@@ -166,8 +142,9 @@ module.exports = React.createClass({
             listContainerStyle.height = this.state.listHeight;
         }
         return (
-            <div className={containerClass}>
-                <List >
+            <div className={containerClass} 
+                style={{marginTop: 1, borderRadius: 5, borderTopLeftRadius: 0, height: this.state.listHeight + 93}}>
+                <List style={{marginTop: 1}}>
                     <ListItem disabled primaryText="Favorites"
                         leftIcon={<FontIcon color={Colors.yellow700} className="material-icons">{'star'}</FontIcon>} />
                 </List>

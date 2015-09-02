@@ -83,7 +83,7 @@ module.exports = React.createClass({
             iconAction = 'phone_in_talk';
         }
         return (
-            <FontIcon className="material-icons" color={iconColor}>
+            <FontIcon style={{marginTop: -5}} className="material-icons" color={iconColor}>
                 {iconAction}
             </FontIcon>
         );
@@ -96,18 +96,19 @@ module.exports = React.createClass({
     _setRightIcon: function() {
         if (this.props.unreadMsgNumbers > 0) {
             return (
-                <Avatar size={20} style={{marginTop: 10, fontSize: 11}} backgroundColor={Colors.red500}>
+                <Avatar size={20} style={{marginTop: 5, fontSize: 11}} backgroundColor={Colors.red500}>
                     {this.props.unreadMsgNumbers}
                 </Avatar>
             );
         }
-        return '';
+        return (<div/>);
     },
 
     render: function() {
         var cNameStyle = {
             overflow: 'hidden', 
             marginLeft: -20,
+            marginTop: -10,
             fontSize: 14
         };
         var uNameStyle = {
@@ -119,7 +120,7 @@ module.exports = React.createClass({
             <div >
                 <ListItem 
                     onTouchTap={this._enterWorkspace}
-                    style={{paddingLeft: 10, height: 65}}
+                    style={{paddingLeft: 10, height: 55}}
                     primaryText={<div style={cNameStyle}>{this.props.name}</div>} 
                     secondaryText={<div style={uNameStyle}>{'@' + this.props.hostInfo.nickName}</div>} 
                     leftIcon={this._setLeftIcon()}

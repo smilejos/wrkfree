@@ -18,6 +18,18 @@ var GetLastMessages = require('../../../client/actions/chat/getLastMessages');
 var SetUnreadConverations = require('../../../client/actions/setUnreadConverations');
 
 /**
+ * material-ui components
+ */
+var Mui = require('material-ui');
+var List = Mui.List;
+var ListItem = Mui.ListItem;
+var ListDivider = Mui.ListDivider;
+var FontIcon = Mui.FontIcon;
+var Colors = Mui.Styles.Colors;
+
+var ResizeTimeout = null;
+
+/**
  * @Author: George_Chen
  * @Description: An sub-container component to handle friend list
  */
@@ -32,11 +44,11 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: handler for showing last conversation time
+     * @Description: handler for showing extra-information
      */
-    _showTime: function(isShown) {
+    _showInfo: function(isShown) {
         this.setState({
-            isTimeVisible: isShown
+            isInfoVisible: isShown
         });
     },
 
@@ -57,7 +69,8 @@ module.exports = React.createClass({
             isActive : this.getStore(FriendStore).getState().isActive,
             friends : this.getStore(FriendStore).getState().friends,
             selfUid: this.getStore(HeaderStore).getSelfInfo().uid,
-            isTimeVisible: false,
+            isInfoVisible: false,
+            listHeight: 0
         };
     },
 
@@ -67,7 +80,7 @@ module.exports = React.createClass({
      */
     componentDidUpdate: function(prevProps, prevState) {
         // this ensure the update unreadConversations is not triggered by timeVisible
-        if (prevState.isTimeVisible === this.state.isTimeVisible) {
+        if (prevState.isInfoVisible === this.state.isInfoVisible) {
             return Promise.reduce(this.state.friends, function(total, friendItem){
                 return (!friendItem.isMessageReaded || friendItem.hasIncomingCall ? total + 1 : total);
             }, 0).bind(this).then(function(totalUnreads){
@@ -83,6 +96,7 @@ module.exports = React.createClass({
      * @Description: to get last conversation messages when friendList mounted
      */
     componentDidMount: function() {
+        var self = this;
         var selfUid = this.state.selfUid;
         var cids = SharedUtils.fastArrayMap(this.state.friends, function(info){
             return SharedUtils.get1on1ChannelId(selfUid, info.uid);
@@ -92,25 +106,58 @@ module.exports = React.createClass({
                 channels: cids
             });
         }
+        this._resizeHeight();
+        window.addEventListener('resize', function(e) {
+            clearTimeout(ResizeTimeout);
+            ResizeTimeout = setTimeout(function() {
+                self._resizeHeight();
+            }, 100);
+        });
     },
+
+    /**
+     * @Author: George_Chen
+     * @Description: resize current list height when window height change
+     */
+    _resizeHeight: function() {
+        this.setState({
+            listHeight: window.innerHeight - 150
+        });
+    },  
     
     render: function(){
         var friends = this.state.friends;
         var selfUid = this.state.selfUid;
-        var isTimeVisible = this.state.isTimeVisible;
+        var isInfoVisible = this.state.isInfoVisible;
         var friendList = SharedUtils.fastArrayMap(friends, function(friendInfo){
             return <Friend 
                 key={friendInfo.uid}
                 self={selfUid}
-                timeVisible={isTimeVisible}
+                timeVisible={isInfoVisible}
                 hasIncomingCall={friendInfo.hasIncomingCall}
                 info={friendInfo} />
         });
+        var listContainerStyle = {
+            overflowY: this.state.isInfoVisible ? 'auto' : 'hidden',
+            overflowX: 'hidden'
+        };
+        if (this.state.listHeight > 0) {
+            listContainerStyle.height = this.state.listHeight;
+        }
         return (
-            <div className={this.state.isActive ? 'FriendsShow' : 'Friends'}
-                onMouseEnter={this._showTime.bind(this, true)} 
-                onMouseLeave={this._showTime.bind(this, false)} >
-                {friendList}
+            <div className={this.state.isActive ? 'FriendsShow' : 'Friends'} 
+                style={{marginTop: 1, borderRadius: 5, borderTopRightRadius: 0, height: this.state.listHeight + 93}}>
+                <List style={{marginTop: 1}}>
+                    <ListItem disabled primaryText="Friends"
+                        leftIcon={<FontIcon color={'#27A'} className="material-icons">{'people'}</FontIcon>} />
+                </List>
+                <ListDivider />
+                <List ref="friendList"
+                    onMouseEnter={this._showInfo.bind(this, true)} 
+                    onMouseLeave={this._showInfo.bind(this, false)} 
+                    style={listContainerStyle}>
+                    {friendList}
+                </List>
             </div>
         );
     }

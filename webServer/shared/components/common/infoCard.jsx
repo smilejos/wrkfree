@@ -217,12 +217,16 @@ module.exports = React.createClass({
         var btnType = (cardInfo.isKnown ? 'allowed' : 'request');
         var btnInfo = this._getBtnInfo(infoType, btnType);
         var btnClass = 'pure-button button-allowed';
+        var containerStyle = {
+            width: 149,
+            height: 235
+        };
         if (!cardInfo.isKnown) {
             btnClass = 'pure-button button-request';
             btnClass = (cardInfo.isReqSent ? btnClass + ' pure-button-disabled' : btnClass );
         }
         return (
-            <div className="InfoCard" >
+            <div className="InfoCard" style={containerStyle} >
                 <Paper zDepth={1} rounded={false} >
                     <img src={coverImgSrc} width="147" height="147"/>
                     <Paper zDepth={0} className="infoCardContent">
@@ -230,6 +234,7 @@ module.exports = React.createClass({
                         {this._setExtraInfo()}
                     </Paper>
                     <button className={btnClass}
+                            style={{background: 'transparent'}}
                             onClick={btnInfo.handler.bind(this, cardInfo)} >
                         <i className={btnInfo.style}></i>
                         &nbsp;

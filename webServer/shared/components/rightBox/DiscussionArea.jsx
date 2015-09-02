@@ -1,5 +1,6 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
+var SharedUtils = require('../../../../sharedUtils/utils');
 
 /**
  * wrkfree store/action on workspace
@@ -325,8 +326,7 @@ var MessageList = React.createClass({
 
 var Message = React.createClass({
     render: function(){
-        var sentTime = new Date(this.props.data.sentTime);
-        var timeNotation = sentTime.getHours() >=12 ? 'pm' : 'am';
+        var time = SharedUtils.formatDateTime(new Date(this.props.data.sentTime), 'y/mm/dd hh:ii');
         return (
             <div className="MsgContent">
                 <div className="pure-u-5-24">
@@ -340,7 +340,7 @@ var Message = React.createClass({
                         {this.props.data.message}
                     </div>
                     <div className="MsgTime">  
-                        {sentTime.getHours()%12+':'+sentTime.getMinutes()+' '+timeNotation}
+                        {time}
                     </div>
                 </div>
             </div>

@@ -25,9 +25,15 @@ var Configs = require('../../../../configs/config');
 var CALL_DISSMISS_TIME_IN_MSECOND = Configs.get().params.rtc.sessionTimeoutInSecond * 1000;
 
 /**
- * child components
+ * material-ui components
  */
-var UserAvatar = require('./userAvatar.jsx');
+var Mui = require('material-ui');
+var List = Mui.List;
+var ListItem = Mui.ListItem;
+var ListDivider = Mui.ListDivider;
+var FontIcon = Mui.FontIcon;
+var Avatar = Mui.Avatar;
+var Colors = Mui.Styles.Colors;
 
 /**
  * @Author: George_Chen
@@ -73,46 +79,84 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: to setup the user state icon style
-     */
-    _setStateIcon: function() {
-        var isReaded = this.props.info.isMessageReaded;
-        var hasIncomingCall = this.props.hasIncomingCall;
-        var iconClass = '';
-        if (hasIncomingCall) {
-            iconClass = 'unreadMessageIcon fa fa-phone show';
-        } else if (!this.props.info.isMessageReaded) {
-            iconClass = 'unreadMessageIcon fa fa-envelope show';
-        }
-        return <span className={iconClass}></span>
-    },
-
-    /**
-     * @Author: George_Chen
      * @Description: to set the last message view
      */
     _setLastMessage: function() {
         var info = this.props.info;
+        var containerStyle = {
+            overflow: 'hidden', 
+            marginLeft: -10,
+            fontSize: 13
+        };
+        var prefixTextStyle = {
+            fontWeight: 400,
+            color: '#27A'
+        };
         if (!info.lastMessage.message) {
             return (
-                <div className="lastMessage">
-                    <span className="noMessage" >{"Talk Now!-"} </span>
-                    <span className="fa fa-paper-plane-o"/>
+                <div style={containerStyle} >
+                    <span style={prefixTextStyle} >{"Talk Now!-"} </span>
                 </div>
             );
         }
         return (
-            <div className="lastMessage">
-                <span className="sender">{info.lastMessage.from === this.props.self ? 'Me :' : ''} </span>
-                <span className="content">{info.lastMessage.message} </span>
+            <div style={containerStyle} >
+                <span style={prefixTextStyle}>{info.lastMessage.from === this.props.self ? 'Me :' : ''} </span>
+                <span>{info.lastMessage.message}</span>
             </div>
         );
     },
 
-    getInitialState: function() {
-        return {
-            isTimeVisible: false
+    /**
+     * @Author: George_Chen
+     * @Description: used to set channel left icon
+     */
+    _setLeftAvatar: function() {
+        var isOnline = this.props.info.isOnline;
+        return (
+            <div style={{marginTop: -5}}>
+                <Avatar size={10} 
+                    backgroundColor={isOnline ? Colors.green500 : Colors.grey400}
+                    style={{position: 'absolute', bottom: 0, right: 0}} />
+                <Avatar src={this.props.info.avatar} />
+            </div>
+        );
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to set channel right icon
+     */
+    _setRightIcon: function() {
+        var iconColor = '#27A';
+        var iconAction = 'textsms';
+        var timeStyle = {
+            position: 'absolute',
+            opacity: this.props.timeVisible ? 1 : 0,
+            top: 40,
+            right: -10,
+            fontSize: 9,
+            transition: '0.5s',
+            color: Colors.grey700
         };
+        if (!this.props.info.isMessageReaded) {
+            iconColor = Colors.green500;
+            iconAction = 'chat';
+        }
+        if (this.props.hasIncomingCall) {
+            iconColor = Colors.green500;
+            iconAction = 'phone_in_talk';
+        }
+        return (
+            <div style={{marginTop: -9, marginRight: 15}}>
+                <FontIcon className="material-icons" color={iconColor}>
+                    {iconAction}
+                </FontIcon>
+                <div style={timeStyle}>
+                    {this._getFormattedTime()}
+                </div>
+            </div>
+        );
     },
 
     /**
@@ -172,30 +216,30 @@ module.exports = React.createClass({
 
     render: function(){
         var info = this.props.info;
-        var stateColor = (info.isOnline ? "onlineState" : "offlineState");
-        var timeClass = (this.props.timeVisible ? 'conversationTime show' : 'conversationTime hide');
-        var FriendClass = 'Friend';
-        if (info.hasIncomingCall) {
-            FriendClass = FriendClass + ' hasIncomingCall';
-        } else if (!info.isMessageReaded) {
-            FriendClass = FriendClass + ' hasUnreadMessage';
+        var hasCall = this.props.hasIncomingCall;
+        var nameStyle = {
+            overflow: 'hidden', 
+            marginLeft: -10,
+            marginTop: -10,
+            fontSize: 13,
+            fontWeight: 500
+        };
+        var itemStyle = {
+            height: 60
+        };
+        if (!info.isMessageReaded || hasCall) {
+            itemStyle.backgroundColor = Colors.grey100;
         }
         return (
-            <div className={FriendClass} >
-                <div className="friendAvatar">
-                    <UserAvatar avatar={info.avatar} isCircle />
-                    <span className= {stateColor}></span>
-                    {this._setStateIcon()}
-                </div>
-                <div className="friendInfo" onClick={this._openHangout}>
-                    <div className="friendName">
-                        {info.nickName}
-                    </div>
-                    {this._setLastMessage()}
-                    <div className={timeClass}>
-                        {this._getFormattedTime()}
-                    </div>
-                </div>
+            <div className={hasCall ? 'hasIncomingCall' : ''} >
+                <ListItem 
+                    onTouchTap={this._openHangout}
+                    style={itemStyle}
+                    primaryText={<div style={nameStyle}>{info.nickName}</div>} 
+                    secondaryText={this._setLastMessage()} 
+                    leftAvatar={this._setLeftAvatar()}
+                    rightIcon={this._setRightIcon()} />
+                <ListDivider inset />
             </div>
         );
     }

@@ -4,16 +4,6 @@
  * @Description: this style for subscription channels component using in Subscription.jsx
  *  Note: the div stratum can refer below information.
  *  --SubscriptionChannels
- *    --SubscriptionChannelsHeader
- *      --SubscriptionChannelsContent
- *    --ChannelList
- *      --Channel
- *        --ChannelText
- *          --ChannelName
- *          --ChannelHost
- *        --Signal
- *          --Counter
- *          --Conference
  */
 
 
@@ -21,92 +11,6 @@
     @extend .listBox;
     transition: 0.5s;
     z-index: 4;
-
-    /**
-     * @Author: Jos Tung
-     * @Description: keep original style
-     */
-    .SubscriptionChannelsHeader {
-        height: 150px;
-        padding: 0px 20px;
-        line-height: 48px;  
-        border-bottom: 1px;
-        border-bottom-style: solid;
-        border-bottom-color: #eee;
-
-        .SubscriptionChannelsContent {
-             overflow: auto; 
-        }
-    }
-
-    /**
-     * @Author: Jos Tung
-     * @Description: custom a component of subscription channels 
-     */
-    .ChannelList {
-
-        position: absolute;
-        width: 100%;
-        top: 0px;
-        bottom: 0px;
-        overflow: auto;
-
-        .Channel {
-            position: relative;
-            cursor: pointer;
-            height: 40px;
-            padding: 2px 0px 2px 20px;
-            border-bottom: 1px;
-            border-bottom-style: solid;
-            border-bottom-color: #eee;
-
-            .ChannelText {
-                position: relative;
-                width: 170px;
-                height: 36px;
-                float: left;
-            
-                .ChannelName {
-                    line-height: 20px;
-                    font-size: 16px;
-                    color: #000;
-                }
-
-                .ChannelHost {
-                    padding-left: 10px;
-                    line-height: 14px;
-                    font-size: 12px;
-                    color: #aaa;
-                }   
-            }
-
-            .Signal {
-                position: relative;
-                width: 50px;
-                height: 35px;
-                float: left;
-                padding: 10px 5px;
-
-                .Counter {
-                    @extend .baseCounter;
-                    position: absolute;
-                    top: 10px;
-                    right: 5px;
-                }
-
-                .Conference{
-                    position: absolute;
-                    color: #888;
-                    top: 10px;
-                    left: 5px;
-                }
-            }
-        }
-
-        .Channel:hover {
-            background-color: #E9F1F6;
-        }
-    }
 }
 
 .SubscriptionChannelsShow {

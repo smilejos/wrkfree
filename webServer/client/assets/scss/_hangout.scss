@@ -69,6 +69,15 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
             height: $hangout-messages-height;
             overflow: auto;
             word-break:break-all;
+            .daySplitLine{
+                position: relative;
+                padding: 8px 0px;
+                height: 5px;
+                width: 100%;
+                color: #262626;
+                text-align: center;
+                display: inline-table;
+            }
             .message {
                 .messageAvatar {
                     width: 60px;

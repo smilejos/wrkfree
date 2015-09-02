@@ -4,6 +4,8 @@ $channel-grid-field-height: 45px;
 
 $channel-list-height: 70px;
 
+$snapshot-background: #f8f8f8;
+
 /**
  * the base width of channel grid item
  */
@@ -35,10 +37,9 @@ $channel-list-height: 70px;
         position: absolute;
         width: $channel-grid-width + 2;
         height: $channel-grid-height;
-        border-color: $grey-400;
+        border-color: $grey-300;
         border-style: solid;
         border-width: 1px;
-        background-color: #eee;
         transition: 0.3s;    
         margin: 10px 10px;
 
@@ -50,7 +51,7 @@ $channel-list-height: 70px;
             position: absolute;
             height: 240px;
             padding: 20px 6px;
-            background-color: $grey-100;
+            background-color: $snapshot-background;
             cursor: pointer;
         }
 
@@ -130,7 +131,7 @@ $channel-list-height: 70px;
         position: absolute;
         height: $channel-list-height - 2;
         width: 120px;
-        background-color: $grey-100;
+        background-color: $snapshot-background;
         cursor: pointer;
         float: left;
     }
