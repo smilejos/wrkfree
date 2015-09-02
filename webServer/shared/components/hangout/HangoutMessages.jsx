@@ -173,13 +173,29 @@ module.exports = React.createClass({
             'top': (this.props.hasConference ? this.props.conferenceHeight : 0),
             'height': (this.props.hasConference ? 125 : this.props.messagesHeight),
         };
+        var tmpDate = null;
         var list = SharedUtils.fastArrayMap(this.state.messages, function(msgItem){
-            return (
-                <HangoutMsg
-                    key={msgItem.sentTime}
-                    avatar={selfUid === msgItem.from ? '' : msgItem.avatar}
-                    content={msgItem.message} />
-            );
+            if( tmpDate && SharedUtils.isSameDate(tmpDate, new Date(msgItem.sentTime))) {
+                return (
+                    <HangoutMsg
+                        key={msgItem.sentTime}
+                        avatar={selfUid === msgItem.from ? '' : msgItem.avatar}
+                        content={msgItem.message}
+                        sentTime={msgItem.sentTime} />
+                );    
+            } else {
+                tmpDate = new Date(msgItem.sentTime);
+                return (
+                    <div>
+                        <DaySplitLine sentTime={msgItem.sentTime} />
+                        <HangoutMsg
+                            key={msgItem.sentTime}
+                            avatar={selfUid === msgItem.from ? '' : msgItem.avatar}
+                            content={msgItem.message}
+                            sentTime={msgItem.sentTime} />
+                    </div>
+                );
+            }
         });
         return (
             <div className="hangoutMessages" style={contentStyle} ref="messages">
@@ -225,6 +241,17 @@ var HangoutMsg = React.createClass({
                         {this.props.content}
                     </div>
                 </div>
+            </div>
+        );
+    }
+});
+
+var DaySplitLine = React.createClass({
+    render: function() {
+        var date = SharedUtils.formatDateTime(new Date(this.props.sentTime), 'yy/mm/dd');
+        return (
+            <div className="daySplitLine" >
+                {date}
             </div>
         );
     }
