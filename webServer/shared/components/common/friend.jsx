@@ -25,11 +25,6 @@ var Configs = require('../../../../configs/config');
 var CALL_DISSMISS_TIME_IN_MSECOND = Configs.get().params.rtc.sessionTimeoutInSecond * 1000;
 
 /**
- * child components
- */
-var UserAvatar = require('./userAvatar.jsx');
-
-/**
  * material-ui components
  */
 var Mui = require('material-ui');
@@ -112,10 +107,55 @@ module.exports = React.createClass({
         );
     },
 
-    getInitialState: function() {
-        return {
-            isTimeVisible: false
+    /**
+     * @Author: George_Chen
+     * @Description: used to set channel left icon
+     */
+    _setLeftAvatar: function() {
+        var isOnline = this.props.info.isOnline;
+        return (
+            <div style={{marginTop: -5}}>
+                <Avatar size={10} 
+                    backgroundColor={isOnline ? Colors.green500 : Colors.grey400}
+                    style={{position: 'absolute', bottom: 0, right: 0}} />
+                <Avatar src={this.props.info.avatar} />
+            </div>
+        );
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used to set channel right icon
+     */
+    _setRightIcon: function() {
+        var iconColor = '#27A';
+        var iconAction = 'textsms';
+        var timeStyle = {
+            opacity: this.props.timeVisible ? 1 : 0,
+            marginTop: 5,
+            marginLeft: -10,
+            fontSize: 9,
+            transition: '0.5s',
+            color: Colors.grey700
         };
+        if (!this.props.info.isMessageReaded) {
+            iconColor = Colors.green500;
+            iconAction = 'chat';
+        }
+        if (this.props.hasIncomingCall) {
+            iconColor = Colors.green500;
+            iconAction = 'phone_in_talk';
+        }
+        return (
+            <div style={{marginTop: -9, marginRight: 15}}>
+                <FontIcon className="material-icons" color={iconColor}>
+                    {iconAction}
+                </FontIcon>
+                <div style={timeStyle}>
+                    {this._getFormattedTime()}
+                </div>
+            </div>
+        );
     },
 
     /**
@@ -173,60 +213,9 @@ module.exports = React.createClass({
         }
     },
 
-    /**
-     * @Author: George_Chen
-     * @Description: used to set channel left icon
-     */
-    _setLeftAvatar: function() {
-        var isOnline = this.props.info.isOnline;
-        return (
-            <div style={{marginTop: -5}}>
-                <Avatar size={10} 
-                    backgroundColor={isOnline ? Colors.green500 : Colors.grey400}
-                    style={{position: 'absolute', bottom: 0, right: 0}} />
-                <Avatar src={this.props.info.avatar} />
-            </div>
-        );
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: used to set channel right icon
-     */
-    _setRightIcon: function() {
-        var timeClass = (this.props.timeVisible ? 'conversationTime show' : 'conversationTime hide');
-        var iconColor = '#27A';
-        var iconAction = 'textsms';
-        var timeStyle = {
-            opacity: this.props.timeVisible ? 1 : 0,
-            marginTop: 5,
-            marginLeft: -10,
-            fontSize: 9,
-            transition: '0.5s',
-            color: Colors.grey700
-        };
-        if (!this.props.info.isMessageReaded) {
-            iconColor = Colors.green500;
-            iconAction = 'chat';
-        }
-        if (this.props.hasIncomingCall) {
-            iconColor = Colors.green500;
-            iconAction = 'phone_in_talk';
-        }
-        return (
-            <div style={{marginTop: -9, marginRight: 15}}>
-                <FontIcon className="material-icons" color={iconColor}>
-                    {iconAction}
-                </FontIcon>
-                <div style={timeStyle}>
-                    {this._getFormattedTime()}
-                </div>
-            </div>
-        );
-    },
-
     render: function(){
         var info = this.props.info;
+        var hasCall = this.props.hasIncomingCall;
         var nameStyle = {
             overflow: 'hidden', 
             marginLeft: -10,
@@ -237,11 +226,11 @@ module.exports = React.createClass({
         var itemStyle = {
             height: 60
         };
-        if (!info.isMessageReaded || this.props.hasIncomingCall) {
+        if (!info.isMessageReaded || hasCall) {
             itemStyle.backgroundColor = Colors.grey100;
         }
         return (
-            <div >
+            <div className={hasCall ? 'hasIncomingCall' : ''} >
                 <ListItem 
                     onTouchTap={this._openHangout}
                     style={itemStyle}
