@@ -45,40 +45,8 @@ module.exports = React.createClass({
     mixins: [Router.Navigation, Router.State, FluxibleMixin],
     statics: {
         storeListeners: {
-            'onStoreChange': [SubscriptionStore]
+            '_onStoreChange': [SubscriptionStore]
         }
-    },
-
-    /**
-     * handler for channelNavStore change
-     */
-    onStoreChange: function() {
-        var state = this.getStore(SubscriptionStore).getState();
-        this.setState(state);
-    },
-
-    /**
-     * @Author: Jos Tung
-     * @Description: handler for Subscription of channels 
-     */
-    _getChannelList: function(){
-        var subscriptions = this.state.subscriptions;
-        var channelList = SharedUtils.fastArrayMap(subscriptions, function(item){
-            return (
-                <SubscribedChannel 
-                    key={item.channelId}
-                    channelId={item.channelId}
-                    name={item.name}
-                    hostInfo={item.hostInfo}
-                    unreadMsgNumbers={item.unreadMsgNumbers}
-                    hasConferenceCall={item.hasConferenceCall} />
-            );
-        });
-        return (
-            <div className="ChannelList">
-                {channelList}
-            </div>
-        );
     },
 
     getInitialState: function() {
@@ -123,6 +91,14 @@ module.exports = React.createClass({
                 self._resizeHeight();
             }, 100);
         });
+    },
+
+    /**
+     * handler for SubscriptionStore change
+     */
+    _onStoreChange: function() {
+        var state = this.getStore(SubscriptionStore).getState();
+        this.setState(state);
     },
 
     /**
