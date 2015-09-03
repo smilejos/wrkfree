@@ -242,16 +242,32 @@ var HangoutMsg = React.createClass({
 
     render: function() {
         var bubbleClass = (this.props.avatar ? 'msgBubble left': 'msgBubble right');
+        var timeStyle = {
+            position: 'absolute',
+            color: Colors.grey400,
+            fontSize: 10,
+            bottom: -13,
+        };
+        if (this.props.avatar) {
+            timeStyle.left = 60;
+        } else {
+            timeStyle.right = 20;
+        }
         return (
-            <div className="message" >
-                {this._setAvatar()}
-                <div className="messageContent">
-                    <div className={bubbleClass}>
-                        <span className='msgBubbleTail'>&nbsp;</span>
-                        <Linkify properties={{target: '_blank', style: {color: Colors.blue700, fontWeight: 300}}}>
-                            {this.props.content}
-                        </Linkify>
+            <div style={{position: 'relative'}}>
+                <div className="message" >
+                    {this._setAvatar()}
+                    <div className="messageContent">
+                        <div className={bubbleClass}>
+                            <span className='msgBubbleTail'>&nbsp;</span>
+                            <Linkify properties={{target: '_blank', style: {color: Colors.blue700, fontWeight: 300}}}>
+                                {this.props.content}
+                            </Linkify>
+                        </div>
                     </div>
+                </div>
+                <div style={timeStyle}>
+                    {SharedUtils.formatDateTime(new Date(this.props.sentTime), 'gg:ii a')}
                 </div>
             </div>
         );

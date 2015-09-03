@@ -331,7 +331,7 @@ var Message = React.createClass({
     },
 
     render: function(){
-        var time = SharedUtils.formatDateTime(new Date(this.props.data.sentTime), 'M dd hh:ii');
+        var time = SharedUtils.formatDateTime(new Date(this.props.data.sentTime), 'M dd, gg:ii a');
         return (
             <div className="MsgContent" style={{paddingTop: 10}}>
                 <div style={{width: 50, paddingLeft: 5, display: 'inline-block', verticalAlign: 'top'}}>
