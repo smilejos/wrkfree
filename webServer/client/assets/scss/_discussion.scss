@@ -20,19 +20,20 @@
         border-bottom-color: #eee;
         border-bottom-width: 1px;
         .MsgSender {
-            color: $color-main;
+            color: $cyan-800;
+            font-weight: 400;
             font-size: 12px;
             line-height: 1.7;
         }
         .MsgText {
-            color: #333;
-            font-size: 14px;
+            color: $grey-600;
+            font-size: 13px;
             line-height: 1.7;
+            word-break:break-all;
         }
         .MsgTime {
-            color: #cecece;
-            font-size: 12px;
-            padding-right: 5px;
+            color: $grey-400;
+            font-size: 9px;
             text-align: right;
         }
     }

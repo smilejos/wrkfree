@@ -1,6 +1,7 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
 var SharedUtils = require('../../../../sharedUtils/utils');
+var Linkify = require('react-linkify');
 
 /**
  * wrkfree store/action on workspace
@@ -11,16 +12,14 @@ var SendMessageAction = require('../../../client/actions/chat/sendMessage');
 var PullMessagesAction = require('../../../client/actions/chat/pullMessages');
 
 /**
- * common components
- */
-var UserAvatar = require('../common/userAvatar.jsx');
-
-/**
  * Material-ui circle progress
  */
-var CircularProgress = require('material-ui').CircularProgress;
-var TextField = require('material-ui').TextField;
-var IconButton = require('material-ui').IconButton;
+var Mui = require('material-ui');
+var CircularProgress = Mui.CircularProgress;
+var TextField = Mui.TextField;
+var IconButton = Mui.IconButton;
+var Avatar = Mui.Avatar;
+var Colors = Mui.Styles.Colors;
 
  /**
  * @Author: Jos Tung
@@ -56,7 +55,7 @@ var DiscussionArea = React.createClass({
         }
         // focus the message input field
         if (!prevState.isShown && this.state.isShown) {
-            this.refs.send.focus();
+            this._focusInput();
         }
     },
 
@@ -267,7 +266,6 @@ var DiscussionArea = React.createClass({
     }
 });
 
-
 var ReloadImg = React.createClass({
     render: function(){
         var isReload = this.props.isReload;
@@ -314,9 +312,9 @@ var MessageList = React.createClass({
             return <Message key={message.sentTime} data={message} />;
         });
         return (
-            <div className="MsgContainer" 
+            <div className="MsgContainer"
                 style={inlineStyle}
-                onClick={this.props.onClick} 
+                onClick={this.props.onClick}
                 onScroll={this._onScroll} >
                     {messages}
             </div> 
@@ -325,20 +323,29 @@ var MessageList = React.createClass({
 });
 
 var Message = React.createClass({
+
+    shouldComponentUpdate: function(nextProps) {
+        var isMsgChanged = (nextProps.data.message !== this.props.data.message);
+        var isTimeChanged = (nextProps.data.sentTime !== this.props.data.sentTime);
+        return (isMsgChanged || isTimeChanged);
+    },
+
     render: function(){
-        var time = SharedUtils.formatDateTime(new Date(this.props.data.sentTime), 'y/mm/dd hh:ii');
+        var time = SharedUtils.formatDateTime(new Date(this.props.data.sentTime), 'M dd, gg:ii a');
         return (
-            <div className="MsgContent">
-                <div className="pure-u-5-24">
-                    <UserAvatar avatar={this.props.data.avatar} isCircle={true} />
+            <div className="MsgContent" style={{paddingTop: 10}}>
+                <div style={{width: 50, paddingLeft: 5, display: 'inline-block', verticalAlign: 'top'}}>
+                    <Avatar src={this.props.data.avatar} />
                 </div>
-                <div className="pure-u-18-24">
+                <div style={{width: 180, display: 'inline-block', verticalAlign: 'top'}}>
                     <div className="MsgSender">  
                         {this.props.data.nickName}
                     </div>
-                    <div className="MsgText">  
-                        {this.props.data.message}
-                    </div>
+                    <Linkify properties={{target: '_blank', style: {color: Colors.blue700, fontWeight: 300}}}>
+                        <div className="MsgText">  
+                            {this.props.data.message}
+                        </div>
+                    </Linkify>
                     <div className="MsgTime">  
                         {time}
                     </div>

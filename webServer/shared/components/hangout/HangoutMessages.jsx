@@ -2,6 +2,7 @@ var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var CircularProgress = require('material-ui').CircularProgress;
+var Linkify = require('react-linkify');
 
 /**
  * stores
@@ -18,6 +19,9 @@ var UpdateHangoutTwinkle = require('../../../client/actions/updateHangoutTwinkle
  * child components
  */
 var UserAvatar = require('../common/userAvatar.jsx');
+
+var Mui = require('material-ui');
+var Colors = Mui.Styles.Colors;
 
 /**
  * Public API
@@ -230,16 +234,40 @@ var HangoutMsg = React.createClass({
         );
     },
 
+    shouldComponentUpdate: function(nextProps) {
+        var isMsgChanged = (nextProps.content !== this.props.content);
+        var isTimeChanged = (nextProps.sentTime !== this.props.sentTime);
+        return (isMsgChanged || isTimeChanged);
+    },
+
     render: function() {
         var bubbleClass = (this.props.avatar ? 'msgBubble left': 'msgBubble right');
+        var timeStyle = {
+            position: 'absolute',
+            color: Colors.grey400,
+            fontSize: 10,
+            bottom: -13,
+        };
+        if (this.props.avatar) {
+            timeStyle.left = 60;
+        } else {
+            timeStyle.right = 20;
+        }
         return (
-            <div className="message" >
-                {this._setAvatar()}
-                <div className="messageContent">
-                    <div className={bubbleClass}>
-                        <span className='msgBubbleTail'>&nbsp;</span>
-                        {this.props.content}
+            <div style={{position: 'relative'}}>
+                <div className="message" >
+                    {this._setAvatar()}
+                    <div className="messageContent">
+                        <div className={bubbleClass}>
+                            <span className='msgBubbleTail'>&nbsp;</span>
+                            <Linkify properties={{target: '_blank', style: {color: Colors.blue700, fontWeight: 300}}}>
+                                {this.props.content}
+                            </Linkify>
+                        </div>
                     </div>
+                </div>
+                <div style={timeStyle}>
+                    {SharedUtils.formatDateTime(new Date(this.props.sentTime), 'gg:ii a')}
                 </div>
             </div>
         );
@@ -248,7 +276,7 @@ var HangoutMsg = React.createClass({
 
 var DaySplitLine = React.createClass({
     render: function() {
-        var date = SharedUtils.formatDateTime(new Date(this.props.sentTime), 'yy/mm/dd');
+        var date = SharedUtils.formatDateTime(new Date(this.props.sentTime), 'D, M dd');
         return (
             <div className="daySplitLine" >
                 {date}
