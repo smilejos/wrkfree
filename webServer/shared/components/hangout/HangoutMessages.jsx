@@ -260,7 +260,7 @@ var HangoutMsg = React.createClass({
 
 var DaySplitLine = React.createClass({
     render: function() {
-        var date = SharedUtils.formatDateTime(new Date(this.props.sentTime), 'yy/mm/dd');
+        var date = SharedUtils.formatDateTime(new Date(this.props.sentTime), 'D, M dd');
         return (
             <div className="daySplitLine" >
                 {date}
