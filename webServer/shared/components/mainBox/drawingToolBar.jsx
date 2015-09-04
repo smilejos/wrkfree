@@ -53,9 +53,7 @@ module.exports = React.createClass({
                     isDrawing: true
                 });
             }
-            if (DisableDraw) {
-                clearTimeout(DisableDraw);
-            }
+            clearTimeout(DisableDraw);
             DisableDraw = setTimeout(function() {
                 self.setState({
                     isDrawing: false
@@ -67,7 +65,11 @@ module.exports = React.createClass({
     getInitialState: function() {
         return {
             boardIndex: this.props.boardId + 1,
-            isDrawing: false
+            isDrawing: false,
+            enableToAddBoard: true,
+            enableToClearBoard: true,
+            enableToRedoBoard: true,
+            enableToUndoBoard: true,
         };
     },
 
@@ -114,10 +116,17 @@ module.exports = React.createClass({
      * @Description: handler for add new drawing board
      */
     _addBoard: function(){
-        this.executeAction(AddDrawBoard, {
+        this.setState({
+            enableToAddBoard: false
+        });
+        return window.context.executeAction(AddDrawBoard, {
             urlNavigator: this.transitionTo,
             channelId: this.props.channelId,
             newBoardId: this.props.drawInfo.boardNums
+        }).bind(this).delay(100).then(function(){
+            this.setState({
+                enableToAddBoard: true
+            });
         });
     },
 
@@ -134,25 +143,35 @@ module.exports = React.createClass({
      * @Description: handler for clean drawing board
      */
     _cleanBoard: function(){
-        if (!this.state.isDrawing) {
-            this.executeAction(CleanDrawBoard, {
-                channelId: this.props.channelId,
-                boardId: this.props.boardId
+        this.setState({
+            enableToClearBoard: false
+        });
+        return window.context.executeAction(CleanDrawBoard, {
+            channelId: this.props.channelId,
+            boardId: this.props.boardId
+        }).bind(this).delay(100).then(function(){
+            this.setState({
+                enableToClearBoard: true
             });
-        }
+        });
     },
 
     /**
      * @Author: George_Chen
      * @Description: handler undo to previous draw on drawing board
      */
-    _drawUndo: function(){
-        if (!this.state.isDrawing) {
-            this.executeAction(UndoDrawRecord, {
-                channelId: this.props.channelId,
-                boardId: this.props.boardId
+    _drawUndo: function() {
+        this.setState({
+            enableToUndoBoard: false
+        });
+        return window.context.executeAction(UndoDrawRecord, {
+            channelId: this.props.channelId,
+            boardId: this.props.boardId
+        }).bind(this).delay(100).then(function(){
+            this.setState({
+                enableToUndoBoard: true
             });
-        }
+        });
     },
 
     /**
@@ -160,12 +179,17 @@ module.exports = React.createClass({
      * @Description: handler to redo to next draw on drawing board 
      */
     _drawRedo: function(){
-        if (!this.state.isDrawing) {
-            this.executeAction(RedoDrawRecord, {
-                channelId: this.props.channelId,
-                boardId: this.props.boardId
+        this.setState({
+            enableToRedoBoard: false
+        });
+        return window.context.executeAction(RedoDrawRecord, {
+            channelId: this.props.channelId,
+            boardId: this.props.boardId
+        }).bind(this).delay(100).then(function(){
+            this.setState({
+                enableToRedoBoard: true
             });
-        }
+        });
     },
 
     /**
@@ -239,9 +263,6 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        var drawIconStyle = {
-            cursor: (this.state.isDrawing ? 'not-allowed' : 'pointer')
-        };
         return (
             <div className="DrawingToolBar" >
                 <div style={{position: 'absolute', left: 5, bottom: 0}}>
@@ -292,33 +313,35 @@ module.exports = React.createClass({
                         iconClassName="fa fa-plus-square-o"
                         tooltipPosition="top-left"
                         touch
+                        disabled={!this.state.enableToAddBoard}
                         tooltip={'add new board'}
                         onClick={this._addBoard} />
                     <IconButton 
                         iconClassName="fa fa fa-square-o"
                         tooltipPosition="top-left"
                         touch
-                        iconStyle={drawIconStyle}
+                        disabled={!this.state.enableToClearBoard || this.state.isDrawing}
                         tooltip={'clean current board'} 
                         onClick={this._cleanBoard} />
                     <IconButton 
                         iconClassName="fa fa-undo"
                         tooltipPosition="top-left"
                         touch
-                        iconStyle={drawIconStyle}
+                        disabled={!this.state.enableToUndoBoard || this.state.isDrawing}
                         tooltip={'undo to previous draw'} 
                         onClick={this._drawUndo} />
                     <IconButton 
                         iconClassName="fa fa-repeat"
                         tooltipPosition="top-left"
                         touch
-                        iconStyle={drawIconStyle}
+                        disabled={!this.state.enableToRedoBoard || this.state.isDrawing}
                         tooltip={'repeat to next draw'}
                         onClick={this._drawRedo} />
                     <IconButton 
                         iconClassName="fa fa-trash-o" 
                         tooltipPosition="top-left"
                         touch
+                        disabled
                         tooltip={'delete current board'} />
                 </div>
             </div>
