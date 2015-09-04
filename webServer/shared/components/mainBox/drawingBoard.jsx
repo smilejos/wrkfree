@@ -180,7 +180,7 @@ module.exports = React.createClass({
             if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
                 return _completeDraw();
             }
-            var position = _getCanvasMouse(e);
+            var position = self._getCanvasMouse(e);
             // trigger the drawing action
             self.executeAction(Drawing, {
                 channelId: self.props.channelId,
@@ -207,7 +207,7 @@ module.exports = React.createClass({
                 return;
             }
             isClicked = true;
-            prev = _getCanvasMouse(e);
+            prev = self._getCanvasMouse(e);
             // to ensure the mouse pointer will not change to default behaviour
             e.preventDefault();
             return self.executeAction(InitToDraw, {
@@ -313,6 +313,24 @@ module.exports = React.createClass({
             });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: for getting mouse position on canvas
+     * 
+     * @param {Object}       canvasEvent, canvas event object
+     */
+    _getCanvasMouse: function(canvasEvent) {
+        // app-header-height = 50px defined in css
+        var headerHeight = 50;
+        var container = React.findDOMNode(this);
+        var board = React.findDOMNode(this.refs.mainCanvas);
+        var workspaceScrollTop = this.props.scrollTopHandler();
+        return {
+            x: (canvasEvent.pageX - container.offsetLeft) * (BOARD_WIDTH/board.width),
+            y: (canvasEvent.pageY - headerHeight - container.offsetTop + workspaceScrollTop) * (BOARD_HEIGHT/board.height)
+        };
+    },
+
     render: function() {
         // 50 is the height of drawing toolbar
         var DrawAreaStyle = {
@@ -369,20 +387,4 @@ function _changeBoardWheel(drawOptions) {
  */
 function _getDrawBoardCtx(){
     return document.getElementById("DrawBoard").getContext('2d');
-}
-
-/**
- * @Author: George_Chen
- * @Description: for getting mouse position on canvas
- * 
- * @param {Object}       canvasEvent, canvas event object
- */
-function _getCanvasMouse(canvasEvent){
-    var board = document.getElementById("DrawBoard");
-    // app-header-height = 50px defined in css
-    var headerHeight = 50;
-    return {
-        x: (canvasEvent.pageX - board.parentElement.offsetLeft) * (BOARD_WIDTH/board.width),
-        y: (canvasEvent.pageY - headerHeight - board.parentElement.offsetTop) * (BOARD_HEIGHT/board.height)
-    };
 }
