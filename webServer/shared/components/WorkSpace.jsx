@@ -142,7 +142,7 @@ var VisitorList = React.createClass({
             );
         });
         return (
-            <div style={{position: 'absolute', left: '15%', bottom: 25, zIndex: 3}}>
+            <div style={{position: 'absolute', left: '15%', bottom: 2, zIndex: 3}}>
                 {visitorList}
             </div>
         );
