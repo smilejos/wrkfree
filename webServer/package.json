@@ -1,6 +1,6 @@
 {
   "name": "wrkfree-web-server",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "private": true,
   "scripts": {
     "dev": "gulp",
@@ -30,6 +30,7 @@
     "react": "^0.13.3",
     "react-draggable": "^0.8.1",
     "react-grid-layout": "^0.8.3",
+    "react-linkify": "0.0.4",
     "react-router": "^0.13.3",
     "react-tap-event-plugin": "^0.1.7",
     "serialize-javascript": "^1.0.0",

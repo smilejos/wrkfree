@@ -22,7 +22,6 @@ var WorkSpaceStore = require('../../stores/WorkSpaceStore');
  * load configs
  */
 var Configs = require('../../../../configs/config');
-var CALL_DISSMISS_TIME_IN_MSECOND = Configs.get().params.rtc.sessionTimeoutInSecond * 1000;
 
 /**
  * material-ui components
@@ -191,26 +190,10 @@ module.exports = React.createClass({
     },
 
     componentWillReceiveProps: function(nextProps) {
-        var self = this;
-        if (nextProps.hasIncomingCall !== this.props.hasIncomingCall) {
-            self.executeAction(SetConferenceEvent, {
-                channelId: nextProps.info.channelId,
-                isShown: nextProps.hasIncomingCall,
-                ttl: CALL_DISSMISS_TIME_IN_MSECOND,
-                title: 'Incoming Call',
-                message: 'From ['+this.props.info.nickName + ']',
-                callHandler: function() {
-                    var cid = nextProps.info.channelId;
-                    if (!self.getStore(WorkSpaceStore).isOpenedChannel(cid)) {
-                        self._openHangout();
-                    }
-                    setTimeout(function(){
-                        self.executeAction(StartConference, {
-                            channelId: nextProps.info.channelId
-                        });
-                    }, 1000);
-                }
-            });
+        if (!this.props.hasIncomingCall && nextProps.hasIncomingCall) {
+            setTimeout(function(){
+                this._openHangout();
+            }.bind(this), 500);
         }
     },
 

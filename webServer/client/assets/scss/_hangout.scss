@@ -8,7 +8,12 @@ $hangout-messages-height: 275px;
 $hangout-header-background-color: rgba(2,119,189, .8);
 $hangout-video-background-color: rgba(0,0,0, .8);
 $hangout-client-message-bubble-color: #FFF;
-$hangout-host-message-bubble-color: $grey-400;
+$hangout-host-message-bubble-color: #FFF;
+
+$hangout-host-message-color: $green-700;
+$hangout-clinet-message-color: $grey-700;
+
+$hangout-bubble-border: solid 1px $grey-300;
 
 /**
  * message bubble related definition
@@ -69,12 +74,16 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
             height: $hangout-messages-height;
             overflow: auto;
             word-break:break-all;
+            font-size: 13px;
+            font-weight: 300;
             .daySplitLine{
                 position: relative;
                 padding: 8px 0px;
                 height: 5px;
                 width: 100%;
-                color: #262626;
+                color: $grey-600;
+                font-weight: 400;
+                font-size: 12px;
                 text-align: center;
                 display: inline-table;
             }
@@ -95,6 +104,7 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
                         margin-top:       0px;
                         position:         relative;
                         vertical-align:   top;
+                        border: $hangout-bubble-border;
                     }
                     .msgBubbleTail {
                         position: absolute;
@@ -102,9 +112,9 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
                         width:   ($shadow_radius + $nose_size);
                         overflow: hidden;
                         &:before {
+                            border: $hangout-bubble-border;
                             background-color:  $hangout-client-message-bubble-color;
                             content:           "\00a0";
-
                             display:           block;
                             position:          absolute;
                             top:               0px;
@@ -114,6 +124,7 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
                     }
                     .msgBubble.left {
                         text-align: left;
+                        color: $hangout-clinet-message-color;
                         .msgBubbleTail {
                             top:      $nose_size;
                             left:   -($shadow_radius + $nose_size);
@@ -129,7 +140,7 @@ $shadow: 0 1px $shadow_radius #B2B2B2;
                     .msgBubble.right {
                         text-align: left;
                         background-color: $hangout-host-message-bubble-color;
-                        color: #FFF;                        
+                        color: $hangout-host-message-color;
                         .msgBubbleTail {
                             top:      $nose_size;
                             right:   -($shadow_radius + $nose_size);

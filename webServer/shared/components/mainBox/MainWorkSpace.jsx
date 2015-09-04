@@ -64,11 +64,20 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: for getting current container's scroll top
+     */
+    _getScrollTop: function() {
+        return React.findDOMNode(this).scrollTop;
+    },
+
     render: function(){
         var cid = this.props.channel.channelId;
         return (
             <div className="mainBox">
                 <DrawingBoard 
+                    scrollTopHandler={this._getScrollTop}
                     width={this.state.canvasWidth}
                     height={this.state.canvasHeight}
                     channelId={cid} 
