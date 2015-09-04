@@ -1,6 +1,5 @@
 var React = require('react');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
-
 var SharedUtils = require('../../../../sharedUtils/utils');
 
 /**
@@ -11,10 +10,17 @@ var NotificationStore = require('../../stores/NotificationStore');
 /**
  * child components
  */
-var UserAvatar = require('./userAvatar.jsx');
-var NormalNotice = require('./normalNotice.jsx');
-var ReqNotice = require('./reqNotice.jsx');
-var RespNotice = require('./respNotice.jsx');
+var Notice = require('./notice.jsx');
+
+/**
+ * material-ui components
+ */
+var Mui = require('material-ui');
+var List = Mui.List;
+var ListItem = Mui.ListItem;
+var ListDivider = Mui.ListDivider;
+var FontIcon = Mui.FontIcon;
+var Colors = Mui.Styles.Colors;
 
 /**
  * @Author: Jos Tung
@@ -22,7 +28,7 @@ var RespNotice = require('./respNotice.jsx');
  * 
  * LAST UPDATED: George_Chen
  */
-var Notification = React.createClass({
+module.exports = React.createClass({
     mixins: [FluxibleMixin],
     statics: {
         storeListeners: {
@@ -43,72 +49,41 @@ var Notification = React.createClass({
         return this._getStoreState();
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: used to handle scroll bar shown or not
+     */
+    _onScrollShown: function(showState) {
+        this.setState({
+            isScrollShown: showState
+        });
+    },
+
     render: function(){
         var notifications = this.state.notifications;
         var list = SharedUtils.fastArrayMap(notifications, function(info) {
-            return <Notices key={info.reqId} info={info} />
+            return <Notice key={info.reqId} info={info} />
         });
-        return (
-            <div className={this.state.isActive ? "Notification NotificationShow" : "Notification"}>
-                {list}
-            </div>
-        );
-    }
-});
-
-/**
- * @Author: George_Chen
- * @Description: the main notice component
- *         
- * @param {Object}      this.props.info, the notice info
- */
-var Notices = React.createClass({
-    getInitialState: function() {
-        return {
-           isTimeVisible : true 
+        var listContainerStyle = {
+            overflowY: this.state.isScrollShown ? 'auto' : 'hidden',
+            overflowX: 'hidden',
+            height: 260
         };
-    },
-    /**
-     * @Author: George_Chen
-     * @Description: handler for hiding timestamp
-     */
-    _hideTimestamp: function() {
-        this.setState({
-            isTimeVisible: false
-        });
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: handler for show timestamp
-     */
-    _showTimestamp: function() {
-        this.setState({
-            isTimeVisible: true
-        });
-    },
-
-    render: function(){
-        var info = this.props.info;
-        var isReq = info.isReq;
-        var noticeContent = '';
-        info.isTimeVisible = this.state.isTimeVisible;
-        if (info.isNotification) {
-            noticeContent = (<NormalNotice info={info} />);
-        } else {
-            noticeContent = (isReq ? <ReqNotice info={info} /> : <RespNotice info={info} />);
-        }
         return (
-            <div className="Notice" onMouseEnter={this._hideTimestamp} onMouseLeave={this._showTimestamp} >
-                <div className="NoticeSender">
-                    <UserAvatar avatar={this.props.info.sender.avatar} isCircle={true} />
-                </div>
-                <div className="NoticeContent">
-                    {noticeContent}
-                </div>
+            <div className={this.state.isActive ? "Notification NotificationShow" : "Notification"}
+                style={{borderRadius: 5}}>
+                <List style={{marginTop: 1}}>
+                    <ListItem disabled primaryText="Notifications"
+                        leftIcon={<FontIcon color={Colors.green500} className="material-icons">{'notifications_active'}</FontIcon>} />
+                </List>
+                <ListDivider />
+                <List ref="notificationList"
+                    onMouseEnter={this._onScrollShown.bind(this, true)}
+                    onMouseLeave={this._onScrollShown.bind(this, false)} 
+                    style={listContainerStyle}>
+                    {list}
+                </List>
             </div>
         );
     }
 });
-
-module.exports = Notification;
