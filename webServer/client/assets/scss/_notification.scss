@@ -1,4 +1,3 @@
-$notice-action-width: 120px;
 
 /**
  * @Author: Jos Tung
@@ -8,114 +7,18 @@ $notice-action-width: 120px;
 .Notification {
     position: fixed;
     top: -100px;
-    right: 10px;
-    width: 350px;
-    height: 320px;
+    right: 20px;
+    width: 360px;
     transition: 0.4s;
     visibility: hidden;
     opacity: 0;
-    background: #fff;
     border-bottom: 1px rgba(0, 0, 0, .2);
-    box-shadow: 0 2px 2px 2px rgba(0, 0, 0, .2);
+    border: solid 1px $grey-300;
     z-index: 4;
-    overflow-y: scroll;
-    overflow-x: hidden;
 }
 
 .NotificationShow {
     top: 50px;
     opacity: 1;
     visibility: visible;
-}
-
-/**
- * @Author: Jos Tung
- * @Description: this style for notice component using in Notification.jsx
- *  NOTE: the div stratum can refer below information.
- *  
- *  LAST UPDATED: George_Chen, 06/10/2015
- *  --Notice
- *    --NoticeSender
- *    --NoticeContent
- *      --NoticeMessage
- *        --title
- *        --description
- *        --timeInfo
- *    --NoticeAction
- */
-
-.Notice {
-    height: 80px;
-    padding: 4px;
-    border-bottom-style: inset;
-    border-bottom-width: 2px;
-    border-bottom-color: #eee;
-    z-index: 4;
-    .NoticeSender {
-        padding-top: 18px;
-        width: 50px;
-        float: left;
-    }
-    .NoticeContent {
-        @extend .baseFonts;
-        height: 80px;
-        width: 280px;
-        font-size: 14px;
-        float: left;
-        .NoticeMessage {
-            position: relative;
-            line-height: 20px;
-            .title {
-                color: #000;
-                font-weight: bold;
-            }
-            .description {
-                line-height: 15px;
-                color: $grey-600;
-                .emphasis {
-                    font-size: 15px;
-                    font-weight: bold;
-                    color: $grey-700;
-                }
-            }
-            .time {
-                position: absolute;
-                top: 0px;
-                right: -5px;
-                width: 120px;
-                text-align: right;
-                color: #777;
-                font-size: 10px;
-                font-weight: bold;
-            }
-        }
-    }
-    .NoticeAction {
-        position: relative;
-        padding-top: 5px;
-        .action {
-            float: left;
-            width: $notice-action-width;
-            cursor:pointer;
-            transition: 0.3s;
-        }
-        .action-accept {
-            color: $green-700;
-        }
-        .action-reject {
-            color: $red-700;
-        }
-        .action-navigation {
-            color: $blue-700;
-        }
-        .action:hover {
-            font-weight: bold;
-        }
-    }
-}
-
-.Notice:hover {
-    background-color: $grey-100;
-    transition: 0.3s;
-    opacity: 0.95;
 }
