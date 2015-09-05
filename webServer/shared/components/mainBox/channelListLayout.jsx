@@ -21,11 +21,12 @@ var ChannelListItem = require('./channelListItem.jsx');
 module.exports = React.createClass({
     render: function(){
         var listWidth = this.props.containerWdith * 0.95;
-        var listContent = SharedUtils.fastArrayMap(this.props.channels, function(item, index){
+        var listContent = SharedUtils.fastArrayMap(this.props.channels, function(item){
             return (
-                <div key={index}>
-                    <ChannelListItem channelInfo={item} width={listWidth} />
-                </div>
+                <ChannelListItem 
+                    key={item.channelId}
+                    channelInfo={item} 
+                    width={listWidth} />
             );
         });
         return (
