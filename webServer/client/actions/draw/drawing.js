@@ -43,8 +43,6 @@ module.exports = function(actionContext, data) {
         } else if (draws && draws.length === WARNING_DRAWS_LIMIT) {
             ActionUtils.showWarningEvent('Drawing', 'Too many draws at the same time');
         }
-        data.clientId = 'local';
-        tempStore.saveDrawChange(data);
         return DrawService.drawAsync(recordData);
     }).then(function(result) {
         if (!result) {
