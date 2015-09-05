@@ -136,7 +136,7 @@ var VisitorList = React.createClass({
         var visitorList = SharedUtils.fastArrayMap(visitors, function(info, index) {
             return (
                 <Avatar
-                    key={index}
+                    key={info.uid}
                     style={visitorStyle}
                     src={info.avatar} />
             );
