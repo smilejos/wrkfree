@@ -71,7 +71,7 @@ module.exports = function(actionContext, data) {
         SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
         var reason = data.reason || 'save draw fail !';
         ActionUtils.showWarningEvent('WARN', 'remote ' + reason);
-        if (data.channelId && data.boardId && data.clientId) {
+        if (data.channelId && SharedUtils.isNumber(data.boardId) && data.clientId) {
             actionContext.dispatch('CLEAN_FAILURE_DRAW', {
                 channelId: data.channelId,
                 boardId: data.boardId,

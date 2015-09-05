@@ -40,6 +40,11 @@ var DrawStore = require('../../stores/DrawStore');
 var DrawingPalette = require('./drawingPalette.jsx');
 var DrawingToolBar = require('./drawingToolBar.jsx');
 
+var prev = {};
+
+var IsDrawClicked = false;
+var DelayTimer = null;
+
 /**
  * the drawingBoard.jsx is the drawing board
  */
@@ -114,13 +119,7 @@ module.exports = React.createClass({
      * @Description: initialize the draw board 
      */
     componentDidMount: function(){
-        var board = document.getElementById("DrawBoard");
         var canvas = document.createElement('canvas');
-        var self = this;
-        // for detecting current mouse click event
-        var isClicked = false;
-        // used to store previous mouse position
-        var prev = {};
         /**
          * this canvas and image element is for internal used
          * not for client drawing
@@ -134,103 +133,6 @@ module.exports = React.createClass({
          * first time init for mouse cursor
          */
         _changeBoardWheel(this.props.drawInfo.drawOptions);
-
-        /**
-         * @Author: George_Chen
-         * @Description: used to complete and save current draw
-         */
-        function _completeDraw() {
-            var drawTempStore = self.getStore(DrawTempStore);
-            var localDraws = drawTempStore.getLocalDraws(self.props.channelId, self.props.boardId);
-            isClicked = false;
-            self.executeAction(InitToDraw, {
-                channelId: self.props.channelId,
-                boardId: self.props.boardId,
-                isInited: false
-            });
-            if (localDraws.length > 0) {
-                return self.executeAction(SaveDrawRecord, {
-                    channelId: self.props.channelId,
-                    boardId: self.props.boardId,
-                    localDraws: localDraws,
-                    drawOptions: self.props.drawInfo.drawOptions
-                });
-            }
-            // means user draw at the same position, so trigger different action
-            self.executeAction(SaveSingleDraw, {
-                channelId: self.props.channelId,
-                boardId: self.props.boardId,
-                chunks: {
-                    fromX: prev.x,
-                    fromY: prev.y,
-                    toX: prev.x + 0.1,
-                    toY: prev.y + 0.1
-                },
-                drawOptions: self.props.drawInfo.drawOptions
-            });
-        }
-        
-        board.addEventListener('mousemove',function(e){
-            if (!self.props.drawInfo.isInited || !isClicked) {
-                return;
-            }
-            var cid = self.props.channelId;
-            var bid = self.props.boardId;
-            var localDraws = self.getStore(DrawTempStore).getLocalDraws(cid, bid);
-            if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
-                return _completeDraw();
-            }
-            var position = self._getCanvasMouse(e);
-            // trigger the drawing action
-            self.executeAction(Drawing, {
-                channelId: self.props.channelId,
-                boardId: self.props.boardId,
-                chunks: {
-                    fromX: prev.x,
-                    fromY: prev.y,
-                    toX: position.x,
-                    toY: position.y
-                },
-                drawOptions: self.props.drawInfo.drawOptions
-            });
-            prev = position;
-        });
-
-
-        /**
-         * mouse click event
-         * reference: https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
-         */
-        board.addEventListener('mousedown', function(e) {
-            // 0: left click, 1: middle click, 2: right click
-            if (self.props.drawInfo.boardNums === 0 || e.button !== 0) {
-                return;
-            }
-            isClicked = true;
-            prev = self._getCanvasMouse(e);
-            // to ensure the mouse pointer will not change to default behaviour
-            e.preventDefault();
-            return self.executeAction(InitToDraw, {
-                channelId: self.props.channelId,
-                boardId: self.props.boardId,
-                isInited: true
-            });
-        });
-
-        board.addEventListener('mouseup',function(){
-            if (self.props.drawInfo.boardNums === 0) {
-                return;
-            }
-            if (self.props.drawInfo.isInited || isClicked) {
-                _completeDraw();
-            }
-        });
-
-        board.addEventListener('mouseleave',function(){
-            if (self.props.drawInfo.isInited || isClicked) {
-                _completeDraw();
-            }
-        });
 
         // get drawInfo
         if (this.props.drawInfo.boardNums > 0) {
@@ -331,6 +233,94 @@ module.exports = React.createClass({
         };
     },
 
+    _startToDraw: function(e) {
+        var board = React.findDOMNode(this.refs.mainCanvas);
+        if (this.props.drawInfo.boardNums === 0 || e.button !== 0 || IsDrawClicked) {
+            return;
+        }
+        // 0: left click, 1: middle click, 2: right click
+        IsDrawClicked = true;
+        prev = this._getCanvasMouse(e);
+        this.executeAction(InitToDraw, {
+            channelId: this.props.channelId,
+            boardId: this.props.boardId,
+        });
+        this.getStore(DrawTempStore).cleanLocalTemp({
+            channelId: this.props.channelId,
+            boardId: this.props.boardId,
+        });
+        board.onmousemove = this._drawing;
+    },
+
+    _stopToDraw: function() {
+        var board = React.findDOMNode(this.refs.mainCanvas);
+        board.onmousemove = null;
+        if (IsDrawClicked) {
+            var drawTempStore = this.getStore(DrawTempStore);
+            var localDraws = drawTempStore.getLocalDraws(this.props.channelId, this.props.boardId);
+            drawTempStore.cleanLocalTemp({
+                channelId: this.props.channelId,
+                boardId: this.props.boardId,                
+            });
+            if (localDraws.length > 0) {
+                this.executeAction(SaveDrawRecord, {
+                    channelId: this.props.channelId,
+                    boardId: this.props.boardId,
+                    localDraws: localDraws,
+                    drawOptions: this.props.drawInfo.drawOptions
+                });
+            } else {
+                // means user draw at the same position, so trigger different action
+                this.executeAction(SaveSingleDraw, {
+                    channelId: this.props.channelId,
+                    boardId: this.props.boardId,
+                    chunks: {
+                        fromX: prev.x,
+                        fromY: prev.y,
+                        toX: prev.x + 0.1,
+                        toY: prev.y + 0.1
+                    },
+                    drawOptions: this.props.drawInfo.drawOptions
+                });
+            }
+            clearTimeout(DelayTimer);
+            DelayTimer = setTimeout(function(){
+                IsDrawClicked = false;
+                DelayTimer = null;
+            }, 100);
+        }
+    },
+
+    _drawing: function(e) {
+        if (!IsDrawClicked || DelayTimer) {
+            return;
+        }
+        var tempStore = this.getStore(DrawTempStore);
+        var cid = this.props.channelId;
+        var bid = this.props.boardId;
+        var localDraws = tempStore.getLocalDraws(cid, bid);
+        if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
+            return this._stopToDraw();
+        }
+        var position = this._getCanvasMouse(e);
+        var data = {
+            channelId: this.props.channelId,
+            boardId: this.props.boardId,
+            chunks: {
+                fromX: prev.x,
+                fromY: prev.y,
+                toX: position.x,
+                toY: position.y
+            },
+            drawOptions: this.props.drawInfo.drawOptions,
+            clientId: 'local'
+        };
+        tempStore.saveDrawChange(data);
+        // trigger the drawing action
+        this.executeAction(Drawing, data);
+        prev = position;
+    },
+
     render: function() {
         // 50 is the height of drawing toolbar
         var DrawAreaStyle = {
@@ -340,7 +330,13 @@ module.exports = React.createClass({
         };
         return (
             <div className="DrawingArea" style={DrawAreaStyle} >
-                <canvas width={this.props.width} height={this.props.height} ref="mainCanvas" id="DrawBoard"></canvas>
+                <canvas ref="mainCanvas" 
+                    id="DrawBoard"
+                    width={this.props.width} 
+                    height={this.props.height} 
+                    onMouseDown={this._startToDraw}
+                    onMouseLeave={this._stopToDraw}
+                    onMouseUp={this._stopToDraw}></canvas>
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}

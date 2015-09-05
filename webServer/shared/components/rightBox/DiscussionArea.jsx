@@ -308,8 +308,12 @@ var MessageList = React.createClass({
             height: this.props.isShown ? 350 : 0,
             backgroundColor: '#FFF'
         }
-        var messages = this.props.data.map( function( message ){
-            return <Message key={message.sentTime} data={message} />;
+        var msgKey;
+        var messages = this.props.data.map( function(item){
+            msgKey = item.message  + item.from + item.sentTime;
+            return (
+                <Message key={msgKey} data={item} />
+            );
         });
         return (
             <div className="MsgContainer"

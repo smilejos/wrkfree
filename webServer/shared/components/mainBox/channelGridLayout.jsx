@@ -23,11 +23,11 @@ var ChannelGridItem = require('./channelGridItem.jsx');
  */
 module.exports = React.createClass({
     render: function(){
-        var listContent = SharedUtils.fastArrayMap(this.props.channels, function(item, index){
+        var listContent = SharedUtils.fastArrayMap(this.props.channels, function(item){
             return (
-                <div key={index}>
-                    <ChannelGridItem channelInfo={item} />
-                </div>
+                <ChannelGridItem 
+                    key={item.channelId}
+                    channelInfo={item} />
             );
         });
         return (

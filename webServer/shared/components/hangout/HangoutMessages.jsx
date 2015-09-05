@@ -177,12 +177,13 @@ module.exports = React.createClass({
             'top': (this.props.hasConference ? this.props.conferenceHeight : 0),
             'height': (this.props.hasConference ? 125 : this.props.messagesHeight),
         };
-        var tmpDate = null;
+        var tmpDate, msgKey;
         var list = SharedUtils.fastArrayMap(this.state.messages, function(msgItem){
+            msgKey = msgItem.message + msgItem.from + msgItem.sentTime;
             if( tmpDate && SharedUtils.isSameDate(tmpDate, new Date(msgItem.sentTime))) {
                 return (
                     <HangoutMsg
-                        key={msgItem.sentTime}
+                        key={msgKey}
                         avatar={selfUid === msgItem.from ? '' : msgItem.avatar}
                         content={msgItem.message}
                         sentTime={msgItem.sentTime} />
