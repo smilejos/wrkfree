@@ -1,6 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var DrawService = require('../../services/drawService');
 var ActionUtils = require('../actionUtils');
 var GetDrawBoard = require('./getDrawBoard');
@@ -16,7 +17,7 @@ var SAVE_DRAW_TIMEOUT_IN_MSECOND = 3000;
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
  * @param {Number}      data.boardId, target board id
- * @param {Number}      data.localDraws, an array of draw chunks
+ * @param {Number}      data.record, an array of draw chunks
  * @param {Object}      data.drawOptions, the draw related options
  */
 module.exports = function(actionContext, data) {
@@ -27,7 +28,7 @@ module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        record: SharedUtils.argsCheckAsync(data.localDraws, 'array'),
+        record: DrawUtils.checkDrawRecordAsync(data.record),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         isUpdated: true
     }).then(function(reqData){
@@ -37,6 +38,7 @@ module.exports = function(actionContext, data) {
                     throw new Error('save draw record fail');
                 }
                 IsTriggered = false;
+                reqData.drawOptions = _cloneOptions(reqData.drawOptions);
                 return actionContext.dispatch('ON_RECORD_SAVE', reqData);
             }).catch(function() {
                 // TODO: should publish all members to reload current board ?

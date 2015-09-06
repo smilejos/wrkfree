@@ -231,13 +231,12 @@ module.exports = React.createClass({
     },
 
     _stopToDraw: function(isMouseLeft) {
-        var record = LocalDraws.toArray();
         var board = React.findDOMNode(this.refs.mainCanvas);
         var ctx = _getDrawBoardCtx();
-        var reqData = {
+        var data = {
             channelId: this.props.channelId,
             boardId: this.props.boardId,
-            localDraws: record,
+            record: LocalDraws.toArray(),
             drawOptions: this.props.drawInfo.drawOptions
         };
         var endPoint = {
@@ -249,11 +248,11 @@ module.exports = React.createClass({
         board.onmousemove = null;
         LocalDraws.clear();
 
-        if (record.length > 0) {
-            this.executeAction(SaveDrawRecord, reqData);
+        if (data.record.length > 0) {
+            this.executeAction(SaveDrawRecord, data);
         } else if (!isMouseLeft) {
-            reqData.localDraws = [endPoint];
-            this.executeAction(SaveDrawRecord, reqData);
+            data.record = [endPoint];
+            this.executeAction(SaveDrawRecord, data);
             DrawUtils.draw(ctx, endPoint, this.props.drawInfo.drawOptions);
         }
     },

@@ -62,7 +62,7 @@ exports.saveRecordAsync = function(socket, data) {
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(data.record, 'array'),
+        DrawUtils.checkDrawRecordAsync(data.record),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         function(cid, bid, record, drawOptions) {
             return DrawStorage.saveRecordAsync(cid, bid, record, drawOptions);

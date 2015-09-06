@@ -1,6 +1,7 @@
 'use strict';
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
+var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var ActionUtils = require('../actionUtils');
 var DrawTempStore = require('../../../shared/stores/DrawTempStore');
 var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
@@ -29,7 +30,7 @@ module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        record: SharedUtils.argsCheckAsync(data.record, 'array'),
+        record: DrawUtils.checkDrawRecordAsync(data.record),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         isUpdated: SharedUtils.argsCheckAsync(data.isUpdated, 'boolean')
     }).then(function(recvData) {
