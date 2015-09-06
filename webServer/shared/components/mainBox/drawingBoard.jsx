@@ -85,17 +85,14 @@ module.exports = React.createClass({
                 boardId: nextProps.boardId
             });
         }
-        /**
-         * auto change cursor when props change
-         */
-        _changeBoardWheel(this.props.drawInfo.drawOptions);
+        this._changeCursor();
     },
 
     componentDidUpdate: function(prevProps) {
         // this means canvas has resized, and we also need to change the scale
         if (prevProps.width !== this.props.width) {
-            _getDrawBoardCtx().scale(this.props.width/BOARD_WIDTH, this.props.height/BOARD_HEIGHT);
-            _changeBoardWheel(this.props.drawInfo.drawOptions);
+            this._getBoardContext().scale(this.props.width/BOARD_WIDTH, this.props.height/BOARD_HEIGHT);
+            this._changeCursor();
             this.executeAction(GetDrawBoard, {
                 channelId: this.props.channelId,
                 boardId: this.props.boardId
@@ -121,11 +118,6 @@ module.exports = React.createClass({
         canvas.height = BOARD_HEIGHT;
         this.state.canvas = canvas;
         this.state.image = document.createElement('img');
-
-        /**
-         * first time init for mouse cursor
-         */
-        _changeBoardWheel(this.props.drawInfo.drawOptions);
     },
 
     /**
@@ -134,7 +126,7 @@ module.exports = React.createClass({
      *         NOTE: drawStore save completed draw record documents
      */
     onDrawBoardChange: function(){
-        var canvas = document.getElementById('DrawBoard');
+        var canvas = React.findDOMNode(this.refs.mainCanvas);
         var cid = this.props.channelId;
         var bid = this.props.boardId;
         var self = this;
@@ -156,7 +148,7 @@ module.exports = React.createClass({
      *         NOTE: draw temp store save realtime draw chunks
      */
     onTempDrawChange: function(){
-        var ctx = _getDrawBoardCtx();
+        var ctx = this._getBoardContext();
         var tempRecord = this.getStore(DrawTempStore).getDraws();
         var draws = tempRecord.pop();
         while (draws) {
@@ -204,6 +196,15 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
+     * @Description: for getting draw board 2d context
+     */
+    _getBoardContext: function() {
+        var board = React.findDOMNode(this.refs.mainCanvas);
+        return board.getContext('2d');
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: for getting mouse position on canvas
      * 
      * @param {Object}       canvasEvent, canvas event object
@@ -232,7 +233,7 @@ module.exports = React.createClass({
 
     _stopToDraw: function(isMouseLeft) {
         var board = React.findDOMNode(this.refs.mainCanvas);
-        var ctx = _getDrawBoardCtx();
+        var ctx = this._getBoardContext();
         var data = {
             channelId: this.props.channelId,
             boardId: this.props.boardId,
@@ -257,6 +258,34 @@ module.exports = React.createClass({
         }
     },
 
+    /**
+     * @Author: Jos Tung
+     * @Description: auto change the mouse cursor to fit current pen color
+     */
+    _changeCursor: function() {
+        var board = React.findDOMNode(this.refs.mainCanvas);
+        var cursorGenerator = document.createElement('canvas');
+        var options = this.props.drawInfo.drawOptions;
+        var currentRatio = this.props.width / BOARD_WIDTH;
+        var ctx = cursorGenerator.getContext('2d');
+        cursorGenerator.width = options.lineWidth * currentRatio;
+        cursorGenerator.height = options.lineWidth * currentRatio;
+        var centerX = cursorGenerator.width / 2;
+        var centerY = cursorGenerator.height / 2;
+        var arcRadius = (options.mode == "pen" ? options.lineWidth / 2 : options.lineWidth / 2 - 1.5) * currentRatio;
+
+        ctx.globalAlpha = options.mode == "pen" ? 1 : 0.2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, arcRadius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = options.strokeStyle;
+        ctx.fill();
+        /**
+         * this is temp workaround for draw cursor not update its color
+         */
+        board.style.cursor = '';
+        board.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + centerX + ' ' + centerY + ',crosshair';
+    },
+
     _drawing: function(e) {
         if (LocalDraws && LocalDraws.length >= ACTIVED_DRAWS_LIMIT) {
             return this._stopToDraw();
@@ -264,7 +293,7 @@ module.exports = React.createClass({
         var cid = this.props.channelId;
         var bid = this.props.boardId;        
         var position = this._getCanvasMouse(e);
-        var ctx = _getDrawBoardCtx();
+        var ctx = this._getBoardContext();
         var data = {
             channelId: cid,
             boardId: bid,
@@ -292,12 +321,11 @@ module.exports = React.createClass({
         var DrawAreaStyle = {
             width : this.props.width,
             height: this.props.height + 50,
-            marginLeft: -1 * (this.props.width / 2)
+            marginLeft: -1 * (this.props.width / 2),
         };
         return (
             <div className="DrawingArea" style={DrawAreaStyle} >
                 <canvas ref="mainCanvas" 
-                    id="DrawBoard"
                     width={this.props.width} 
                     height={this.props.height} 
                     onMouseDown={this._startToDraw}
@@ -314,39 +342,3 @@ module.exports = React.createClass({
         );
     }
 });
-
-/**
- * @Author: Jos Tung
- * @Description: auto change the mouse cursor to fit current pen color
- */
-function _changeBoardWheel(drawOptions) {
-    var drawingBoard = document.getElementById('DrawBoard');
-    var cursorGenerator = document.createElement('canvas');
-    var currentRatio = drawingBoard.width / BOARD_WIDTH;
-    cursorGenerator.width = drawOptions.lineWidth * currentRatio;
-    cursorGenerator.height = drawOptions.lineWidth * currentRatio;
-
-    var ctx = cursorGenerator.getContext('2d');
-    var centerX = cursorGenerator.width/2;
-    var centerY = cursorGenerator.height/2;
-    var arcRadius = (drawOptions.mode == "pen" ? drawOptions.lineWidth/2 : drawOptions.lineWidth/2 - 1.5) * currentRatio;
-    ctx.globalAlpha = drawOptions.mode == "pen" ? 1 : 0.2;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, arcRadius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = drawOptions.strokeStyle;
-    ctx.fill();
-
-    /**
-     * this is temp workaround for draw cursor not update its color
-     */
-    drawingBoard.style.cursor = '';
-    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + centerX + ' ' + centerY + ',crosshair';
-}
-
-/**
- * @Author: George_Chen
- * @Description: for getting draw board 2d context
- */
-function _getDrawBoardCtx(){
-    return document.getElementById("DrawBoard").getContext('2d');
-}
