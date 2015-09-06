@@ -1,6 +1,5 @@
 'use strict';
 var Promise = require('bluebird');
-var Deque = require('double-ended-queue');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var DrawStorage = StorageManager.getService('Draw');
@@ -8,38 +7,6 @@ var DrawWorker = require('../services/drawWorker');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
 var LogUtils = require('../../../sharedUtils/logUtils');
 var LogCategory = 'HANDLER';
-
-var DEFAULT_TEMP_DRAWS_LENGTH = 200;
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: for client to init his draw stream before drawing
- * 
- * @param {Object}          socket, the client socket instance
- * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
- */
-exports.initToDrawAsync = function(socket, data) {
-    LogUtils.info(LogCategory, {
-        uid: socket.getAuthToken()
-    }, '[' + socket.id + '] initToDrawAsync ... ');
-    return Promise.join(
-        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        function(cid, bid) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            data.clientId = socket.id;
-            _clearTempDraws(socket, drawId);
-            return true;
-        }).catch(function(err) {
-            LogUtils.warn(LogCategory, {
-                reqData: data,
-                error: err.toString()
-            }, '[' + socket.id + '] fail on initToDrawAsync');
-            throw err;
-        });
-};
 
 /**
  * Public API
@@ -122,51 +89,6 @@ exports.saveRecordAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: for user to save record when drawing on the same point
- *
- * @param {Object}          socket, the client socket instance
- * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
- * @param {Array}           data.chunks, the raw chunks of current drawing
- * @param {Object}          data.drawOptions, the draw options for this record
- */
-exports.saveSingleDrawAsync = function(socket, data) {
-    var uid = socket.getAuthToken();
-    LogUtils.info(LogCategory, {
-        uid: uid,
-        channelId: data.channelId,
-        boardId: data.boardId
-    }, '[' + socket.id + '] save single draw point record... ');
-    return Promise.join(
-        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        DrawUtils.checkDrawChunksAsync(data.chunks),
-        SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
-        function(cid, bid, chunks, drawOptions) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            _clearTempDraws(socket, drawId);
-            return DrawStorage.saveSingleDrawAsync(cid, bid, chunks, drawOptions);
-        }).then(function(result) {
-            if (result === null) {
-                throw new Error('fail to save single draw on storage service');
-            }
-            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
-            return result;
-        }).catch(function(err) {
-            LogUtils.warn(LogCategory, {
-                reqData: data,
-                error: err.toString()
-            }, '[' + socket.id + '] fail on saveSingleDrawAsync');
-            if (data.channelId && data.boardId) {
-                _publishDrawFail(socket, data.channelId, data.boardId, 'save singleDraw fail');
-            }
-            throw err;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: user can use this function to generate a clean board draw record
  *               on current board, then board will be cleaned at same time
  * @param {Object}          socket, the client socket instance
@@ -185,8 +107,6 @@ exports.cleanDrawBoardAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            _clearTempDraws(socket, drawId);
             return DrawStorage.cleanBoardAsync(cid, bid);
         }).then(function(result) {
             if (result === null) {
@@ -259,8 +179,6 @@ exports.drawUndoAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            _clearTempDraws(socket, drawId);
             return DrawStorage.undoRecordAsync(cid, bid, uid);
         }).then(function(result) {
             if (result === null) {
@@ -300,8 +218,6 @@ exports.drawRedoAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            _clearTempDraws(socket, drawId);
             return DrawStorage.restoreUndoAsync(cid, bid, uid);
         }).then(function(result) {
             if (result === null) {
@@ -343,8 +259,6 @@ exports.getDrawBoardAsync = function(socket, data) {
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            _clearTempDraws(socket, drawId);
             return DrawStorage.getBoardInfoAsync(cid, bid, uid);
         }).then(function(resource) {
             if (!resource) {
@@ -394,24 +308,6 @@ exports.getLatestBoardIdAsync = function(socket, data) {
             throw err;
         });
 };
-
-/**
- * @Author: George_Chen
- * @Description: for user to clear his temp draws on current drawingBoard
- *       
- * @param {Object}          socket, the client socket instance
- * @param {String}          drawId, the drawing id
- */
-function _clearTempDraws(socket, drawId) {
-    if (!socket.drawTemp) {
-        socket.drawTemp = {};
-    }
-    if (!socket.drawTemp[drawId]) {
-        socket.drawTemp[drawId] = new Deque(DEFAULT_TEMP_DRAWS_LENGTH);
-    } else {
-        socket.drawTemp[drawId].clear();
-    }
-}
 
 /**
  * @Author: George_Chen
