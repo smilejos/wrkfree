@@ -19,7 +19,6 @@ module.exports = function(actionContext, data) {
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number')
     }).then(function(reqData) {
-        actionContext.dispatch('CLEAN_LOCAL_DRAW', reqData);
         return DrawService.cleanDrawBoardAsync(reqData);
     }).then(function(result) {
         if (!result) {

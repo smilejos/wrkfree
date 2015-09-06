@@ -21,20 +21,17 @@ module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'number'),
-        clientId: SharedUtils.argsCheckAsync(data.clientId, 'string'),
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
-    }).then(function(recvdData) {
+    }).then(function(recvData) {
         var tempStore = actionContext.getStore(DrawTempStore);
         var workspaceStore = actionContext.getStore(WorkSpaceStore);
         var state = workspaceStore.getState();
         var cid = state.channel.channelId;
         var bid = state.draw.currentBoardId;
         if (cid === data.channelId && bid === data.boardId) {
-            return tempStore.saveDrawChange(recvdData);
+            return tempStore.saveRemoteDraws(recvData);
         }
-        // client and remote drawer use different board, so just send receive event
-        return actionContext.dispatch('ON_DRAW_RECEIVE', recvdData);
     }).catch(function(err) {
         SharedUtils.printError('onDrawing.js', 'core', err);
         ActionUtils.showErrorEvent('Drawing', 'remote drawing abnormal');

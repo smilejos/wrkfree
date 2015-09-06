@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var FluxibleMixin = require('fluxible/addons/FluxibleMixin'); 
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
+var Deque = require('double-ended-queue');
 
 /**
  * load configs
@@ -21,12 +22,10 @@ if (!SharedUtils.isNumber(BOARD_WIDTH) ||
 /**
  * actions
  */
-var InitToDraw = require('../../../client/actions/draw/initToDraw');
 var Drawing = require('../../../client/actions/draw/drawing');
 var SaveDrawRecord = require('../../../client/actions/draw/saveDrawRecord');
 var GetDrawBoard = require('../../../client/actions/draw/getDrawBoard');
 var UpdateBaseImage = require('../../../client/actions/draw/updateBaseImage');
-var SaveSingleDraw = require('../../../client/actions/draw/saveSingleDraw');
 
 /**
  * stores
@@ -42,8 +41,8 @@ var DrawingToolBar = require('./drawingToolBar.jsx');
 
 var prev = {};
 
-var IsDrawClicked = false;
-var DelayTimer = null;
+var DEFAULT_TEMP_DRAWS_LENGTH = 200;
+var LocalDraws = new Deque(DEFAULT_TEMP_DRAWS_LENGTH);
 
 /**
  * the drawingBoard.jsx is the drawing board
@@ -81,28 +80,19 @@ module.exports = React.createClass({
             return;
         }
         if (isChannelChange || isBoardChange) {
-            context.executeAction(InitToDraw, {
-                channelId: prevCid,
-                boardId: prevBid,
-                isInited: false            
-            }).then(function(){
-                context.executeAction(GetDrawBoard, {
-                    channelId: nextProps.channelId,
-                    boardId: nextProps.boardId
-                });
+            context.executeAction(GetDrawBoard, {
+                channelId: nextProps.channelId,
+                boardId: nextProps.boardId
             });
         }
-        /**
-         * auto change cursor when props change
-         */
-        _changeBoardWheel(this.props.drawInfo.drawOptions);
+        this._changeCursor();
     },
 
     componentDidUpdate: function(prevProps) {
         // this means canvas has resized, and we also need to change the scale
         if (prevProps.width !== this.props.width) {
-            _getDrawBoardCtx().scale(this.props.width/BOARD_WIDTH, this.props.height/BOARD_HEIGHT);
-            _changeBoardWheel(this.props.drawInfo.drawOptions);
+            this._getBoardContext().scale(this.props.width/BOARD_WIDTH, this.props.height/BOARD_HEIGHT);
+            this._changeCursor();
             this.executeAction(GetDrawBoard, {
                 channelId: this.props.channelId,
                 boardId: this.props.boardId
@@ -128,19 +118,6 @@ module.exports = React.createClass({
         canvas.height = BOARD_HEIGHT;
         this.state.canvas = canvas;
         this.state.image = document.createElement('img');
-
-        /**
-         * first time init for mouse cursor
-         */
-        _changeBoardWheel(this.props.drawInfo.drawOptions);
-
-        // get drawInfo
-        if (this.props.drawInfo.boardNums > 0) {
-            this.executeAction(GetDrawBoard, {
-                channelId: this.props.channelId,
-                boardId: this.props.boardId
-            });
-        }
     },
 
     /**
@@ -149,7 +126,7 @@ module.exports = React.createClass({
      *         NOTE: drawStore save completed draw record documents
      */
     onDrawBoardChange: function(){
-        var canvas = document.getElementById('DrawBoard');
+        var canvas = React.findDOMNode(this.refs.mainCanvas);
         var cid = this.props.channelId;
         var bid = this.props.boardId;
         var self = this;
@@ -171,11 +148,13 @@ module.exports = React.createClass({
      *         NOTE: draw temp store save realtime draw chunks
      */
     onTempDrawChange: function(){
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;
-        var ctx = _getDrawBoardCtx();
-        var rawData = this.getStore(DrawTempStore).getLastDraw(cid, bid);
-        DrawUtils.draw(ctx, rawData.chunks, rawData.drawOptions);
+        var ctx = this._getBoardContext();
+        var tempRecord = this.getStore(DrawTempStore).getDraws();
+        var draws = tempRecord.pop();
+        while (draws) {
+            DrawUtils.draw(ctx, draws.chunks, draws.drawOptions);
+            draws = tempRecord.pop();
+        }
     },
 
     /**
@@ -217,6 +196,15 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
+     * @Description: for getting draw board 2d context
+     */
+    _getBoardContext: function() {
+        var board = React.findDOMNode(this.refs.mainCanvas);
+        return board.getContext('2d');
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: for getting mouse position on canvas
      * 
      * @param {Object}       canvasEvent, canvas event object
@@ -235,87 +223,94 @@ module.exports = React.createClass({
 
     _startToDraw: function(e) {
         var board = React.findDOMNode(this.refs.mainCanvas);
-        if (this.props.drawInfo.boardNums === 0 || e.button !== 0 || IsDrawClicked) {
+        // 0: left click, 1: middle click, 2: right click
+        if (this.props.drawInfo.boardNums === 0 || e.button !== 0) {
             return;
         }
-        // 0: left click, 1: middle click, 2: right click
-        IsDrawClicked = true;
         prev = this._getCanvasMouse(e);
-        this.executeAction(InitToDraw, {
-            channelId: this.props.channelId,
-            boardId: this.props.boardId,
-        });
-        this.getStore(DrawTempStore).cleanLocalTemp({
-            channelId: this.props.channelId,
-            boardId: this.props.boardId,
-        });
         board.onmousemove = this._drawing;
     },
 
-    _stopToDraw: function() {
+    _stopToDraw: function(isMouseLeft) {
         var board = React.findDOMNode(this.refs.mainCanvas);
-        board.onmousemove = null;
-        if (IsDrawClicked) {
-            var drawTempStore = this.getStore(DrawTempStore);
-            var localDraws = drawTempStore.getLocalDraws(this.props.channelId, this.props.boardId);
-            drawTempStore.cleanLocalTemp({
-                channelId: this.props.channelId,
-                boardId: this.props.boardId,                
-            });
-            if (localDraws.length > 0) {
-                this.executeAction(SaveDrawRecord, {
-                    channelId: this.props.channelId,
-                    boardId: this.props.boardId,
-                    localDraws: localDraws,
-                    drawOptions: this.props.drawInfo.drawOptions
-                });
-            } else {
-                // means user draw at the same position, so trigger different action
-                this.executeAction(SaveSingleDraw, {
-                    channelId: this.props.channelId,
-                    boardId: this.props.boardId,
-                    chunks: {
-                        fromX: prev.x,
-                        fromY: prev.y,
-                        toX: prev.x + 0.1,
-                        toY: prev.y + 0.1
-                    },
-                    drawOptions: this.props.drawInfo.drawOptions
-                });
-            }
-            clearTimeout(DelayTimer);
-            DelayTimer = setTimeout(function(){
-                IsDrawClicked = false;
-                DelayTimer = null;
-            }, 100);
-        }
-    },
-
-    _drawing: function(e) {
-        if (!IsDrawClicked || DelayTimer) {
-            return;
-        }
-        var tempStore = this.getStore(DrawTempStore);
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;
-        var localDraws = tempStore.getLocalDraws(cid, bid);
-        if (localDraws && localDraws.length >= ACTIVED_DRAWS_LIMIT) {
-            return this._stopToDraw();
-        }
-        var position = this._getCanvasMouse(e);
+        var ctx = this._getBoardContext();
         var data = {
             channelId: this.props.channelId,
             boardId: this.props.boardId,
+            record: LocalDraws.toArray(),
+            drawOptions: this.props.drawInfo.drawOptions
+        };
+        var endPoint = {
+            fromX: prev.x,
+            fromY: prev.y,
+            toX: prev.x + 0.1,
+            toY: prev.y + 0.1
+        };
+        board.onmousemove = null;
+        LocalDraws.clear();
+
+        if (data.record.length > 0) {
+            this.executeAction(SaveDrawRecord, data);
+        } else if (!isMouseLeft) {
+            data.record = [endPoint];
+            this.executeAction(SaveDrawRecord, data);
+            DrawUtils.draw(ctx, endPoint, this.props.drawInfo.drawOptions);
+        }
+    },
+
+    /**
+     * @Author: Jos Tung
+     * @Description: auto change the mouse cursor to fit current pen color
+     */
+    _changeCursor: function() {
+        var board = React.findDOMNode(this.refs.mainCanvas);
+        var cursorGenerator = document.createElement('canvas');
+        var options = this.props.drawInfo.drawOptions;
+        var currentRatio = this.props.width / BOARD_WIDTH;
+        var ctx = cursorGenerator.getContext('2d');
+        cursorGenerator.width = options.lineWidth * currentRatio;
+        cursorGenerator.height = options.lineWidth * currentRatio;
+        var centerX = cursorGenerator.width / 2;
+        var centerY = cursorGenerator.height / 2;
+        var arcRadius = (options.mode == "pen" ? options.lineWidth / 2 : options.lineWidth / 2 - 1.5) * currentRatio;
+
+        ctx.globalAlpha = options.mode == "pen" ? 1 : 0.2;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, arcRadius, 0, 2 * Math.PI, false);
+        ctx.fillStyle = options.strokeStyle;
+        ctx.fill();
+        /**
+         * this is temp workaround for draw cursor not update its color
+         */
+        board.style.cursor = '';
+        board.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + centerX + ' ' + centerY + ',crosshair';
+    },
+
+    _drawing: function(e) {
+        if (LocalDraws && LocalDraws.length >= ACTIVED_DRAWS_LIMIT) {
+            return this._stopToDraw();
+        }
+        var cid = this.props.channelId;
+        var bid = this.props.boardId;        
+        var position = this._getCanvasMouse(e);
+        var ctx = this._getBoardContext();
+        var data = {
+            channelId: cid,
+            boardId: bid,
             chunks: {
                 fromX: prev.x,
                 fromY: prev.y,
                 toX: position.x,
                 toY: position.y
             },
-            drawOptions: this.props.drawInfo.drawOptions,
-            clientId: 'local'
+            drawOptions: this.props.drawInfo.drawOptions
         };
-        tempStore.saveDrawChange(data);
+        // draw on canvas
+        DrawUtils.draw(ctx, data.chunks, data.drawOptions);
+
+        // save to local draws
+        LocalDraws.push(data.chunks);
+
         // trigger the drawing action
         this.executeAction(Drawing, data);
         prev = position;
@@ -326,17 +321,16 @@ module.exports = React.createClass({
         var DrawAreaStyle = {
             width : this.props.width,
             height: this.props.height + 50,
-            marginLeft: -1 * (this.props.width / 2)
+            marginLeft: -1 * (this.props.width / 2),
         };
         return (
             <div className="DrawingArea" style={DrawAreaStyle} >
                 <canvas ref="mainCanvas" 
-                    id="DrawBoard"
                     width={this.props.width} 
                     height={this.props.height} 
                     onMouseDown={this._startToDraw}
-                    onMouseLeave={this._stopToDraw}
-                    onMouseUp={this._stopToDraw}></canvas>
+                    onMouseLeave={this._stopToDraw.bind(this, true)}
+                    onMouseUp={this._stopToDraw.bind(this, false)} />
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
@@ -348,39 +342,3 @@ module.exports = React.createClass({
         );
     }
 });
-
-/**
- * @Author: Jos Tung
- * @Description: auto change the mouse cursor to fit current pen color
- */
-function _changeBoardWheel(drawOptions) {
-    var drawingBoard = document.getElementById('DrawBoard');
-    var cursorGenerator = document.createElement('canvas');
-    var currentRatio = drawingBoard.width / BOARD_WIDTH;
-    cursorGenerator.width = drawOptions.lineWidth * currentRatio;
-    cursorGenerator.height = drawOptions.lineWidth * currentRatio;
-
-    var ctx = cursorGenerator.getContext('2d');
-    var centerX = cursorGenerator.width/2;
-    var centerY = cursorGenerator.height/2;
-    var arcRadius = (drawOptions.mode == "pen" ? drawOptions.lineWidth/2 : drawOptions.lineWidth/2 - 1.5) * currentRatio;
-    ctx.globalAlpha = drawOptions.mode == "pen" ? 1 : 0.2;
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, arcRadius, 0, 2 * Math.PI, false);
-    ctx.fillStyle = drawOptions.strokeStyle;
-    ctx.fill();
-
-    /**
-     * this is temp workaround for draw cursor not update its color
-     */
-    drawingBoard.style.cursor = '';
-    drawingBoard.style.cursor = 'url(' + cursorGenerator.toDataURL() + ') ' + centerX + ' ' + centerY + ',crosshair';
-}
-
-/**
- * @Author: George_Chen
- * @Description: for getting draw board 2d context
- */
-function _getDrawBoardCtx(){
-    return document.getElementById("DrawBoard").getContext('2d');
-}

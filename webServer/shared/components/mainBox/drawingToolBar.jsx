@@ -44,22 +44,17 @@ module.exports = React.createClass({
      */
     _onDrawing: function() {
         var self = this;
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;
-        var lastDraw = this.getStore(DrawTempStore).getLastDraw(cid, bid);
-        if (lastDraw) {
-            if (!this.state.isDrawing) {
-                self.setState({
-                    isDrawing: true
-                });
-            }
-            clearTimeout(DisableDraw);
-            DisableDraw = setTimeout(function() {
-                self.setState({
-                    isDrawing: false
-                });
-            }, DRAWING_TIMEOUT_IN_MSECOND)
+        if (!this.state.isDrawing) {
+            self.setState({
+                isDrawing: true
+            });
         }
+        clearTimeout(DisableDraw);
+        DisableDraw = setTimeout(function() {
+            self.setState({
+                isDrawing: false
+            });
+        }, DRAWING_TIMEOUT_IN_MSECOND);
     },
 
     getInitialState: function() {

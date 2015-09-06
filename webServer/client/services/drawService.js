@@ -4,26 +4,17 @@ var SocketManager = require('./socketManager');
 var SocketUtils = require('./socketUtils');
 var OnDrawing = require('../actions/draw/onDrawing');
 var OnSaveDrawRecord = require('../actions/draw/onSaveDrawRecord');
-var OnSaveSingleDraw = require('../actions/draw/onSaveSingleDraw');
 var OnCleanDrawBoard = require('../actions/draw/onCleanDrawBoard');
 var OnDrawUndo = require('../actions/draw/onDrawUndo');
 var OnDrawRedo = require('../actions/draw/onDrawRedo');
 var OnAddDrawBoard = require('../actions/draw/onAddDrawBoard');
 var OnPreviewUpdated = require('../actions/draw/onPreviewUpdated');
-var OnRemoteDrawInit = require('../actions/draw/onRemoteDrawInit');
 
 /**
  * handler for handling event that draw board preview updated
  */
 exports.onPreviewUpdated = function(data) {
     return SocketUtils.execAction(OnPreviewUpdated, data, 'onPreviewUpdated');
-};
-
-/**
- * handler for handling event that remote client is about to drawing
- */
-exports.onRemoteDrawInit = function(data) {
-    return SocketUtils.execAction(OnRemoteDrawInit, data, 'onRemoteDrawInit');
 };
 
 /**
@@ -66,43 +57,6 @@ exports.onDrawRedo = function(data) {
  */
 exports.onCleanDrawBoard = function(data) {
     return SocketUtils.execAction(OnCleanDrawBoard, data, 'onCleanDrawBoard');
-};
-
-/**
- * handler for handling remote drawer save single draw recrod
- */
-exports.onSaveSingleDraw = function(data) {
-    return SocketUtils.execAction(OnSaveSingleDraw, data, 'onSaveSingleDraw');
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: publish the single draw and save as a record
- *       
- * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
- * @param {Array}           data.chunks, the raw chunks of current drawing
- * @param {Object}          data.drawOptions, the draw options for this record
- */
-exports.saveSingleDrawAsync = function(data) {
-    var channel = SocketUtils.setChannelReq(data.channelId);
-    var packet = _setPacket('saveSingleDrawAsync', 'onSaveSingleDraw', data);
-    return _publish(channel, packet, 'saveSingleDrawAsync');
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: inform server that current client are ready to draw
- *       
- * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
- */
-exports.initToDrawAsync = function(data) {
-    var channel = SocketUtils.setChannelReq(data.channelId);
-    var packet = _setPacket('initToDrawAsync', 'onRemoteDrawInit', data);
-    return _publish(channel, packet, 'initToDrawAsync');
 };
 
 /**
