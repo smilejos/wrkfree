@@ -31,26 +31,27 @@ module.exports = function(actionContext, data) {
         record: DrawUtils.checkDrawRecordAsync(data.record),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         isUpdated: true
-    }).then(function(reqData){
+    }).then(function(reqData) {
         return DrawService.saveRecordAsync(reqData)
-            .timeout(SAVE_DRAW_TIMEOUT_IN_MSECOND).then(function(result) {
-                if (result === null) {
+            .timeout(SAVE_DRAW_TIMEOUT_IN_MSECOND)
+            .catch(function() {
+                ActionUtils.showWarningEvent('WARN', 'server response timeout');
+                IsTriggered = false;
+                actionContext.dispatch('ON_BOARD_CLEAN', data);
+                actionContext.executeAction(GetDrawBoard, data);
+            }).then(function(result) {
+                if (!result) {
                     throw new Error('save draw record fail');
                 }
                 IsTriggered = false;
                 reqData.drawOptions = _cloneOptions(reqData.drawOptions);
                 return actionContext.dispatch('ON_RECORD_SAVE', reqData);
-            }).catch(function() {
-                // TODO: should publish all members to reload current board ?
-                ActionUtils.showWarningEvent('WARN', 'server response timeout');
-                IsTriggered = false;
-                actionContext.dispatch('ON_BOARD_CLEAN', data);
-                actionContext.executeAction(GetDrawBoard, data);
             });
     }).catch(function(err) {
         IsTriggered = false;
         SharedUtils.printError('saveDrawRecord.js', 'core', err);
         ActionUtils.showWarningEvent('WARN', 'save draw fail');
+        actionContext.dispatch('CLEAN_FAILURE_DRAW');
     });
 };
 

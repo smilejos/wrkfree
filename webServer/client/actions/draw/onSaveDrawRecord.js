@@ -52,6 +52,7 @@ module.exports = function(actionContext, data) {
         SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
         var reason = data.reason || 'save draw fail !';
         ActionUtils.showWarningEvent('WARN', 'remote ' + reason);
+        actionContext.dispatch('CLEAN_FAILURE_DRAW');
     });
 };
 

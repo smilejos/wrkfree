@@ -79,7 +79,7 @@ exports.saveRecordAsync = function(socket, data) {
                 error: err.toString()
             }, '[' + socket.id + '] fail on saveRecordAsync');
             // inform other members the latest draw saving failure
-            if (data.channelId && data.boardId) {
+            if (SharedUtils.isMd5Hex(data.channelId) && SharedUtils.isDrawBoardId(data.boardId)) {
                 _publishDrawFail(socket, data.channelId, data.boardId, 'save draw fail');
             }
             throw err;
@@ -119,9 +119,6 @@ exports.cleanDrawBoardAsync = function(socket, data) {
                 reqData: data,
                 error: err.toString()
             }, '[' + socket.id + '] fail on cleanDrawBoardAsync');
-            if (data.channelId && data.boardId) {
-                _publishDrawFail(socket, data.channelId, data.boardId, 'clean board fail');
-            }
             throw err;
         });
 };
@@ -191,9 +188,6 @@ exports.drawUndoAsync = function(socket, data) {
                 reqData: data,
                 error: err.toString()
             }, '[' + socket.id + '] fail on drawUndoAsync');
-            if (data.channelId && data.boardId) {
-                _publishDrawFail(socket, data.channelId, data.boardId, 'draw undo fail');
-            }
             throw err;
         });
 };
@@ -230,9 +224,6 @@ exports.drawRedoAsync = function(socket, data) {
                 reqData: data,
                 error: err.toString()
             }, '[' + socket.id + '] fail on drawRedoAsync');
-            if (data.channelId && data.boardId) {
-                _publishDrawFail(socket, data.channelId, data.boardId, 'draw redo fail');
-            }
             throw err;
         });
 };
@@ -273,9 +264,6 @@ exports.getDrawBoardAsync = function(socket, data) {
                 reqData: data,
                 error: err.toString()
             }, '[' + socket.id + '] fail on getDrawBoardAsync');
-            if (data.channelId && data.boardId) {
-                _publishDrawFail(socket, data.channelId, data.boardId, 'get board info fail');
-            }
             throw err;
         });
 };
@@ -326,7 +314,6 @@ function _publishDrawFail(socket, cid, bid, failReason) {
         params: {
             channelId: cid,
             boardId: bid,
-            clientId: socket.id,
             reason: failReason
         }
     });
