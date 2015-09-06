@@ -20,7 +20,6 @@ module.exports = function(actionContext, data, callback) {
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
     }).then(function(reqData) {
         var drawStore = actionContext.getStore(DrawStore);
-        actionContext.dispatch('CLEAN_LOCAL_DRAW', reqData);
         if (!drawStore.isPolyFilled(reqData.channelId, reqData.boardId)) {
             return DrawService.getDrawBoardAsync(reqData);
         }

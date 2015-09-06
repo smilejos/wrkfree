@@ -9,11 +9,6 @@ var DrawUtils = require('../../../sharedUtils/drawUtils');
 var LogUtils = require('../../../sharedUtils/logUtils');
 var LogCategory = 'HANDLER';
 
-var Configs = require('../../../configs/config');
-
-// used to limit the active reocrds number
-var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
-
 var DEFAULT_TEMP_DRAWS_LENGTH = 200;
 
 /**
@@ -60,36 +55,20 @@ exports.drawAsync = function(socket, data) {
     LogUtils.debug(LogCategory, {
         uid: socket.getAuthToken()
     }, '[' + socket.id + '] drawing ... ');
-    return Promise.join(
-        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        DrawUtils.checkDrawChunksAsync(data.chunks),
-        function(cid, bid, chunks) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            data.clientId = socket.id;
-            if (!socket.drawTemp) {
-                throw new Error('drawTemp data has not inited');
-            }
-            if (!socket.drawTemp[drawId]) {
-                throw new Error('temp data on current board has not inited');
-            }
-            if (socket.drawTemp[drawId].length > ACTIVED_DRAWS_LIMIT) {
-                LogUtils.warn(LogCategory, null, '[' + socket.id + '] draws exceed limit');
-                return true;
-            }
-            socket.drawTemp[drawId].push(chunks);
-            return true;
-        }).catch(function(err) {
-            LogUtils.warn(LogCategory, {
-                reqData: data,
-                error: err.toString()
-            }, '[' + socket.id + '] fail on drawAsync');
-            // trigger remote clients to handle draw failure
-            if (data.channelId && data.boardId) {
-                _publishDrawFail(socket, data.channelId, data.boardId, 'drawing fail');
-            }
-            throw err;
-        });
+    return Promise.try(function(){
+        var isCid = SharedUtils.isMd5Hex(data.channelId);
+        var isBid = SharedUtils.isDrawBoardId(data.boardId);
+        var validChunks = DrawUtils.checkDrawChunksAsync(data.chunks);
+        if (!isCid || !isBid || !validChunks) {
+            throw new Error('abnormal draws');
+        }
+    }).catch(function(err) {
+        LogUtils.warn(LogCategory, {
+            reqData: data,
+            error: err.toString()
+        }, '[' + socket.id + '] fail on drawAsync');
+        throw err;
+    });
 };
 
 /**
@@ -116,18 +95,14 @@ exports.saveRecordAsync = function(socket, data) {
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
+        SharedUtils.argsCheckAsync(data.record, 'array'),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
-        function(cid, bid, chunksLength, drawOptions) {
-            var drawId = DrawUtils.getDrawViewId(cid, bid);
-            var tempRecord = socket.drawTemp[drawId].toArray();
-            _clearTempDraws(socket, drawId);
-            return DrawStorage.saveRecordAsync(cid, bid, tempRecord, chunksLength, drawOptions);
+        function(cid, bid, record, drawOptions) {
+            return DrawStorage.saveRecordAsync(cid, bid, record, drawOptions);
         }).then(function(result) {
             if (result === null) {
                 throw new Error('save draw record fail on storage service');
             }
-            data.clientId = socket.id;
             // enqueue a preview image update job
             DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
             return result;

@@ -12,15 +12,6 @@ var NavToBoard = require('./navToBoard');
 // to indicate current tips is showing or not
 var TipsShowing = null;
 
-var Configs = require('../../../../configs/config');
-// define the maximum number of draws can be lost during client drawing
-// NOTE: usually, few missing draws is acceptable under jitter environment.
-var MISSING_DRAWS_LIMIT = Configs.get().params.draw.missingDrawLimit;
-
-if (!SharedUtils.isNumber(MISSING_DRAWS_LIMIT)) {
-    throw new Error('draw parameters missing');
-}
-
 /**
  * @Public API
  * @Author: George_Chen
@@ -38,46 +29,28 @@ module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        clientId: SharedUtils.argsCheckAsync(data.clientId, 'string'),
-        chunksNum: SharedUtils.argsCheckAsync(data.chunksNum, 'number'),
-        drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions')
-    }).then(function(validData) {
+        record: SharedUtils.argsCheckAsync(data.record, 'array'),
+        drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
+        isUpdated: SharedUtils.argsCheckAsync(data.isUpdated, 'boolean')
+    }).then(function(recvData) {
         var drawTempStore = actionContext.getStore(DrawTempStore);
         var drawStore = actionContext.getStore(DrawStore);
         var wkStore = actionContext.getStore(WorkSpaceStore);
-        var tempRecord, missingDraws;
         // check to show tips or not
         if (!wkStore.isCurrentUsedBoard(data.channelId, data.boardId)) {
             _showNavigationTips(actionContext, data.channelId, data.boardId);
+        } else {
+            drawTempStore.saveRemoteRecord(recvData);
         }
         // check target board is polyfilled or not
         if (!drawStore.isPolyFilled(data.channelId, data.boardId)) {
             return actionContext.executeAction(GetDrawBoard, data);
         }
-        tempRecord = drawTempStore.getDraws(validData.channelId, validData.boardId, validData.clientId);
-        missingDraws = Math.abs(tempRecord.length - validData.chunksNum);
-        if (missingDraws > MISSING_DRAWS_LIMIT) {
-            throw new Error('record is broken');
-        }
-        return actionContext.dispatch('ON_RECORD_SAVE', {
-            channelId: data.channelId,
-            boardId: data.boardId,
-            clientId: data.clientId,
-            record: tempRecord,
-            drawOptions: data.drawOptions,
-            isUpdated: true
-        });
+        return actionContext.dispatch('ON_RECORD_SAVE', recvData);
     }).catch(function(err) {
         SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
         var reason = data.reason || 'save draw fail !';
         ActionUtils.showWarningEvent('WARN', 'remote ' + reason);
-        if (data.channelId && SharedUtils.isNumber(data.boardId) && data.clientId) {
-            actionContext.dispatch('CLEAN_FAILURE_DRAW', {
-                channelId: data.channelId,
-                boardId: data.boardId,
-                clientId: data.clientId
-            });
-        }
     });
 };
 
