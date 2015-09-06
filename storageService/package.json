@@ -1,6 +1,6 @@
 {
   "name": "wrkfree-storage",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "private": true,
   "dependencies": {
     "bluebird": "^2.9.13",
