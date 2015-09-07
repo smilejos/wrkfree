@@ -21,7 +21,14 @@ module.exports = CreateStore({
         'TOGGLE_CHANNELCREATOR': '_deactiveQuickSearch',
         'TOGGLE_PERSONALINFO': '_deactiveQuickSearch',
         'TOGGLE_NOTIFICATION': '_deactiveQuickSearch',
-        'TOGGLE_MAIN_VIEWPOINT': '_deactiveQuickSearch'
+        'TOGGLE_MAIN_VIEWPOINT': '_deactiveQuickSearch',
+        'ON_SEARCHING': '_onSearching'
+    },
+
+    _onSearching: function() {
+        this.isActive = true;
+        this.isSearching = true;
+        this.emitChange();
     },
 
     /**
@@ -38,6 +45,7 @@ module.exports = CreateStore({
             this.channelQueries.set(data.query, data.channels.keys);
             this.userQueries.set(data.query, data.users.keys);
             this.currentQuery = data.query;
+            this.isSearching = false;
             this.emitChange();
         }.bind(this));
     },
@@ -52,6 +60,7 @@ module.exports = CreateStore({
      */
     _onQuickSearchCacheHit: function(query) {
         this.currentQuery = query;
+        this.isSearching = false;
         this.emitChange();
     },
 
@@ -74,6 +83,10 @@ module.exports = CreateStore({
      */
     _toggleQuickSearch: function(data) {
         this.isActive = data.isActive;
+        if (!data.isActive) {
+            this.currentQuery = null;
+            this.isSearching = false;
+        }
         this.emitChange();
     },
 
@@ -87,12 +100,15 @@ module.exports = CreateStore({
     _deactiveQuickSearch: function(data) {
         if (data.isActive && this.isActive) {
             this.isActive = false;
+            this.isSearching = false;
+            this.currentQuery = null;
             this.emitChange();
         }
     },
 
     initialize: function() {
         this.isActive = false;
+        this.isSearching = false;
         this.currentQuery = null;
         this.userQueries = Cache(CachePolicy);
         this.channelQueries = Cache(CachePolicy);
@@ -102,6 +118,7 @@ module.exports = CreateStore({
         var query = this.currentQuery;
         return {
             isActive: this.isActive,
+            isSearching: this.isSearching,
             results: {
                 channels: this.channelQueries.get(query) || [],
                 users: this.userQueries.get(query) || []

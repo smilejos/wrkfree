@@ -14,7 +14,7 @@ var EventToaster = require('./EventToaster.jsx');
 var Notifications = require('./common/Notifications.jsx');
 var PersonalInfo = require('./common/PersonalInfo.jsx');
 var Hangouts = require('./Hangouts.jsx');
-var QuickSearch = require('./QuickSearch.jsx');
+var Search = require('./Search.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
 var SystemSounds = require('./SystemSounds.jsx');
 var ClientReport = require('./ClientReport.jsx');
@@ -114,7 +114,7 @@ module.exports = React.createClass({
                     <PersonalInfo />
                     <EventToaster inWorkspace={inWorkspace}/>
                     <Hangouts />
-                    <QuickSearch />
+                    <Search />
                     <SystemSounds />
                     <ClientReport inWorkspace={inWorkspace}/>
                 </div>
