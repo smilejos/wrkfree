@@ -178,7 +178,7 @@ module.exports = React.createClass({
                 {this._setActionButton(rejectBtnInfo)}
             </div>
         );
-        return this._setContent(message, actionButtons);
+        return this._setContent(message, actionButtons, 14);
     },
 
     /**
@@ -214,7 +214,7 @@ module.exports = React.createClass({
                 </div>
             );
         }
-        return this._setContent(action + message, actionButtons);
+        return this._setContent(action + message, actionButtons, 6);
     },
 
     /**
@@ -224,7 +224,7 @@ module.exports = React.createClass({
      * @param {String}      displayMessage, the notice content message
      * @param {Object}      actionButtons, the notice action buttons (react element)
      */
-    _setContent: function(displayMessage, actionButtons) {
+    _setContent: function(displayMessage, actionButtons, strLength) {
         var contentStyle = {
             fontSize: 14,
             height: 'auto'
@@ -233,7 +233,7 @@ module.exports = React.createClass({
             <div style={contentStyle}>
                 {displayMessage}
                 &nbsp;
-                <CustomizedString label={this.props.info.extraInfo.name} limitLength={14} />
+                <CustomizedString label={this.props.info.extraInfo.name} limitLength={strLength} />
                 <NoticeTime timestamp={this.props.info.updatedTime} 
                     iconHandler={this._markReaded}
                     isVisible={this.state.isTimeVisible} />
