@@ -214,7 +214,7 @@ module.exports = React.createClass({
                 </div>
             );
         }
-        return this._setContent(message, actionButtons);
+        return this._setContent(action + message, actionButtons);
     },
 
     /**

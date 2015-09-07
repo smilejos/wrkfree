@@ -22,7 +22,6 @@ module.exports = CreateStore({
     handlers: {
         'ON_BOARD_ADD': 'onBoardAdd',
         'ON_DRAW_MODE_CHANGE': 'onDrawModeChange',
-        'ON_DRAW_INITED': '_onDrawInited',
         'ON_CONFERENCE': '_onConference',
         'CHANGE_ROUTE': '_onChangeRoute',
         'UPDATE_CHANNEL_STAR': '_updateChannelStar'
@@ -56,20 +55,6 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
-     * @Description: used to update user's drawing ability
-     *         NOTE: only if draw isInited, then user can start drawing
-     *
-     * @param {Boolean}      data.isInited, to indicate user can start drawing or not
-     */
-    _onDrawInited: function(data) {
-        if (data.channelId === this.channel.channelId && data.clientId === 'local') {
-            this.draw.isInited = data.isInited;
-            this.emitChange();
-        }
-    },
-
-    /**
-     * @Author: George_Chen
      * @Description: to check current channel id has been opened as workspace or not
      *
      * @param {String}      cid, the channel id
@@ -83,7 +68,6 @@ module.exports = CreateStore({
         this.members = {};
         this.status = {};
         this.draw = {
-            isInited: false,
             drawOptions: DrawOptions
         };
         this.rtc = {

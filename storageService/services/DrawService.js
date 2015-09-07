@@ -120,38 +120,23 @@ exports.cleanBoardAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: drawer send this as a ack to inform server that he has drawed done.
- *         NOTE: rawDataNumbers is used to notify server that how many raw data
- *               he has sent to server. (used to check data is broken or not)
+ * @Description: drawer send a completed draw record to save into db
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {String}          clientId, the draw client sid
- * @param {Number}          rawDataNumbers, the number of rawData
+ * @param {Array}           tempRecord, a array of draw chunks
  * @param {Object}          drawOptions, the draw options of current record
  */
-exports.saveRecordAsync = function(channelId, boardId, tempRecord, rawDataNumbers, drawOptions) {
+exports.saveRecordAsync = function(channelId, boardId, tempRecord, drawOptions) {
     LogUtils.info(LogCategory, null, 'start save new record on channel [' + channelId + '] [' + boardId + ']');
-    return Promise.try(function(){
-        var missingDraws = Math.abs(tempRecord.length - rawDataNumbers);
-        if (missingDraws > 0) {
-            LogUtils.warn(LogCategory, {
-                serverRecordLen: tempRecord.length,
-                clientRecordLen: rawDataNumbers
-            }, 'some record missing ');
-        }
-        if (missingDraws > MISSING_DRAWS_LIMIT) {
-            LogUtils.warn(LogCategory, null, 'save record fail with missingDraws: ' + missingDraws);
+    return _saveRecord(channelId, boardId, tempRecord, drawOptions)
+        .catch(function(err) {
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err.toString()
+            }, 'error in DrawService.saveRecordAsync()');
             return null;
-        }
-        return _saveRecord(channelId, boardId, tempRecord, drawOptions);     
-    }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in DrawService.saveRecordAsync()');
-        return null;
-    });
+        });
 };
 
 /**

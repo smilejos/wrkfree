@@ -3,20 +3,7 @@ var Promise = require('bluebird');
 var DrawService = require('../../services/drawService');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
-var DrawTempStore = require('../../../shared/stores/DrawTempStore');
 var ActionUtils = require('../actionUtils');
-
-/**
- * load configs
- */
-var Configs = require('../../../../configs/config');
-var ACTIVED_DRAWS_LIMIT = Configs.get().params.draw.activeDrawsLimit;
-
-if (!SharedUtils.isNumber(ACTIVED_DRAWS_LIMIT)) {
-    throw new Error('error while on getting draw related params');
-}
-
-var WARNING_DRAWS_LIMIT = (ACTIVED_DRAWS_LIMIT / 2);
 
 /**
  * @Public API
@@ -35,25 +22,14 @@ module.exports = function(actionContext, data) {
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
-    }).then(function(recordData) {
-        var tempStore = actionContext.getStore(DrawTempStore);
-        var draws = tempStore.getLocalDraws(data.channelId, data.boardId);
-        if (draws && draws.length === (ACTIVED_DRAWS_LIMIT - 1)) {
-            ActionUtils.showErrorEvent('Drawing', 'stop drawing');
-        } else if (draws && draws.length === WARNING_DRAWS_LIMIT) {
-            ActionUtils.showWarningEvent('Drawing', 'Too many draws at the same time');
-        }
-        return DrawService.drawAsync(recordData);
+    }).then(function(reqData) {
+        return DrawService.drawAsync(reqData);
     }).then(function(result) {
-        if (!result) {
-            throw new Error('drawing got failure from server side');
+        if (result ===  null) {
+            ActionUtils.showWarningEvent('WARN', 'drawing connectivity slowly');
         }
     }).catch(function(err) {
         SharedUtils.printError('drawing.js', 'core', err);
-        ActionUtils.showErrorEvent('Drawing', 'current draws abnormal');
-        actionContext.dispatch('CLEAN_LOCAL_DRAW', {
-            channelId: data.channelId,
-            boardId: data.boardId
-        });
+        ActionUtils.showWarningEvent('WARN', 'drawing abnormal');
     });
 };

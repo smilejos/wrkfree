@@ -32,8 +32,8 @@ module.exports = React.createClass({
     getInitialState: function() {
         // give the default value of canvas width and height
         return {
-            canvasWidth: BOARD_WIDTH,
-            canvasHeight: BOARD_HEIGHT
+            canvasWidth: 0,
+            canvasHeight: 0
         };
     },
 
