@@ -19,9 +19,10 @@ var SearchService = require('../../services/searchService');
  * @param {String}      data.query, the query string of quickSearch
  */
 module.exports = function(actionContext, data) {
+    actionContext.dispatch('ON_SEARCHING');
     return Promise.props({
         query: SharedUtils.argsCheckAsync(data.query, 'string')
-    }).then(function(reqData) {
+    }).delay(500).then(function(reqData) {
         var quickSearchStore = actionContext.getStore(QuickSearchStore);
         var text = reqData.query;
         if (text === '' || text === '#' || text === '@' || quickSearchStore.hasCached(text)) {

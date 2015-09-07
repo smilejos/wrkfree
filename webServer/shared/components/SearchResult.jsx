@@ -79,7 +79,7 @@ module.exports = React.createClass({
             <IconButton 
                 disabled={isReqSent}
                 onTouchTap={sendChannelReq}
-                tooltipPosition="top-center"
+                tooltipPosition="top-left"
                 tooltip="send channel request"
                 iconClassName="material-icons"
                 iconStyle={{color: isReqSent ? Colors.red200 : Colors.red500}}>
@@ -104,6 +104,8 @@ module.exports = React.createClass({
             <IconButton 
                 disabled={isReqSent}
                 onTouchTap={sendFriendReq}
+                tooltipPosition="top-left"
+                tooltip="send friend request"
                 iconClassName="material-icons"
                 iconStyle={{color: isReqSent ? Colors.red200 : Colors.red500}}>
                 {'person_add'}
@@ -128,7 +130,7 @@ module.exports = React.createClass({
         return (
             <IconButton 
                 onTouchTap={enterWorkspace}
-                tooltipPosition="top-center"
+                tooltipPosition="top-left"
                 tooltip="enter workspace"
                 iconClassName="material-icons"
                 iconStyle={{color: Colors.lightBlue600}}>
@@ -155,7 +157,7 @@ module.exports = React.createClass({
         return (
             <IconButton 
                 onTouchTap={openChatBox}
-                tooltipPosition="top-center"
+                tooltipPosition="top-left"
                 tooltip="open chatBox"
                 iconClassName="material-icons"
                 iconStyle={{color: Colors.lightBlue600}}>

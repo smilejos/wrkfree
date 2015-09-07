@@ -17,6 +17,7 @@ var Colors = Mui.Styles.Colors;
 var List = Mui.List;
 var ListItem = Mui.ListItem;
 var ListDivider = Mui.ListDivider;
+var FontIcon = Mui.FontIcon;
 
 /**
  * child components
@@ -53,6 +54,7 @@ module.exports = React.createClass({
         var channels = state.results.channels || [];
         this.setState({
             isActive: state.isActive,
+            isSearching: state.isSearching,
             results: channels.concat(users)
         });
     },
@@ -67,9 +69,33 @@ module.exports = React.createClass({
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: set search header style to match current search action
+     */
+    _setSearchHeader: function() {
+        var isSearching = this.state.isSearching;
+        var itemStyle = {
+            height: 55
+        };
+        if (isSearching) {
+            return (
+                <ListItem disabled primaryText="Searching ..."
+                    style={itemStyle}
+                    leftAvatar={<Avatar size={30} src="/assets/imgs/searching.svg" style={{marginTop: 3, backgroundColor: '#FFF', border: 'none'}} />} />
+            );
+        }
+        return (
+            <ListItem disabled primaryText="Search Results"
+                style={itemStyle}
+                leftIcon={<FontIcon color={Colors.indigo500} className="material-icons">{'search'}</FontIcon>} />
+        );
+    },
+
     getInitialState: function() {
         return {
             isActive: false,
+            isSearching: false,
             results: []
         };
     },
@@ -105,8 +131,7 @@ module.exports = React.createClass({
         return (
             <div style={containerStyle}>
                 <List style={{marginTop: 1}}>
-                    <ListItem disabled primaryText="Searching ..."
-                        leftAvatar={<Avatar size={35} src="/assets/imgs/searching.svg" style={{marginTop: 2, backgroundColor: '#FFF', border: 'none'}} />} />
+                    {this._setSearchHeader()}
                 </List>
                 <ListDivider />
                 <List ref="notificationList"
