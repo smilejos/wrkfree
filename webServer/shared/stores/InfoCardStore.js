@@ -12,11 +12,37 @@ module.exports = CreateStore({
 
     handlers: {
         'ON_QUICKSEARCH_UPDATE': '_onSearchUpdate',
-        'ON_INFOCARD_UPDATE': '_onCardUpdate'
+        'ON_INFOCARD_UPDATE': '_onCardUpdate',
+        'ON_NOTIFICATION': '_onNotification'
     },
 
     initialize: function() {
         this.cardStore = Cache();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: update card state when getting new notification from server
+     *
+     * @param {String}          data.type, the notification type
+     * @param {Boolean}         data.isReq, indicate notification isRequest or not
+     * @param {Boolean}         data.respToPermitted, the answer of response notification
+     * @param {Object}          data.extraInfo, notification channel info
+     * @param {Object}          data.sender, notification sender info
+     */
+    _onNotification: function(data) {
+        if (data.isReq) {
+            return;
+        }
+        var isChannel = (data.type === 'channel');
+        var cardId = (isChannel ? data.extraInfo.channelId : data.sender.uid);
+        var card = this.cardStore.get(cardId);
+        if (card) {
+            card.isKnown = data.respToPermitted;
+            card.isReqSent = false;
+            this.cardStore.set(cardId, card);
+            this.emitChange();
+        }
     },
 
     /**
@@ -79,7 +105,7 @@ module.exports = CreateStore({
                 nickName: item.nickName,
                 type: 'user',
                 isKnown: item.isKnown,
-                isReqSent: (card ? card.isReqSent : null)
+                isReqSent: (card ? card.isReqSent : true)
             });
         });
     },
@@ -103,7 +129,7 @@ module.exports = CreateStore({
                 isKnown: item.isKnown,
                 extraInfo: item.extraInfo,
                 channelId: item.channelId,
-                isReqSent: (card ? card.isReqSent : null)
+                isReqSent: (card ? card.isReqSent : true)
             });
         });
     }
