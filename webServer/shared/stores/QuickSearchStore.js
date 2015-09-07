@@ -74,6 +74,9 @@ module.exports = CreateStore({
      */
     _toggleQuickSearch: function(data) {
         this.isActive = data.isActive;
+        if (!data.isActive) {
+            this.currentQuery = null;
+        }
         this.emitChange();
     },
 
@@ -87,6 +90,7 @@ module.exports = CreateStore({
     _deactiveQuickSearch: function(data) {
         if (data.isActive && this.isActive) {
             this.isActive = false;
+            this.currentQuery = null;
             this.emitChange();
         }
     },

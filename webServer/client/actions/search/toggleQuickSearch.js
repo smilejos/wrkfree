@@ -19,12 +19,6 @@ module.exports = function(actionContext, data) {
         }
         return !actionContext.getStore(QuickSearchStore).isActive;
     }).then(function(toggleToActive) {
-        if (!toggleToActive) {
-            actionContext.dispatch('ON_QUICKSEARCH_UPDATE', {
-                users: [],
-                channels: []
-            });
-        }
         actionContext.dispatch('TOGGLE_QUICKSEARCH', {
             isActive: toggleToActive
         });
