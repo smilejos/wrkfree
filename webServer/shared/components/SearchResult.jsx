@@ -18,6 +18,8 @@ var Colors = Mui.Styles.Colors;
 var ListItem = Mui.ListItem;
 var ListDivider = Mui.ListDivider;
 var IconButton = Mui.IconButton;
+var FontIcon = Mui.FontIcon;
+var FlatButton = Mui.FlatButton;
 
 /**
  * actions
@@ -75,6 +77,16 @@ module.exports = React.createClass({
                 channelId: self.state.channelId
             });
         }
+        if (!this.props.isList) {
+            return this._setGridButton({
+                label: 'Add Channel',
+                handler: sendChannelReq,
+                hoverColor: Colors.red50,
+                color: (isReqSent ? Colors.red200 : Colors.red500),
+                iconName: 'group_add',
+                isDisabled: isReqSent
+            });
+        }
         return (
             <IconButton 
                 disabled={isReqSent}
@@ -98,6 +110,16 @@ module.exports = React.createClass({
         function sendFriendReq() {
             self.executeAction(SendFriendReq, {
                 targetUser: self.state.targetUid
+            });
+        }
+        if (!this.props.isList) {
+            return this._setGridButton({
+                label: 'Add Friend',
+                handler: sendFriendReq,
+                hoverColor: Colors.red50,
+                color: (isReqSent ? Colors.red200 : Colors.red500),
+                iconName: 'person_add',
+                isDisabled: isReqSent
             });
         }
         return (
@@ -127,6 +149,15 @@ module.exports = React.createClass({
                 channelId: cid
             });
         }
+        if (!this.props.isList) {
+            return this._setGridButton({
+                label: 'workspace',
+                handler: enterWorkspace,
+                hoverColor: Colors.lightBlue50,
+                color: Colors.lightBlue600,
+                iconName: 'input'
+            });
+        }
         return (
             <IconButton 
                 onTouchTap={enterWorkspace}
@@ -154,6 +185,15 @@ module.exports = React.createClass({
                 isforcedToOpen: false
             });
         }
+        if (!this.props.isList) {
+            return this._setGridButton({
+                label: 'chatBox',
+                handler: openChatBox,
+                hoverColor: Colors.lightBlue50,
+                color: Colors.lightBlue600,
+                iconName: 'chat'
+            });
+        }
         return (
             <IconButton 
                 onTouchTap={openChatBox}
@@ -164,6 +204,95 @@ module.exports = React.createClass({
                 {'chat'}
             </IconButton>
         );
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: used for generating notice action button
+     * 
+     * @param {Object}      btnInfo, the notice action button info
+     */
+    _setGridButton: function(btnInfo) {
+        var fontIconStyle = {
+            display: 'inline-block',
+            verticalAlign: 'middle',
+            float: 'left',
+            paddingLeft: 10,
+            lineHeight: '36px',
+            width: 15,
+            fontSize: 13
+        };
+        var btnStyle = {
+            fontSize: 12,
+            color: btnInfo.color
+        };
+        return (
+            <FlatButton onTouchTap={btnInfo.handler} disabled={btnInfo.isDisabled}
+                style={btnStyle} hoverColor={btnInfo.hoverColor}  label={btnInfo.label}>
+                <FontIcon className="material-icons" style={fontIconStyle} color={btnInfo.color} >
+                    {btnInfo.iconName}
+                </FontIcon>
+            </FlatButton>
+        );
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: set search list result layout
+     */
+    _setListLayout: function() {
+        return (
+            <div>
+                <ListItem 
+                    style={{height: 65}}
+                    primaryText={<div style={{fontSize: 13}}>{this.state.extraInfo}</div>}
+                    secondaryText={<div style={{fontSize: 12}}>{'@'+this.state.nickName}</div>} 
+                    leftAvatar={<Avatar src={this.state.avatar} />}
+                    rightIconButton={this._setActionButton()}/>
+                <ListDivider inset />
+            </div>
+        );
+    },
+    /**
+     * @Author: George_Chen
+     * @Description: set search grid result layout
+     */
+    _setGridLayout: function() {
+        var containerStyle = {
+            display: 'inline-block',
+            width: this.props.gridWidth,
+            height: 250,
+            padding: '10px 10px 10px 10px'
+        };
+        var itemStyle = {
+            border: 'solid 1px',
+            width: 150,
+            height: 230,
+            color: Colors.grey300,
+            textAlign: 'center'
+        };
+        return (
+            <div style={containerStyle}>
+                <div style={itemStyle}>
+                    <img src={this._getGridImg()} width="148" height="148"/>
+                    <div style={{fontSize: 12, color: Colors.grey400, fontWeight: 300}}>{'@'+this.state.nickName}</div>
+                    <div style={{fontSize: 13, color: '#000', fontWeight: 400, height: 30}}>{this.state.extraInfo}</div>
+                    {this._setActionButton()}
+                </div>
+            </div>
+        );
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: set and get the cover image of info card
+     */
+    _getGridImg: function() {
+        var url = this.state.avatar;
+        if (url.search('facebook') !== -1) {
+            return (url + '?width=150&height=150');
+        }
+        return url.replace(/sz=50/, 'sz=150');
     },
 
     getInitialState: function() {
@@ -191,16 +320,7 @@ module.exports = React.createClass({
     },
 
     render: function(){
-        return (
-            <div>
-                <ListItem 
-                    style={{height: 65}}
-                    primaryText={<div style={{fontSize: 13}}>{this.state.extraInfo}</div>}
-                    secondaryText={<div style={{fontSize: 12}}>{'@'+this.state.nickName}</div>} 
-                    leftAvatar={<Avatar src={this.state.avatar} />}
-                    rightIconButton={this._setActionButton()}/>
-                <ListDivider inset />
-            </div>
-        );
+        var isList = this.props.isList;
+        return ( isList ? this._setListLayout() : this._setGridLayout() );
     }
 });
