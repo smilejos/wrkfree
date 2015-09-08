@@ -120,7 +120,7 @@ module.exports = React.createClass({
             <div >
                 <ListItem 
                     onTouchTap={this._enterWorkspace}
-                    style={{paddingLeft: 10, height: 55}}
+                    style={{height: 55}}
                     primaryText={<div style={cNameStyle}>{this.props.name}</div>} 
                     secondaryText={<div style={uNameStyle}>{'@' + this.props.hostInfo.nickName}</div>} 
                     leftIcon={this._setLeftIcon()}

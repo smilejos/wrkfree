@@ -128,7 +128,7 @@ module.exports = React.createClass({
      */
     _setRightIcon: function() {
         var iconColor = '#27A';
-        var iconAction = 'textsms';
+        var iconAction = '';
         var timeStyle = {
             position: 'absolute',
             opacity: this.props.timeVisible ? 1 : 0,
