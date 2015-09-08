@@ -45,7 +45,7 @@ module.exports = React.createClass({
             );
         }, this);
         return (
-            <div className="pure-u">
+            <div style={{paddingLeft: 280, textAlign: 'left'}}>
                 <RadioButtonGroup 
                     name={this.props.field}
                     defaultSelected={defaultValue}

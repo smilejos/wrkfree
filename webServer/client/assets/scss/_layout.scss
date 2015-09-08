@@ -98,31 +98,6 @@ body {
 }
 
 /**
- * define the style of priv box 
- */
-.privBox {
-    position: fixed;
-    z-index: 2;
-    float: right;
-    height: 0px;
-    left: 0px;
-    bottom: 0px;
-    right: $app-infoBox-width;
-}
-
-/**
- * define the style of left nav box
- */
-.leftNavBox {
-    @extend .baseBox;
-    background-color: $color-background_2;
-    top: $app-header-height;
-    bottom: 0px;
-    width: 0px;
-    z-index: 3;
-}
-
-/**
  * define the style of page footer
  */
 .footer {
