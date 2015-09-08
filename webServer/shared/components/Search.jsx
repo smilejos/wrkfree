@@ -27,6 +27,10 @@ var IconButton = Mui.IconButton;
  */
 var SearchResult = require('./SearchResult.jsx');
 
+var MIMUM_GRID_WIDTH = 550;
+var LIST_SEARCH_WIDTH = 320;
+var LIST_SEARCH_HEIGHT = 250;
+
 var ResizeTimeout = null;
 
 /**
@@ -82,6 +86,7 @@ module.exports = React.createClass({
     _setSearchHeader: function() {
         var isGridResults = this.state.isGridResults;
         var isSearching = this.state.isSearching;
+        var gridSearchWidth = this.state.gridSearchWidth;
         var itemStyle = {
             height: 55
         };
@@ -98,6 +103,7 @@ module.exports = React.createClass({
                 leftIcon={<FontIcon color={Colors.indigo500} className="material-icons">{'search'}</FontIcon>}
                 rightIconButton={
                     <IconButton 
+                        disabled={gridSearchWidth < MIMUM_GRID_WIDTH}
                         onTouchTap={this._toggleSearchMode}
                         tooltipPosition="bottom-right"
                         tooltip={isGridResults ? 'compress results' : 'expand reuslts'}
@@ -109,8 +115,23 @@ module.exports = React.createClass({
         );
     },
 
-    _toggleSearchMode: function() {
-        this.executeAction(ToggleSearchMode);
+    _toggleSearchMode: function(mode) {
+        if (!mode) {
+            this.executeAction(ToggleSearchMode);
+        }
+        return this.executeAction(ToggleSearchMode, mode);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: resize the current canvas
+     */
+    _resizeContainer: function() {
+        var ratio = 0.9;
+        this.setState({
+            gridSearchWidth: (window.innerWidth - 200) * ratio,
+            gridSearchHeight: (window.innerHeight - 200) * ratio
+        });
     },
 
     getInitialState: function() {
@@ -137,16 +158,13 @@ module.exports = React.createClass({
         });
     },
 
-    /**
-     * @Author: George_Chen
-     * @Description: resize the current canvas
-     */
-    _resizeContainer: function() {
-        var ratio = 0.9;
-        this.setState({
-            gridSearchWidth: (window.innerWidth - 200) * ratio,
-            gridSearchHeight: (window.innerHeight - 200) * ratio
-        });
+    componentDidUpdate: function() {
+        var gridSearchWidth = this.state.gridSearchWidth;
+        if (gridSearchWidth < MIMUM_GRID_WIDTH && this.state.isGridResults) {
+            this._toggleSearchMode({
+                isGridResults: false
+            });
+        }
     },
 
     render: function(){
@@ -156,7 +174,7 @@ module.exports = React.createClass({
         var gridWidth = 170;
         var containerStyle = {
             position: 'fixed',
-            width: isGridResults ? this.state.gridSearchWidth : 320,
+            width: isGridResults ? this.state.gridSearchWidth : LIST_SEARCH_WIDTH,
             top: (isActive ? 51 : -100 ),
             left: 50,
             visibility: (isActive ? 'visible' : 'hidden'),
@@ -179,7 +197,7 @@ module.exports = React.createClass({
         var listContainerStyle = {
             overflowY: this.state.isScrollShown ? 'auto' : 'hidden',
             overflowX: 'hidden',
-            height: (list.length > 3 ? 250 : 'auto')
+            height: (list.length > 3 ? LIST_SEARCH_HEIGHT : 'auto')
         };
         if (isGridResults) {
             listContainerStyle.paddingLeft = (this.state.gridSearchWidth % gridWidth) / 2;
