@@ -1,18 +1,14 @@
 'use strict';
 var CreateStore = require('fluxible/addons').createStore;
 var Cache = require('lru-cache');
-var CachePolicy = {
-    // the maximum number of key-value pair
-    max: 100,
-    // each key-value ttl in mseconds
-    maxAge: 20000
-};
+var CACHE_TIMEOUT_IN_MSECOND = 20000;
 
 
 module.exports = CreateStore({
     storeName: 'QuickSearchStore',
 
     handlers: {
+        'ON_SEARCHING': '_onSearching',
         'ON_QUICKSEARCH_UPDATE': '_onQuickSearchUpdate',
         'ON_QUICKSEARCH_CACHE_HIT': '_onQuickSearchCacheHit',
         'TOGGLE_QUICKSEARCH': '_toggleQuickSearch',
@@ -22,12 +18,17 @@ module.exports = CreateStore({
         'TOGGLE_PERSONALINFO': '_deactiveQuickSearch',
         'TOGGLE_NOTIFICATION': '_deactiveQuickSearch',
         'TOGGLE_MAIN_VIEWPOINT': '_deactiveQuickSearch',
-        'ON_SEARCHING': '_onSearching'
+        'TOGGLE_SEARCH_MODE': '_toggleSearchMode'
     },
 
     _onSearching: function() {
         this.isActive = true;
         this.isSearching = true;
+        this.emitChange();
+    },
+
+    _toggleSearchMode: function(data) {
+        this.isGridResults = data.isGridResults;
         this.emitChange();
     },
 
@@ -107,7 +108,14 @@ module.exports = CreateStore({
     },
 
     initialize: function() {
+        var CachePolicy = {
+            // the maximum number of key-value pair
+            max: 100,
+            // each key-value ttl in mseconds
+            maxAge: CACHE_TIMEOUT_IN_MSECOND
+        };
         this.isActive = false;
+        this.isGridResults = false;
         this.isSearching = false;
         this.currentQuery = null;
         this.userQueries = Cache(CachePolicy);
@@ -116,12 +124,21 @@ module.exports = CreateStore({
 
     getState: function() {
         var query = this.currentQuery;
+        var channelResults = this.channelQueries.get(query);
+        var userResults = this.userQueries.get(query);
+        if (channelResults) {
+            this.channelQueries.set(query, channelResults, CACHE_TIMEOUT_IN_MSECOND);
+        }
+        if (userResults) {
+            this.userQueries.set(query, userResults, CACHE_TIMEOUT_IN_MSECOND);
+        }
         return {
             isActive: this.isActive,
             isSearching: this.isSearching,
+            isGridResults: this.isGridResults,
             results: {
-                channels: this.channelQueries.get(query) || [],
-                users: this.userQueries.get(query) || []
+                channels: channelResults || [],
+                users: userResults || []
             }
         };
     }
