@@ -8,12 +8,6 @@
 @import "./definition";
 
 /**
- * override material-ui style definition,
- * NOTE: this is recommended way for using customized style 
- */
-@import "./overrideMaterialUi";
-
-/**
  * import material-ui-sess component style file
  */
 @import "../../../node_modules/material-ui-sass/material-ui/components";
@@ -27,9 +21,6 @@
 @import "./dashboard";
 @import "./subscription";
 @import "./workSpace";
-@import "./search";
-@import "./infoCard";
-@import "./overridePure";
 @import "./rtc";
 @import "./eventToaster";
 @import "./notification";
@@ -38,16 +29,3 @@
 @import "./hangout";
 @import "./header";
 @import "./formbuttons";
-
-/**
- * override material-ui components
- * NOTE: customize material ui components for fit our app
- */
-@import "./overrideMaterialUiLayout";
-
-/**
- * define the div of 1vs1 msg node
- */
-.PrivateNode {
-    width: 300px;
-}

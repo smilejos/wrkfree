@@ -22,7 +22,7 @@ module.exports = React.createClass({
                 <video 
                     ref="videoElement"
                     width={videoWidth}
-                    poster="http://gamebattles.majorleaguegaming.com/images/homepage/2.0/profile.png"
+                    poster="/assets/imgs/webcamPoster.svg"
                     muted={!!this.props.isMuted} />
             </div>
         );

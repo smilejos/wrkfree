@@ -34,7 +34,6 @@ var Tooltip = Mui.Tooltip;
 var ChannelCreator = require('./common/ChannelCreator.jsx');
 var UserAvatar = require('./common/userAvatar.jsx');
 var FormButton = require('./common/formButton.jsx');
-var QuickSearch = require('./QuickSearch.jsx');
 
 var SEARCH_DELAY_IN_MSECOND = 500;
 var CurrentSearch = null;
