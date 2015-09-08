@@ -106,7 +106,7 @@ module.exports = React.createClass({
             <div>
                 <div style={{opacity: isInited ? 1 : 0, visibility: isInited ? 'visible' : 'hidden', transition: '0.6s'}}>
                     <Header />
-                    <Webcam inWorkspace={inWorkspace}/>
+                    <Webcam />
                     <Subscription />
                     <RouteHandler route={this.state.route}/>
                     <FriendList />
