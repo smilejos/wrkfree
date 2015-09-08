@@ -147,6 +147,8 @@ module.exports = React.createClass({
             return context.executeAction(EnterWorkspace, {
                 urlNavigator: self.transitionTo,
                 channelId: cid
+            }).then(function() {
+                context.executeAction(ToggleQuickSearch);
             });
         }
         if (!this.props.isList) {
@@ -183,6 +185,8 @@ module.exports = React.createClass({
                 channelId: SharedUtils.get1on1ChannelId(self.state.targetUid, selfUid),
                 hangoutTitle: self.state.nickName,
                 isforcedToOpen: false
+            }).then(function() {
+                context.executeAction(ToggleQuickSearch);
             });
         }
         if (!this.props.isList) {
