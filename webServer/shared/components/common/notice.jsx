@@ -22,6 +22,7 @@ var ReplyFriendReq = require('../../../client/actions/friend/replyFriendReq');
 var EnterWorkspace = require('../../../client/actions/enterWorkspace');
 var OpenHangout = require('../../../client/actions/openHangout');
 var SetNotificationReaded = require('../../../client/actions/setNotificationReaded');
+var ToggleNotifications = require('../../../client/actions/toggleNotifications');
 
 /**
  * stores
@@ -92,9 +93,11 @@ module.exports = React.createClass({
         if (!cid) {
             cid = SharedUtils.get1on1ChannelId(info.sender.uid, selfUid);
         }
-        this.executeAction(EnterWorkspace, {
+        window.context.executeAction(EnterWorkspace, {
             urlNavigator: this.transitionTo,
             channelId: cid
+        }).then(function() {
+            context.executeAction(ToggleNotifications);
         });
     },
     
@@ -111,10 +114,12 @@ module.exports = React.createClass({
             cid = SharedUtils.get1on1ChannelId(info.sender.uid, selfUid);
             title = info.sender.nickName;
         }
-        this.executeAction(OpenHangout, {
+        window.context.executeAction(OpenHangout, {
             channelId: cid,
             hangoutTitle: title,
             isforcedToOpen: false
+        }).then(function() {
+            context.executeAction(ToggleNotifications);
         });
     },
 
@@ -200,7 +205,7 @@ module.exports = React.createClass({
             iconName: 'input'
         };
         var quickTalkBtnInfo = {
-            label: 'quickTalk',
+            label: 'chatBox',
             handler: this._openHangout,
             hoverColor: Colors.lightBlue50,
             color: Colors.lightBlue600,
