@@ -267,6 +267,15 @@ module.exports = React.createClass({
             fontSize: 12,
             color: btnInfo.color
         };
+
+        /**
+         * workaround for firefox, 
+         * NOTE: firefox float position not the same as chrome and opera
+         */
+        if (window.navigator.mozGetUserMedia) {
+            fontIconStyle.marginTop = -36;
+            fontIconStyle.width = 25;
+        }
         return (
             <FlatButton onTouchTap={btnInfo.handler}
                 style={btnStyle} hoverColor={btnInfo.hoverColor}  label={btnInfo.label}>
