@@ -301,7 +301,7 @@ module.exports = React.createClass({
                                     tooltip="switch to chatbox"
                                     touch
                                     onClick={this._siwthToHangout} >
-                                    {'swap_vert'}
+                                    {'shuffle'}
                         </IconButton>
                         <IconButton iconClassName="material-icons"
                                     iconStyle={this.state.defaultIconStyle}
