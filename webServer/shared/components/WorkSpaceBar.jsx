@@ -122,18 +122,22 @@ module.exports = React.createClass({
     },
 
     _setStarIcon: function() {
-        if (this.props.channel.is1on1) {
-            return (<span className="fa fa-at" style={this.state.defaultIconStyle} />);
-        }
         var isStarred = this.props.status.isStarred;
+        var is1on1 = this.props.channel.is1on1;
         var starIconStyle = {
-            color: (isStarred ? Colors.yellow900 : Colors.grey500),
-            cursor: 'pointer'
-        }
+            color: (isStarred ? Colors.yellow700 : Colors.grey500)
+        };
         return (
-            <span className="fa fa-star-o" 
-                style={starIconStyle}
-                onClick={this._starChannel} />
+            <IconButton iconClassName="material-icons"
+                        tooltipPosition="top-right"
+                        tooltip={isStarred ? 'remove from Favorites' : 'add to Favorites'}
+                        touch
+                        tooltipStyles={{top: -50}}
+                        disabled={is1on1}
+                        onTouchTap={this._starChannel}
+                        iconStyle={is1on1 ? this.state.defaultIconStyle : starIconStyle} >
+                        {is1on1 ? 'person_outline' : 'star'}
+            </IconButton>
         );
     },
 
@@ -241,10 +245,11 @@ module.exports = React.createClass({
         return (
             <div className="footer" >
                 <div className={this.props.onConferenceCall ? "leftControl onRtcCall" : "leftControl"}>
-                    <div className="baseFonts" style={{position: 'absolute', fontSize: 20, left: 15, top: 10}}>
+                    <div className="baseFonts" >
                         {this._setStarIcon()}
-                        &nbsp;
-                        {this.props.channel.name}
+                        <div style={{position: 'absolute', top: 17, left: 48, fontSize: 16, height: 48}}>
+                            {this.props.channel.name}
+                        </div>
                     </div>
                     <div style={{position: 'absolute', left: '50%', marginLeft: -100, top: 0}}>
                         <RtcAction 
@@ -274,28 +279,38 @@ module.exports = React.createClass({
                             iconStyle={hangupIconStyle}/>
                     </div>
                     <div style={{position: 'absolute', right: 10, top: 0}}>
-                        <IconButton iconClassName="fa fa-user-plus"
+                        <IconButton iconClassName="material-icons"
                                     tooltipPosition="top-left"
                                     tooltip="invite member"
                                     touch
-                                    iconStyle={this.state.defaultIconStyle} />
-                        <IconButton iconClassName="fa fa-link"
+                                    disabled
+                                    iconStyle={this.state.defaultIconStyle} >
+                                    {'supervisor_account'}
+                        </IconButton>
+                        <IconButton iconClassName="material-icons"
                                     tooltipPosition="top-left"
                                     tooltip="copy link"
                                     touch
-                                    iconStyle={this.state.defaultIconStyle} />
-                        <IconButton iconClassName="fa fa-random"
+                                    disabled
+                                    iconStyle={this.state.defaultIconStyle} >
+                                    {'link'}
+                        </IconButton>
+                        <IconButton iconClassName="material-icons"
                                     iconStyle={this.state.defaultIconStyle}
                                     tooltipPosition="top-left"
-                                    tooltip="switch small window"
+                                    tooltip="switch to chatbox"
                                     touch
-                                    onClick={this._siwthToHangout} />
-                        <IconButton iconClassName="fa fa-sign-out"
+                                    onClick={this._siwthToHangout} >
+                                    {'swap_vert'}
+                        </IconButton>
+                        <IconButton iconClassName="material-icons"
                                     iconStyle={this.state.defaultIconStyle}
                                     tooltipPosition="top-left"
-                                    tooltip="leave workspace"
+                                    tooltip="back to dashboard"
                                     touch
-                                    onClick={this._onLeave} />
+                                    onClick={this._onLeave} >
+                                    {'home'}
+                        </IconButton>
                     </div>
                 </div>
                 <Dialog ref="dialog" 
