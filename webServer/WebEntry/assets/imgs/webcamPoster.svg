@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg width="182px" height="142px" viewBox="0 0 182 142" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+<svg width="182px" height="144px" viewBox="0 0 182 144" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
     <!-- Generator: Sketch 3.3.3 (12081) - http://www.bohemiancoding.com/sketch -->
-    <title>webcamPoster</title>
+    <title>ic_person_outline_black_48px</title>
     <desc>Created with Sketch.</desc>
     <defs></defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
         <g id="ic_person_outline_black_48px" sketch:type="MSLayerGroup" transform="translate(1.000000, 1.000000)">
-            <path d="M90,24.0916667 C98.6033333,24.0916667 105.575,31.0633333 105.575,39.6666667 C105.575,48.27 98.6033333,55.2416667 90,55.2416667 C81.3966667,55.2416667 74.425,48.27 74.425,39.6666667 C74.425,31.0633333 81.3966667,24.0916667 90,24.0916667 L90,24.0916667 Z M90,94.55 C112.0275,94.55 135.241667,105.378333 135.241667,110.125 L135.241667,118.283333 L44.7583333,118.283333 L44.7583333,110.125 C44.7583333,105.378333 67.9725,94.55 90,94.55 L90,94.55 Z M60.3333333,39.6666667 C60.3333333,56.0575 73.6091667,69.3333333 90,69.3333333 C106.390833,69.3333333 119.666667,56.0575 119.666667,39.6666667 C119.666667,23.2758333 106.390833,10 90,10 C73.6091667,10 60.3333333,23.2758333 60.3333333,39.6666667 Z M90,79.4583333 C70.1975,79.4583333 30.6666667,89.3966667 30.6666667,109.125 L30.6666667,131.375 L149.333333,131.375 L149.333333,109.125 C149.333333,89.3966667 109.8025,79.4583333 90,79.4583333 L90,79.4583333 Z" id="Shape" fill="#2277AA" sketch:type="MSShapeGroup"></path>
-            <path d="M0,0 L180,0 L180,140 L0,140 L0,0 Z" id="Shape" stroke="#E0E0E0" sketch:type="MSShapeGroup"></path>
+            <path d="M60.3333333,39.6666667 C60.3333333,56.0575 73.6091667,69.3333333 90,69.3333333 C106.390833,69.3333333 119.666667,56.0575 119.666667,39.6666667 C119.666667,23.2758333 106.390833,10 90,10 C73.6091667,10 60.3333333,23.2758333 60.3333333,39.6666667 Z M30.6666667,109.125 L30.6666667,131.375 L149.333333,131.375 L149.333333,109.125 C149.333333,89.3966667 109.8025,79.4583333 90,79.4583333 C70.1975,79.4583333 30.6666667,89.3966667 30.6666667,109.125 Z" id="Shape" fill="#2277AA" sketch:type="MSShapeGroup"></path>
+            <path d="M0,0 L180,0 L180,140 L0,140 L0,0 Z" id="Shape" stroke="#E0E0E0" opacity="0.0286847015" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
         </g>
     </g>
 </svg>
