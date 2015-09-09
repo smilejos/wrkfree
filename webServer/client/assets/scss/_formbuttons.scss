@@ -84,6 +84,7 @@ $formbutton-height: 30px;
             cursor: pointer;
             padding-right: 10px;
             .icon {
+                width: 26px;
                 vertical-align: top;
                 font-size: 16px;
                 height: $formbutton-height;
@@ -100,13 +101,13 @@ $formbutton-height: 30px;
         &.input, &.submit {
             display: none;
         }
-
-        &.input {
-            width: 0;
-            height: 16px;
-            line-height: 20px;
-            padding: 15px 5px 17px 0px;
-        }
+        // NOTE: with section below, firefox will not work
+        // &.input {
+        //     width: 0;
+        //     height: 16px;
+        //     line-height: 20px;
+        //     padding: 15px 5px 17px 0px;
+        // }
         &.submit {
             cursor: pointer;
             height: $formbutton-height;

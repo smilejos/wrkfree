@@ -50,7 +50,6 @@ exports.hangupConferenceAsync = function(socket, data) {
     return SharedUtils.argsCheckAsync(data.channelId, 'md5')
         .then(function(cid) {
             var uid = socket.getAuthToken();
-            console.log('[DEBUG]============rtc hangup ============> channelId: ', cid, uid);
             return RtcStorage.leaveSessionAsync(cid, uid, socket.id);
         }).then(function(success) {
             var errMsg = 'fail to delete rtc client on storage service';
