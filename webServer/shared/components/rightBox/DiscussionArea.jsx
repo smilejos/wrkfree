@@ -218,30 +218,25 @@ var DiscussionArea = React.createClass({
             opacity: 0.8,
             lineHeight: 2.8,
             fontWeight: 500,
+            fontSize: 14,
+            paddingLeft: 45,
             cursor: 'pointer'
         };
         var enableContainerStyle = {
             position: 'absolute',
             top: -5,
-            right: 0
+            left: 0
         };
         return (
             <div className={isTwinkled ? 'DiscussionArea onTwinkle' : 'DiscussionArea'} style={ContainerStyle}>
                 <div style={headerStyle} onClick={this._showMessages.bind(this, !isShown)}>
-                    &nbsp;
-                    &nbsp;
-                    <span className="fa fa-comment" />
-                    &nbsp;
-                    &nbsp;
                     {'Messages'}
                 </div>
                 <div style={enableContainerStyle}>
-                    <IconButton iconClassName={isShown ? "fa fa-angle-down" : "fa fa-angle-up"}
-                        tooltipPosition="top-left"
-                        tooltip={isShown ? "hide message" : "show message"}
-                        onClick={this._showMessages.bind(this, !isShown)}
-                        touch
-                        iconStyle={{color: '#FFF'}} />
+                    <IconButton iconClassName={"material-icons"}
+                        iconStyle={{color: '#FFF', fontSize: 18}} >
+                        {isShown ? 'chat' : 'textsms'}
+                    </IconButton>
                 </div>
                 <ReloadImg isReload={this.state.isReloading} />
                 <MessageList isShown={isShown}
