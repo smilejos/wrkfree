@@ -56,7 +56,7 @@ module.exports = React.createClass({
             zIndex: 2,
             opacity: 0.8
         };
-        var inputHint = (isActived ? 'type message ...' : '');
+        var inputHint = (isActived ? 'Your feedback' : '');
         return (
             <div style={containerStyle} >
                 <FormButton 
@@ -68,9 +68,9 @@ module.exports = React.createClass({
                     submitHandler={this._submitReport}
                     onBlurHandler={this._onBlur}
                     defaultIconHandler={this._toggleInut.bind(this, !isActived)}
-                    defaultIconClass={isActived ? "fa fa-times" : "fa fa-commenting"}
+                    defaultIconClass="material-icons"
+                    defaultIconName="feedback"
                     submitIconClass="fa fa-paper-plane-o" 
-                    label="share your opinion"
                     hintText={inputHint} />
             </div>
         );
