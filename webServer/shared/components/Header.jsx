@@ -193,7 +193,8 @@ module.exports = React.createClass({
                         counts={this.state.unreadNoticeCounts}
                         containerClass="rightState" 
                         containerStyle={{marginTop: 10}} 
-                        iconClass="fa fa-bell"
+                        iconClass="material-icons"
+                        iconName="notifications"
                         tips={notificationTips}
                         iconHandler={this._onNoticeToggle}/>
                     <StateButton
@@ -201,7 +202,8 @@ module.exports = React.createClass({
                         counts={this.state.unreadConversations}
                         containerClass="rightState" 
                         containerStyle={{marginTop: 10}} 
-                        iconClass="fa fa-comments"
+                        iconClass="material-icons"
+                        iconName="forum"
                         tips={frinedListTiips}
                         iconHandler={this._onInboxToggle}/>
                     <UserState avatar={this.state.userInfo.avatar} name={this.state.userInfo.nickName} />
@@ -275,6 +277,7 @@ var StateButton = React.createClass({
                     counts={this.props.counts}
                     colorType="blue"
                     defaultIconClass={this.props.iconClass} 
+                    defaultIconName={this.props.iconName}
                     defaultIconHandler={this.props.iconHandler}/>
                 <Tooltip 
                     show={this.state.isShown}
