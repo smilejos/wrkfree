@@ -7,7 +7,7 @@
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
         <g id="ic_person_outline_black_48px" sketch:type="MSLayerGroup" transform="translate(1.000000, 1.000000)">
             <path d="M60.3333333,39.6666667 C60.3333333,56.0575 73.6091667,69.3333333 90,69.3333333 C106.390833,69.3333333 119.666667,56.0575 119.666667,39.6666667 C119.666667,23.2758333 106.390833,10 90,10 C73.6091667,10 60.3333333,23.2758333 60.3333333,39.6666667 Z M30.6666667,109.125 L30.6666667,131.375 L149.333333,131.375 L149.333333,109.125 C149.333333,89.3966667 109.8025,79.4583333 90,79.4583333 C70.1975,79.4583333 30.6666667,89.3966667 30.6666667,109.125 Z" id="Shape" fill="#2277AA" sketch:type="MSShapeGroup"></path>
-            <path d="M0,0 L180,0 L180,140 L0,140 L0,0 Z" id="Shape" stroke="#E0E0E0" opacity="0.0286847015" fill="#000000" sketch:type="MSShapeGroup"></path>
+            <path d="M0,0 L180,0 L180,140 L0,140 L0,0 Z" id="Shape" stroke="#E0E0E0" opacity="0.0286847015" fill="#FFFFFF" sketch:type="MSShapeGroup"></path>
         </g>
     </g>
 </svg>
