@@ -92,15 +92,20 @@ module.exports = React.createClass({
                 </div>
                 <div className="hangoutHeaderControls">
                     <HangoutTool
-                        containerClass={isCompressed ? 'controlIcon fa fa-expand' : 'controlIcon fa fa-minus'}
+                        containerClass="controlIcon material-icons"
+                        iconName={isCompressed ? 'expand_less' : 'expand_more'}
                         tips={isCompressed ? 'expand window' : 'compress window'}
+                        containerStyle={{fontSize: 22}}
                         clickHandler={isCompressed ? this._expand : this._compress} />
                     <HangoutTool
-                        containerClass="controlIcon fa fa-random"
+                        containerClass="controlIcon material-icons"
+                        iconName="shuffle"
                         tips="swith to workspace"
+                        containerStyle={{fontSize: 20}}
                         clickHandler={this._switchWorkSpace} />
                     <HangoutTool
-                        containerClass="controlIcon fa fa-times"
+                        iconName="close"
+                        containerClass="controlIcon material-icons"
                         tips="close window"
                         containerStyle={{fontSize: 20}}
                         clickHandler={this._close} />
@@ -140,6 +145,7 @@ var HangoutTool = React.createClass({
                 onClick={this._onClick}
                 onMouseEnter={this._onTipsShown.bind(this, true)}
                 onMouseLeave={this._onTipsShown.bind(this, false)}>
+                {this.props.iconName}
                 <Tooltip 
                     show={this.state.isShown}
                     verticalPosition="top" 

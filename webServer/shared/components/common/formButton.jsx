@@ -109,6 +109,21 @@ module.exports = React.createClass({
         return '';
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: adjust icon size based on different icon class
+     *         NOTE: material-icons is default smaller than font-awesome
+     * 
+     * @param {String}        iconClass, the icon class
+     */
+    _getIconStyle: function(iconClass) {
+        var isMaterialIcon = (iconClass === 'material-icons');
+        return {
+            fontSize: isMaterialIcon ? 18 : 16,
+            cursor: 'pointer'
+        };
+    },
+
     render: function() {
         var containerWidth = (this.props.width ? this.props.width : this.state.defaultWidth);
         var isFiexedWidth = this.props.isFiexedWidth;
@@ -135,7 +150,11 @@ module.exports = React.createClass({
                 {this._setCounter()}
                 <div className={containerClass} style={containerStyle} >
                     <label htmlFor="name" className="cta" onClick={this._onContentClick} style={{width: containerStyle.width}}>
-                        <i ref="defaultIcon" style={{cursor: 'pointer'}} className={'icon '+ this.props.defaultIconClass}></i>
+                        <i ref="defaultIcon" 
+                            className={'icon '+ this.props.defaultIconClass}
+                            style={this._getIconStyle(this.props.defaultIconClass)} >
+                            {this.props.defaultIconName}
+                        </i>
                         <span style={labelStyle}> {label} </span>
                     </label>
                     <div style={{position: 'absolute', top: 0, left: this.state.defaultWidth, visibility: isActived ? 'visible' : 'hidden'}}>
@@ -152,7 +171,10 @@ module.exports = React.createClass({
                             style={{paddingRight: 20}} 
                             className="submit" 
                             type="submit" >
-                            <i className={this.props.submitIconClass}></i>
+                            <i className={this.props.submitIconClass}
+                                style={this._getIconStyle(this.props.submitIconClass)} >
+                                {this.props.submitIconName}
+                            </i>
                         </button>
                     </div>
                 </div>
