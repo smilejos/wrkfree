@@ -262,82 +262,104 @@ module.exports = React.createClass({
             <div className="DrawingToolBar" >
                 <div style={{position: 'absolute', left: 5, bottom: 0}}>
                     <IconButton 
-                        iconClassName="fa fa-eyedropper"
+                        iconClassName="material-icons"
                         tooltipPosition="top-right"
                         touch 
                         tooltip={'pick color'} 
-                        onClick={this._openPalette} />
+                        onClick={this._openPalette} >
+                        {'palette'}
+                    </IconButton>
                     <IconButton 
-                        iconClassName="fa fa-paint-brush"
+                        iconClassName="material-icons"
                         tooltipPosition="top-right"
                         touch 
                         tooltip={'pen mode'} 
-                        onClick={this._changeToPen} />
+                        onClick={this._changeToPen} >
+                        {'brush'}
+                    </IconButton>
                     <IconButton 
-                        iconClassName="fa fa-eraser"
+                        iconClassName="material-icons"
                         tooltipPosition="top-right"
                         touch 
                         tooltip={'eraser mode'} 
-                        onClick={this._changeToEraser} />
+                        onClick={this._changeToEraser} >
+                        {'cancel'}
+                    </IconButton>
                 </div>
                 <div style={{position: 'absolute', left: '50%', marginLeft: -75, bottom: 0}}>
                     <IconButton 
-                        iconClassName="fa fa-chevron-left"
+                        iconClassName="material-icons"
                         tooltipPosition="top-center" 
                         touch
                         tooltip={'go to previous board'}
-                        onClick={this._goToPreviousBoard} />
-                    <input type="text"
-                        ref="boardIndex" 
-                        className="Center" 
-                        value={this.state.boardIndex}
-                        onKeyDown={this._onBoardIndexKeyDown}
-                        onBlur={this._setDefaultIndex}
-                        onChange={this._onBoardIndexChange}
-                        style={{width:'20', height:'26'}}/>
-                        {" / " + this.props.drawInfo.boardNums}
+                        onClick={this._goToPreviousBoard} >
+                        {'keyboard_arrow_left'}
+                    </IconButton>
+                    <div style={{display: 'inline-block', height: '100%', verticalAlign: 'middle'}}>
+                        <input type="text"
+                            ref="boardIndex" 
+                            className="Center" 
+                            value={this.state.boardIndex}
+                            onKeyDown={this._onBoardIndexKeyDown}
+                            onBlur={this._setDefaultIndex}
+                            onChange={this._onBoardIndexChange}
+                            style={{width: 20, height:26, marginBottom: 10}}/>
+                            {" / " + this.props.drawInfo.boardNums}
+                    </div>
                     <IconButton 
-                        iconClassName="fa fa-chevron-right"
+                        iconClassName="material-icons"
                         tooltipPosition="top-center" 
                         touch
                         tooltip={'go to next board'}
-                        onClick={this._goToNextBoard} />
+                        onClick={this._goToNextBoard} >
+                        {'keyboard_arrow_right'}
+                    </IconButton>
                 </div>
                 <div style={{position: 'absolute', right: 10, bottom: 0}}>
                     <IconButton 
-                        iconClassName="fa fa-plus-square-o"
+                        iconClassName="material-icons"
                         tooltipPosition="top-left"
                         touch
                         disabled={!this.state.enableToAddBoard}
                         tooltip={'add new board'}
-                        onClick={this._addBoard} />
+                        onClick={this._addBoard} >
+                        {'add_box'}
+                    </IconButton>
                     <IconButton 
-                        iconClassName="fa fa fa-square-o"
+                        iconClassName="material-icons"
                         tooltipPosition="top-left"
                         touch
                         disabled={!this.state.enableToClearBoard || this.state.isDrawing}
                         tooltip={'clean current board'} 
-                        onClick={this._cleanBoard} />
+                        onClick={this._cleanBoard} >
+                        {'crop_free'}
+                    </IconButton>
                     <IconButton 
-                        iconClassName="fa fa-undo"
+                        iconClassName="material-icons"
                         tooltipPosition="top-left"
                         touch
                         disabled={!this.state.enableToUndoBoard || this.state.isDrawing}
                         tooltip={'undo to previous draw'} 
-                        onClick={this._drawUndo} />
+                        onClick={this._drawUndo} >
+                        {'undo'}
+                    </IconButton>
                     <IconButton 
-                        iconClassName="fa fa-repeat"
+                        iconClassName="material-icons"
                         tooltipPosition="top-left"
                         touch
                         disabled={!this.state.enableToRedoBoard || this.state.isDrawing}
                         tooltip={'repeat to next draw'}
-                        onClick={this._drawRedo} />
+                        onClick={this._drawRedo} >
+                        {'redo'}
+                    </IconButton>
                     <IconButton 
-                        iconClassName="fa fa-trash-o" 
+                        iconClassName="material-icons"
                         tooltipPosition="top-left"
                         touch
                         disabled
-                        tooltip={'delete current board'} />
+                        tooltip={'delete current board'} >
+                        {'delete'}
+                    </IconButton>
                 </div>
             </div>
         );
