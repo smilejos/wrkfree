@@ -341,6 +341,6 @@ function _getImgDataURL(baseImg) {
         return null;
     }
     var prefix = 'data:' + baseImg.contentType + ';' + baseImg.encode + ',';
-    var rawChunks = baseImg.chunks.buffer.data;
+    var rawChunks = baseImg.chunks.data;
     return (rawChunks ? prefix + rawChunks : null);
 }
