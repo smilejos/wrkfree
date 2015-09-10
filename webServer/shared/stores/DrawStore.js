@@ -3,7 +3,6 @@ var Promise = require('bluebird');
 var CreateStore = require('fluxible/addons').createStore;
 var SharedUtils = require('../../../sharedUtils/utils');
 var DrawUtils = require('../../../sharedUtils/drawUtils');
-var LokiUtils = require('../../../sharedUtils/lokiUtils');
 
 var Configs = require('../../../configs/config');
 // used to limit the active reocrds number
@@ -57,7 +56,7 @@ module.exports = CreateStore({
         var collection = this.db.getCollection(this.dbName);
         this.baseImgs[drawViewId] = null;
         // prepare to indicate that this board is polyfilled
-        _getDrawView(collection, data.channelId, data.boardId);
+        collection.addDynamicView(drawViewId);
     },
 
     /**
@@ -100,16 +99,10 @@ module.exports = CreateStore({
     _onRecordUndo: function(data) {
         var cid = data.channelId;
         var bid = data.boardId;
-        var collection = this.db.getCollection(this.dbName);
-        var drawView = _getDrawView(collection, cid, bid);
-        var condition = {
-            isUndo: false
-        };
-        var sort = {
-            field: 'drawTime',
-            isDesc: true
-        };
-        LokiUtils.searchOnView(drawView, condition, sort, 1).update(function(obj) {
+        var boardSet = this._getBoardResultSet(cid, bid);
+        boardSet.where(function(obj) {
+            return !obj.isUndo;
+        }).limit(1).update(function(obj) {
             obj.isUndo = true;
         });
         this.emitChange();
@@ -126,18 +119,13 @@ module.exports = CreateStore({
     _onRecordRedo: function(data) {
         var cid = data.channelId;
         var bid = data.boardId;
-        var collection = this.db.getCollection(this.dbName);
-        var drawView = _getDrawView(collection, cid, bid);
-        var condition = {
-            isUndo: true
-        };
-        var sort = {
-            field: 'drawTime',
-            isDesc: false
-        };
-        LokiUtils.searchOnView(drawView, condition, sort, 1).update(function(obj) {
-            obj.isUndo = false;
-        });
+        var boardSet = this._getBoardResultSet(cid, bid);
+        boardSet.simplesort('drawTime', -1)
+            .where(function(obj) {
+                return obj.isUndo;
+            }).limit(1).update(function(obj) {
+                obj.isUndo = false;
+            });
         this.emitChange();
     },
 
@@ -156,7 +144,7 @@ module.exports = CreateStore({
         var collection = this.db.getCollection(this.dbName);
         this.baseImgs[drawViewId] = _getImgDataURL(data.boardInfo.baseImg);
         // prepare to indicate that this board is polyfilled
-        _getDrawView(collection, data.channelId, data.boardId);
+        collection.addDynamicView(drawViewId);
         return Promise.map(data.boardInfo.records, function(doc) {
             return _saveRecord(collection, doc);
         }).bind(this).then(function() {
@@ -196,7 +184,8 @@ module.exports = CreateStore({
     _onBoardClean: function(data) {
         var collection = this.db.getCollection(this.dbName);
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        var removeTargets = _getDrawView(collection, data.channelId, data.boardId).data();
+        var boardSet = this._getBoardResultSet(data.channelId, data.boardId);
+        var removeTargets = boardSet.data();
         this.baseImgs[drawViewId] = null;
         SharedUtils.fastArrayMap(removeTargets, function(doc) {
             collection.remove(doc);
@@ -214,26 +203,11 @@ module.exports = CreateStore({
      * @param {Number}      boardId, target board id
      */
     getDrawInfo: function(channelId, boardId) {
-        var collection = this.db.getCollection(this.dbName);
         var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
         return {
             baseImg: this.baseImgs[drawViewId],
-            records: _getDrawView(collection, channelId, boardId).data()
+            records: this._getBoardResultSet(channelId, boardId).data()
         };
-    },
-
-    /**
-     * @Public API
-     * @Author: George_Chen
-     * @Description: to get the latest draw record on current board
-     * 
-     * @param {String}      channelId, target channel id
-     * @param {Number}      boardId, target board id
-     */
-    getLastRecord: function(channelId, boardId) {
-        var collection = this.db.getCollection(this.dbName);
-        var drawRecords = _getDrawView(collection, channelId, boardId).data();
-        return drawRecords[drawRecords.length - 1];
     },
 
     /**
@@ -267,47 +241,40 @@ module.exports = CreateStore({
 
     /**
      * @Author: George_Chen
+     * @Description: to get board query result set
+     *
+     * @param {String}          cid, the channel id
+     * @param {Number}          bid, the draw board id
+     */
+    _getBoardResultSet: function(cid, bid) {
+        var collection = this.db.getCollection(this.dbName);
+        return collection.chain().find({
+            channelId: cid
+        }).where(function(obj) {
+            return (obj.boardId === bid);
+        }).simplesort('drawTime');
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: to ensure inactive records will be archived
      *
      * @param {String}          cid, the channel id
      * @param {Number}          bid, the draw board id
      */
     _ensureArchived: function(cid, bid) {
-        var collection = this.db.getCollection(this.dbName);
-        var drawView = _getDrawView(collection, cid, bid);
-        var archiveNum = (drawView.data().length - ACTIVED_RECORD_LIMIT);
-        var sort = {
-            field: 'drawTime',
-            isDesc: false
-        };
+        var boardSet = this._getBoardResultSet(cid, bid);
+        var archiveNum = (boardSet.data().length - ACTIVED_RECORD_LIMIT);
         if (archiveNum > 0) {
-            LokiUtils
-                .searchOnView(drawView, {}, sort, archiveNum)
+            boardSet.limit(archiveNum)
                 .update(function(obj) {
-                    obj.isArchived = true;
+                    if (!obj.isArchived) {
+                        obj.isArchived = true;
+                    }
                 });
         }
     }
 });
-
-/**
- * @Author: George_Chen
- * @Description: to get lokijs dynamicView for specific channel
- *
- * @param {Object}      collection, lokijs collection
- * @param {Object}      channelId, channel's id
- */
-function _getDrawView(collection, cid, bid) {
-    var drawViewId = DrawUtils.getDrawViewId(cid, bid);
-    var drawView = collection.getDynamicView(drawViewId);
-    if (!drawView) {
-        drawView = collection.addDynamicView(drawViewId);
-        drawView.applyWhere(function(doc) {
-            return (doc.channelId === cid && doc.boardId === bid);
-        }).applySimpleSort('drawTime');
-    }
-    return drawView;
-}
 
 /**
  * @Author: George_Chen
