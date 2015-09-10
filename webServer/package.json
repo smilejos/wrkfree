@@ -1,6 +1,6 @@
 {
   "name": "wrkfree-web-server",
-  "version": "0.8.8",
+  "version": "0.8.9",
   "private": true,
   "scripts": {
     "dev": "gulp",
@@ -16,9 +16,9 @@
     "eventemitter2": "^0.4.14",
     "express": "^4.9.0",
     "express-session": "^1.10.3",
-    "fluxible": "~0.4.10",
+    "fluxible": "~0.5.0",
     "jsx-loader": "^0.12.2",
-    "lokijs": "~1.2.0",
+    "lokijs": "~1.3.0",
     "lru-cache": "^2.6.4",
     "material-ui": "0.11.0",
     "material-ui-sass": "0.7.1",
@@ -34,7 +34,7 @@
     "react-router": "^0.13.3",
     "react-tap-event-plugin": "^0.1.7",
     "serialize-javascript": "^1.0.0",
-    "socketcluster-client": "2.2.26",
+    "socketcluster-client": "2.3.13",
     "superagent": "^0.21.0",
     "webrtc": "^1.14.1",
     "webrtcsupport": "^2.1.2",

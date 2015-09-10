@@ -260,7 +260,7 @@ module.exports = React.createClass({
     render: function() {
         return (
             <div className="DrawingToolBar" >
-                <div style={{position: 'absolute', left: 5, bottom: 0}}>
+                <div style={{position: 'absolute', left: 5, bottom: 0, height: 50}}>
                     <IconButton 
                         iconClassName="material-icons"
                         tooltipPosition="top-right"
@@ -278,13 +278,13 @@ module.exports = React.createClass({
                         {'brush'}
                     </IconButton>
                     <IconButton 
-                        iconClassName="material-icons"
+                        iconClassName="fa fa-eraser"
+                        style={{top: -5}}
+                        iconStyle={{fontSize: 21}}
                         tooltipPosition="top-right"
                         touch 
                         tooltip={'eraser mode'} 
-                        onClick={this._changeToEraser} >
-                        {'cancel'}
-                    </IconButton>
+                        onClick={this._changeToEraser} />
                 </div>
                 <div style={{position: 'absolute', left: '50%', marginLeft: -75, bottom: 0}}>
                     <IconButton 
