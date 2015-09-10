@@ -16,7 +16,7 @@
     "eventemitter2": "^0.4.14",
     "express": "^4.9.0",
     "express-session": "^1.10.3",
-    "fluxible": "~0.4.10",
+    "fluxible": "~0.5.0",
     "jsx-loader": "^0.12.2",
     "lokijs": "~1.2.0",
     "lru-cache": "^2.6.4",
