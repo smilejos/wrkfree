@@ -93,11 +93,13 @@ exports.drawBaseImgAsync = function(board, records) {
     }).then(function(archives) {
         return _drawAndUpdate(board, archives, false);
     }).then(function(newImg) {
-        if (newImg) {
-            board.baseImg.chunks.buffer = newImg;
-        }
+        var imgInfo = {
+            contentType: board.baseImg.contentType,
+            encode: board.baseImg.encode,
+            chunks: (newImg ? newImg : board.baseImg.chunks.buffer)
+        };
         return {
-            baseImg: board.baseImg,
+            baseImg: imgInfo,
             records: activeRecords,
             isUpdated: !!newImg
         };
