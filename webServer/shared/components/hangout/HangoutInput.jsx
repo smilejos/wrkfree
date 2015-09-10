@@ -6,6 +6,7 @@ var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
  */
 var Mui = require('material-ui');
 var TextField = Mui.TextField;
+var FontIcon = Mui.FontIcon;
 
 /**
  * actions
@@ -104,23 +105,26 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        var rtcIconClass = (this.props.hasConference ? 'fa fa-tty' : 'fa fa-phone');
+        var rtcIconName = (this.props.hasConference ? 'call_end' : 'settings_phone');
         var rtcHandler = (this.props.hasConference ? this._hangupCall : this._rtcCall);
         var barStyle = {};
         var rtcIconStyle = {
-            'fontSize': 23,
-            'color': (this.props.hasConference ? HANUP_ICON_COLOR : PHONE_ICON_NORMAL_COLOR),
+            fontSize: 23,
+            color: (this.props.hasConference ? HANUP_ICON_COLOR : PHONE_ICON_NORMAL_COLOR),
         };
         if (this.props.onCall) {
             rtcIconStyle.color = (this.props.hasConference ? HANUP_ICON_COLOR : PHONE_ICON_ONCALL_COLOR);
             barStyle.backgroundColor = (this.props.hasConference ? INPUTBAR_NORMAL_COLOR : INPUTBAR_ONCALL_COLOR);
+            rtcIconName = 'phone_in_talk';
         }
         return (
-            <div className="hangoutInputBar" style={barStyle}>
+            <div className={this.props.onCall ? 'hangoutInputBar onTwinkle' : 'hangoutInputBar'} style={barStyle}>
                 <div className="hangoutRtcIcon" >
-                    <span className={rtcIconClass}
+                    <FontIcon className="material-icons"
                         onClick={rtcHandler}
-                        style={rtcIconStyle} />
+                        style={rtcIconStyle} >
+                        {rtcIconName}
+                    </FontIcon>
                 </div>
                 <div className="hangoutTextField" >
                     <TextField 
