@@ -66,7 +66,6 @@
     <!-- Header -->
     <header class="intro-header">
         <div class="container">
-
             <div class="row">
                 <div class="col-lg-12">
                     <div class="intro-message">
@@ -83,7 +82,9 @@
                     </div>
                 </div>
             </div>
-
+            <a id="nav-learn" class="header-learn-more btn btn-circle page-scroll">
+                <i class="fa fa-angle-double-down animated"></i>
+            </a>
         </div>
         <!-- /.container -->
 
@@ -239,6 +240,7 @@
                 });
             });
         });
+        document.getElementById('nav-learn').addEventListener('click', navigate.bind(this, 'explore'));
         document.getElementById('nav-explore').addEventListener('click', navigate.bind(this, 'explore'));
         document.getElementById('nav-about').addEventListener('click', navigate.bind(this, 'about'));
     </script>
