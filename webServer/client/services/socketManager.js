@@ -65,18 +65,12 @@ exports.init = function(callback) {
      * secure socket after it initialized
      */
     Socket.on('connect', function(state) {
-        if (!state.isAuthenticated) {
-            if (document.cookie === '') {
-                return location.assign('/');
+        return Socket.emit('auth', document.cookie, function(err) {
+            if (err) {
+                _handleConnectionFail('connection authentication fail');
             }
-            return Socket.emit('auth', document.cookie, function(err) {
-                if (err) {
-                    _handleConnectionFail('connection authentication fail');
-                }
-                _clientInit();
-            });
-        }
-        _clientInit();
+            _clientInit();
+        });
     });
 
     Socket.on('disconnect', function() {
