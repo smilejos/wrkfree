@@ -40,4 +40,5 @@ app.registerStore(require('./stores/HangoutStore'));
 app.registerStore(require('./stores/PreviewStore'));
 app.registerStore(require('./stores/ChannelCreatorStore'));
 app.registerStore(require('./stores/ChannelVisitorStore'));
+app.registerStore(require('./stores/TourGuideStore'));
 module.exports = app;
