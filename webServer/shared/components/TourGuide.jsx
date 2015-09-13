@@ -137,24 +137,24 @@ module.exports = React.createClass({
                                 avatar={<Avatar src="/assets/imgs/logo.svg" />} >
                             </CardHeader>
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://video-tpe1-1.xx.fbcdn.net/hvideo-xft1/v/t42.1790-2/12022655_1609144906003815_589802763_n.mp4?efg=eyJybHIiOjMwMCwicmxhIjo1MTJ9&rl=300&vabr=12&oh=fe9a36bccb8445e2185b673cd286d5b3&oe=55F47A23')}
+                                clickHandler={this._playVideo.bind(this, 'https://ci-20758412784-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/20758412784/20758412784_451d221ede.mp4?dt=flickr&x=1442750905&fn=20758412784.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D20758412784%26ufn%3D20758412784.mp4&s=957120c3d789879150610887513e51d1')}
                                 index={1}
                                 label={'Create your own channel'} />
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://fbcdn-video-b-a.akamaihd.net/hvideo-ak-xpt1/v/t42.1790-2/12018081_1609144792670493_555658850_n.mp4?efg=eyJybHIiOjMwMCwicmxhIjo1MTJ9&rl=300&vabr=14&oh=c8d34273a24cba8e1968dfb707f7438f&oe=55F4691E&__gda__=1442085584_ae9325cbec903574722ad3fc1f4deade')}
+                                clickHandler={this._playVideo.bind(this, 'https://ci-21193244948-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/21193244948/21193244948_4fe0603709.mp4?dt=flickr&x=1442751332&fn=21193244948.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21193244948%26ufn%3D21193244948.mp4&s=a96395aaf57ae25c4c90351add32cdf3')}
                                 index={2}
                                 label={'Join a channel or make a friend'} />
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://video-tpe1-1.xx.fbcdn.net/hvideo-xpf1/v/t42.1790-2/11996052_1609143996003906_137450137_n.mp4?efg=eyJybHIiOjMwMCwicmxhIjo1MTJ9&rl=300&vabr=22&oh=955086f08229d9aa0ec5a6afca1ac6a5&oe=55F47026')}
+                                clickHandler={this._playVideo.bind(this, 'https://ci-21354863456-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/21354863456/21354863456_5dafa702fe.mp4?dt=flickr&x=1442751407&fn=21354863456.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21354863456%26ufn%3D21354863456.mp4&s=d95ef70255251d3127daa0258335a4a7')}
                                 index={3}
                                 label={'Check the status of your favoriates channels, notifications and friends'} />
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://fbcdn-video-k-a.akamaihd.net/hvideo-ak-xaf1/v/t42.1790-2/11987423_1609141022670870_511776106_n.mp4?efg=eyJybHIiOjMwMCwicmxhIjo1MTJ9&rl=300&vabr=20&oh=94cfcaca1eba14252c9ed4ffe8b4287c&oe=55F45EE6&__gda__=1442082884_2daed122f5bf2c236dbc66fadf5e667d')}
+                                clickHandler={this._playVideo.bind(this, 'https://ci-21192997740-df8a4d03.http.atlas.cdn.yimg.com/flickr5/132356020@N07/21192997740/21192997740_289485dbe4.mp4?dt=flickr&x=1442751374&fn=21192997740.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21192997740%26ufn%3D21192997740.mp4&s=4578adf4041cc3adf740828f9f63e47a')}
                                 index={4}
                                 label={'Start a simple work on workspace'} />
                             <TourTopic enable
                                 index={5}
-                                clickHandler={this._playVideo.bind(this, 'https://video-tpe1-1.xx.fbcdn.net/hvideo-xat1/v/t42.1790-2/12009159_1609134352671537_1078639230_n.mp4?efg=eyJybHIiOjMwMCwicmxhIjo1MTJ9&rl=300&vabr=26&oh=45596b84a5f85e0ca6a364230cfc6fdd&oe=55F47011')}
+                                clickHandler={this._playVideo.bind(this, 'https://ci-21381110085-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/21381110085/21381110085_7f5ed177df.mp4?dt=flickr&x=1442751251&fn=21381110085.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21381110085%26ufn%3D21381110085.mp4&s=0d6983ad1215fccaec842adf392f5b3c')}
                                 label={'Work on multiple channels'} />                                
                             <TourTopic enable={false}
                                 index={6}
