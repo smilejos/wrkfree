@@ -216,6 +216,52 @@ exports.setLayoutAsync = function(user, isGridLayout) {
         });
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used to update user's defaut tour state
+ *
+ * @param {String}          user, the current user id
+ * @param {Boolean}         data.isHidden, to indicate tour is default hidden or not
+ */
+exports.setDefaultTourAsync = function(user, isHidden) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(user, 'md5'),
+        SharedUtils.argsCheckAsync(isHidden, 'boolean'),
+        function(uid, hiddenState) {
+            var query = {
+                _id: uid
+            };
+            var info = {
+                isDefaultTourHidden: hiddenState
+            };
+            return _update(query, info, 'setDefaultTourAsync');
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to check tour guide is default hidden or not
+ *
+ * @param {String}          user, the current user id
+ */
+exports.isDefaultTourHiddenAsync = function(user) {
+    return SharedUtils.argsCheckAsync(user, 'md5')
+        .then(function(uid) {
+            var condition = {
+                _id: uid,
+                isDefaultTourHidden: true
+            };
+            return Model.countAsync(condition);
+        }).then(function(count) {
+            return (count > 0);
+        }).catch(function(err) {
+            SharedUtils.printError('UserDao', 'isDefaultTourHiddenAsync', err);
+            throw err;
+        });
+};
+
 /************************************************
  *
  *           internal functions

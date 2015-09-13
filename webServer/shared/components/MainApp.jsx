@@ -18,6 +18,7 @@ var Search = require('./Search.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
 var SystemSounds = require('./SystemSounds.jsx');
 var ClientReport = require('./ClientReport.jsx');
+var TourGuide = require('./TourGuide.jsx');
 
 /**
  * below is for material-ui 9.0 up
@@ -100,6 +101,7 @@ module.exports = React.createClass({
                 </div>
             );
         }
+        var inDashboard = (this.state.route.path === '/app/dashboard');
         var inWorkspace = this.state.route.params.channelId;
         // RouteHandler will take care of Routes while url change
         return (
@@ -117,6 +119,7 @@ module.exports = React.createClass({
                     <Search />
                     <SystemSounds />
                     <ClientReport inWorkspace={inWorkspace}/>
+                    <TourGuide inDashboard={inDashboard} inWorkspace={inWorkspace}/>
                 </div>
                 <div style={{position: 'fixed', width: '100%', height: '100%', opacity: isInited ? 0 : 1, zIndex: isInited ? -1 : 1, transition: '0.8s'}} >
                     <div style={{position: 'fixed', top: '50%', marginTop: -100, left: '50%', marginLeft: -50}}>
