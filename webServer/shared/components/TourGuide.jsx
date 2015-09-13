@@ -167,7 +167,7 @@ module.exports = React.createClass({
                             </CardActions>
                         </Card>
                         <div style={{position: 'absolute', bottom: 0, right: 0}}>
-                            <img width="200" src="https://farm1.staticflickr.com/669/21182788330_406756e414_m_d.jpg" />
+                            <img width="200" src="https://farm1.staticflickr.com/669/21182788330_e8d6d50b37_o_d.png" />
                         </div>
                         <TourVideo src={this.state.videoUrl}
                             closeHandler={this._closeVideo}
