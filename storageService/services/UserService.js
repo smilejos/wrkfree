@@ -98,6 +98,37 @@ exports.setDashboardLayoutAsync = function(user, isGrid) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: update the default hidden state of tourguide
+ *
+ * @param {String}          user, the current user id
+ * @param {Boolean}         data.isHidden, to indicate tour is default hidden or not
+ */
+exports.setDefaultTourAsync = function(user, isHidden) {
+    return UserDao.setDefaultTourAsync(user, isHidden)
+        .catch(function(err) {
+            SharedUtils.printError('UserService', 'disableTourHelperAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: check the default hidden state of tourguide
+ *
+ * @param {String}          user, the current user id
+ */
+exports.isDefaultTourHiddenAsync = function(user) {
+    return UserDao.isDefaultTourHiddenAsync(user)
+        .catch(function(err) {
+            SharedUtils.printError('UserService', 'isDefaultTourHiddenAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: to find out the information of specific user
  *
  * @param {String/Array}      user, an user id or an array of users

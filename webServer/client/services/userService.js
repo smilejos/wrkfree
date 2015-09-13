@@ -101,6 +101,30 @@ exports.setDashboardLayoutAsync = function(data) {
 };
 
 /**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: used to hide the default tourguide state on current user 
+ *
+ * @param {Object}          socket, the client socket instance
+ */
+exports.hideDefaultTourAsync = function() {
+    var packet = _setPacket('hideDefaultTourAsync', null, {});
+    return _request(packet, 'hideDefaultTourAsync');
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: used to get the default tourguide state on current user 
+ *
+ * @param {Object}          socket, the client socket instance
+ */
+exports.getDefaultTourStateAsync = function() {
+    var packet = _setPacket('getDefaultTourStateAsync', null, {});
+    return _request(packet, 'getDefaultTourStateAsync');
+};
+
+/**
  * Public API
  * @Author: George_Chen
  * @Description: polyfill the user info to local cache
