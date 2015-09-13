@@ -16,17 +16,41 @@ var ListItem = Mui.ListItem;
 var Colors = Mui.Styles.Colors;
 
 /**
+ * store
+ */
+var TourGuideStore = require('../stores/TourGuideStore');
+
+/**
+ * actions
+ */
+var GetDefaultTourState = require('../../client/actions/getDefaultTourState');
+var SetTourState = require('../../client/actions/setTourState');
+var HideDefaultTour = require('../../client/actions/hideDefaultTour');
+
+/**
  * @Author: George_Chen
  * @Description: a tour guide video content, used to demo functionality of wrkfree
  */
 module.exports = React.createClass({
     mixins: [FluxibleMixin],
 
-    getInitialState: function() {
-        return {
-            isShown: false,
-            videoUrl: ''
-        };
+    statics: {
+        storeListeners: {
+            '_onStoreChange': [TourGuideStore]
+        }
+    },
+
+    _getStoreState: function() {
+        return this.getStore(TourGuideStore).getState();
+    },
+
+    _onStoreChange: function() {
+        var storeState = this._getStoreState();
+        if (!storeState.isShown) {
+            storeState.isVideoShown = false;
+            storeState.videoUrl = '';
+        }
+        this.setState(storeState);
     },
 
     /**
@@ -37,7 +61,7 @@ module.exports = React.createClass({
      */
     _playVideo: function(url) {
         this.setState({
-            isShown: true,
+            isVideoShown: true,
             videoUrl: url
         });
     },
@@ -48,30 +72,68 @@ module.exports = React.createClass({
      */
     _closeVideo: function() {
         this.setState({
-            isShown: false,
+            isVideoShown: false,
             videoUrl: ''
         });
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: handler for hidding tourguide 
+     */
+    _hideTour: function(toUpdateDefaultState) {
+        if (!toUpdateDefaultState) {
+            return this.executeAction(SetTourState, {
+                isShown: false
+            });
+        }
+        this.executeAction(HideDefaultTour);
+    },
+
+    getInitialState: function() {
+        var storeState = this._getStoreState();
+        return {
+            isShown: storeState.isShown,
+            isDefaultHidden: storeState.isDefaultHidden,
+            isVideoShown: false,
+            videoUrl: ''
+        };
+    },
+
+    componentDidMount: function() {
+        if (this.props.inDashboard || this.props.inWorkspace) {
+            this.executeAction(GetDefaultTourState);
+        }
+    },
+
     render: function() {
+        var isShown = this.state.isShown;
+        var isDefaultHidden = this.state.isDefaultHidden;
         var containerStyle = {
+            position: 'fixed',
+            width: '100%',
+            height: '100%',
+            bottom: 0,
             backgroundColor: 'rgba(0,0,0,0.5)', 
-            zIndex: 10
+            zIndex: isShown ? 10 : -1,
+            transition: '0.3s'
         };
         var contentStyle = {
             position: 'absolute', 
-            top: '15%', 
-            left: '50%', 
+            top: isShown ? '15%' : '-15%', 
+            left: isShown ? '50%' : '125%', 
+            opacity: isShown ? 1 : 0,
             marginLeft: -400, 
-            width: 800
+            width: isShown ? 800 : 50,
+            transition: '0.5s'
         };
         return (
-            <div className="mainBox" style={containerStyle}>
+            <div style={containerStyle}>
                 <div onClick={this._onContentClick} >
                     <div style={contentStyle}>
                         <Card initiallyExpanded={true}>
                             <CardHeader
-                                title={<div style={{marginTop: 12, fontSize: 18}}>{'Hi, Welcome to Wrkfree'}</div>}
+                                title={<div style={{marginTop: 12, fontSize: 18}}>{'Hi, Welcome to Wrkfree ! Need some tips ?'}</div>}
                                 avatar={<Avatar src="/assets/imgs/logo.svg" />} >
                             </CardHeader>
                             <TourTopic enable
@@ -98,8 +160,10 @@ module.exports = React.createClass({
                                 index={6}
                                 label={'Enjoy it !'} />
                             <CardActions>
-                                <FlatButton secondary label="Close tour guide"/>
-                                <FlatButton primary label="Do not show again"/>
+                                <FlatButton secondary 
+                                    onTouchTap={this._hideTour.bind(this, false)}
+                                    label="Hide tour guide"/>
+                                {isDefaultHidden ? <div/> : <FlatButton primary onTouchTap={this._hideTour.bind(this, true)} label="Do not show on login"/>}
                             </CardActions>
                         </Card>
                         <div style={{position: 'absolute', bottom: 0, right: 0}}>
@@ -107,7 +171,7 @@ module.exports = React.createClass({
                         </div>
                         <TourVideo src={this.state.videoUrl}
                             closeHandler={this._closeVideo}
-                            isShown={this.state.isShown} />
+                            isShown={this.state.isVideoShown} />
                     </div>
                 </div>
             </div>
