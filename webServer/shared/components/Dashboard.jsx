@@ -171,7 +171,8 @@ module.exports = React.createClass({
         var toolbarStyle = {
             float: 'right',
             marginRight: 30,
-            height: 30
+            height: 30,
+            display: (this.state.channels.length > 0 ? 'inline' : 'none')
         };
         return (
             <div className="mainBox" onClick={this._onContentClick} onScroll={this._handleScroll}>

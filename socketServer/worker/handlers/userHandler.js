@@ -113,6 +113,47 @@ exports.setDashboardLayoutAsync = function(socket, data) {
 /**
  * @Public API
  * @Author: George_Chen
+ * @Description: used to hide the default tourguide state on current user 
+ *
+ * @param {Object}          socket, the client socket instance
+ */
+exports.hideDefaultTourAsync = function(socket) {
+    var uid = socket.getAuthToken();
+    return UserStorage.setDefaultTourAsync(uid, true)
+        .then(function(result) {
+            var errMsg = 'fail to set user default tour state on storage service';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            SharedUtils.printError('userHandler.js', 'hideDefaultTourAsync', err);
+            throw err;
+        });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: used to get the default tourguide state on current user 
+ *
+ * @param {Object}          socket, the client socket instance
+ */
+exports.getDefaultTourStateAsync = function(socket) {
+    var uid = socket.getAuthToken();
+    return Promise.props({
+        isHidden: UserStorage.isDefaultTourHiddenAsync(uid)
+    }).then(function(result) {
+        if (result.isHidden === null) {
+            throw new Error('fail to check user default tour state on storage service');
+        }
+        return result;
+    }).catch(function(err) {
+        SharedUtils.printError('userHandler.js', 'getDefaultTourStateAsync', err);
+        throw err;
+    });
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
  * @Description: handle the client's opinion and send it to slack channel
  *
  * @param {Object}          socket, the client socket instance
