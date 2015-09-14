@@ -159,7 +159,7 @@ module.exports = function(server) {
         }, 'get channel preview image');
         if (!req.img || req.img.chunks.length === 0) {
             // send image not found jpeg
-            return res.redirect('http://michigancomicscollective.org/assets/img/not-found.png');
+            return res.redirect('/assets/imgs/empty.png');
         }
         res.contentType(req.img.contentType);
         res.send(req.img.chunks);
