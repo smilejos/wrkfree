@@ -19,12 +19,12 @@ module.exports = function(actionContext, data) {
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         function(cid, bid) {
-            var navigator = data.urlNavigator;
+            var urlNavigator = data.urlNavigator;
             var boardIndex = bid + 1;
-            if (!SharedUtils.isFunction(data.urlNavigator)) {
+            if (!SharedUtils.isFunction(urlNavigator)) {
                 throw new Error('get url navigator fail');
             }
-            navigator('/app/workspace/' + cid + '?board=' + boardIndex);
+            urlNavigator('/app/workspace/' + cid + '?board=' + boardIndex);
         }).then(function() {
             var hangoutStore = actionContext.getStore(HangoutStore);
             if (hangoutStore.isHangoutExist(data.channelId)) {
