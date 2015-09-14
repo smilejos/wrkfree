@@ -116,7 +116,8 @@ module.exports = React.createClass({
             bottom: 0,
             backgroundColor: 'rgba(0,0,0,0.5)', 
             zIndex: isShown ? 10 : -1,
-            transition: '0.3s'
+            transition: '0.3s',
+            overflow: 'auto'
         };
         var contentStyle = {
             position: 'absolute', 
@@ -235,8 +236,8 @@ var TourVideo = React.createClass({
             transition: '0.5s',
             opacity: isShown ? 1 : 0,
             visibility: isShown ? 'visible' : 'hidden',
-            top: -50,
-            right: -10,
+            top: 0,
+            right: 0,
             zIndex: 2,
             border: 'solid 10px #fff',
             boxShadow: '-1px 2px 2px rgba(0,0,0, .1), 2px 6px 12px rgba(0,0,0, .1)'
@@ -257,7 +258,7 @@ var TourVideo = React.createClass({
                     icon={<FontIcon style={{fontSize: 12}} className="fa fa-times" />}
                     style={closeContainerStyle} />
                 <video ref="content"
-                    width="400" 
+                    width="800" 
                     src={this.props.src} />
             </div>
         );
