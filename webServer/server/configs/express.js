@@ -43,7 +43,7 @@ module.exports = function(server) {
         store: new RedisStore({
             host: DbConfigs.cacheEnv.global.host,
             port: DbConfigs.cacheEnv.global.port,
-            ttl: 604800, //redis session ttl in seconds (one week)
+            ttl: 172800, //redis session ttl in seconds (2 days)
             prefix: 'sess:'
         }),
         secret: 'letsrock@theworld',
