@@ -125,7 +125,7 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: resize the current canvas
+     * @Description: resize the current tourguide container
      */
     _resize: function() {
         var width = window.innerWidth;
