@@ -132,8 +132,8 @@ exports.enterAsync = function(uid) {
  * @Description: used to generate redis key for counting daily actived users
  */
 function _getDAUKey() {
-    var dateTimestamp = Math.ceil(Date.now() / DAILY_SECOND);
-    return DAILY_USERS_KEY_PREFIX + dateTimestamp.toString();
+    var currentDate = new Date().getUTCDate();
+    return DAILY_USERS_KEY_PREFIX + currentDate.toString();
 }
 
 /**
