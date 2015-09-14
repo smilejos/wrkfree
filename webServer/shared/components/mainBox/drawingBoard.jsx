@@ -320,6 +320,12 @@ module.exports = React.createClass({
         e.preventDefault();
     },
 
+    _onMouseUp: function(e) {
+        if (e.button === 0) {
+            return this._stopToDraw(false);
+        }
+    },
+
     render: function() {
         // 50 is the height of drawing toolbar
         var DrawAreaStyle = {
@@ -335,7 +341,7 @@ module.exports = React.createClass({
                     onContextMenu={this._onBoardContextMenu}
                     onMouseDown={this._startToDraw}
                     onMouseLeave={this._stopToDraw.bind(this, true)}
-                    onMouseUp={this._stopToDraw.bind(this, false)} />
+                    onMouseUp={this._onMouseUp} />
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
