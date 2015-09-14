@@ -267,6 +267,10 @@ var TourVideo = React.createClass({
         content.play();
     },
 
+    _onVideoContextMenu: function(e) {
+        e.preventDefault();
+    },
+
     render: function() {
         var isShown = this.props.isShown;
         var containerStyle = {
@@ -296,6 +300,7 @@ var TourVideo = React.createClass({
                     icon={<FontIcon style={{fontSize: 12}} className="fa fa-times" />}
                     style={closeContainerStyle} />
                 <video ref="content"
+                    onContextMenu={this._onVideoContextMenu}
                     width={this.props.width} 
                     src={this.props.src} />
             </div>
