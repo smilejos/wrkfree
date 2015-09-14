@@ -31,7 +31,7 @@ module.exports = function(server) {
     /**
      * handle the facebook oauth routes
      */
-    ExpressRouter.get('/auth/facebook', Passport.authenticate('facebook', {
+    ExpressRouter.get('/auth/facebook', auth.redirectLoginUser, Passport.authenticate('facebook', {
         scope: providerParams.getParams('facebook').scope
     }));
 
@@ -43,7 +43,7 @@ module.exports = function(server) {
     /**
      * handle the google oauth routes
      */
-    ExpressRouter.get('/auth/google', Passport.authenticate('google', {
+    ExpressRouter.get('/auth/google', auth.redirectLoginUser, Passport.authenticate('google', {
         scope: providerParams.getParams('google').scope
     }));
     ExpressRouter.get('/auth/google/callback', function(req, res, next) {
