@@ -27,6 +27,11 @@ var GetDefaultTourState = require('../../client/actions/getDefaultTourState');
 var SetTourState = require('../../client/actions/setTourState');
 var HideDefaultTour = require('../../client/actions/hideDefaultTour');
 
+
+var MAX_GUIDE_WIDTH = 800;
+var MINI_GUID_WIDTH = 550;
+var ResizeTimeout = null;
+
 /**
  * @Author: George_Chen
  * @Description: a tour guide video content, used to demo functionality of wrkfree
@@ -96,17 +101,49 @@ module.exports = React.createClass({
             isShown: storeState.isShown,
             isDefaultHidden: storeState.isDefaultHidden,
             isVideoShown: false,
-            videoUrl: ''
+            videoUrl: '',
+            contentWidth: 0,
+            videoWidth: 0
         };
     },
 
     componentDidMount: function() {
+        var self = this;
         if (this.props.inDashboard || this.props.inWorkspace) {
             this.executeAction(GetDefaultTourState);
         }
+        self._resize();
+        window.addEventListener('resize', function(e) {
+            if (ResizeTimeout) {
+                clearTimeout(ResizeTimeout);
+            }
+            ResizeTimeout = setTimeout(function() {
+                self._resize();
+            }, 300);
+        });
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: resize the current canvas
+     */
+    _resize: function() {
+        var width = window.innerWidth;
+        if (window.innerWidth > MAX_GUIDE_WIDTH) {
+            width = MAX_GUIDE_WIDTH;
+            vWidth = MAX_GUIDE_WIDTH;
+        } else if (window.innerWidth < MINI_GUID_WIDTH) {
+            width = MINI_GUID_WIDTH;
+            vWidth = window.innerWidth;
+        }
+        this.setState({
+            contentWidth: width * 0.97,
+            videoWidth: vWidth
+        });
     },
 
     render: function() {
+        var contentWidth = this.state.contentWidth;
         var isShown = this.state.isShown;
         var isDefaultHidden = this.state.isDefaultHidden;
         var containerStyle = {
@@ -124,8 +161,8 @@ module.exports = React.createClass({
             top: isShown ? '15%' : '-15%', 
             left: isShown ? '50%' : '125%', 
             opacity: isShown ? 1 : 0,
-            marginLeft: -400, 
-            width: isShown ? 800 : 50,
+            marginLeft: -(contentWidth / 2 ), 
+            width: isShown ? contentWidth : 50,
             transition: '0.5s'
         };
         return (
@@ -171,6 +208,7 @@ module.exports = React.createClass({
                             <img width="200" src="https://farm1.staticflickr.com/669/21182788330_e8d6d50b37_o_d.png" />
                         </div>
                         <TourVideo src={this.state.videoUrl}
+                            width={this.state.videoWidth}
                             closeHandler={this._closeVideo}
                             isShown={this.state.isVideoShown} />
                     </div>
@@ -237,7 +275,7 @@ var TourVideo = React.createClass({
             opacity: isShown ? 1 : 0,
             visibility: isShown ? 'visible' : 'hidden',
             top: 0,
-            right: 0,
+            left: 0,
             zIndex: 2,
             border: 'solid 10px #fff',
             boxShadow: '-1px 2px 2px rgba(0,0,0, .1), 2px 6px 12px rgba(0,0,0, .1)'
@@ -258,7 +296,7 @@ var TourVideo = React.createClass({
                     icon={<FontIcon style={{fontSize: 12}} className="fa fa-times" />}
                     style={closeContainerStyle} />
                 <video ref="content"
-                    width="800" 
+                    width={this.props.width} 
                     src={this.props.src} />
             </div>
         );
