@@ -53,9 +53,13 @@ module.exports = React.createClass({
         var rtcComponents = '';
         if (conference) {
             var participants = Object.keys(conference);
+            var componentStyle = {
+                marginTop: 15,
+                border: 'solid 1px #e0e0e0'
+            };
             rtcComponents = SharedUtils.fastArrayMap(participants, function(clientId, index){
                 return (
-                    <div key={clientId} style={{marginTop: 15}}>
+                    <div key={clientId} style={componentStyle}>
                         <RtcVideo 
                             videoId={clientId} 
                             stream={conference[clientId]} />
