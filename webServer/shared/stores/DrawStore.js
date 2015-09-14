@@ -22,8 +22,7 @@ module.exports = CreateStore({
         'ON_BOARD_CLEAN': '_onBoardClean',
         'ON_DRAW_UNDO': '_onRecordUndo',
         'ON_DRAW_REDO': '_onRecordRedo',
-        'ON_UPDATE_DRAWIMG': '_onUpdateBaseImg',
-        'CLEAN_FAILURE_DRAW': '_cleanFailureDraw'
+        'ON_UPDATE_DRAWIMG': '_onUpdateBaseImg'
     },
 
     initialize: function() {
@@ -32,15 +31,6 @@ module.exports = CreateStore({
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
         collection.ensureIndex('boardId');
-    },
-
-    /**
-     * @Author: George_Chen
-     * @Description: to force the drawBoard to reload canvas data stored
-     *               on current DrawStore
-     */
-    _cleanFailureDraw: function() {
-        this.emitChange();
     },
 
     /**

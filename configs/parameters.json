@@ -2,9 +2,8 @@
     "draw": {
         "boardWidth": 900,
         "boardHeight": 500,
-        "missingDrawLimit": 5,
         "activeRecordLimit": 10,
-        "activeDrawsLimit": 200,
+        "activeDrawsLimit": 300,
         "activeDrawsExpiration": 2,
         "delayForUpdatePreview": 3000,
         "drawOptions": {

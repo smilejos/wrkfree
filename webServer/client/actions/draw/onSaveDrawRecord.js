@@ -49,10 +49,11 @@ module.exports = function(actionContext, data) {
         }
         return actionContext.dispatch('ON_RECORD_SAVE', recvData);
     }).catch(function(err) {
-        SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
         var reason = data.reason || 'save draw fail !';
+        SharedUtils.printError('onSaveDrawRecord.js', 'core', err);
         ActionUtils.showWarningEvent('WARN', 'remote ' + reason);
-        actionContext.dispatch('CLEAN_FAILURE_DRAW');
+        actionContext.dispatch('ON_BOARD_CLEAN', data);
+        actionContext.executeAction(GetDrawBoard, data);
     });
 };
 
