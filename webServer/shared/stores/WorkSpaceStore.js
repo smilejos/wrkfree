@@ -96,8 +96,7 @@ module.exports = CreateStore({
      * @param {Number}      boardId, the target board id
      */
     setCurrentBoard: function(boardId) {
-        this.draw.currentBoardId = boardId;
-        this.emitChange();
+        this.draw.currentBoardId = boardId; 
     },
 
     /**

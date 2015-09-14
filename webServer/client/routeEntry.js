@@ -200,9 +200,9 @@ function _getDashboardResource(actionContext) {
  * @param {String}      channelId, the channel's id
  */
 function _getWorkSpaceResource(actionContext, channelId, boardId) {
-    var workSpaceStore = actionContext.getStore(WorkSpaceStore);
+    var wkStore = actionContext.getStore(WorkSpaceStore);
     var params = {};
-    if (!workSpaceStore.isPolyFilled(channelId)) {
+    if (!wkStore.isPolyFilled(channelId)) {
         params.channelId = channelId;
         params.boardId = boardId;
         return Promise.props({
@@ -211,6 +211,9 @@ function _getWorkSpaceResource(actionContext, channelId, boardId) {
             status: ChannelService.getMemberStatusAsync(params),
             params: params
         });
+    }
+    if (wkStore.isOpenedChannel(channelId)) {
+        return wkStore.setCurrentBoard(boardId);
     }
     return false;
 }
