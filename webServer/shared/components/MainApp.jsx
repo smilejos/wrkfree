@@ -1,5 +1,5 @@
 var React = require('react');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var RouteHandler = require('react-router').RouteHandler;
 var RouterState = require('react-router').State;
 var MainAppStore = require('../stores/MainAppStore');

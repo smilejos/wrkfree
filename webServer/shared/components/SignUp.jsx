@@ -1,6 +1,6 @@
 var React = require('react');
 var Promise = require('bluebird');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var NavigationMixin = require('react-router').Navigation;
 var SignUpStore = require('../stores/SignUpStore');
 var SignUpAction = require('../../client/actions/userSignUp');

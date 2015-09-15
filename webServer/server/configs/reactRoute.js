@@ -8,7 +8,7 @@ var App = require('../../shared/app');
 var LogUtils = require('../../../sharedUtils/logUtils');
 var LogCategory = 'WEB';
 
-var FluxibleComponent = require('fluxible/addons/FluxibleComponent');
+var FluxibleComponent = require('fluxible-addons-react/FluxibleComponent');
 var HtmlComponent = React.createFactory(require('../../shared/components/Html.jsx'));
 
 module.exports = function(req, res) {

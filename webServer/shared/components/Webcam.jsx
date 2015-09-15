@@ -1,5 +1,5 @@
 var React = require('react');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var Draggable = require('react-draggable');
 
 /**
