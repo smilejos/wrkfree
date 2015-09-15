@@ -32,6 +32,7 @@ var UpdateBaseImage = require('../../../client/actions/draw/updateBaseImage');
  */
 var DrawTempStore = require('../../stores/DrawTempStore');
 var DrawStore = require('../../stores/DrawStore');
+var DrawStatusStore = require('../../stores/DrawStatusStore');
 
 /**
  * child components
@@ -52,7 +53,8 @@ module.exports = React.createClass({
     statics: {
         storeListeners: {
             'onTempDrawChange': [DrawTempStore],
-            'onDrawBoardChange': [DrawStore]
+            'onDrawBoardChange': [DrawStore],
+            '_onDrawStatusChange': [DrawStatusStore]
         }
     },
 
@@ -118,6 +120,13 @@ module.exports = React.createClass({
         canvas.height = BOARD_HEIGHT;
         this.state.canvas = canvas;
         this.state.image = document.createElement('img');
+    },
+
+    _onDrawStatusChange: function() {
+        var statusState = this.getStore(DrawStatusStore).getState();
+        this.setState({
+            isDrawSaved: statusState.isDrawSaved
+        });
     },
 
     /**
@@ -332,9 +341,25 @@ module.exports = React.createClass({
             width : this.props.width,
             height: this.props.height + 50,
             marginLeft: -1 * (this.props.width / 2),
+            position: 'relative'
         };
+        var isDrawSaved = this.state.isDrawSaved;
+        var tipStyle = {
+            position: 'absolute',
+            fontSize: 14,
+            color: '#bdbdbd',
+            bottom: 60,
+            left: 10,
+            opacity: isDrawSaved ? 1 : 0,
+            visibility: isDrawSaved ? 'visible' : 'hidden',
+            transition: '0.7s'
+        };
+
         return (
             <div className="DrawingArea" style={DrawAreaStyle} >
+                <div className="baseFonts" style={tipStyle}>
+                    {'Saving …'}
+                </div>
                 <canvas ref="mainCanvas" 
                     width={this.props.width} 
                     height={this.props.height} 

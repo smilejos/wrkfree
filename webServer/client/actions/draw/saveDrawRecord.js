@@ -22,7 +22,7 @@ var SAVE_DRAW_TIMEOUT_IN_MSECOND = 3000;
  */
 module.exports = function(actionContext, data) {
     if (IsTriggered) {
-        return ;
+        return;
     }
     IsTriggered = true;
     return Promise.props({
@@ -44,6 +44,8 @@ module.exports = function(actionContext, data) {
                 IsTriggered = false;
                 reqData.drawOptions = _cloneOptions(reqData.drawOptions);
                 return actionContext.dispatch('ON_RECORD_SAVE', reqData);
+            }).then(function() {
+                return actionContext.dispatch('ON_LOCAL_RECORD_SAVE');
             });
     }).catch(function(err) {
         IsTriggered = false;
