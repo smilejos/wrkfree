@@ -24,10 +24,17 @@ module.exports = function(actionContext, item, callback) {
     // workaround for rendering signup page fail
     if (typeof window === 'undefined') return;
     return Promise.try(function() {
-        if (item.type === 'email') {
-            return _isEmailUsed(item.fieldValue);
+        var value = item.fieldValue;
+        switch (item.type) {
+            case 'email':
+                return _isEmailUsed(value);
+            case 'givenName':
+                return _getVertifyStatus(SharedUtils.isGivenName(value));
+            case 'familyName':
+                return _getVertifyStatus(SharedUtils.isFamilyName(value));
+            default:
+                return _getVertifyStatus(SharedUtils.isNormalChar(value));
         }
-        return _getVertifyStatus(SharedUtils.isNormalChar(item.fieldValue));
     }).then(function(result) {
         var signUpStore = actionContext.getStore(SignUpStore);
         return signUpStore.updateStore(item.type, item.fieldValue, result);
@@ -53,8 +60,9 @@ function _isEmailUsed(userEmail) {
         return EmailQuery.then(function() {
             return new Promise(function(resolve, reject) {
                 Request.head('/app/checkuser')
-                    .query({email: userEmail})
-                    .end(function(err, res) {
+                    .query({
+                        email: userEmail
+                    }).end(function(err, res) {
                         var result = _getVertifyStatus(res.ok, 'email has been used');
                         return (err ? reject(err) : resolve(result));
                     });
