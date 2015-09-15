@@ -141,19 +141,16 @@ exports.addNewUserAsync = function(userInfo) {
     return Promise.props({
         _id: CryptoUtils.getMd5Hex(userInfo.email),
         email: SharedUtils.argsCheckAsync(userInfo.email, 'email'),
-        givenName: SharedUtils.argsCheckAsync(userInfo.givenName, 'string'),
-        familyName: SharedUtils.argsCheckAsync(userInfo.familyName, 'string'),
-        nickName: userInfo.givenName + userInfo.familyName,
+        givenName: SharedUtils.argsCheckAsync(userInfo.givenName, 'givenName'),
+        familyName: SharedUtils.argsCheckAsync(userInfo.familyName, 'familyName'),
         avatar: SharedUtils.argsCheckAsync(userInfo.avatar, 'avatar'),
         locale: SharedUtils.argsCheckAsync(userInfo.locale, 'alphabet'),
         facebook: userInfo.facebook || '',
         google: userInfo.google || ''
     }).then(function(info) {
+        info.nickName = info.givenName + ' ' + info.familyName;
         if (userInfo.gender !== 'male' && userInfo.gender !== 'female') {
             throw new Error('gender is invalid');
-        }
-        if (!SharedUtils.isNickName(info.nickName)) {
-            throw new Error('nickName format is invalid');
         }
         if (!SharedUtils.isNormalChar(info.facebook) || !SharedUtils.isNormalChar(info.google)) {
             throw new Error('oauth provider is invalid');
