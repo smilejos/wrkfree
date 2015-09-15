@@ -591,18 +591,57 @@ exports.isNickName = function(nickName) {
         return false;
     }
     /**
-     * any nickName match follow policy:
-     * english name can have following format: 'georgechen', 'george chen', 'george-chen', 'george_chen'
-     * NOTE: name must start and end with "a-z, A-Z, 0-9"
+     * any nickName match below policy:
+     * 1. start and end must have english alphabet or chinese word
+     * 2. any word (eng or cht) can be divied by "-", "_" or "white space"
+     * 3. divided characters should not be continous
+     * 4. can mix chinese and english name
      *
-     * chinese name can have following format: '陳家駒'
-     * NOTE: name must start and end with "中文
-     *
-     * combination with english and chinese name format: 'george陳', '陳george'
-     * NOTE: with combination, the symbol "-", "_" and " " is not allowed
+     * ex: "george chen", "家駒 陳", "test george chen", "test-geoge chen", "george 陳"
      */
-    var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]+([a-zA-Z0-9](_|-|\s)[a-zA-Z0-9])*[a-zA-Z0-9\u4e00-\u9fa5]+$/;
+    var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]*(([a-zA-Z\u4e00-\u9fa5]+[-_\s]?)+([a-zA-Z0-9\u4e00-\u9fa5]+))$/;
     return regx.test(nickName);
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: to check user's givenName is valid or not
+ * 
+ * @param {String}      givenName, user's givenName
+ */
+exports.isGivenName = function(givenName) {
+    if (!this.isString(givenName)) {
+        return false;
+    }
+    var regex = {
+        // support continuous english alphabet without other characters
+        eng: /^[a-zA-Z]+(_|-)?[a-zA-Z]+$/,
+        // support continuous chinese without other characters
+        cht: /^[\u4e00-\u9fa5]+[\u4e00-\u9fa5]?$/
+    };
+    return (regex.eng.test(givenName) || regex.cht.test(givenName));
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: to check user's familyName is valid or not
+ * 
+ * @param {String}      familyName, user's familyName
+ */
+exports.isFamilyName = function(familyName) {
+    if (!this.isString(familyName)) {
+        return false;
+    }
+    var regex = {
+        // support format like: 'george-chen', 'george_chen'
+        // forbid format like: '_georgechen', 'georgechen-'
+        eng: /^[a-zA-Z]+[a-zA-Z]?$/,
+        // support continuous chinese without other characters
+        cht: /^[\u4e00-\u9fa5]+[\u4e00-\u9fa5]?$/
+    };
+    return (regex.eng.test(familyName) || regex.cht.test(familyName));
 };
 
 /**
@@ -667,7 +706,7 @@ exports.isChannelName = function(name) {
     if (!this.isString(name)) {
         return false;
     }
-    var regx = /^[\u4e00-\u9fa5a-zA-Z0-9\-\_]+$/;
+    var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]*((([a-zA-Z0-9\u4e00-\u9fa5]+[-_]?)+([a-zA-Z0-9\u4e00-\u9fa5])+)|([a-zA-Z0-9\u4e00-\u9fa5]))$/;
     return regx.test(name);
 };
 
@@ -808,6 +847,16 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('channel name check error');
+            case 'givenName':
+                if (exports.isGivenName(arg, option)) {
+                    return arg;
+                }
+                throw new Error('user given name check error');
+            case 'familyName':
+                if (exports.isFamilyName(arg, option)) {
+                    return arg;
+                }
+                throw new Error('user family name check error');
             case 'nickName':
                 if (exports.isNickName(arg)) {
                     return arg;

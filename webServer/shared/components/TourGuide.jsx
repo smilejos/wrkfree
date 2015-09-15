@@ -185,7 +185,7 @@ module.exports = React.createClass({
                             <TourTopic enable
                                 clickHandler={this._playVideo.bind(this, 'https://ci-21354863456-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/21354863456/21354863456_5dafa702fe.mp4?dt=flickr&x=1442751407&fn=21354863456.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21354863456%26ufn%3D21354863456.mp4&s=d95ef70255251d3127daa0258335a4a7')}
                                 index={3}
-                                label={'Check the status of your favoriates channels, notifications and friends'} />
+                                label={'Check the status of your favoriate channels, notifications and friends'} />
                             <TourTopic enable
                                 clickHandler={this._playVideo.bind(this, 'https://ci-21192997740-df8a4d03.http.atlas.cdn.yimg.com/flickr5/132356020@N07/21192997740/21192997740_289485dbe4.mp4?dt=flickr&x=1442751374&fn=21192997740.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21192997740%26ufn%3D21192997740.mp4&s=4578adf4041cc3adf740828f9f63e47a')}
                                 index={4}

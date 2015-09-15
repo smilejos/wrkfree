@@ -30,7 +30,7 @@ module.exports = React.createClass({
      * @Author: George_Chen
      * @Description: handler for compress current hangout window
      */
-    _compress: function() {
+    _minimize: function() {
         this.executeAction(ResizeHangout, {
             channelId: this.props.channelId,
             isCompressed: true
@@ -94,9 +94,9 @@ module.exports = React.createClass({
                     <HangoutTool
                         containerClass="controlIcon material-icons"
                         iconName={isCompressed ? 'expand_less' : 'expand_more'}
-                        tips={isCompressed ? 'expand window' : 'compress window'}
+                        tips={isCompressed ? 'expand chatbox' : 'minimize chatbox'}
                         containerStyle={{fontSize: 22}}
-                        clickHandler={isCompressed ? this._expand : this._compress} />
+                        clickHandler={isCompressed ? this._expand : this._minimize} />
                     <HangoutTool
                         containerClass="controlIcon material-icons"
                         iconName="shuffle"
@@ -106,7 +106,7 @@ module.exports = React.createClass({
                     <HangoutTool
                         iconName="close"
                         containerClass="controlIcon material-icons"
-                        tips="close window"
+                        tips="close chatbox"
                         containerStyle={{fontSize: 20}}
                         clickHandler={this._close} />
                 </div>
