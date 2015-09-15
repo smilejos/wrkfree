@@ -22,7 +22,7 @@ var SAVE_DRAW_TIMEOUT_IN_MSECOND = 3000;
  */
 module.exports = function(actionContext, data) {
     if (IsTriggered) {
-        return ActionUtils.showWarningEvent('WARN', 'repeatly save draw record');
+        return;
     }
     IsTriggered = true;
     return Promise.props({
@@ -36,9 +36,7 @@ module.exports = function(actionContext, data) {
             .timeout(SAVE_DRAW_TIMEOUT_IN_MSECOND)
             .catch(function() {
                 ActionUtils.showWarningEvent('WARN', 'server response timeout');
-                IsTriggered = false;
-                actionContext.dispatch('ON_BOARD_CLEAN', data);
-                actionContext.executeAction(GetDrawBoard, data);
+                throw new Error('timeout error');
             }).then(function(result) {
                 if (!result) {
                     throw new Error('save draw record fail');
@@ -46,12 +44,15 @@ module.exports = function(actionContext, data) {
                 IsTriggered = false;
                 reqData.drawOptions = _cloneOptions(reqData.drawOptions);
                 return actionContext.dispatch('ON_RECORD_SAVE', reqData);
+            }).then(function() {
+                return actionContext.dispatch('ON_LOCAL_RECORD_SAVE');
             });
     }).catch(function(err) {
         IsTriggered = false;
         SharedUtils.printError('saveDrawRecord.js', 'core', err);
         ActionUtils.showWarningEvent('WARN', 'save draw fail');
-        actionContext.dispatch('CLEAN_FAILURE_DRAW');
+        actionContext.dispatch('ON_BOARD_CLEAN', data);
+        actionContext.executeAction(GetDrawBoard, data);
     });
 };
 

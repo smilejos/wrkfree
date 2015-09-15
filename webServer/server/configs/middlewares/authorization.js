@@ -24,6 +24,18 @@ exports.ensureAuthed = function(req, res, next) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: directly redirect login user to dashboard when user has authenticated
+ */
+exports.redirectLoginUser = function(req, res, next) {
+    if (req.isAuthenticated()) {
+        return res.redirect('/app/dashboard');
+    }
+    next();
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: ensure only member can enter channel
  */
 exports.ensureMember = function(req, res, next) {

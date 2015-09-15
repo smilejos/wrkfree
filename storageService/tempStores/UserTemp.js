@@ -4,6 +4,12 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../sharedUtils/utils');
 var Configs = require('../../configs/config');
 
+var DAILY_USERS_KEY_PREFIX = 'SYSTEM:DAU:';
+var DAILY_SECOND = 86400;
+var DAU_KEY_TIMEOUT = DAILY_SECOND + DAILY_SECOND / 2;
+
+
+
 var ONLINE_USERS_KEY_PREFIX = 'SYSTEM:onlineusers';
 var USER_SESSION_PREFIX = 'sess:';
 var ONLINE_USERS_KEY_TTL_IN_SECOND = Configs.get().params.system.onlineUserKeyTimeoutInSecond;
@@ -100,18 +106,35 @@ exports.getWebSessionAsync = function(webSid) {
  */
 exports.enterAsync = function(uid) {
     var key = _getUserKey();
+    var dauKey = _getDAUKey();
     return SharedUtils.argsCheckAsync(uid, 'md5')
-        .then(function(validUid) {
-            return RedisClient.saddAsync(key, validUid);
-        }).then(function() {
-            return RedisClient.ttlAsync(key).then(function(ttl) {
-                return (ttl === -1 ? RedisClient.expireAsync(key, ONLINE_USERS_KEY_TTL_IN_SECOND) : true);
-            });
+        .then(function(clientUid) {
+            return RedisClient.multi()
+                .sadd(dauKey, clientUid)
+                .sadd(key, clientUid)
+                .ttl(dauKey)
+                .expire(key, ONLINE_USERS_KEY_TTL_IN_SECOND)
+                .execAsync();
+        }).then(function(multiResult) {
+            // set the DAU key ttl
+            if (multiResult[2] === -1) {
+                RedisClient.expireAsync(dauKey, DAU_KEY_TIMEOUT);
+            }
+            return multiResult[3];
         }).catch(function(err) {
             SharedUtils.printError('UserTemp', 'enterAsync', err);
             throw err;
         });
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: used to generate redis key for counting daily actived users
+ */
+function _getDAUKey() {
+    var currentDate = new Date().getUTCDate();
+    return DAILY_USERS_KEY_PREFIX + currentDate.toString();
+}
 
 /**
  * @Author: George_Chen

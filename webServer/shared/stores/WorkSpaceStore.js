@@ -96,8 +96,7 @@ module.exports = CreateStore({
      * @param {Number}      boardId, the target board id
      */
     setCurrentBoard: function(boardId) {
-        this.draw.currentBoardId = boardId;
-        this.emitChange();
+        this.draw.currentBoardId = boardId; 
     },
 
     /**
@@ -161,6 +160,7 @@ module.exports = CreateStore({
             self.channel = state.channel.basicInfo;
             self.members = state.members;
             self.draw.boardNums = state.channel.drawBoardNums;
+            self.draw.currentBoardId = state.params.boardId;
             self.status = state.status;
         }).then(function() {
             var membersInfo = self.members.info;

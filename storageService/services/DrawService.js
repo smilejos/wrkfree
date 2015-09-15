@@ -11,14 +11,10 @@ var PreviewDao = require('../daos/DrawPreviewDao');
 
 var Configs = require('../../configs/config');
 
-// define the maximum number of draws can be lost during client drawing
-// NOTE: usually, few missing draws is acceptable under jitter environment.
-var MISSING_DRAWS_LIMIT = Configs.get().params.draw.missingDrawLimit;
-
 // used to limit the active reocrds number
 var ACTIVED_RECORD_LIMIT = Configs.get().params.draw.activeRecordLimit;
 
-if (!SharedUtils.isNumber(MISSING_DRAWS_LIMIT) || !SharedUtils.isNumber(ACTIVED_RECORD_LIMIT)) {
+if (!SharedUtils.isNumber(ACTIVED_RECORD_LIMIT)) {
     throw new Error('draw parameters missing');
 }
 
