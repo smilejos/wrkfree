@@ -706,7 +706,7 @@ exports.isChannelName = function(name) {
     if (!this.isString(name)) {
         return false;
     }
-    var regx = /^[\u4e00-\u9fa5a-zA-Z0-9\-\_]+$/;
+    var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]*((([a-zA-Z0-9\u4e00-\u9fa5]+[-_]?)+([a-zA-Z0-9\u4e00-\u9fa5])+)|([a-zA-Z0-9\u4e00-\u9fa5]))$/;
     return regx.test(name);
 };
 
