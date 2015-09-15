@@ -4,6 +4,8 @@ var ChannelService = require('../../services/channelService');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var OnChannelAdded = require('./onChannelAdded');
 var NavToBoard = require('../draw/navToBoard');
+var OpenHangout = require('../openHangout');
+var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 var ActionUtils = require('../actionUtils');
 
 /**
@@ -23,14 +25,24 @@ module.exports = function(actionContext, data) {
         if (!info) {
             throw new Error('create channel fail');
         }
-        actionContext.executeAction(NavToBoard, {
-            channelId: info.channelId,
-            boardId: 0,
-            urlNavigator: data.urlNavigator
+        return Promise.try(function() {
+            var wkState = actionContext.getStore(WorkSpaceStore).getState();
+            if (wkState.channel.channelId) {
+                return actionContext.executeAction(OpenHangout, {
+                    channelId: wkState.channel.channelId,
+                    hangoutTitle: wkState.channel.name,
+                    isforcedToOpen: true
+                });
+            }
+        }).then(function() {
+            return actionContext.executeAction(NavToBoard, {
+                channelId: info.channelId,
+                boardId: 0,
+                urlNavigator: data.urlNavigator
+            });
+        }).then(function() {
+            return actionContext.executeAction(OnChannelAdded, info);
         });
-        return info;
-    }).then(function(channelInfo) {
-        actionContext.executeAction(OnChannelAdded, channelInfo);
     }).catch(function(err) {
         SharedUtils.printError('createChannel.js', 'core', err);
         ActionUtils.showErrorEvent('Channel', 'create channel fail');
