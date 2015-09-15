@@ -6,8 +6,8 @@ var DrawService = require('../../services/drawService');
 var ActionUtils = require('../actionUtils');
 var GetDrawBoard = require('./getDrawBoard');
 
-var IsTriggered = false;
-var SAVE_DRAW_TIMEOUT_IN_MSECOND = 3000;
+var SAVE_DRAW_TIMEOUT_IN_MSECOND = 10000;
+var LastSaveTime = 0;
 
 /**
  * @Public API
@@ -21,10 +21,11 @@ var SAVE_DRAW_TIMEOUT_IN_MSECOND = 3000;
  * @param {Object}      data.drawOptions, the draw related options
  */
 module.exports = function(actionContext, data) {
-    if (IsTriggered) {
-        return;
+    var currentTime = Date.now();
+    if ((currentTime - LastSaveTime) < 30) {
+        return ActionUtils.showWarningEvent('WARN', 'repeatedly saving');
     }
-    IsTriggered = true;
+    LastSaveTime = currentTime;
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
@@ -41,14 +42,12 @@ module.exports = function(actionContext, data) {
                 if (!result) {
                     throw new Error('save draw record fail');
                 }
-                IsTriggered = false;
                 reqData.drawOptions = _cloneOptions(reqData.drawOptions);
                 return actionContext.dispatch('ON_RECORD_SAVE', reqData);
             }).then(function() {
                 return actionContext.dispatch('ON_LOCAL_RECORD_SAVE');
             });
     }).catch(function(err) {
-        IsTriggered = false;
         SharedUtils.printError('saveDrawRecord.js', 'core', err);
         ActionUtils.showWarningEvent('WARN', 'save draw fail');
         actionContext.dispatch('ON_BOARD_CLEAN', data);

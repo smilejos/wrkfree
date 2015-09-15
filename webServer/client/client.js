@@ -3,7 +3,7 @@ var React = require('react');
 var Router = require('react-router');
 var HistoryLocation = Router.HistoryLocation;
 var Promise = require('bluebird');
-var FluxibleComponent = require('fluxible/addons/FluxibleComponent');
+var FluxibleComponent = require('fluxible-addons-react/FluxibleComponent');
 
 // define global Promise, 
 // this will cause Fluxible to use bluebird as its PromiseLib

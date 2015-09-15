@@ -1,6 +1,6 @@
 var React = require('react');
 var Promise = require('bluebird');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var DashboardStore = require('../stores/DashboardStore');
 
 /**

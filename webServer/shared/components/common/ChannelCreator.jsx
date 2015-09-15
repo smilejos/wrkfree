@@ -1,7 +1,7 @@
 var React = require('react');
 var Router = require('react-router');
 var Mui = require('material-ui');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var SharedUtils = require('../../../../sharedUtils/utils');
 
 /**
