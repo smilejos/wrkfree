@@ -591,17 +591,15 @@ exports.isNickName = function(nickName) {
         return false;
     }
     /**
-     * any nickName match follow policy:
-     * english name can have following format: 'georgechen', 'george chen', 'george-chen', 'george_chen'
-     * NOTE: name must start and end with "a-z, A-Z, 0-9"
+     * any nickName match below policy:
+     * 1. start and end must have english alphabet or chinese word
+     * 2. any word (eng or cht) can be divied by "-", "_" or "white space"
+     * 3. divided characters should not be continous
+     * 4. can mix chinese and english name
      *
-     * chinese name can have following format: '陳家駒'
-     * NOTE: name must start and end with "中文
-     *
-     * combination with english and chinese name format: 'george陳', '陳george'
-     * NOTE: with combination, the symbol "-", "_" and " " is not allowed
+     * ex: "george chen", "家駒 陳", "test george chen", "test-geoge chen", "george 陳"
      */
-    var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]+([a-zA-Z0-9](_|-|\s)[a-zA-Z0-9])*[a-zA-Z0-9\u4e00-\u9fa5]+$/;
+    var regx = /^[a-zA-Z0-9\u4e00-\u9fa5]*(([a-zA-Z\u4e00-\u9fa5]+[-_\s]?)+([a-zA-Z0-9\u4e00-\u9fa5]+))$/;
     return regx.test(nickName);
 };
 
