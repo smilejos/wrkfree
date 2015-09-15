@@ -62,8 +62,7 @@ function _isEmailUsed(userEmail) {
                 Request.head('/app/checkuser')
                     .query({
                         email: userEmail
-                    })
-                    .end(function(err, res) {
+                    }).end(function(err, res) {
                         var result = _getVertifyStatus(res.ok, 'email has been used');
                         return (err ? reject(err) : resolve(result));
                     });
