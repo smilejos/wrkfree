@@ -608,6 +608,47 @@ exports.isNickName = function(nickName) {
 /**
  * @Public API
  * @Author: George_Chen
+ * @Description: to check user's givenName is valid or not
+ * 
+ * @param {String}      givenName, user's givenName
+ */
+exports.isGivenName = function(givenName) {
+    if (!this.isString(givenName)) {
+        return false;
+    }
+    var regex = {
+        // support continuous english alphabet without other characters
+        eng: /^[a-zA-Z]+(_|-)?[a-zA-Z]+$/,
+        // support continuous chinese without other characters
+        cht: /^[\u4e00-\u9fa5]+[\u4e00-\u9fa5]?$/
+    };
+    return (regex.eng.test(givenName) || regex.cht.test(givenName));
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
+ * @Description: to check user's familyName is valid or not
+ * 
+ * @param {String}      familyName, user's familyName
+ */
+exports.isFamilyName = function(familyName) {
+    if (!this.isString(familyName)) {
+        return false;
+    }
+    var regex = {
+        // support format like: 'george-chen', 'george_chen'
+        // forbid format like: '_georgechen', 'georgechen-'
+        eng: /^[a-zA-Z]+[a-zA-Z]?$/,
+        // support continuous chinese without other characters
+        cht: /^[\u4e00-\u9fa5]+[\u4e00-\u9fa5]?$/
+    };
+    return (regex.eng.test(familyName) || regex.cht.test(familyName));
+};
+
+/**
+ * @Public API
+ * @Author: George_Chen
  * @Description: to check the user avatar url is valid or not
  * NOTE: we only check avatar pattern match 'facebook' and 'google'
  * 
@@ -808,6 +849,16 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('channel name check error');
+            case 'givenName':
+                if (exports.isGivenName(arg, option)) {
+                    return arg;
+                }
+                throw new Error('user given name check error');
+            case 'familyName':
+                if (exports.isFamilyName(arg, option)) {
+                    return arg;
+                }
+                throw new Error('user family name check error');
             case 'nickName':
                 if (exports.isNickName(arg)) {
                     return arg;
