@@ -32,6 +32,7 @@ var UpdateBaseImage = require('../../../client/actions/draw/updateBaseImage');
  */
 var DrawTempStore = require('../../stores/DrawTempStore');
 var DrawStore = require('../../stores/DrawStore');
+var DrawStatusStore = require('../../stores/DrawStatusStore');
 
 /**
  * child components
@@ -51,8 +52,9 @@ module.exports = React.createClass({
     mixins: [FluxibleMixin],
     statics: {
         storeListeners: {
-            'onTempDrawChange': [DrawTempStore],
-            'onDrawBoardChange': [DrawStore]
+            '_onTempDrawChange': [DrawTempStore],
+            '_onDrawBoardChange': [DrawStore],
+            '_onDrawStatusChange': [DrawStatusStore]
         }
     },
 
@@ -120,12 +122,19 @@ module.exports = React.createClass({
         this.state.image = document.createElement('img');
     },
 
+    _onDrawStatusChange: function() {
+        var statusState = this.getStore(DrawStatusStore).getState();
+        this.setState({
+            isDrawSaved: statusState.isDrawSaved
+        });
+    },
+
     /**
      * @Author: George_Chen
      * @Description: for handling drawStore change
      *         NOTE: drawStore save completed draw record documents
      */
-    onDrawBoardChange: function(){
+    _onDrawBoardChange: function(){
         var canvas = React.findDOMNode(this.refs.mainCanvas);
         var cid = this.props.channelId;
         var bid = this.props.boardId;
@@ -147,7 +156,7 @@ module.exports = React.createClass({
      * @Description: for handling drawTempStore change
      *         NOTE: draw temp store save realtime draw chunks
      */
-    onTempDrawChange: function(){
+    _onTempDrawChange: function(){
         var ctx = this._getBoardContext();
         var tempRecord = this.getStore(DrawTempStore).getDraws();
         var draws = tempRecord.pop();
@@ -332,9 +341,25 @@ module.exports = React.createClass({
             width : this.props.width,
             height: this.props.height + 50,
             marginLeft: -1 * (this.props.width / 2),
+            position: 'relative'
         };
+        var isDrawSaved = this.state.isDrawSaved;
+        var tipStyle = {
+            position: 'absolute',
+            fontSize: 14,
+            color: '#bdbdbd',
+            bottom: 60,
+            left: 10,
+            opacity: isDrawSaved ? 1 : 0,
+            visibility: isDrawSaved ? 'visible' : 'hidden',
+            transition: '0.7s'
+        };
+
         return (
             <div className="DrawingArea" style={DrawAreaStyle} >
+                <div className="baseFonts" style={tipStyle}>
+                    {'Saving …'}
+                </div>
                 <canvas ref="mainCanvas" 
                     width={this.props.width} 
                     height={this.props.height} 
