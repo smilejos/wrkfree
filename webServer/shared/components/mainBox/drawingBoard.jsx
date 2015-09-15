@@ -52,8 +52,8 @@ module.exports = React.createClass({
     mixins: [FluxibleMixin],
     statics: {
         storeListeners: {
-            'onTempDrawChange': [DrawTempStore],
-            'onDrawBoardChange': [DrawStore],
+            '_onTempDrawChange': [DrawTempStore],
+            '_onDrawBoardChange': [DrawStore],
             '_onDrawStatusChange': [DrawStatusStore]
         }
     },
@@ -134,7 +134,7 @@ module.exports = React.createClass({
      * @Description: for handling drawStore change
      *         NOTE: drawStore save completed draw record documents
      */
-    onDrawBoardChange: function(){
+    _onDrawBoardChange: function(){
         var canvas = React.findDOMNode(this.refs.mainCanvas);
         var cid = this.props.channelId;
         var bid = this.props.boardId;
@@ -156,7 +156,7 @@ module.exports = React.createClass({
      * @Description: for handling drawTempStore change
      *         NOTE: draw temp store save realtime draw chunks
      */
-    onTempDrawChange: function(){
+    _onTempDrawChange: function(){
         var ctx = this._getBoardContext();
         var tempRecord = this.getStore(DrawTempStore).getDraws();
         var draws = tempRecord.pop();
