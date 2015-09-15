@@ -6,7 +6,7 @@ var DrawService = require('../../services/drawService');
 var ActionUtils = require('../actionUtils');
 var GetDrawBoard = require('./getDrawBoard');
 
-var SAVE_DRAW_TIMEOUT_IN_MSECOND = 3000;
+var SAVE_DRAW_TIMEOUT_IN_MSECOND = 10000;
 var LastSaveTime = 0;
 
 /**
