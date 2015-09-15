@@ -1,5 +1,5 @@
 var React = require('react');
-var FluxibleMixin = require('fluxible/addons/FluxibleMixin');
+var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var SharedUtils = require('../../../sharedUtils/utils');
 
 var HangoutStore = require('../stores/HangoutStore');
