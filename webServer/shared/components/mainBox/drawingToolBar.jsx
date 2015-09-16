@@ -330,9 +330,9 @@ module.exports = React.createClass({
                         tooltipPosition="top-left"
                         touch
                         disabled={!this.state.enableToClearBoard || this.state.isDrawing}
-                        tooltip={'clean current board'} 
+                        tooltip={'clear current board'} 
                         onClick={this._cleanBoard} >
-                        {'crop_free'}
+                        {'crop_din'}
                     </IconButton>
                     <IconButton 
                         iconClassName="material-icons"

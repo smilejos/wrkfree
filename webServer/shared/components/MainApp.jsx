@@ -2,7 +2,18 @@ var React = require('react');
 var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var RouteHandler = require('react-router').RouteHandler;
 var RouterState = require('react-router').State;
+
+/**
+ * actions
+ */
+var CloseHangout = require('../../client/actions/closeHangout');
+
+
+/**
+ * stores
+ */
 var MainAppStore = require('../stores/MainAppStore');
+var HangoutStore = require('../stores/HangoutStore');
 
 /**
  * child components
@@ -89,6 +100,21 @@ module.exports = React.createClass({
                 isInited: true
             });
         }.bind(this), delayTime);
+    },
+
+    componentDidUpdate: function(prevProps, prevState) {
+        var prevCid = prevState.route.params.channelId;
+        var currCid = this.state.route.params.channelId;
+        if (!currCid || currCid === prevCid) {
+            return;
+        }
+        // close opened chatbox, because we already expand it on workspace
+        if (this.getStore(HangoutStore).isHangoutExist(currCid)) {
+            this.executeAction(CloseHangout, {
+                channelId: currCid,
+                isStayed: true
+            });
+        }
     },
     
     render: function(){

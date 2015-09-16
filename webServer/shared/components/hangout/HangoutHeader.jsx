@@ -94,13 +94,13 @@ module.exports = React.createClass({
                     <HangoutTool
                         containerClass="controlIcon material-icons"
                         iconName={isCompressed ? 'expand_less' : 'expand_more'}
-                        tips={isCompressed ? 'expand chatbox' : 'minimize chatbox'}
-                        containerStyle={{fontSize: 22}}
+                        tips={isCompressed ? 'maximize chatbox' : 'minimize chatbox'}
+                        containerStyle={{fontSize: 20}}
                         clickHandler={isCompressed ? this._expand : this._minimize} />
                     <HangoutTool
                         containerClass="controlIcon material-icons"
-                        iconName="shuffle"
-                        tips="swith to workspace"
+                        iconName="transform"
+                        tips="expand to workspace"
                         containerStyle={{fontSize: 20}}
                         clickHandler={this._switchWorkSpace} />
                     <HangoutTool

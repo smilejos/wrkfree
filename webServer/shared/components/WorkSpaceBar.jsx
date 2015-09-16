@@ -298,10 +298,10 @@ module.exports = React.createClass({
                         <IconButton iconClassName="material-icons"
                                     iconStyle={this.state.defaultIconStyle}
                                     tooltipPosition="top-left"
-                                    tooltip="switch to chatbox"
+                                    tooltip="compress to chatbox"
                                     touch
                                     onClick={this._siwthToHangout} >
-                                    {'shuffle'}
+                                    {'transform'}
                         </IconButton>
                         <IconButton iconClassName="material-icons"
                                     iconStyle={this.state.defaultIconStyle}
