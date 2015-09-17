@@ -27,9 +27,12 @@ module.exports = React.createClass({
     },
 
     _showTips: function(showState) {
-        this.setState({
-            isShown: showState
-        });
+        /**
+         * temporarily remove MarkAsReaded funtionality
+         */
+        // this.setState({
+        //     isShown: showState
+        // });
     },
 
     render: function() {
@@ -41,16 +44,19 @@ module.exports = React.createClass({
             fontSize: 10,
             cursor: 'pointer'
         };
-        var content = SharedUtils.formatDateTime(new Date(this.props.timestamp), 'M dd')
-        if (!this.props.isVisible) {
-            content = (
-                <FontIcon className="material-icons" 
-                    onTouchTap={this.props.iconHandler}
-                    style={{fontWeight: 500, fontSize: 16, color: Colors.grey500, marginLeft: -15}}>
-                    {'clear_all'}
-                </FontIcon>
-            );
-        }
+        var content = SharedUtils.formatDateTime(new Date(this.props.timestamp), 'M dd');
+        /**
+         * temporarily remove MarkAsReaded funtionality
+         */
+        // if (!this.props.isVisible) {
+        //     content = (
+        //         <FontIcon className="material-icons" 
+        //             onTouchTap={this.props.iconHandler}
+        //             style={{fontWeight: 500, fontSize: 16, color: Colors.grey500, marginLeft: -15}}>
+        //             {'clear_all'}
+        //         </FontIcon>
+        //     );
+        // }
         return (
             <div style={containerStyle} 
                 onMouseEnter={this._showTips.bind(this, true)}
