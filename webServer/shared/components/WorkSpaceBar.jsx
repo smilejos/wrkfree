@@ -132,7 +132,6 @@ module.exports = React.createClass({
                         tooltipPosition="top-right"
                         tooltip={isStarred ? 'remove from Favorites' : 'add to Favorites'}
                         touch
-                        tooltipStyles={{left: 45}}
                         disabled={is1on1}
                         onTouchTap={this._starChannel}
                         iconStyle={is1on1 ? this.state.defaultIconStyle : starIconStyle} >

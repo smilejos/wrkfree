@@ -28,7 +28,6 @@ var Hangouts = require('./Hangouts.jsx');
 var Search = require('./Search.jsx');
 var FriendList = require('./rightBox/FriendList.jsx');
 var SystemSounds = require('./SystemSounds.jsx');
-var ClientReport = require('./ClientReport.jsx');
 var TourGuide = require('./TourGuide.jsx');
 
 /**
@@ -144,7 +143,6 @@ module.exports = React.createClass({
                     <Hangouts />
                     <Search />
                     <SystemSounds />
-                    <ClientReport inWorkspace={inWorkspace}/>
                     <TourGuide inDashboard={inDashboard} inWorkspace={inWorkspace}/>
                 </div>
                 <div style={{position: 'fixed', width: '100%', height: '100%', opacity: isInited ? 0 : 1, zIndex: isInited ? -1 : 1, transition: '0.8s'}} >
