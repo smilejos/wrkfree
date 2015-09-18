@@ -53,8 +53,7 @@ function _reqRespCheck(data) {
         isReaded: SharedUtils.argsCheckAsync(data.isReaded, 'boolean'),
         respToPermitted: SharedUtils.argsCheckAsync(data.respToPermitted, 'boolean'),
         extraInfo: data.extraInfo,
-        updatedTime: data.updatedTime,
-        isNotification: data.isNotification
+        updatedTime: data.updatedTime
     });
 }
 
@@ -65,5 +64,13 @@ function _reqRespCheck(data) {
  * @param {Object}          data, the normal notification data
  */
 function _normalCheck(data) {
-    return data;
+    return Promise.props({
+        noticeId: SharedUtils.argsCheckAsync(data.noticeId, '_id'),
+        target: SharedUtils.argsCheckAsync(data.target, 'md5'),
+        sender: SharedUtils.argsCheckAsync(data.sender, 'md5'),
+        type: SharedUtils.argsCheckAsync(data.type, 'string'),
+        content: SharedUtils.argsCheckAsync(data.content, 'string'),
+        extraInfo: data.extraInfo,
+        updatedTime: data.updatedTime
+    });
 }
