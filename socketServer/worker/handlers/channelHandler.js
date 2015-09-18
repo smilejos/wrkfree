@@ -46,7 +46,9 @@ exports.addMembersAsync = function(socket, data) {
         var uid = socket.getAuthToken();
         return ChannelStorage.addMembersAsync(uid, reqData.members, reqData.channelId);
     }).map(function(result) {
-        _notifyTarget(socket, result.target, result);
+        if (result) {
+            _notifyTarget(socket, result.target, result);
+        }
         return result;
     }).catch(function(err) {
         SharedUtils.printError('channelHandler.js', 'addMembersAsync', err);
