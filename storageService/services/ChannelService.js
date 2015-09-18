@@ -185,27 +185,12 @@ exports.addMembersAsync = function(host, members, channelId) {
             ChannelTemp.deleteListAsync(channelId);
             return Promise.map(members, function(memberUid) {
                 return MemberDao.isExistAsync(memberUid, channelId)
-                    .then(function(isMemberExist) {
-                        if (isMemberExist) {
-                            throw new Error('inivite existed member');
-                        }
-                        return MemberDao.addAsync(memberUid, channelId, false);
-                    }).catch(function(err) {
-                        SharedUtils.printError('ChannelService.js', 'addMembersAsync', err);
-                        return null;
+                    .then(function(isExist) {
+                        return (isExist ? null : MemberDao.addAsync(memberUid, channelId, false));
                     });
             }).map(function(result) {
-                var noticeMessage = 'inivite you to work on his channel';
-                if (result) {
-                    return NotificationDao.createByChannelAsync(host, result.member, noticeMessage, channelId)
-                        .then(function(notificationDoc) {
-                            notificationDoc.extraInfo = {
-                                channelId: channelId,
-                                name: channelInfo.name
-                            };
-                            return notificationDoc;
-                        });
-                }
+                var msg = 'inivite you to work on his channel';
+                return (result ? _setChannelNotification(host, result.member, msg, channelId) : null);
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'addMembersAsync', err);
@@ -448,7 +433,7 @@ function _createChannel(creator, channelId, name, isPublic) {
             return _removeChannel(channelId, creator).then(function() {
                 return null;
             });
-        });
+    });
 }
 
 /**
@@ -465,3 +450,31 @@ function _removeChannel(channelId, host) {
         remChannel: ChannelDao.deleteAsync(channelId, host)
     });
 }
+
+/**
+ * @Author: George_Chen
+ * @Description: for setting the channel notification of target user
+ *
+ * @param {String}          sender, sender's uid
+ * @param {String}          target, target's uid
+ * @param {String}          noticeMessage, the notification message
+ * @param {String}          cid, channel id
+ */
+function _setChannelNotification(sender, target, noticeMessage, cid) {
+    return NotificationDao.createByChannelAsync(sender, target, noticeMessage, cid)
+        .then(function(notificationDoc) {
+            return UserDao.setUnreadNoticeCountAsync(target, false)
+                .then(function(incrResult) {
+                    var err = new Error('increment notification counts fail');
+                    if (!incrResult) {
+                        SharedUtils.printError('ChannelService.js', '_setChannelNotification', err);
+                    }
+                    notificationDoc.extraInfo = {
+                        channelId: cid,
+                        name: channelInfo.name
+                    };
+                    return notificationDoc;
+                });
+        });
+}
+
