@@ -7,6 +7,7 @@ var ChannelDao = require('../daos/ChannelDao');
 var BoardDao = require('../daos/DrawBoardDao');
 var PreviewDao = require('../daos/DrawPreviewDao');
 var MemberDao = require('../daos/ChannelMemberDao');
+var NotificationDao = require('../daos/NotificationDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 var UserTemp = require('../tempStores/UserTemp');
 
@@ -160,6 +161,54 @@ exports.addNewMemberAsync = function(host, member, channelId) {
             return result;
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'addNewMemberAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for channel host to add channel members
+ *
+ * @param {String}          host, host's uid
+ * @param {String}          member, member's uid
+ * @param {String}          channelId, channel id
+ */
+exports.addMembersAsync = function(host, members, channelId) {
+    return Promise.join(
+        MemberDao.isHostAsync(host, channelId),
+        ChannelDao.findByChannelAsync(channelId, false),
+        function(isHost, channelInfo) {
+            if (!isHost) {
+                throw new Error('unauthorized operation');
+            }
+            ChannelTemp.deleteListAsync(channelId);
+            return Promise.map(members, function(memberUid) {
+                return MemberDao.isExistAsync(memberUid, channelId)
+                    .then(function(isMemberExist) {
+                        if (isMemberExist) {
+                            throw new Error('inivite existed member');
+                        }
+                        return MemberDao.addAsync(memberUid, channelId, false);
+                    }).catch(function(err) {
+                        SharedUtils.printError('ChannelService.js', 'addMembersAsync', err);
+                        return null;
+                    });
+            }).map(function(result) {
+                var noticeMessage = 'inivite you to work on his channel';
+                if (result) {
+                    return NotificationDao.createByChannelAsync(host, result.member, noticeMessage, channelId)
+                        .then(function(notificationDoc) {
+                            notificationDoc.extraInfo = {
+                                channelId: channelId,
+                                name: channelInfo.name
+                            };
+                            return notificationDoc;
+                        });
+                }
+            });
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'addMembersAsync', err);
             return null;
         });
 };
