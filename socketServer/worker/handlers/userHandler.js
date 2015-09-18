@@ -59,7 +59,10 @@ exports.getNotificationsAsync = function(socket, data) {
         return SharedUtils.argsCheckAsync(data.isReaded, 'boolean');
     }).then(function(isReadedFlag) {
         var uid = socket.getAuthToken();
-        return ReqRespStorage.getReqRespAsync(uid, isReadedFlag);
+        return Promise.props({
+            reqResps: ReqRespStorage.getReqRespAsync(uid, isReadedFlag),
+            notifications: UserStorage.getNotificationsAsync(uid)
+        });
     }).then(function(notifications) {
         var errMsg = 'fail to get user notifications on storage service';
         return SharedUtils.checkExecuteResult(notifications, errMsg);

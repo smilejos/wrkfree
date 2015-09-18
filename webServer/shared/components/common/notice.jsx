@@ -224,6 +224,34 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
+     * @Description: set the normal notice content
+     */
+    _setNoiceContent: function() {
+        var workspaceBtnInfo = {
+            label: 'workspace',
+            handler: this._openWorkSpace,
+            hoverColor: Colors.lightBlue50,
+            color: Colors.lightBlue600,
+            iconName: 'input'
+        };
+        var quickTalkBtnInfo = {
+            label: 'chatBox',
+            handler: this._openHangout,
+            hoverColor: Colors.lightBlue50,
+            color: Colors.lightBlue600,
+            iconName: 'chat'
+        };
+        var actionButtons = (
+            <div>
+                {this._setActionButton(workspaceBtnInfo)}
+                {this._setActionButton(quickTalkBtnInfo)}
+            </div>
+        );
+        return this._setContent(this.props.info.content, actionButtons, 6);
+    },
+
+    /**
+     * @Author: George_Chen
      * @Description: the main generator for creating notice content
      * 
      * @param {String}      displayMessage, the notice content message
@@ -294,7 +322,13 @@ module.exports = React.createClass({
             fontSize: 13,
             fontWeight: 500
         };
-        var content = (info.isReq ? this._setReqContent() : this._setRespContent());
+        var content = '';
+        if (!SharedUtils.isBoolean(info.isReq)) {
+            content = this._setNoiceContent();
+        } else {
+            content = (info.isReq ? this._setReqContent() : this._setRespContent());
+        }
+
         return (
             <div onMouseEnter={this._hideTimestamp} onMouseLeave={this._showTimestamp} >
                 <ListItem 

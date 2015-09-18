@@ -13,18 +13,32 @@ var SharedUtils = require('../../../sharedUtils/utils');
 module.exports = function(actionContext, data) {
     return UserService.getNotificationsAsync({
         isReaded: data.isReaded
-    }).map(function(notification) {
-        return UserService.getInfoAsync(notification.sender)
-            .then(function(senderInfo) {
-                notification.sender = senderInfo;
-                return notification;
-            });
-    }).then(function(notifications) {
-        if (notifications.length > 0) {
-            actionContext.dispatch('UPDATE_NOTIFICATIONS', notifications);
-        }
-        // TODO: what if no notifications ?
+    }).then(function(recvData) {
+        return Promise.props({
+            reqResps: _parseResults(recvData.reqResps),
+            notifications: _parseResults(recvData.notifications),
+        });
+    }).then(function(results) {
+        var notifications = results.reqResps.concat(results.notifications);
+        actionContext.dispatch('UPDATE_NOTIFICATIONS', notifications);
     }).catch(function(err) {
         SharedUtils.printError('pullNotifications.js', 'core', err);
     });
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: to pull user's notifications
+ * 
+ * @param {Object}      actionContext, the fluxible's action context
+ * @param {Boolean}     data.isReaded, to indicate pull targets is readed or unreaded
+ */
+function _parseResults(results) {
+    return Promise.map(results, function(item) {
+        return UserService.getInfoAsync(item.sender)
+            .then(function(senderInfo) {
+                item.sender = senderInfo;
+                return item;
+            });
+    });
+}
