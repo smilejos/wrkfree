@@ -44,11 +44,12 @@ var DiscussionArea = React.createClass({
         if (!prevLastMsg) {
             return this.refs.msgList.scrollToBottom();
         }
-        // new incoming message
-        if (prevLastMsg && currentLastMsg.sentTime > prevLastMsg.sentTime) {
+        // channel has new incoming message
+        if (prevLastMsg && currentLastMsg && currentLastMsg.channelId === prevLastMsg.channelId) {
             // if message input is current not focused, then twinkle the discussion area
-            if (!this.state.isFocused) {
+            if (currentLastMsg.sentTime > prevLastMsg.sentTime && !this.state.isFocused) {
                 this.setState({
+                    isShown: true,
                     isTwinkled: true
                 });
             }
@@ -88,7 +89,7 @@ var DiscussionArea = React.createClass({
     },
 
     _onStoreChange: function(){
-        var state = this._getStateFromStores;
+        var state = this._getStateFromStores();
         this.setState(state);
     },
 
@@ -193,12 +194,23 @@ var DiscussionArea = React.createClass({
     },
 
     /**
-     * Public API
      * @Author: George_Chen
      * @Description: focusing current message input area
      */
     _focusInput: function() {
         this.refs.send.focus();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: stop twinkle the message list
+     */
+    _stopTwinkled: function() {
+        if (this.state.isTwinkled) {
+            this.setState({
+                isTwinkled: false
+            });
+        }
     },
 
     render: function(){
@@ -244,7 +256,7 @@ var DiscussionArea = React.createClass({
                     data={this.state.messages}
                     pullMsgAction={this._pullOlderMessages}
                     isReload={this.state.isReloading} 
-                    onClick={this._focusInput} />
+                    onClick={this._stopTwinkled}/>
                 <div className="DiscussionInput" style={{visibility: isShown ? 'visible' : 'hidden'}}>
                     <div style={{width: 230, overflow: 'hidden'}}>
                         <TextField 
