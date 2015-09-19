@@ -44,10 +44,10 @@ var DiscussionArea = React.createClass({
         if (!prevLastMsg) {
             return this.refs.msgList.scrollToBottom();
         }
-        // new incoming message
-        if (prevLastMsg && currentLastMsg.sentTime > prevLastMsg.sentTime) {
+        // channel has new incoming message
+        if (prevLastMsg && currentLastMsg && currentLastMsg.channelId === prevLastMsg.channelId) {
             // if message input is current not focused, then twinkle the discussion area
-            if (!this.state.isFocused) {
+            if (currentLastMsg.sentTime > prevLastMsg.sentTime && !this.state.isFocused) {
                 this.setState({
                     isShown: true,
                     isTwinkled: true
@@ -89,7 +89,7 @@ var DiscussionArea = React.createClass({
     },
 
     _onStoreChange: function(){
-        var state = this._getStateFromStores;
+        var state = this._getStateFromStores();
         this.setState(state);
     },
 
