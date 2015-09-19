@@ -194,12 +194,23 @@ var DiscussionArea = React.createClass({
     },
 
     /**
-     * Public API
      * @Author: George_Chen
      * @Description: focusing current message input area
      */
     _focusInput: function() {
         this.refs.send.focus();
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: stop twinkle the message list
+     */
+    _stopTwinkled: function() {
+        if (this.state.isTwinkled) {
+            this.setState({
+                isTwinkled: false
+            });
+        }
     },
 
     render: function(){
@@ -244,7 +255,8 @@ var DiscussionArea = React.createClass({
                     ref="msgList"
                     data={this.state.messages}
                     pullMsgAction={this._pullOlderMessages}
-                    isReload={this.state.isReloading} />
+                    isReload={this.state.isReloading} 
+                    onClick={this._stopTwinkled}/>
                 <div className="DiscussionInput" style={{visibility: isShown ? 'visible' : 'hidden'}}>
                     <div style={{width: 230, overflow: 'hidden'}}>
                         <TextField 
