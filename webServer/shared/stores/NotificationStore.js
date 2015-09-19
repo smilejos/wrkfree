@@ -69,7 +69,7 @@ module.exports = CreateStore({
         var self = this;
 
         function _sortDescByTime(obj1, obj2) {
-            return (obj2.updatedTime > obj1.updatedTime);
+            return (obj2.updatedTime - obj1.updatedTime);
         }
         return Promise.map(notifications, function(item) {
             return (item.isReq ? requests.push(item) : others.push(item));
@@ -132,13 +132,14 @@ module.exports = CreateStore({
      * @param {Object}          data, the new coming notification
      */
     _onNotification: function(data) {
-        if (data.isReq) {
-            this.requests.unshift(data);
-        } else {
-            this.notifications.unshift(data);
+        // check notification has inited or not
+        var isInited = (this.requests.length > 0 || this.notifications.length > 0);
+        var list = (data.isReq ? this.requests : this.notifications);
+        if (isInited) {
+            list.unshift(data);
+            this._setOutdatedTimer();
+            this.emitChange();
         }
-        this._setOutdatedTimer();
-        this.emitChange();
     },
 
     /**
@@ -148,9 +149,7 @@ module.exports = CreateStore({
     _setOutdatedTimer: function() {
         var self = this;
         self.isOutdated = false;
-        if (this.outdatedTimer) {
-            clearTimeout(this.outdatedTimer);
-        }
+        clearTimeout(this.outdatedTimer);
         self.outdatedTimer = setTimeout(function() {
             self.isOutdated = true;
         }, OUTDATED_TIME_IN_MSECOND);
