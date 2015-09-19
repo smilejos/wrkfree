@@ -335,6 +335,33 @@ module.exports = React.createClass({
         }
     },
 
+    /**
+     * @Author: George_Chen
+     * @Description: handle touch start event
+     */
+    _onTouchStart: function(touchEvt) {
+        touchEvt.preventDefault();
+        var e = event.touches[0];
+        prev = this._getCanvasMouse(e);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: handle touch move event
+     */
+    _onTouchMove: function(touchEvt) {
+        var e = event.touches[0];
+        this._drawing(e);
+    },
+
+    /**
+     * @Author: George_Chen
+     * @Description: handle touch end event
+     */
+    _onTouchEnd: function(touchEvt) {
+        this._stopToDraw();
+    },
+
     render: function() {
         // 50 is the height of drawing toolbar
         var DrawAreaStyle = {
@@ -365,6 +392,9 @@ module.exports = React.createClass({
                     height={this.props.height} 
                     onContextMenu={this._onBoardContextMenu}
                     onMouseDown={this._startToDraw}
+                    onTouchStart={this._onTouchStart}
+                    onTouchMove={this._onTouchMove}
+                    onTouchEnd={this._onTouchEnd}
                     onMouseLeave={this._stopToDraw.bind(this, true)}
                     onMouseUp={this._onMouseUp} />
                 <DrawingToolBar 
