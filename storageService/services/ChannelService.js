@@ -7,6 +7,7 @@ var ChannelDao = require('../daos/ChannelDao');
 var BoardDao = require('../daos/DrawBoardDao');
 var PreviewDao = require('../daos/DrawPreviewDao');
 var MemberDao = require('../daos/ChannelMemberDao');
+var NotificationDao = require('../daos/NotificationDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 var UserTemp = require('../tempStores/UserTemp');
 
@@ -160,6 +161,39 @@ exports.addNewMemberAsync = function(host, member, channelId) {
             return result;
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'addNewMemberAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for channel host to add channel members
+ *
+ * @param {String}          host, host's uid
+ * @param {String}          member, member's uid
+ * @param {String}          channelId, channel id
+ */
+exports.addMembersAsync = function(host, members, channelId) {
+    return Promise.join(
+        MemberDao.isHostAsync(host, channelId),
+        ChannelDao.findByChannelAsync(channelId, false),
+        function(isHost, channelInfo) {
+            if (!isHost) {
+                throw new Error('unauthorized operation');
+            }
+            ChannelTemp.deleteListAsync(channelId);
+            return Promise.map(members, function(memberUid) {
+                return MemberDao.isExistAsync(memberUid, channelId)
+                    .then(function(isExist) {
+                        return (isExist ? null : MemberDao.addAsync(memberUid, channelId, false));
+                    });
+            }).map(function(result) {
+                var msg = 'inivite you to work on his channel';
+                return (result ? _setChannelNotification(host, result.member, msg, channelId, channelInfo.name) : null);
+            });
+        }).catch(function(err) {
+            SharedUtils.printError('ChannelService.js', 'addMembersAsync', err);
             return null;
         });
 };
@@ -399,7 +433,7 @@ function _createChannel(creator, channelId, name, isPublic) {
             return _removeChannel(channelId, creator).then(function() {
                 return null;
             });
-        });
+    });
 }
 
 /**
@@ -416,3 +450,32 @@ function _removeChannel(channelId, host) {
         remChannel: ChannelDao.deleteAsync(channelId, host)
     });
 }
+
+/**
+ * @Author: George_Chen
+ * @Description: for setting the channel notification of target user
+ *
+ * @param {String}          sender, sender's uid
+ * @param {String}          target, target's uid
+ * @param {String}          noticeMessage, the notification message
+ * @param {String}          cid, channel id
+ * @param {String}          channelName, channel name
+ */
+function _setChannelNotification(sender, target, noticeMessage, cid, channelName) {
+    return NotificationDao.createByChannelAsync(sender, target, noticeMessage, cid)
+        .then(function(notificationDoc) {
+            return UserDao.setUnreadNoticeCountAsync(target, false)
+                .then(function(incrResult) {
+                    var err = new Error('increment notification counts fail');
+                    if (!incrResult) {
+                        SharedUtils.printError('ChannelService.js', '_setChannelNotification', err);
+                    }
+                    notificationDoc.extraInfo = {
+                        channelId: cid,
+                        name: channelName
+                    };
+                    return notificationDoc;
+                });
+        });
+}
+

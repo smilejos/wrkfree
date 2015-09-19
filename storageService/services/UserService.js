@@ -2,6 +2,8 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
+var ChannelDao = require('../daos/ChannelDao');
+var NotificationDao = require('../daos/NotificationDao');
 var UserTemp = require('../tempStores/UserTemp');
 
 /************************************************
@@ -176,6 +178,34 @@ exports.userEnterAsync = function(uid) {
     return UserTemp.enterAsync(uid)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'userEnterAsync', err);
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: check user already got auth or not based on web session
+ *
+ * @param  {String}           uid, user's id
+ * @param  {String}           sid, user's web session id
+ */
+exports.getNotificationsAsync = function(uid) {
+    return NotificationDao.findByTargetAsync(uid)
+        .map(function(notificationInfo) {
+            if (notificationInfo.type === 'channel') {
+                return ChannelDao.findByChannelAsync(notificationInfo.extraInfo, false)
+                    .then(function(info) {
+                        notificationInfo.extraInfo = {
+                            channelId: info.channelId,
+                            name: info.name
+                        };
+                        return notificationInfo;
+                    });
+            }
+            return notificationInfo;
+        }).catch(function(err) {
+            SharedUtils.printError('UserService', 'getNotificationsAsync', err);
             return null;
         });
 };

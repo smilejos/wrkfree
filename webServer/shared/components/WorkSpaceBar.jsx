@@ -8,9 +8,9 @@ var FluxibleMixin = require('fluxible-addons-react/FluxibleMixin');
 var ControlMedia = require('../../client/actions/rtc/controlMedia');
 var StartConference = require('../../client/actions/rtc/startConference');
 var HangupConference = require('../../client/actions/rtc/hangupConference');
-var ToggleComponent = require('../../client/actions/toggleComponent');
 var StarChannel = require('../../client/actions/channel/starChannel');
 var OpenHangout = require('../../client/actions/openHangout');
+var ToggleInvitation = require('../../client/actions/channel/toggleInvitation');
 
 /**
  * stores
@@ -29,6 +29,13 @@ var Colors = Mui.Styles.Colors;
 var FontIcon = Mui.FontIcon;
 var Dialog = Mui.Dialog;
 var Tooltip = Mui.Tooltip;
+var Avatar = Mui.Avatar;
+
+/**
+ * components
+ */
+var FormButton = require('./common/formButton.jsx');
+var ChannelInvitation = require('./ChannelInvitation.jsx');
 
 /**
  * workspace tool bar, now just a template
@@ -85,6 +92,10 @@ module.exports = React.createClass({
         });
     },
 
+    _toggleInvitation: function() {
+        this.executeAction(ToggleInvitation);
+    },
+
     /**
      * @Author: George_Chen
      * @Description: for switch current workspace into hangout window
@@ -132,7 +143,6 @@ module.exports = React.createClass({
                         tooltipPosition="top-right"
                         tooltip={isStarred ? 'remove from Favorites' : 'add to Favorites'}
                         touch
-                        tooltipStyles={{left: 45}}
                         disabled={is1on1}
                         onTouchTap={this._starChannel}
                         iconStyle={is1on1 ? this.state.defaultIconStyle : starIconStyle} >
@@ -244,6 +254,7 @@ module.exports = React.createClass({
         };
         return (
             <div className="footer" >
+                <ChannelInvitation channelId={this.props.channel.channelId} />
                 <div className={this.props.onConferenceCall ? "leftControl onRtcCall" : "leftControl"}>
                     <div className="baseFonts" >
                         {this._setStarIcon()}
@@ -280,18 +291,17 @@ module.exports = React.createClass({
                     </div>
                     <div style={{position: 'absolute', right: 10, top: 0}}>
                         <IconButton iconClassName="material-icons"
+                                    iconStyle={this.state.defaultIconStyle} 
                                     tooltipPosition="top-left"
                                     tooltip="invite member"
                                     touch
-                                    disabled
-                                    iconStyle={this.state.defaultIconStyle} >
+                                    onClick={this._toggleInvitation}>
                                     {'supervisor_account'}
                         </IconButton>
                         <IconButton iconClassName="material-icons"
                                     tooltipPosition="top-left"
                                     tooltip="copy link"
                                     touch
-                                    disabled
                                     iconStyle={this.state.defaultIconStyle} >
                                     {'link'}
                         </IconButton>
