@@ -183,6 +183,19 @@ exports.keepVisitorAsync = function(data) {
     return _publish(channel, packet, 'keepVisitorAsync');
 };
 
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for channel host to add new members to his channel
+ *
+ * @param {String}        data.channelId, the channel id
+ * @param {Array}         data.members, an array of uids
+ */
+exports.addMembersAsync = function(data) {
+    var packet = _setPacket('addMembersAsync', null, data);
+    return _request(packet, 'addMembersAsync');
+};
+
 /************************************************
  *
  *           internal functions

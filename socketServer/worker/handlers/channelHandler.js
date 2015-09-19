@@ -30,29 +30,29 @@ exports.createAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: to handle channel request of adding member
+ * @Description: for channel host to add members on the current channel
  *
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, channel id
- * @param {String}          data.member, the candidate member uid
+ * @param {Array}           data.members, an array of uids
  */
-exports.addMemberAsync = function(socket, data) {
-    var uid = socket.getAuthToken();
+exports.addMembersAsync = function(socket, data) {
     return Promise.props({
-        host: SharedUtils.argsCheckAsync(uid, 'md5'),
-        member: SharedUtils.argsCheckAsync(data.member, 'md5'),
-        channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5')
-    }).then(function(params) {
-        return ChannelStorage.addNewMemberAsync(
-            params.host,
-            params.member,
-            params.channelId);
-    }).then(function(result) {
-        var errMsg = 'fail to add medmber on storage service';
-        return SharedUtils.checkExecuteResult(result, errMsg);
+        channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        members: Promise.map(data.members, function(uid) {
+            return SharedUtils.argsCheckAsync(uid, 'md5');
+        })
+    }).then(function(reqData) {
+        var uid = socket.getAuthToken();
+        return ChannelStorage.addMembersAsync(uid, reqData.members, reqData.channelId);
+    }).map(function(result) {
+        if (result) {
+            _notifyTarget(socket, result.target, result);
+        }
+        return result;
     }).catch(function(err) {
-        SharedUtils.printError('channelHandler.js', 'addMemberAsync', err);
-        throw new Error('add member fail');
+        SharedUtils.printError('channelHandler.js', 'addMembersAsync', err);
+        throw new Error('inviite members fail');
     });
 };
 
@@ -239,3 +239,33 @@ exports.starContrlAsync = function(socket, data) {
             throw new Error('star channel fail');
         });
 };
+
+/**
+ * @Author: George_Chen
+ * @Description: a simple function to publish data to target user's channel
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          uid, the uid of target
+ * @param {Object}          data, the formatted published data
+ */
+function _publishToUser(socket, uid, data) {
+    var userChannel = 'user:' + uid;
+    return socket.global.publish(userChannel, data);
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: to push new notification data to target
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          target, the uid of target
+ * @param {Object}          data, the notification data
+ */
+function _notifyTarget(socket, target, data) {
+    data.isNotification = true;
+    return _publishToUser(socket, target, {
+        service: 'user',
+        clientHandler: 'onNotification',
+        params: data
+    });
+}

@@ -190,7 +190,7 @@ exports.addMembersAsync = function(host, members, channelId) {
                     });
             }).map(function(result) {
                 var msg = 'inivite you to work on his channel';
-                return (result ? _setChannelNotification(host, result.member, msg, channelId) : null);
+                return (result ? _setChannelNotification(host, result.member, msg, channelId, channelInfo.name) : null);
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'addMembersAsync', err);
@@ -459,8 +459,9 @@ function _removeChannel(channelId, host) {
  * @param {String}          target, target's uid
  * @param {String}          noticeMessage, the notification message
  * @param {String}          cid, channel id
+ * @param {String}          channelName, channel name
  */
-function _setChannelNotification(sender, target, noticeMessage, cid) {
+function _setChannelNotification(sender, target, noticeMessage, cid, channelName) {
     return NotificationDao.createByChannelAsync(sender, target, noticeMessage, cid)
         .then(function(notificationDoc) {
             return UserDao.setUnreadNoticeCountAsync(target, false)
@@ -471,7 +472,7 @@ function _setChannelNotification(sender, target, noticeMessage, cid) {
                     }
                     notificationDoc.extraInfo = {
                         channelId: cid,
-                        name: channelInfo.name
+                        name: channelName
                     };
                     return notificationDoc;
                 });
