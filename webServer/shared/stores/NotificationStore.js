@@ -69,7 +69,7 @@ module.exports = CreateStore({
         var self = this;
 
         function _sortDescByTime(obj1, obj2) {
-            return (obj2.updatedTime > obj1.updatedTime);
+            return (obj2.updatedTime - obj1.updatedTime);
         }
         return Promise.map(notifications, function(item) {
             return (item.isReq ? requests.push(item) : others.push(item));
