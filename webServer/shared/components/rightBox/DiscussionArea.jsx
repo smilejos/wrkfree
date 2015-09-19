@@ -49,6 +49,7 @@ var DiscussionArea = React.createClass({
             // if message input is current not focused, then twinkle the discussion area
             if (!this.state.isFocused) {
                 this.setState({
+                    isShown: true,
                     isTwinkled: true
                 });
             }
@@ -243,8 +244,7 @@ var DiscussionArea = React.createClass({
                     ref="msgList"
                     data={this.state.messages}
                     pullMsgAction={this._pullOlderMessages}
-                    isReload={this.state.isReloading} 
-                    onClick={this._focusInput} />
+                    isReload={this.state.isReloading} />
                 <div className="DiscussionInput" style={{visibility: isShown ? 'visible' : 'hidden'}}>
                     <div style={{width: 230, overflow: 'hidden'}}>
                         <TextField 
