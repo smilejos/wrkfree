@@ -129,10 +129,11 @@ module.exports = React.createClass({
      */
     _resize: function() {
         var width = window.innerWidth;
+        var vWidth;
         if (window.innerWidth > MAX_GUIDE_WIDTH) {
             width = MAX_GUIDE_WIDTH;
             vWidth = MAX_GUIDE_WIDTH;
-        } else if (window.innerWidth < MINI_GUID_WIDTH) {
+        } else if (window.innerWidth <= MINI_GUID_WIDTH) {
             width = MINI_GUID_WIDTH;
             vWidth = window.innerWidth;
         }
