@@ -25,6 +25,32 @@
             "defaultIndex": "wrkfree"
         }
     },
+    "docker_development": {
+        "dbEngine": "mongodb",
+        "cacheEngine": "redis",
+        "dbEnv": {
+            "host": "mongodb://db:27017/",
+            "dbName": "wrkfree"
+        },
+        "cacheEnv": {
+            "local": {
+                "host": "cache",
+                "port": 6379,
+                "options": {},
+                "ttl": 3
+            },
+            "global": {
+                "host": "cache",
+                "port": 6379,
+                "options": {},
+                "ttl": 3
+            }
+        },
+        "searchEnv": {
+            "host": "search:9200",
+            "defaultIndex": "wrkfree"
+        }
+    },
     "production": {
         "dbEngine": "mongodb",
         "cacheEngine": "redis",
