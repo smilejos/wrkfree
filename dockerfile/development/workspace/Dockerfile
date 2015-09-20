@@ -30,3 +30,5 @@ RUN apt-get install -y \
 
 # install gulp as global module
 RUN npm install gulp -g
+
+WORKDIR /workspace
