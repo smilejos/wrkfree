@@ -36,6 +36,16 @@ exports.getInfoAsync = function(uid) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: get user self information
+ */
+exports.getSelfInfoAsync = function(data) {
+    var packet = _setPacket('getSelfInfoAsync', null, data);
+    return _request(packet, 'getSelfInfoAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: get the userInfo of group of users
  *
  * @param {Array}          users, group of user ids
