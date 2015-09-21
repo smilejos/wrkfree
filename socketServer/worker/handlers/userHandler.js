@@ -42,6 +42,25 @@ exports.getInfoAsync = function(socket, data) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: get user self information
+ */
+exports.getSelfInfoAsync = function(socket) {
+    var uid = socket.getAuthToken();
+    return UserStorage.getUserAsync(uid, true)
+        .then(function(result) {
+            if (result === null) {
+                throw new Error('get user self info fail on storage service');
+            }
+            return result;
+        }).catch(function(err) {
+            SharedUtils.printError('userHandler.js', 'getSelfInfoAsync', err);
+            throw new Error('get user self info fail');
+        });
+};
+
+/**
  * TODO: currently only support reqResp like notifications
  * Public API
  * @Author: George_Chen

@@ -13,11 +13,6 @@
                 {
                     "level":"debug",
                     "type": "console"
-                },
-                {
-                    "level":"info",
-                    "type": "file",
-                    "path": "../logs/socketServer.log"
                 }
             ]
         },
@@ -26,11 +21,6 @@
                 {
                     "level":"debug",
                     "type": "console"
-                },
-                {
-                    "level":"info",
-                    "type": "file",
-                    "path": "../logs/webServer.log"
                 }
             ]
         },
@@ -39,11 +29,6 @@
                 {
                     "level":"debug",
                     "type": "console"
-                },
-                {
-                    "level":"info",
-                    "type": "file",
-                    "path": "../logs/storageService.log"
                 }
             ]
         },
@@ -56,6 +41,49 @@
             ]
         },
         "REPORT": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                }
+            ]
+        }
+    },
+
+    "docker_development": {
+        "HANDLER": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                }
+            ]
+        },
+        "SOCKET": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                }
+            ]
+        },
+        "WEB": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                }
+            ]
+        },
+        "STORAGE": {
+            "settings": [
+                {
+                    "level":"debug",
+                    "type": "console"
+                }
+            ]
+        },
+        "SLACK": {
             "settings": [
                 {
                     "level":"debug",
