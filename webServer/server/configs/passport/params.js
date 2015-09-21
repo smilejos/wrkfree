@@ -26,6 +26,11 @@ OAuthConfigs.google = {
         clientSecret: 'zxsAQabqyO7CARprXUsbxNgf',
         callbackURL: 'https://localhost/auth/google/callback'
     },
+    docker_development: {
+        clientID: '816501801074-aao4vvf8h3k9rni4fe6tf063l65scrvt.apps.googleusercontent.com',
+        clientSecret: 'XPMKa6-3yEw6TDgGHZPGGVAI',
+        callbackURL: 'https://dev.wrkfree.com/auth/google/callback'
+    },
     production: {
         clientID: '816501801074-ddh10h5ko1m9im0lr3hbq7hv75t53o6h.apps.googleusercontent.com',
         clientSecret: 'wv5jFJXajR-zenLKcOKgIeBo',
@@ -44,6 +49,12 @@ OAuthConfigs.facebook = {
         clientID: '1441276159473693',
         clientSecret: '6c73bdcc98a95f746e17a1d42cd3e84c',
         callbackURL: 'https://localhost/auth/facebook/callback'
+    },
+    //API held by Jos
+    docker_development: {
+        clientID: '1501504140161227',
+        clientSecret: '711908743bbf8688fbe736fca47bc7ed',
+        callbackURL: 'https://dev.wrkfree.com/auth/facebook/callback'
     },
     //API held by Jos
     production: {
