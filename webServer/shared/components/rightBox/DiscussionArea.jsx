@@ -40,9 +40,6 @@ var DiscussionArea = React.createClass({
     componentDidUpdate: function(prevProps, prevState){
         var currentLastMsg = this.state.messages[this.state.messages.length-1];
         var prevLastMsg = prevState.messages[prevState.messages.length-1];
-        if (!prevLastMsg) {
-            return this.refs.msgList.scrollToBottom();
-        }
         // channel has new incoming message
         if (prevLastMsg && currentLastMsg && currentLastMsg.channelId === prevLastMsg.channelId) {
             // if message input is current not focused, then twinkle the discussion area
