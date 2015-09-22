@@ -143,9 +143,10 @@
                     "type": "console"
                 },
                 {
-                    "level":"warn",
-                    "type": "file",
-                    "path": "/workspace/wrkfree2.0/logs/storageService.log"
+                    "level": "warn",
+                    "type": "loggly",
+                    "token": "3526c2f0-9d88-4287-bc45-60127deaaa2e",
+                    "subdomain": "wrkfree"
                 }
             ]
         },
