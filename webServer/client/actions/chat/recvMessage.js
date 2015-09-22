@@ -19,7 +19,8 @@ module.exports = function(actionContext, data, callback) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         message: SharedUtils.argsCheckAsync(data.message, 'string'),
-        from: SharedUtils.argsCheckAsync(data.from, 'md5')
+        from: SharedUtils.argsCheckAsync(data.from, 'md5'),
+        sentTime: SharedUtils.argsCheckAsync(data.sentTime, 'number')
     }).then(function(validMsg) {
         return ChatUtils.fillUserInfo(validMsg);
     }).then(function(fullMsg) {

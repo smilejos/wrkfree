@@ -29,6 +29,7 @@ module.exports = function(actionContext, data, callback) {
         if (!result) {
             throw new Error('server response error');
         }
+        data.sentTime = result.sentTime;
         return ChatUtils.fillUserInfo(data);
     }).then(function(fullMsg) {
         return actionContext.dispatch('RECV_MESSAGE', fullMsg);

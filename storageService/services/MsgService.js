@@ -27,7 +27,10 @@ exports.saveAsync = function(sender, channelId, msg) {
         if (!result) {
             throw new Error('db save fail');
         }
-        return ChannelMemberDao.updateMsgAsync(sender, channelId);
+        return ChannelMemberDao.updateMsgAsync(sender, channelId)
+            .then(function() {
+                return result;
+            });
     }).catch(function(err) {
         SharedUtils.printError('MsgService.js', 'saveAsync', err);
         return null;

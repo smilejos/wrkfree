@@ -38,15 +38,12 @@ exports.recvNotificationMsg = function(data) {
  * Public API
  * @Author: George_Chen
  * @Description: to sending chat message to specific channel
- * NOTE: here we assign "receiveMsg" as "clientHandler" on packet to inform other
- *       clients who receive this messsage can use "receiveMsg" function for handling
  * 
  * @param {Object}          data, the message data from server
  */
 exports.sendMsgAsync = function(data) {
-    var channel = SocketUtils.setChannelReq(data.channelId);
-    var packet = _setPacket('sendMsgAsync', 'receiveMsg', data);
-    return _publish(channel, packet, 'sendMsgAsync');
+    var packet = _setPacket('sendMsgAsync', null, data);
+    return _request(packet, 'sendMsgAsync');
 };
 
 /**
