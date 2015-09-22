@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var ChatService = require('../../services/chatService');
 var ChatUtils = require('./chatUtils');
+var HeaderStore = require('../../../shared/stores/HeaderStore');
 
 /**
  * @Public API
@@ -21,14 +22,14 @@ module.exports = function(actionContext, data, callback) {
     }
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        message: SharedUtils.argsCheckAsync(data.message, 'string'),
-        from: SharedUtils.argsCheckAsync(data.from, 'md5')
+        message: SharedUtils.argsCheckAsync(data.message, 'string')
     }).then(function(validMsg) {
         return ChatService.sendMsgAsync(validMsg);
     }).then(function(result) {
         if (!result) {
             throw new Error('server response error');
         }
+        data.from = actionContext.getStore(HeaderStore).getSelfInfo().uid;
         data.sentTime = result.sentTime;
         return ChatUtils.fillUserInfo(data);
     }).then(function(fullMsg) {

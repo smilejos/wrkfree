@@ -16,10 +16,10 @@ var MsgStorage = StorageManager.getService('Msg');
  */
 exports.sendMsgAsync = function(socket, data) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(data.from, 'md5'),
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.message, 'string'),
-        function(sender, channelId, msg) {
+        function(channelId, msg) {
+            var sender = socket.getAuthToken();
             return MsgStorage.saveAsync(sender, channelId, msg);
         }).then(function(saveResult) {
             if (saveResult === null) {
