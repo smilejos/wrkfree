@@ -253,12 +253,12 @@ exports.countActivedRecordsAsync = function(channelId, boardId) {
         false // isUndo=true for query
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT COUNT(id) FROM drawRecords ' +
+            text: 'SELECT CAST(COUNT(id) as INTEGER) FROM drawRecords ' +
                 'WHERE "channelId"=$1 AND "boardId"=$2 AND "isUndo"=$3',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery).then(function(result) {
-            return result;
+            return result[0].count;
         });
     }).catch(function(err) {
         SharedUtils.printError('DrawRecordDao', 'removeUndosAsync', err);
