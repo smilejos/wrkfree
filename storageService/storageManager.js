@@ -1,4 +1,5 @@
 'use strict';
+var Pg = require('pg');
 var Mongoose = require('mongoose');
 var Promise = require('bluebird');
 var Redis = require('redis');
@@ -79,6 +80,13 @@ exports.connectDb = function() {
             new Error('db already connected')
         );
     }
+    // setup PostgresSQL default parameters
+    Pg.defaults.user = DbConfigs.pgEnv.user;
+    Pg.defaults.password = DbConfigs.pgEnv.password;
+    Pg.defaults.database = DbConfigs.pgEnv.database;
+    Pg.defaults.host = DbConfigs.pgEnv.host;
+    Pg.defaults.port = DbConfigs.pgEnv.port;
+
     // connect to mongoDB
     _MongoConnect();
 
@@ -109,6 +117,7 @@ exports.connectDb = function() {
     });
 
     // promisify storage libs
+    Promise.promisifyAll(Pg);
     Promise.promisifyAll(Mongoose);
     Promise.promisifyAll(Redis.RedisClient.prototype);
     Promise.promisifyAll(Redis.Multi.prototype);
