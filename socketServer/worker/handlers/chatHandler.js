@@ -16,21 +16,30 @@ var MsgStorage = StorageManager.getService('Msg');
  */
 exports.sendMsgAsync = function(socket, data) {
     return Promise.join(
-        SharedUtils.argsCheckAsync(data.from, 'md5'),
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         SharedUtils.argsCheckAsync(data.message, 'string'),
-        function(sender, channelId, msg) {
+        function(channelId, msg) {
+            var sender = socket.getAuthToken();
             return MsgStorage.saveAsync(sender, channelId, msg);
-        }).then(function(result) {
-            var errMsg = 'fail to save new sent message on storage service';
-            if (result) {
-                socket.global.publish('notification:' + data.channelId, {
-                    clientHandler: 'recvNotificationMsg',
-                    service: 'chat',
-                    params: data
-                });
+        }).then(function(saveResult) {
+            if (saveResult === null) {
+                throw new Error('fail to save new sent message on storage service');
             }
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            saveResult.sentTime = new Date(saveResult.sentTime).getTime();
+            socket.global.publish('notification:' + data.channelId, {
+                clientHandler: 'recvNotificationMsg',
+                service: 'chat',
+                params: saveResult
+            });
+            socket.global.publish('channel:' + data.channelId, {
+                clientHandler: 'receiveMsg',
+                service: 'chat',
+                params: saveResult,
+                socketId: socket.id
+            });
+            return {
+                sentTime: saveResult.sentTime
+            };
         }).catch(function(err) {
             SharedUtils.printError('chatHandler.js', 'sendMsgAsync', err);
             throw err;

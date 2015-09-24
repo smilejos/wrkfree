@@ -6,7 +6,6 @@ var Linkify = require('react-linkify');
 /**
  * wrkfree store/action on workspace
  */
-var HeaderStore = require('../../stores/HeaderStore');
 var MessageStore = require('../../stores/MessageStore');
 var SendMessageAction = require('../../../client/actions/chat/sendMessage');
 var PullMessagesAction = require('../../../client/actions/chat/pullMessages');
@@ -41,9 +40,6 @@ var DiscussionArea = React.createClass({
     componentDidUpdate: function(prevProps, prevState){
         var currentLastMsg = this.state.messages[this.state.messages.length-1];
         var prevLastMsg = prevState.messages[prevState.messages.length-1];
-        if (!prevLastMsg) {
-            return this.refs.msgList.scrollToBottom();
-        }
         // channel has new incoming message
         if (prevLastMsg && currentLastMsg && currentLastMsg.channelId === prevLastMsg.channelId) {
             // if message input is current not focused, then twinkle the discussion area
@@ -150,12 +146,9 @@ var DiscussionArea = React.createClass({
      */
     _handleKeyDown: function(e){
         if( e.which === 13 ) {
-            var headerStore = this.getStore(HeaderStore);
-            var selfInfo = headerStore.getSelfInfo();
             var message = {
                 channelId: this.props.channelId,
-                message : this.refs.send.getValue(),
-                from: selfInfo.uid
+                message : this.refs.send.getValue()
             };
             this.refs.send.clearValue();
             this.refs.msgList.scrollToBottom();
