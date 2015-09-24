@@ -8,6 +8,7 @@ var ChannelStoreage = require('./ChannelService');
 var RecordDao = require('../daos/DrawRecordDao');
 var BoardDao = require('../daos/DrawBoardDao');
 var PreviewDao = require('../daos/DrawPreviewDao');
+var PgDrawRecord = require('../pgDaos/PgDrawRecord');
 
 var Configs = require('../../configs/config');
 
@@ -174,7 +175,7 @@ exports.undoRecordAsync = function(channelId, boardId, member) {
         _ensureArchived(channelId, boardId),
         _ensureAuth(member, channelId),
         function() {
-            return RecordDao.setNewUndoAsync(channelId, boardId);
+            return PgDrawRecord.setNewUndoAsync(channelId, boardId);
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
@@ -198,7 +199,7 @@ exports.restoreUndoAsync = function(channelId, boardId, member) {
     LogUtils.info(LogCategory, null, logMsg);
     return _ensureAuth(member, channelId)
         .then(function() {
-            return RecordDao.restoreUndoAsync(channelId, boardId);
+            return PgDrawRecord.restoreUndoAsync(channelId, boardId);
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
@@ -282,7 +283,7 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
             }
             return Promise.props({
                 board: BoardDao.findByBoardAsync(channelId, boardId),
-                reocrds: RecordDao.findByBoardAsync(channelId, boardId)
+                reocrds: PgDrawRecord.findByBoardAsync(channelId, boardId)
             });
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
@@ -429,12 +430,9 @@ function _delBoard(channelId, boardId) {
  * @param {Array}           record, a array of record data
  */
 function _saveRecord(channelId, boardId, record, drawOptions) {
-    return RecordDao.removeUndosAsync(channelId, boardId)
-        .then(function(result) {
-            if (result === null) {
-                throw new Error('remove undo document fail');
-            }
-            return RecordDao.saveAsync(channelId, boardId, record, drawOptions);
+    return PgDrawRecord.removeUndosAsync(channelId, boardId)
+        .then(function() {
+            return PgDrawRecord.saveAsync(channelId, boardId, record, drawOptions);
         });
 }
 
@@ -446,11 +444,11 @@ function _saveRecord(channelId, boardId, record, drawOptions) {
  * @param {Number}          boardId, the draw board id
  */
 function _ensureArchived(channelId, boardId) {
-    return RecordDao.countActivedRecordsAsync(channelId, boardId)
+    return PgDrawRecord.countActivedRecordsAsync(channelId, boardId)
         .then(function(counts) {
             var archiveNum = counts - ACTIVED_RECORD_LIMIT;
             if (archiveNum > 0) {
-                return RecordDao.archiveByNumberAsync(channelId, boardId, archiveNum);
+                return PgDrawRecord.archiveByNumberAsync(channelId, boardId, archiveNum);
             }
             return true;
         }).then(function(result) {
@@ -469,7 +467,7 @@ function _ensureArchived(channelId, boardId) {
  * @param {Number}          boardId, the draw board id
  */
 function _removeArchives(channelId, boardId) {
-    return RecordDao.removeArchivesAsync(channelId, boardId)
+    return PgDrawRecord.removeArchivesAsync(channelId, boardId)
         .catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
