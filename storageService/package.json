@@ -1,6 +1,6 @@
 {
   "name": "wrkfree-storage",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "private": true,
   "dependencies": {
     "bluebird": "^2.9.13",
@@ -8,6 +8,7 @@
     "mongoose": "~3.8.30",
     "mongoose-cache-manager": "git://github.com/bamoo456/mongoose-cache-manager",
     "object-assign": "^2.0.0",
+    "pg": "^4.4.2",
     "redis": "^0.12.1"
   }
 }

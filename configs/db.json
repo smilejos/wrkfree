@@ -6,6 +6,13 @@
             "host": "mongodb://127.0.0.1:27017/",
             "dbName": "wrkfree"
         },
+        "pgEnv": {
+            "user": "wrkfree",
+            "password": "wrkfree",
+            "database": "wrkfree",
+            "host": "localhost",
+            "port": "5432"
+        },
         "cacheEnv": {
             "local": {
                 "host": "127.0.0.1",
@@ -32,6 +39,13 @@
             "host": "mongodb://db:27017/",
             "dbName": "wrkfree"
         },
+        "pgEnv": {
+            "user": "wrkfree",
+            "password": "wrkfree",
+            "database": "wrkfree",
+            "host": "pg",
+            "port": "5432"
+        },
         "cacheEnv": {
             "local": {
                 "host": "cache",
@@ -57,6 +71,13 @@
         "dbEnv": {
             "host": "mongodb://db:27017/",
             "dbName": "wrkfree"
+        },
+        "pgEnv": {
+            "user": "wrkfree",
+            "password": "wrkfree",
+            "database": "wrkfree",
+            "host": "pg",
+            "port": "5432"
         },
         "cacheEnv": {
             "local": {
