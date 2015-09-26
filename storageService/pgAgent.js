@@ -19,11 +19,11 @@ exports.execSqlAsync = function(queryObject) {
     return Pg.connectAsync().spread(function(client, done) {
         return client.queryAsync(queryObject)
             .then(function(result) {
-                done();
                 return result.rows;
             }).catch(function(err) {
-                done();
                 throw err;
+            }).finally(function() {
+                done();
             });
     });
 };
@@ -40,36 +40,33 @@ exports.execSqlAsync = function(queryObject) {
  */
 exports.proxySqlAsync = Promise.promisify(function(queryObject, callback) {
     var queryHash = CryptoUtils.getMd5Hex(JSON.stringify(queryObject));
+    var hasRunningQuery = !!RuningQueries[queryHash];
     var pgQuery = RuningQueries[queryHash];
-    if (pgQuery) {
-        return pgQuery.once('result', function(result) {
-            return callback(null, result);
-        });
+    if (!pgQuery) {
+        RuningQueries[queryHash] = new EventEmitter();
+        pgQuery = RuningQueries[queryHash];
     }
-    pgQuery = RuningQueries[queryHash] = new EventEmitter();
     pgQuery.once('result', function(result) {
         callback(null, result);
     });
-    pgQuery.once('end', function() {
-        _clearQuery(queryHash);
-    });
     pgQuery.once('error', function(err) {
-        _clearQuery(queryHash);
         callback(err);
     });
-    return Pg.connectAsync().spread(function(client, done) {
-        return client.queryAsync(queryObject)
-            .then(function(result) {
-                done();
-                pgQuery.emit('result', result.rows);
-                pgQuery.emit('end');
-            }).catch(function(err) {
-                done();
-                pgQuery.emit('error', err);
-            });
-    }).catch(function(err) {
-        pgQuery.emit('error', err);
-    });
+    if (!hasRunningQuery) {
+        return Pg.connectAsync().spread(function(client, done) {
+            return client.queryAsync(queryObject)
+                .then(function(result) {
+                    pgQuery.emit('result', result.rows);
+                }).catch(function(err) {
+                    pgQuery.emit('error', err);
+                }).finally(function() {
+                    done();
+                    _clearQuery(queryHash);
+                });
+        }).catch(function(err) {
+            pgQuery.emit('error', err);
+        });
+    }
 });
 
 /**
@@ -78,6 +75,7 @@ exports.proxySqlAsync = Promise.promisify(function(queryObject, callback) {
  */
 function _clearQuery(rawString) {
     if (RuningQueries[rawString]) {
+        RuningQueries[rawString].removeAllListeners();
         delete RuningQueries[rawString];
     }
 }
