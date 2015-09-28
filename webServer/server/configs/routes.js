@@ -157,12 +157,11 @@ module.exports = function(server) {
             uid: req.user.uid,
             cid: req.params.channelId
         }, 'get channel preview image');
-        if (!req.img || req.img.chunks.length === 0) {
+        if (!req.img || req.img.length === 0) {
             // send image not found jpeg
             return res.redirect('/assets/imgs/empty.png');
         }
-        res.contentType(req.img.contentType);
-        res.send(req.img.chunks);
+        res.send(req.img);
     });
 
     /**
