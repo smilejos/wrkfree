@@ -76,7 +76,8 @@ exports.findLatestByChannelAsync = function(channelId) {
                 'LIMIT 1',
             values: queryParams
         };
-        return Agent.proxySqlAsync(sqlQuery).map(function(doc) {
+        return Agent.proxySqlAsync(sqlQuery).then(function(result) {
+            var doc = result[0];
             doc.drawTime = doc.drawTime.getTime();
             return doc;
         });
