@@ -6,3 +6,6 @@ RUN mkdir -p /data/db
 
 # Create the PostgresSQL data directory
 RUN mkdir -p /data/pgdata
+
+# Create the drawfiles data directory
+RUN mkdir -p /data/files
