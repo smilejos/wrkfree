@@ -271,7 +271,7 @@ exports.updateBoardImgAsync = function(channelId, boardId, _bid, imgType, img) {
     LogUtils.info(LogCategory, null, logMsg);
     return PgDrawBoard.updateImgAsync(channelId, _bid, imgType, img)
         .then(function(result) {
-            if (result && imgType === 'baseImg') {
+            if (result && imgType === 'base') {
                 _removeArchives(channelId, boardId);
             }
             return result;

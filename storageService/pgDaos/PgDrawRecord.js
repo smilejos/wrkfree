@@ -46,7 +46,8 @@ exports.findByBoardAsync = function(channelId, boardId) {
         SharedUtils.argsCheckAsync(boardId, 'boardId')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 AND "boardId"=$2',
+            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 AND "boardId"=$2 ' +
+                'ORDER BY "drawTime" ASC',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery).map(function(doc) {
@@ -255,7 +256,7 @@ exports.countActivedRecordsAsync = function(channelId, boardId) {
     ]).then(function(queryParams) {
         var sqlQuery = {
             text: 'SELECT CAST(COUNT(id) as INTEGER) FROM drawRecords ' +
-                'WHERE "channelId"=$1 AND "boardId"=$2 AND "isUndo"=$3',
+                'WHERE "channelId"=$1 AND "boardId"=$2 AND "isArchived"=$3',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery).then(function(result) {
