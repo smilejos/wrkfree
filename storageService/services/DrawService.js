@@ -5,10 +5,8 @@ var LogUtils = require('../../sharedUtils/logUtils');
 var LogCategory = 'STORAGE';
 var Promise = require('bluebird');
 var ChannelStoreage = require('./ChannelService');
-var RecordDao = require('../daos/DrawRecordDao');
-var BoardDao = require('../daos/DrawBoardDao');
-var PreviewDao = require('../daos/DrawPreviewDao');
 var PgDrawRecord = require('../pgDaos/PgDrawRecord');
+var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 
 var Configs = require('../../configs/config');
 
@@ -37,35 +35,15 @@ if (!SharedUtils.isNumber(ACTIVED_RECORD_LIMIT)) {
 exports.addBoardAsync = function(channelId, boardId, member) {
     var logMsg = 'channel [' + channelId + '] add board [' + boardId + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    return Promise.join(
-        PreviewDao.isExistAsync(channelId, boardId),
-        BoardDao.isExistAsync(channelId, boardId),
-        _ensureAuth(member, channelId),
-        function(previewExist, boardExist) {
-            var warnInfo = {
-                channelId: channelId,
-                boardId: boardId
-            };
-            if (!previewExist && !boardExist) {
-                return _addBoard(channelId, boardId);
-            }
-            if (!previewExist) {
-                LogUtils.warn(LogCategory, warnInfo, 'preview document missing');
-                return PreviewDao.saveAsync(channelId, boardId);
-            }
-            if (!boardExist) {
-                LogUtils.warn(LogCategory, warnInfo, 'board document missing');
-                return BoardDao.saveAsync(channelId, boardId);
-            }
-            LogUtils.warn(LogCategory, warnInfo, 'board exist');
-            return null;
-        }).catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in DrawService.addBoardAsync()');
-            return null;
-        });
+    return _ensureAuth(member, channelId).then(function(){
+        return PgDrawBoard.saveAsync(channelId, boardId);
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            args: SharedUtils.getArgs(arguments),
+            error: err.toString()
+        }, 'error in DrawService.addBoardAsync()');
+        return null;
+    });
 };
 
 /**
@@ -80,16 +58,18 @@ exports.addBoardAsync = function(channelId, boardId, member) {
 exports.delBoardAsync = function(channelId, boardId, member) {
     var logMsg = 'channel [' + channelId + '] delete board [' + boardId + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    return _ensureAuth(member, channelId)
-        .then(function() {
-            return _delBoard(channelId, boardId);
-        }).catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in DrawService.delBoardAsync()');
-            return null;
-        });
+    // TODO: only host can delete board
+    // 
+    // return _ensureAuth(member, channelId)
+    //     .then(function() {
+    //         return _delBoard(channelId, boardId);
+    //     }).catch(function(err) {
+    //         LogUtils.error(LogCategory, {
+    //             args: SharedUtils.getArgs(arguments),
+    //             error: err.toString()
+    //         }, 'error in DrawService.delBoardAsync()');
+    //         return null;
+    //     });
 };
 
 /**
@@ -132,29 +112,6 @@ exports.saveRecordAsync = function(channelId, boardId, tempRecord, drawOptions) 
                 args: SharedUtils.getArgs(arguments),
                 error: err.toString()
             }, 'error in DrawService.saveRecordAsync()');
-            return null;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: for user to save record when drawing on the same point
- *
- * @param {String}          channelId, the channel id
- * @param {Number}          boardId, the draw board id
- * @param {Array}           rawData, the raw chunks of current drawing
- * @param {Object}          drawOptions, the draw options for this record
- */
-exports.saveSingleDrawAsync = function(channelId, boardId, rawData, drawOptions) {
-    var logMsg = 'channel [' + channelId + '] save single draw on board [' + boardId + ']';
-    LogUtils.info(LogCategory, null, logMsg);
-    return _saveRecord(channelId, boardId, [rawData], drawOptions)
-        .catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in DrawService.saveSingleDrawAsync()');
             return null;
         });
 };
@@ -225,10 +182,10 @@ exports.getPreviewImgAsync = function(member, channelId, boardId) {
             if (SharedUtils.isDrawBoardId(boardId)) {
                 logMsg += 'on board [' + boardId + ']';
                 LogUtils.info(LogCategory, null, logMsg);
-                return PreviewDao.findByBoardAsync(channelId, boardId);
+                return PgDrawBoard.legacyFindImgAsync(channelId, boardId, 'preview');
             }
             LogUtils.info(LogCategory, null, logMsg);
-            return PreviewDao.findByChannelLatestAsync(channelId);
+            return PgDrawBoard.findImgByLatestUpdatedAsync(channelId, 'preview');
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
@@ -236,29 +193,6 @@ exports.getPreviewImgAsync = function(member, channelId, boardId) {
             }, 'error in DrawService.getPreviewImgAsync()');
             return null;
         });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: used to get the preview image status (outdated or not)
- *         NOTE: time is used to compare preview image updatedTime
- * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
- * @param {String}          time, the timestamp
- */
-exports.getPreviewStatusAsync = function(channelId, boardId, time) {
-    var logMsg = 'channel [' + channelId + '] get preview status on board [' + boardId + ']';
-    LogUtils.info(LogCategory, null, logMsg);
-    return Promise.props({
-        isOutdated: PreviewDao.isExistAsync(channelId, boardId, time)
-    }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in DrawService.getPreviewStatusAsync()');
-        return null;
-    });
 };
 
 /**
@@ -282,7 +216,7 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
                 throw new Error('record archive fail');
             }
             return Promise.props({
-                board: BoardDao.findByBoardAsync(channelId, boardId),
+                board: PgDrawBoard.legacyFindImgAsync(channelId, boardId, 'base'),
                 reocrds: PgDrawRecord.findByBoardAsync(channelId, boardId)
             });
         }).catch(function(err) {
@@ -305,13 +239,13 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
 exports.getLatestBoardIdAsync = function(channelId) {
     var logMsg = 'channel [' + channelId + '] get Last updtaed board';
     LogUtils.info(LogCategory, null, logMsg);
-    return RecordDao.findLatestByChannelAsync(channelId)
-        .then(function(record) {
-            if (!record) {
+    return PgDrawBoard.findByLatestUpdatedAsync(channelId)
+        .then(function(board) {
+            if (!board) {
                 LogUtils.info(LogCategory, null, 'channel [' + channelId + '] has not been drawed');
                 return 0;
             }
-            return record.boardId;
+            return board.boardId;
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
@@ -324,19 +258,20 @@ exports.getLatestBoardIdAsync = function(channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: used to update the base Image on current draw board
- *         NOTE: base image is the snapshot of all archived draw records
+ * @Description: used to update drawboard image 
  *
  * @param {String}          channelId, channel id
  * @param {Number}          boardId, the draw board id
- * @param {Buffer}          img, the image buffer
+ * @param {String}          _bid, board uuid
+ * @param {String}          imgType, the type of querying image
+ * @param {Buffer}          img, the image content buffer
  */
-exports.updateBaseImgAsync = function(channelId, boardId, img) {
-    var logMsg = 'channel [' + channelId + '] update baseImg on board [' + boardId + ']';
+exports.updateBoardImgAsync = function(channelId, boardId, _bid, imgType, img) {
+    var logMsg = 'channel [' + channelId + '] update baseImg on board [' + _bid + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    return BoardDao.updateBaseImgAsync(channelId, boardId, img)
+    return PgDrawBoard.updateImgAsync(channelId, _bid, imgType, img)
         .then(function(result) {
-            if (result) {
+            if (result && imgType === 'base') {
                 _removeArchives(channelId, boardId);
             }
             return result;
@@ -344,30 +279,7 @@ exports.updateBaseImgAsync = function(channelId, boardId, img) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
                 error: err.toString()
-            }, 'error in DrawService.updateBaseImgAsync()');
-            return null;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: used to update the preview Image on current draw board
- *         NOTE: preview image is the snapshot of current board
- *
- * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
- * @param {Buffer}          img, the image buffer
- */
-exports.updatePreviewImgAsync = function(channelId, boardId, img) {
-    var logMsg = 'channel [' + channelId + '] update preview on board [' + boardId + ']';
-    LogUtils.info(LogCategory, null, logMsg);
-    return PreviewDao.updateChunksAsync(channelId, boardId, img)
-        .catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in DrawService.updatePreviewImgAsync()');
+            }, 'error in DrawService.updateBoardImgAsync()');
             return null;
         });
 };
@@ -377,49 +289,6 @@ exports.updatePreviewImgAsync = function(channelId, boardId, img) {
  *           internal functions
  *
  ************************************************/
-
-/**
- * @Author: George_Chen
- * @Description: a low-level add board function
- *
- * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
- */
-function _addBoard(channelId, boardId) {
-    return Promise.all([
-        PreviewDao.saveAsync(channelId, boardId),
-        BoardDao.saveAsync(channelId, boardId)
-    ]).map(function(result) {
-        if (!result) {
-            throw new Error('board related document create fail');
-        }
-        return result;
-    }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in DrawService _addBoard()');
-        // clean previous related docs
-        return _delBoard(channelId, boardId).then(function() {
-            return null;
-        });
-    });
-}
-
-/**
- * @Author: George_Chen
- * @Description: a low-level delete board function
- *
- * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
- */
-function _delBoard(channelId, boardId) {
-    return Promise.props({
-        delBoard: BoardDao.removeByBoardAsync(channelId, boardId),
-        delPreview: PreviewDao.removeByBoardAsync(channelId, boardId),
-        delRecords: RecordDao.removeByBoardAsync(channelId, boardId)
-    });
-}
 
 /**
  * @Author: George_Chen

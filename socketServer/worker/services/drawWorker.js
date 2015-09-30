@@ -94,9 +94,9 @@ exports.drawBaseImgAsync = function(board, records) {
         return _drawAndUpdate(board, archives, false);
     }).then(function(newImg) {
         var imgInfo = {
-            contentType: board.baseImg.contentType,
-            encode: board.baseImg.encode,
-            chunks: (newImg ? newImg : board.baseImg.chunks.buffer)
+            contentType: 'image/png',
+            encode: 'base64',
+            chunks: (newImg ? newImg : board.content)
         };
         return {
             baseImg: imgInfo,
@@ -166,17 +166,8 @@ Queue.process(QUEUE_TYPE, function(job, done) {
     var channelId = job.data.cid;
     var boardId = job.data.bid;
     var user = job.data.uid;
-    var time = job.data.sentTime;
-    return DrawStorage.getPreviewStatusAsync(channelId, boardId, time)
-        .then(function(status) {
-            if (!status) {
-                throw new Error('no preview status found!');
-            }
-            if (!status.isOutdated) {
-                return null;
-            }
-            return DrawStorage.getBoardInfoAsync(channelId, boardId, user);
-        }).then(function(data) {
+    return DrawStorage.getBoardInfoAsync(channelId, boardId, user)
+        .then(function(data) {
             return (data ? _drawAndUpdate(data.board, data.reocrds, true) : null);
         }).then(function(result) {
             if (result) {
@@ -224,7 +215,7 @@ function _notifyMembers(cid, bid) {
  */
 function _drawAndUpdate(board, records, isPreview) {
     return _draw(board, records).then(function(newImg) {
-        return _update(board.channelId, board.boardId, newImg, isPreview)
+        return _update(board.channelId, board.boardId, newImg, isPreview, board.bid)
             .then(function(result) {
                 return (result ? newImg : null);
             });
@@ -244,7 +235,7 @@ function _draw(board, records) {
         if (records.length === 0) {
             return null;
         }
-        return CanvasService.generateImgAsync(board.baseImg.chunks.buffer, records, false);
+        return CanvasService.generateImgAsync(board.content, records, false);
     });
 }
 
@@ -257,14 +248,12 @@ function _draw(board, records) {
  * @param {Buffer}          img, the img chunks
  * @param {Boolean}         isPreview, to inform is preview image or not
  */
-function _update(cid, bid, img, isPreview) {
+function _update(cid, bid, img, isPreview, _bid) {
     return Promise.try(function() {
+        var imgType = (isPreview ? 'preview' : 'base');
         if (!img) {
             return null;
         }
-        if (isPreview) {
-            return DrawStorage.updatePreviewImgAsync(cid, bid, img);
-        }
-        return DrawStorage.updateBaseImgAsync(cid, bid, img);
+        return DrawStorage.updateBoardImgAsync(cid, bid, _bid, imgType, img);
     });
 }

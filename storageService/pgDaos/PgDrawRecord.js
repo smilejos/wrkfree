@@ -46,7 +46,8 @@ exports.findByBoardAsync = function(channelId, boardId) {
         SharedUtils.argsCheckAsync(boardId, 'boardId')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 AND "boardId"=$2',
+            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 AND "boardId"=$2 ' +
+                'ORDER BY "drawTime" ASC',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery).map(function(doc) {
@@ -55,33 +56,6 @@ exports.findByBoardAsync = function(channelId, boardId) {
         });
     }).catch(function(err) {
         SharedUtils.printError('PgDrawRecord.js', 'findByBoardAsync', err);
-        throw err;
-    });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: find the latest draw record on the current channel
- *
- * @param {String}          channelId, channel id
- */
-exports.findLatestByChannelAsync = function(channelId) {
-    return Promise.all([
-        SharedUtils.argsCheckAsync(channelId, 'md5'),
-    ]).then(function(queryParams) {
-        var sqlQuery = {
-            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 ' +
-                'ORDER BY "drawTime" DESC ' +
-                'LIMIT 1',
-            values: queryParams
-        };
-        return Agent.proxySqlAsync(sqlQuery).map(function(doc) {
-            doc.drawTime = doc.drawTime.getTime();
-            return doc;
-        });
-    }).catch(function(err) {
-        SharedUtils.printError('PgDrawRecord.js', 'findLatestByChannelAsync', err);
         throw err;
     });
 };
@@ -254,7 +228,7 @@ exports.countActivedRecordsAsync = function(channelId, boardId) {
     ]).then(function(queryParams) {
         var sqlQuery = {
             text: 'SELECT CAST(COUNT(id) as INTEGER) FROM drawRecords ' +
-                'WHERE "channelId"=$1 AND "boardId"=$2 AND "isUndo"=$3',
+                'WHERE "channelId"=$1 AND "boardId"=$2 AND "isArchived"=$3',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery).then(function(result) {

@@ -4,12 +4,10 @@ var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
 var MemberDao = require('../daos/ChannelMemberDao');
-var BoardDao = require('../daos/DrawBoardDao');
-var PreviewDao = require('../daos/DrawPreviewDao');
 var UserTemp = require('../tempStores/UserTemp');
 var FriendDao = require('../daos/FriendDao');
-var FriendTemp = require('../tempStores/FriendTemp');
 var UserTemp = require('../tempStores/UserTemp');
+var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 
 /************************************************
  *
@@ -153,7 +151,7 @@ function _hasFriendShip(user1, user2) {
             SharedUtils.printError('FriendService', '_hasFriendShip', err);
             throw err;
         });
-};
+}
 
 
 /**
@@ -178,12 +176,9 @@ function _create1on1Channel(user1, user2) {
                 return result;
             }).then(function(info) {
                 var cid = info[0].channelId;
-                return Promise.join(
-                    PreviewDao.saveAsync(cid, 0),
-                    BoardDao.saveAsync(cid, 0),
-                    function() {
-                        return info;
-                    });
+                return PgDrawBoard.saveAsync(cid, 0).then(function() {
+                    return info;
+                });
             });
         });
 }
