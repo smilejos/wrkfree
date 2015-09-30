@@ -239,13 +239,13 @@ exports.getBoardInfoAsync = function(channelId, boardId, member) {
 exports.getLatestBoardIdAsync = function(channelId) {
     var logMsg = 'channel [' + channelId + '] get Last updtaed board';
     LogUtils.info(LogCategory, null, logMsg);
-    return PgDrawRecord.findLatestByChannelAsync(channelId)
-        .then(function(record) {
-            if (!record) {
+    return PgDrawBoard.findByLatestUpdatedAsync(channelId)
+        .then(function(board) {
+            if (!board) {
                 LogUtils.info(LogCategory, null, 'channel [' + channelId + '] has not been drawed');
                 return 0;
             }
-            return record.boardId;
+            return board.boardId;
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),

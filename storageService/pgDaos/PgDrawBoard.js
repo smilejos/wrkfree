@@ -120,12 +120,11 @@ exports.legacyFindImgAsync = function(channelId, boardId, imgType) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: find the latest updated image on current channel
+ * @Description: find the latest updated board info on current channel
  *
  * @param {String}          channelId, channel id
- * @param {String}          imgType, the type of querying image
  */
-exports.findImgByLatestUpdatedAsync = function(channelId, imgType) {
+exports.findByLatestUpdatedAsync = function(channelId) {
     return Promise.all([
         SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
@@ -134,25 +133,45 @@ exports.findImgByLatestUpdatedAsync = function(channelId, imgType) {
                 'ORDER BY "updatedTime" DESC LIMIT 1',
             values: queryParams
         };
-        if (!_isImgTypeValid(imgType)) {
-            throw new Error('query on not supported img type');
-        }
         return Agent.proxySqlAsync(sqlQuery).then(function(result) {
-            var data = result[0];
+            return result[0];
+        });
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            args: SharedUtils.getArgs(arguments),
+            error: err.toString()
+        }, 'error in PgDrawBoard.findByLatestUpdatedAsync()');
+        throw err;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: find the latest updated image on current channel
+ *
+ * @param {String}          channelId, channel id
+ * @param {String}          imgType, the type of querying image
+ */
+exports.findImgByLatestUpdatedAsync = function(channelId, imgType) {
+    if (!_isImgTypeValid(imgType)) {
+        throw new Error('query on not supported img type');
+    }
+    return exports.findByLatestUpdatedAsync(channelId)
+        .then(function(data) {
             return Promise.props({
                 bid: data.id,
                 channelId: data.channelId,
                 boardId: data.boardId,
                 content: (data[imgType] ? Fs.readFileAsync(data[imgType]) : new Buffer(''))
             });
+        }).catch(function(err) {
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err.toString()
+            }, 'error in PgDrawBoard.findImgByLatestUpdatedAsync()');
+            throw err;
         });
-    }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in PgDrawBoard.findImgByLatestUpdatedAsync()');
-        throw err;
-    });
 };
 
 /**
