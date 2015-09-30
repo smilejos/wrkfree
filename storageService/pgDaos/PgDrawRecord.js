@@ -63,34 +63,6 @@ exports.findByBoardAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: find the latest draw record on the current channel
- *
- * @param {String}          channelId, channel id
- */
-exports.findLatestByChannelAsync = function(channelId) {
-    return Promise.all([
-        SharedUtils.argsCheckAsync(channelId, 'md5'),
-    ]).then(function(queryParams) {
-        var sqlQuery = {
-            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 ' +
-                'ORDER BY "drawTime" DESC ' +
-                'LIMIT 1',
-            values: queryParams
-        };
-        return Agent.proxySqlAsync(sqlQuery).then(function(result) {
-            var doc = result[0];
-            doc.drawTime = doc.drawTime.getTime();
-            return doc;
-        });
-    }).catch(function(err) {
-        SharedUtils.printError('PgDrawRecord.js', 'findLatestByChannelAsync', err);
-        throw err;
-    });
-};
-
-/**
- * Public API
- * @Author: George_Chen
  * @Description: archive number of documents on the current board
  *
  * @param {String}          channelId, channel id
