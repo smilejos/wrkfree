@@ -5,9 +5,9 @@ var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
 var MemberDao = require('../daos/ChannelMemberDao');
 var UserTemp = require('../tempStores/UserTemp');
-var FriendDao = require('../daos/FriendDao');
 var UserTemp = require('../tempStores/UserTemp');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
+var PgFriend = require('../pgDaos/PgFriend');
 
 /************************************************
  *
@@ -21,26 +21,25 @@ var PgDrawBoard = require('../pgDaos/PgDrawBoard');
  * @Description: for getting candidate user's friendlist
  *
  * @param {String}      candidate, the candidate's uid
- * @param {String}      asker, the asker's uid
  */
-exports.getFriendListAsync = function(candidate, asker) {
-    return FriendDao.getFriendsAsync(candidate, asker)
+exports.getFriendListAsync = function(candidate) {
+    return PgFriend.getFriendsAsync(candidate)
         .then(function(friends) {
+            if (friends.length === 0) {
+                return friends;
+            }
             return Promise.map(friends, function(doc) {
-                doc.isOnline = false;
                 return doc.uid;
             }).then(function(uids) {
-                if (uids.length > 0) {
-                    return UserTemp.getOnlineUsersAsync(uids)
-                        .map(function(onlineUid) {
-                            var index = uids.indexOf(onlineUid);
-                            if (index > -1) {
-                                friends[index].isOnline = true;
-                            }
+                return Promise.join(
+                    UserDao.findByGroupAsync(uids),
+                    UserTemp.getOnlineUsersAsync(uids),
+                    function(usersInfo, onlineUids) {
+                        return Promise.map(usersInfo, function(info) {
+                            info.isOnline = (onlineUids.indexOf(info.uid) > -1);
+                            return info;
                         });
-                }
-            }).then(function() {
-                return friends;
+                    });
             });
         }).catch(function(err) {
             SharedUtils.printError('FriendService', 'getFriendListAsync', err);
@@ -58,25 +57,30 @@ exports.getFriendListAsync = function(candidate, asker) {
  * @param {String}      user2, the user2's uid
  */
 exports.addFriendshipAsync = function(user1, user2) {
-    return _hasFriendShip(user1, user2)
-        .then(function(areFriends) {
-            if (areFriends) {
-                throw new Error('friendship already exist');
+    return PgFriend.hasFriendAsync(user1, user2)
+        .then(function(result) {
+            if (result) {
+                throw new Error('friend is exist');
             }
-            return UserDao.findByGroupAsync([user1, user2]);
-        }).map(function(userInfo) {
-            var asker = (userInfo.uid === user1 ? user2 : user1);
-            return FriendDao.addNewFriendAsync(asker, userInfo.uid, userInfo.nickName, userInfo.avatar);
-        }).then(function(friends) {
-            return _create1on1Channel(user1, user2)
-                .then(function() {
-                    return friends;
-                });
-        }).map(function(friendInfo) {
-            return UserTemp.isUserOnlineAsync(friendInfo.uid)
-                .then(function(status) {
-                    friendInfo.isOnline = (status == 1);
-                    return friendInfo;
+            return UserDao.findByGroupAsync([user1, user2])
+                .then(function(users) {
+                    if (users.length !== 2) {
+                        throw new Error('abnormal users info');
+                    }
+                    return PgFriend.addFriendshipAsync(user1, user2)
+                        .then(function() {
+                            return _create1on1Channel(user1, user2);
+                        }).then(function() {
+                            return users;
+                        }).map(function(info) {
+                            return Promise.props({
+                                owner: (info.uid === user1 ? user2 : user1),
+                                uid: info.uid,
+                                nickName: info.nickName,
+                                avatar: info.avatar,
+                                isOnline: UserTemp.isUserOnlineAsync(info.uid)
+                            });
+                        });
                 });
         }).catch(function(err) {
             SharedUtils.printError('FriendService', 'addFriendShipAsync', err);
@@ -94,15 +98,15 @@ exports.addFriendshipAsync = function(user1, user2) {
  * @param {String}      user2, the user2's uid
  */
 exports.delFriendshipAsync = function(user1, user2) {
-    return _hasFriendShip(user1, user2)
-        .then(function(areFriends) {
-            if (!areFriends) {
-                throw new Error('friendship not exist');
+    return PgFriend.hasFriendAsync(user1, user2)
+        .then(function(result) {
+            if (result) {
+                throw new Error('friend is exist');
             }
-            return [
-                FriendDao.delFriendAsync(user1, user2),
-                FriendDao.delFriendAsync(user2, user1)
-            ];
+            return PgFriend.deleteFriendshipAsync(user1, user2)
+                .then(function(result) {
+                    return result.rows;
+                });
         }).catch(function(err) {
             SharedUtils.printError('FriendService', 'delFriendshipAsync', err);
             return null;
@@ -113,12 +117,14 @@ exports.delFriendshipAsync = function(user1, user2) {
  * Public API
  * @Author: George_Chen
  * @Description: check user1 and user2 have friendship or not
+ *         NOTE: when addFriendship is implemented by "transaction", then
+ *               we can only check user2 is one of user1's friend or not
  *
  * @param {String}      user1, the user1's uid
  * @param {String}      user2, the user2's uid
  */
 exports.hasFriendshipAsync = function(user1, user2) {
-    return _hasFriendShip(user1, user2)
+    return PgFriend.hasFriendAsync(user1, user2)
         .catch(function(err) {
             SharedUtils.printError('FriendService', 'hasFriendshipAsync', err);
             return null;
@@ -130,29 +136,6 @@ exports.hasFriendshipAsync = function(user1, user2) {
  *           internal functions
  *
  ************************************************/
-
-/**
- * @Author: George_Chen
- * @Description: low-level implementation to check friendship between users
- *
- * @param {String}      user1, the user1's uid
- * @param {String}      user2, the user2's uid
- */
-function _hasFriendShip(user1, user2) {
-    return Promise.join(
-        FriendDao.isFriendExistAsync(user1, user2),
-        FriendDao.isFriendExistAsync(user2, user1),
-        function(result1, result2) {
-            if ((!result1 && result2) || (result1 && !result2)) {
-                throw new Error('friendship is abnormal');
-            }
-            return (result1 && result2);
-        }).catch(function(err) {
-            SharedUtils.printError('FriendService', '_hasFriendShip', err);
-            throw err;
-        });
-}
-
 
 /**
  * @Author: George_Chen
