@@ -13,7 +13,7 @@ exports.getPreview = function(req, res, next) {
     var bid = req.query.board;
     return DrawStorage.getPreviewImgAsync(uid, cid, bid)
         .then(function(rawData) {
-            req.img = rawData;
+            req.img = rawData.content;
             next();
         });
 };

@@ -4,12 +4,11 @@ var CryptoUtils = require('../../sharedUtils/cryptoUtils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
 var ChannelDao = require('../daos/ChannelDao');
-var BoardDao = require('../daos/DrawBoardDao');
-var PreviewDao = require('../daos/DrawPreviewDao');
 var MemberDao = require('../daos/ChannelMemberDao');
 var NotificationDao = require('../daos/NotificationDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 var UserTemp = require('../tempStores/UserTemp');
+var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 
 /************************************************
  *
@@ -259,7 +258,7 @@ exports.getStarredChannelsAsync = function(member) {
 exports.getChannelInfoAsync = function(channelId) {
     return Promise.props({
         basicInfo: ChannelDao.findByChannelAsync(channelId),
-        drawBoardNums: BoardDao.countBoardsAsync(channelId)
+        drawBoardNums: PgDrawBoard.countBoardsAsync(channelId)
     }).catch(function(err) {
         SharedUtils.printError('ChannelService.js', 'getChannelInfoAsync', err);
         return null;
@@ -420,8 +419,7 @@ function _createChannel(creator, channelId, name, isPublic) {
     return Promise.join(
         ChannelDao.createAsync(channelId, creator, name, isPublic),
         MemberDao.addAsync(creator, channelId, true),
-        PreviewDao.saveAsync(channelId, 0),
-        BoardDao.saveAsync(channelId, 0),
+        PgDrawBoard.saveAsync(channelId, 0),
         function(channelDoc, memberDoc) {
             if (!channelDoc || !memberDoc) {
                 throw new Error('at least one channel document create fail');

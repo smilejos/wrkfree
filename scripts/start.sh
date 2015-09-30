@@ -15,10 +15,10 @@ fi
 
 # start new web and socket service
 echo "start web service ... "
-docker run -d --name web  --link search:search --link db:db --link pg:pg --link cache:cache --volumes-from workspace wrkfree/web node /workspace/wrkfree2.0/webServer/server/server.js
+docker run -d --name web --volumes-from data --link search:search --link db:db --link pg:pg --link cache:cache --volumes-from workspace wrkfree/web node /workspace/wrkfree2.0/webServer/server/server.js
 
 echo "start socket service ... "
-docker run -d --name ws --link search:search --link db:db --link pg:pg --link cache:cache --volumes-from workspace wrkfree/ws node /workspace/wrkfree2.0/socketServer/server.js
+docker run -d --name ws --volumes-from data --link search:search --link db:db --link pg:pg --link cache:cache --volumes-from workspace wrkfree/ws node /workspace/wrkfree2.0/socketServer/server.js
 
 # re-deploy nginx service
 if [ $(docker ps -a |grep nginx |awk '{print $1}') ] ; then

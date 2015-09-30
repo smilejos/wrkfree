@@ -2,7 +2,7 @@
 var Env = process.env.NODE_ENV || 'development';
 var Pg = require('pg');
 var Promise = require('bluebird');
-var DbConfigs = require('../configs/db.json')[Env];
+var DbConfigs = require('../../configs/db.json')[Env];
 
 // setup PostgresSQL default parameters
 Pg.defaults.user = DbConfigs.pgEnv.user;
@@ -38,5 +38,32 @@ exports.createDrawRecordsAsync = function() {
             });
     }).catch(function(err) {
         console.log('[ERROR] on createDrawRecordsAsync ', err);
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for creating drawboards table
+ */
+exports.createDrawBoardsAsync = function() {
+    return Pg.connectAsync().spread(function(client, done) {
+        return client.queryAsync('CREATE TABLE drawBoards( ' +
+                'id uuid PRIMARY KEY DEFAULT gen_random_uuid(), ' +
+                '"channelId" VARCHAR(32), ' +
+                '"boardId" integer, ' +
+                '"base" TEXT , ' +
+                '"preview" TEXT , ' +
+                '"background" TEXT , ' +
+                '"createdTime" timestamp DEFAULT CURRENT_TIMESTAMP, ' +
+                '"updatedTime" timestamp DEFAULT CURRENT_TIMESTAMP)')
+            .then(function(result) {
+                console.log('[INFO] createDrawBoardsAsync result ', result);
+                done();
+            }).catch(function(err) {
+                console.log('[ERROR] on query createDrawBoardsAsync ', err);
+            });
+    }).catch(function(err) {
+        console.log('[ERROR] on createDrawBoardsAsync ', err);
     });
 };
