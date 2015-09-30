@@ -70,6 +70,30 @@ exports.proxySqlAsync = Promise.promisify(function(queryObject, callback) {
 });
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: execute transaction based on a series of sql queries
+ * 
+ * @param {Array}      sqlQueries, an array of sql queries
+ */
+exports.execTransactionAsync = function(sqlQueries) {
+    return Pg.connectAsync().spread(function(client, done) {
+        return client.queryAsync('BEGIN').then(function() {
+            return Promise.each(sqlQueries, function(sql) {
+                return client.queryAsync(sql);
+            });
+        }).then(function() {
+            return client.queryAsync('COMMIT');
+        }).then(function() {
+            return done();
+        }).catch(function(err) {
+            _rollback(client, done);
+            throw err;
+        });
+    });
+};
+
+/**
  * @Author: George_Chen
  * @Description: used to clear running query objects
  */
@@ -78,4 +102,22 @@ function _clearQuery(rawString) {
         RuningQueries[rawString].removeAllListeners();
         delete RuningQueries[rawString];
     }
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: the rollback operation based on transaction mechanism
+ */
+function _rollback(client, done) {
+    //if there was a problem rolling back the query
+    //something is seriously messed up.  Return the error
+    //to the done function to close & remove this client from
+    //the pool.  If you leave a client in the pool with an unaborted
+    //transaction weird, hard to diagnose problems might happen.
+    return client.queryAsync('ROLLBACK')
+        .then(function() {
+            return done();
+        }).catch(function(err) {
+            return done(err);
+        });
 }
