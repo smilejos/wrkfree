@@ -353,7 +353,6 @@ function _importFriend(collection, doc) {
         channelId: '',
         avatar: SharedUtils.argsCheckAsync(doc.avatar, 'avatar'),
         nickName: SharedUtils.argsCheckAsync(doc.nickName, 'nickName'),
-        group: SharedUtils.argsCheckAsync(doc.group, 'string'),
         isOnline: SharedUtils.argsCheckAsync(doc.isOnline, 'boolean'),
         lastMessage: doc.lastMessage || '',
         isMessageReaded: true,

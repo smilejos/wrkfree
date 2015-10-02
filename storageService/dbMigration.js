@@ -2,12 +2,13 @@
 var Env = process.env.NODE_ENV || 'development';
 var Pg = require('pg');
 var Fs = require('fs');
-var PgClient = Pg.Client;
 var Promise = require('bluebird');
 var Mongoose = require('mongoose');
 var DbConfigs = require('../configs/db.json')[Env];
 var PgEnv = DbConfigs.pgEnv;
 var PgModel = require('./pgModels/PgModels');
+var PgClient = new Pg.Client(PgEnv);
+PgClient.connect();
 
 Promise.promisifyAll(Mongoose);
 Promise.promisifyAll(Pg);
@@ -39,14 +40,12 @@ exports.drawRecordsMigration = function() {
  * @Description: migrating drawboards and drawpreviews collection to postgresSQL table 
  */
 exports.drawBoardsMigration = function() {
-    var pgClient = new PgClient(PgEnv);
     var channelPath;
-    pgClient.connect();
     require('./models/DrawBoardModel');
     require('./models/DrawPreviewModel');
     var boardModel = Mongoose.model('DrawBoard');
     var previewModel = Mongoose.model('DrawPreview');
-    return pgClient.queryAsync({
+    return PgClient.queryAsync({
         text: 'SELECT EXISTS (' +
             'SELECT 1 ' +
             'FROM   information_schema.tables ' +
@@ -73,8 +72,8 @@ exports.drawBoardsMigration = function() {
                         'VALUES($1, $2, $3, $4)',
                     values: [doc.channelId, doc.boardId, doc._id.getTimestamp(), doc.updatedTime]
                 };
-                return pgClient.queryAsync(sqlQuery).then(function() {
-                    return pgClient.queryAsync({
+                return PgClient.queryAsync(sqlQuery).then(function() {
+                    return PgClient.queryAsync({
                         text: 'SELECT id FROM drawBoards ' +
                             'WHERE "channelId"=$1 AND "boardId"=$2',
                         values: [doc.channelId, doc.boardId]
@@ -91,7 +90,7 @@ exports.drawBoardsMigration = function() {
                             Fs.writeFileAsync(basePath, doc.baseImg.chunks),
                             Fs.writeFileAsync(previewPath, previewDoc.chunks),
                             function() {
-                                return pgClient.queryAsync({
+                                return PgClient.queryAsync({
                                     text: 'UPDATE drawBoards set base=$1, preview=$2 WHERE id=$3',
                                     values: [basePath, previewPath, bid]
                                 });
@@ -107,6 +106,39 @@ exports.drawBoardsMigration = function() {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: migrating friends collection to postgresSQL table 
+ */
+exports.friendsMigration = function() {
+    function _getFriendQuery(doc) {
+        return {
+            text: 'INSERT INTO friends(owner, uid) VALUES($1, $2)',
+            values: [doc.friendOwner, doc.uid]
+        };
+    }
+    return PgClient.queryAsync({
+        text: 'SELECT EXISTS (' +
+            'SELECT 1 ' +
+            'FROM   information_schema.tables ' +
+            'WHERE  table_schema = $1' +
+            'AND    table_name = $2 )',
+        values: ['public', 'friends']
+    }).then(function(tableResult) {
+        var tableExist = tableResult.rows[0].exists;
+        if (!tableExist) {
+            return PgModel.createFriendsAsync();
+        }
+    }).then(function() {
+        return _MongoConnect().then(function() {
+            require('./models/FriendModel');
+            var model = Mongoose.model('Friend');
+            return _tableMigration(model, _getFriendQuery);
+        });
+    });
+};
+
+/**
  * @Author: George_Chen
  * @Description: migrdate mongodb collection to postgresSQL table
  *
@@ -114,17 +146,15 @@ exports.drawBoardsMigration = function() {
  * @param {Function}    sqlQueryHandler, handler for generating table dependent sql query
  */
 function _tableMigration(mongoModel, sqlQueryHandler) {
-    var pgClient = new PgClient(PgEnv);
-    pgClient.connect();
     return mongoModel.findAsync({}).then(function(results) {
         console.log('[INFO] migration documents counts: ', results.length);
         return Promise.map(results, function(doc) {
             var sqlQuery = sqlQueryHandler(doc);
-            return pgClient.queryAsync(sqlQuery);
+            return PgClient.queryAsync(sqlQuery);
         });
     }).then(function(migratedResults) {
         console.log('[INFO] migration documents result counts: ', migratedResults.length);
-        pgClient.end();
+        PgClient.end();
     }).catch(function(err) {
         console.log('[ERROR] migration documents fail', err);
     });

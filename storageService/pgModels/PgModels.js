@@ -67,3 +67,26 @@ exports.createDrawBoardsAsync = function() {
         console.log('[ERROR] on createDrawBoardsAsync ', err);
     });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for creating friends table
+ */
+exports.createFriendsAsync = function() {
+    return Pg.connectAsync().spread(function(client, done) {
+        return client.queryAsync('CREATE TABLE friends( ' +
+                'id uuid PRIMARY KEY DEFAULT gen_random_uuid(), ' +
+                'owner VARCHAR(32), ' +
+                'uid VARCHAR(32), ' +
+                '"group" TEXT )')
+            .then(function(result) {
+                console.log('[INFO] createFriendsAsync result ', result);
+                done();
+            }).catch(function(err) {
+                console.log('[ERROR] on query createFriendsAsync ', err);
+            });
+    }).catch(function(err) {
+        console.log('[ERROR] on createFriendsAsync ', err);
+    });
+};

@@ -2,10 +2,10 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var ReqRespDao = require('../daos/ReqRespDao');
-var FriendDao = require('../daos/FriendDao');
 var MemberDao = require('../daos/ChannelMemberDao');
 var ChannelDao = require('../daos/ChannelDao');
 var UserDao = require('../daos/UserDao');
+var PgFriend = require('../pgDaos/PgFriend');
 
 /************************************************
  *
@@ -180,7 +180,7 @@ function _isReqCompleted(sender, target, type, info) {
             return MemberDao.isExistAsync(sender, info);
         }
         if (type === 'friend') {
-            return FriendDao.isFriendExistAsync(target, sender);
+            return PgFriend.hasFriendAsync(sender, target);
         }
         throw new Error('unsupported request type');
     });

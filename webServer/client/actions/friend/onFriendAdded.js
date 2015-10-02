@@ -24,7 +24,6 @@ module.exports = function(actionContext, data) {
                 channelId: SharedUtils.get1on1ChannelId(info.uid, selfInfo.uid),
                 avatar: SharedUtils.argsCheckAsync(info.avatar, 'avatar'),
                 nickName: SharedUtils.argsCheckAsync(info.nickName, 'nickName'),
-                group: SharedUtils.argsCheckAsync(data.group, 'string'),
                 isOnline: SharedUtils.argsCheckAsync(data.isOnline, 'boolean'),
             });
         }).then(function(recvData) {
