@@ -285,8 +285,8 @@ function _addFriendship(user1, user2, socket) {
             if (!info) {
                 throw new Error('add friend fail');
             }
-            var target = info.friendOwner;
-            delete info.friendOwner;
+            var target = info.owner;
+            delete info.owner;
             _publishToUser(socket, target, {
                 service: 'friend',
                 clientHandler: 'onFriendAdded',
