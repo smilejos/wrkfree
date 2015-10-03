@@ -30,10 +30,10 @@ module.exports = function(actionContext, data, callback) {
             boardId: validData.newBoardId
         });
     }).then(function() {
-        var boardIndex = data.newBoardId + 1;
+        var boardPage = data.newBoardId + 1;
         return ActionUtils.showInfoEvent(
             'Drawing',
-            'new board [' + boardIndex + '] is has been created!',
+            'new board [' + boardPage + '] is has been created!',
             'switch to new board',
             function(navitator) {
                 actionContext.executeAction(NavToBoard, {

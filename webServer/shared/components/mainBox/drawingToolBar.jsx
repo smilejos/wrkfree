@@ -59,7 +59,7 @@ module.exports = React.createClass({
 
     getInitialState: function() {
         return {
-            boardIndex: this.props.boardId + 1,
+            boardPage: this.props.boardId + 1,
             isDrawing: false,
             enableToAddBoard: true,
             enableToClearBoard: true,
@@ -70,7 +70,7 @@ module.exports = React.createClass({
 
     componentWillReceiveProps: function(nextProps) {
         this.setState({
-            boardIndex: nextProps.boardId + 1
+            boardPage: nextProps.boardId + 1
         });
     },
 
@@ -192,7 +192,7 @@ module.exports = React.createClass({
      * @Description: handler for user to switch to next drawing board
      */
     _goToNextBoard: function(){
-        ++this.state.boardIndex;
+        ++this.state.boardPage;
         return this._goToBoard();
     },
 
@@ -201,18 +201,18 @@ module.exports = React.createClass({
      * @Description: handler for user to switch to previous drawing board
      */
     _goToPreviousBoard: function(){
-        --this.state.boardIndex;
+        --this.state.boardPage;
         return this._goToBoard();
     },
 
     /**
      * @Author: George_Chen
      * @Description: reflect board index value to this.state, then
-     *               the boardIndex value will re-render
+     *               the boardPage value will re-render
      */
     _onBoardIndexChange: function(e){
         this.setState({
-            boardIndex: e.target.value
+            boardPage: e.target.value
         });
     },
 
@@ -235,7 +235,7 @@ module.exports = React.createClass({
      * @Description: switch to specifc drawing baord by target board index
      */
     _goToBoard: function(){
-        var newBoardId = this.state.boardIndex -1;
+        var newBoardId = this.state.boardPage -1;
         if (newBoardId >= 0 && newBoardId < this.props.drawInfo.boardNums) {
             this.executeAction(NavToBoard, {
                 urlNavigator: this.transitionTo,
@@ -248,12 +248,12 @@ module.exports = React.createClass({
 
     /**
      * @Author: George_Chen
-     * @Description: if user set the wrong boardIndex, we should call
+     * @Description: if user set the wrong boardPage, we should call
      *               this to reset it to default
      */
     _setDefaultIndex: function() {
         this.setState({
-            boardIndex: this.props.boardId + 1
+            boardPage: this.props.boardId + 1
         });
     },
 
@@ -297,9 +297,9 @@ module.exports = React.createClass({
                     </IconButton>
                     <div style={{display: 'inline-block', height: '100%', verticalAlign: 'middle'}}>
                         <input type="text"
-                            ref="boardIndex" 
+                            ref="boardPage" 
                             className="Center" 
-                            value={this.state.boardIndex}
+                            value={this.state.boardPage}
                             onKeyDown={this._onBoardIndexKeyDown}
                             onBlur={this._setDefaultIndex}
                             onChange={this._onBoardIndexChange}

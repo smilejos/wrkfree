@@ -67,7 +67,7 @@ module.exports = function(actionContext, data) {
  * @param {Number}      bid, target board id
  */
 function _showNavigationTips(actionContext, cid, bid) {
-    var boardIndex = bid + 1;
+    var boardPage = bid + 1;
     var reqData = {
         channelId: cid
     };
@@ -79,7 +79,7 @@ function _showNavigationTips(actionContext, cid, bid) {
         .getInfoAsync(reqData)
         .delay(2000).then(function(info) {
             var title = 'Channel: #' + info.basicInfo.name;
-            var msg = 'someone is drawing on board [' + boardIndex + ']';
+            var msg = 'someone is drawing on board [' + boardPage + ']';
             TipsShowing = null;
             if (!info.basicInfo.is1on1) {
                 ActionUtils.showInfoEvent(title, msg, 'quick open', function(urlNavigator) {
