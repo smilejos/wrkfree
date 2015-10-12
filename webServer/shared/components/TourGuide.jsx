@@ -176,24 +176,24 @@ module.exports = React.createClass({
                                 avatar={<Avatar src="/assets/imgs/logo.svg" />} >
                             </CardHeader>
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://ci-20758412784-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/20758412784/20758412784_451d221ede.mp4?dt=flickr&x=1442750905&fn=20758412784.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D20758412784%26ufn%3D20758412784.mp4&s=957120c3d789879150610887513e51d1')}
+                                clickHandler={this._playVideo.bind(this, 'https://s3-ap-southeast-1.amazonaws.com/wrkfree/video/new_channel720p.mp4')}
                                 index={1}
                                 label={'Create your own channel'} />
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://ci-21193244948-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/21193244948/21193244948_4fe0603709.mp4?dt=flickr&x=1442751332&fn=21193244948.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21193244948%26ufn%3D21193244948.mp4&s=a96395aaf57ae25c4c90351add32cdf3')}
+                                clickHandler={this._playVideo.bind(this, 'https://s3-ap-southeast-1.amazonaws.com/wrkfree/video/searching_720p.mp4')}
                                 index={2}
                                 label={'Join a channel or make a friend'} />
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://ci-21354863456-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/21354863456/21354863456_5dafa702fe.mp4?dt=flickr&x=1442751407&fn=21354863456.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21354863456%26ufn%3D21354863456.mp4&s=d95ef70255251d3127daa0258335a4a7')}
+                                clickHandler={this._playVideo.bind(this, 'https://s3-ap-southeast-1.amazonaws.com/wrkfree/video/status_720p.mp4')}
                                 index={3}
                                 label={'Check the status of your favoriate channels, notifications and friends'} />
                             <TourTopic enable
-                                clickHandler={this._playVideo.bind(this, 'https://ci-21192997740-df8a4d03.http.atlas.cdn.yimg.com/flickr5/132356020@N07/21192997740/21192997740_289485dbe4.mp4?dt=flickr&x=1442751374&fn=21192997740.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21192997740%26ufn%3D21192997740.mp4&s=4578adf4041cc3adf740828f9f63e47a')}
+                                clickHandler={this._playVideo.bind(this, 'https://s3-ap-southeast-1.amazonaws.com/wrkfree/video/start_work_720p.mp4')}
                                 index={4}
                                 label={'Start a simple work on workspace'} />
                             <TourTopic enable
                                 index={5}
-                                clickHandler={this._playVideo.bind(this, 'https://ci-21381110085-df8a4d03.http.atlas.cdn.yimg.com/flickr4/132356020@N07/21381110085/21381110085_7f5ed177df.mp4?dt=flickr&x=1442751251&fn=21381110085.mp4&bt=0&a=flickr&d=cp_d%3Dwww.flickr.com%26cp_t%3Ds%26cp%3D792600246%26mid%3D21381110085%26ufn%3D21381110085.mp4&s=0d6983ad1215fccaec842adf392f5b3c')}
+                                clickHandler={this._playVideo.bind(this, 'https://s3-ap-southeast-1.amazonaws.com/wrkfree/video/multi_channels_720p.mp4')}
                                 label={'Work on multiple channels'} />                                
                             <TourTopic enable={false}
                                 index={6}
