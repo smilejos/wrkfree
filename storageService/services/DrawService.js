@@ -245,7 +245,7 @@ exports.getLatestBoardIdAsync = function(channelId) {
                 LogUtils.info(LogCategory, null, 'channel [' + channelId + '] has not been drawed');
                 return 0;
             }
-            return board.boardId;
+            return board.idx;
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),

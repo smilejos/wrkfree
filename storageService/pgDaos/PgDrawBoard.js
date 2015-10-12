@@ -93,7 +93,7 @@ exports.legacyFindImgAsync = function(channelId, boardId, imgType) {
         SharedUtils.argsCheckAsync(boardId, 'boardId')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 AND "boardId"=$2',
+            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 ORDER BY "createdTime" LIMIT 1 OFFSET $2',
             values: queryParams
         };
         if (!_isImgTypeValid(imgType)) {
@@ -129,7 +129,8 @@ exports.findByLatestUpdatedAsync = function(channelId) {
         SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 ' +
+            text: 'SELECT *, CAST(RANK() OVER (ORDER BY "createdTime") -1 AS integer) idx ' +
+                'FROM drawBoards WHERE "channelId"=$1 ' +
                 'ORDER BY "updatedTime" DESC LIMIT 1',
             values: queryParams
         };
@@ -162,7 +163,7 @@ exports.findImgByLatestUpdatedAsync = function(channelId, imgType) {
             return Promise.props({
                 bid: data.id,
                 channelId: data.channelId,
-                boardId: data.boardId,
+                boardId: data.idx,
                 content: (data[imgType] ? Fs.readFileAsync(data[imgType]) : new Buffer(''))
             });
         }).catch(function(err) {
