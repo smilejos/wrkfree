@@ -31,7 +31,7 @@ module.exports = CreateStore({
         this.dbName = 'DrawsDB';
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
-        // collection.ensureIndex('boardId');
+        collection.ensureIndex('_bid');
     },
 
     /**
@@ -67,7 +67,7 @@ module.exports = CreateStore({
         });
         return _saveRecord(collection, record)
             .then(function() {
-                self._ensureArchived(record.channelId, record.boardId);
+                self._ensureArchived(record._bid);
                 // is record has not updated on canvas, then trigger emitChange
                 if (!record.isUpdated) {
                     self.emitChange();
@@ -130,13 +130,12 @@ module.exports = CreateStore({
      * @param {Array}       data.boardInfo.records, draw board records
      */
     _onPolyfill: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
-        this._bid = data.boardInfo.bid;
-        this.baseImgs[drawViewId] = _getImgDataURL(data.boardInfo.baseImg);
+        this._bid = data.bid;
+        this.baseImgs[data.bid] = _getImgDataURL(data.baseImg);
         // prepare to indicate that this board is polyfilled
-        collection.addDynamicView(drawViewId);
-        return Promise.map(data.boardInfo.records, function(doc) {
+        collection.addDynamicView(data.bid);
+        return Promise.map(data.records, function(doc) {
             return _saveRecord(collection, doc);
         }).bind(this).then(function() {
             this.emitChange();
@@ -148,17 +147,27 @@ module.exports = CreateStore({
     /**
      * @Public API
      * @Author: George_Chen
+     * @Description: set current board by boaard uuid
+     * 
+     * @param {String}      _bid, board uuid
+     */
+    setCurrentBoard: function(_bid) {
+        this._bid = _bid;
+        this.emitChange();
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
      * @Description: for handling internal update base image event
      * 
-     * @param {String}      data.channelId, target channel id
-     * @param {Number}      data.boardId, target board id
+     * @param {String}      data._bid, target board uuid
      * @param {String}      data.imgDataUrl, the image data url
      * @param {Array}       data.outdatedDocs, outdated drawRecord docs
      */
     _onUpdateBaseImg: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
-        this.baseImgs[drawViewId] = data.imgDataUrl;
+        this.baseImgs[data._bid] = data.imgDataUrl;
         return SharedUtils.fastArrayMap(data.outdatedDocs, function(doc) {
             collection.remove(doc);
         });
@@ -189,16 +198,12 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: for components to get draw board information stored
      *               on client side
-     * 
-     * @param {String}      channelId, target channel id
-     * @param {Number}      boardId, target board id
      */
-    getDrawInfo: function(channelId, boardId) {
-        var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
+    getDrawInfo: function() {
         return {
             _bid: this._bid,
-            baseImg: this.baseImgs[drawViewId],
-            records: this._getBoardResultSet(channelId, boardId).data()
+            baseImg: this.baseImgs[this._bid],
+            records: this._getBoardResultSet(this._bid).data()
         };
     },
 
@@ -219,31 +224,24 @@ module.exports = CreateStore({
      * @Public API
      * @Author: George_Chen
      * @Description: to check specific draw board is polyfilled or not
-     *         NOTE: use drawView existence to check current board 
-     *                 is polyfilled or not
-     * @param {String}      channelId, target channel id
-     * @param {Number}      boardId, target board id
+     * 
+     * @param {String}      _bid, board uuid
      */
-    isPolyFilled: function(channelId, boardId) {
+    isPolyFilled: function(_bid) {
         var collection = this.db.getCollection(this.dbName);
-        var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
-        var drawView = collection.getDynamicView(drawViewId);
-        return !!drawView;
+        return !!collection.getDynamicView(_bid);
     },
 
     /**
      * @Author: George_Chen
      * @Description: to get board query result set
      *
-     * @param {String}          cid, the channel id
-     * @param {Number}          bid, the draw board id
+     * @param {String}      _bid, board uuid
      */
-    _getBoardResultSet: function(cid, bid) {
+    _getBoardResultSet: function(_bid) {
         var collection = this.db.getCollection(this.dbName);
         return collection.chain().find({
-            channelId: cid
-        }).where(function(obj) {
-            return (obj.boardId === bid);
+            _bid: _bid
         }).simplesort('drawTime');
     },
 
@@ -251,11 +249,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: to ensure inactive records will be archived
      *
-     * @param {String}          cid, the channel id
-     * @param {Number}          bid, the draw board id
+     * @param {String}      _bid, board uuid
      */
-    _ensureArchived: function(cid, bid) {
-        var boardSet = this._getBoardResultSet(cid, bid);
+    _ensureArchived: function(_bid) {
+        var boardSet = this._getBoardResultSet(_bid);
         var archiveNum = (boardSet.data().length - ACTIVED_RECORD_LIMIT);
         if (archiveNum > 0) {
             boardSet.limit(archiveNum)

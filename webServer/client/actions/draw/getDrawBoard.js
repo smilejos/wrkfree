@@ -14,30 +14,30 @@ var DrawStore = require('../../../shared/stores/DrawStore');
  * @param {Number}      data.boardId, target board id
  * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
+        boardIdx: SharedUtils.argsCheckAsync(data.boardIdx, 'number')
     }).then(function(reqData) {
+        return DrawService.getBoardIdAsync(reqData);
+    }).then(function(_bid) {
         var drawStore = actionContext.getStore(DrawStore);
-        if (!drawStore.isPolyFilled(reqData.channelId, reqData.boardId)) {
-            return DrawService.getDrawBoardAsync(reqData);
+        if (!drawStore.isPolyFilled(_bid)) {
+            return DrawService.getDrawBoardAsync({
+                channelId: data.channelId,
+                bid: _bid
+            });
         }
-        // don't need to polyfill, just trigger store change for update component
-        drawStore.emitChange();
+        drawStore.setCurrentBoard(_bid);
         return {};
     }).then(function(boardData) {
         if (!boardData.baseImg && !boardData.records) {
             return null;
         }
-        return actionContext.dispatch('ON_BOARD_POLYFILL', {
-            channelId: data.channelId,
-            boardId: data.boardId,
-            boardInfo: boardData
-        });
+        return actionContext.dispatch('ON_BOARD_POLYFILL', boardData);
     }).catch(function(err) {
         SharedUtils.printError('getDrawBoard.js', 'core', err);
         return null;
         // show alert message ?
-    }).nodeify(callback);
+    });
 };

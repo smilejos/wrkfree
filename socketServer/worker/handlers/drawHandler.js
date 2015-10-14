@@ -238,18 +238,18 @@ exports.drawRedoAsync = function(socket, data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data.bid, the board uuid
  */
 exports.getDrawBoardAsync = function(socket, data) {
     var uid = socket.getAuthToken();
     LogUtils.info(LogCategory, {
         uid: uid,
         channelId: data.channelId,
-        boardId: data.newBoardId
+        boardId: data.bid
     }, '[' + socket.id + '] get draw board info... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        SharedUtils.argsCheckAsync(data.bid, 'string'),
         function(cid, bid) {
             return DrawStorage.getBoardInfoAsync(cid, bid, uid);
         }).then(function(resource) {
@@ -265,6 +265,34 @@ exports.getDrawBoardAsync = function(socket, data) {
                 reqData: data,
                 error: err.toString()
             }, '[' + socket.id + '] fail on getDrawBoardAsync');
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get specific board's uuid
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardIdx, the draw board id
+ */
+exports.getBoardIdAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.boardIdx, 'number'),
+        function(cid, idx) {
+            return DrawStorage.getBoardIdAsync(cid, idx, uid);
+        }).then(function(result) {
+            var errMsg = 'fail to get board id';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on getBoardIdAsync');
             throw err;
         });
 };

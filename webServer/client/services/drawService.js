@@ -161,13 +161,25 @@ exports.drawRedoAsync = function(data) {
  *         NOTE: infomration include all draw records and base image
  *               on current board
  *       
- * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data.bid, the board uuid
  */
 exports.getDrawBoardAsync = function(data) {
     var packet = _setPacket('getDrawBoardAsync', null, data);
     return _request(packet, 'getDrawBoardAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for user to get the board uuid based on channel and board index
+ *       
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardIdx, the draw board id
+ */
+exports.getBoardIdAsync = function(data) {
+    var packet = _setPacket('getBoardIdAsync', null, data);
+    return _request(packet, 'getBoardIdAsync');
 };
 
 /**

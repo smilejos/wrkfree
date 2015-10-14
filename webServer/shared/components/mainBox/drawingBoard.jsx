@@ -89,7 +89,7 @@ module.exports = React.createClass({
         if (isChannelChange || isBoardChange) {
             context.executeAction(GetDrawBoard, {
                 channelId: nextProps.channelId,
-                boardId: nextProps.boardId
+                boardIdx: nextProps.boardId
             });
         }
         this._changeCursor();
@@ -102,7 +102,7 @@ module.exports = React.createClass({
             this._changeCursor();
             this.executeAction(GetDrawBoard, {
                 channelId: this.props.channelId,
-                boardId: this.props.boardId
+                boardIdx: this.props.boardId
             });
         }
     },
@@ -141,10 +141,8 @@ module.exports = React.createClass({
      */
     _onDrawBoardChange: function(){
         var canvas = React.findDOMNode(this.refs.mainCanvas);
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;
         var self = this;
-        var drawInfo = this.getStore(DrawStore).getDrawInfo(cid, bid);
+        var drawInfo = this.getStore(DrawStore).getDrawInfo();
         var archives = drawInfo.records.filter(function(doc){
             return doc.isArchived;
         });
@@ -191,8 +189,6 @@ module.exports = React.createClass({
      * @param {Array}       archiveRecords, an array archived draw records
      */
     _updateBaseImage: function(img, archiveRecords) {
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;
         var canvas = this.state.canvas;
         DrawUtils.loadCanvasAsync(canvas, this.state.image, img, archiveRecords)
             .bind(this)
@@ -201,8 +197,7 @@ module.exports = React.createClass({
                     console.error('update base image fail');
                 }
                 this.executeAction(UpdateBaseImage, {
-                    channelId: cid,
-                    boardId: bid,
+                    _bid: _Bid,
                     imgDataUrl: loadedCanvas.toDataURL(),
                     outdatedDocs: archiveRecords
                 });

@@ -45,7 +45,7 @@ module.exports = function(actionContext, data) {
             drawTempStore.saveRemoteRecord(recvData);
         }
         // check target board is polyfilled or not
-        if (!drawStore.isPolyFilled(data.channelId, data.boardId)) {
+        if (!drawStore.isPolyFilled(recvData._bid)) {
             return actionContext.executeAction(GetDrawBoard, data);
         }
         return actionContext.dispatch('ON_RECORD_SAVE', recvData);

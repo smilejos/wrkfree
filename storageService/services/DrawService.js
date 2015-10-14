@@ -202,28 +202,44 @@ exports.getPreviewImgAsync = function(member, channelId, boardId) {
  *             board document and record documents
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
+ * @param {String}          _bid, the board uuid
  * @param {String}          member, the member uid
  */
-exports.getBoardInfoAsync = function(channelId, boardId, member) {
-    var logMsg = 'channel [' + channelId + '] get info on board [' + boardId + ']';
-    LogUtils.info(LogCategory, null, logMsg);
-    return Promise.join(
-        _ensureArchived(channelId, boardId),
-        _ensureAuth(member, channelId),
-        function(isArchived) {
-            if (!isArchived) {
-                throw new Error('record archive fail');
-            }
+exports.getBoardInfoAsync = function(channelId, _bid, member) {
+    // _ensureArchived(channelId, boardId),
+    return _ensureAuth(member, channelId)
+        .then(function(){
             return Promise.props({
-                board: PgDrawBoard.legacyFindImgAsync(channelId, boardId, 'base'),
-                reocrds: PgDrawRecord.findByBoardAsync(channelId, boardId)
+                board: PgDrawBoard.findImgByIdAsync(channelId, _bid, 'base'),
+                reocrds: PgDrawRecord.findByBoardAsync(channelId, _bid)
             });
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
                 error: err.toString()
             }, 'error in DrawService.getBoardInfoAsync()');
+            return null;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: get the board uuid by its index
+ *
+ * @param {String}          channelId, channel id
+ * @param {Number}          boardIdx, the board index
+ * @param {String}          member, the member uid
+ */
+exports.getBoardIdAsync = function(channelId, boardIdx, member) {
+    return _ensureAuth(member, channelId)
+        .then(function(){
+            return PgDrawBoard.findIdByIdxAsync(channelId, boardIdx);
+        }).catch(function(err) {
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err.toString()
+            }, 'error in DrawService.getBoardIdAsync()');
             return null;
         });
 };

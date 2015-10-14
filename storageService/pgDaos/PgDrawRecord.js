@@ -39,15 +39,15 @@ exports.saveAsync = function(channelId, _bid, boardId, record, drawOptions) {
  * @Description: for user find drawing records of the current channel board
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
+ * @param {String}          _bid, the board uuid
  */
-exports.findByBoardAsync = function(channelId, boardId) {
+exports.findByBoardAsync = function(channelId, _bid) {
     return Promise.all([
         SharedUtils.argsCheckAsync(channelId, 'md5'),
-        SharedUtils.argsCheckAsync(boardId, 'boardId')
+        SharedUtils.argsCheckAsync(_bid, 'string')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 AND "boardId"=$2 ' +
+            text: 'SELECT * FROM drawRecords WHERE "channelId"=$1 AND "_bid"=$2 ' +
                 'ORDER BY "drawTime" ASC',
             values: queryParams
         };

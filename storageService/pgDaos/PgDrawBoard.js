@@ -45,20 +45,50 @@ exports.saveAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: find board uuid by its index
+ *
+ * @param {String}          channelId, the channel id
+ * @param {Number}          boardIdx, the board index
+ */
+exports.findIdByIdxAsync = function(channelId, boardIdx) {
+    return Promise.all([
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(boardIdx, 'number')
+    ]).then(function(queryParams) {
+        var sqlQuery = {
+            text: 'SELECT id FROM drawBoards WHERE "channelId"=$1 ORDER BY "createdTime" LIMIT 1 OFFSET $2',
+            values: queryParams
+        };
+        return Agent.proxySqlAsync(sqlQuery).then(function(result) {
+            return result[0].id;
+        });
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            args: SharedUtils.getArgs(arguments),
+            error: err.toString()
+        }, 'error in PgDrawBoard.findIdAsync()');
+        throw err;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: find board image by the board uuid
  *
  * @param {String}          _bid, board uuid
  * @param {String}          imgType, the type of querying image
  */
-exports.findImgByIdAsync = function(_bid, imgType) {
+exports.findImgByIdAsync = function(channelId, _bid, imgType) {
     return Promise.all([
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(_bid, 'string')
     ]).then(function(queryParams) {
         if (!_isImgTypeValid(imgType)) {
             throw new Error('query on not supported img type');
         }
         var sqlQuery = {
-            text: 'SELECT * FROM drawBoards WHERE id=$1',
+            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 AND id=$2',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery).then(function(result) {
