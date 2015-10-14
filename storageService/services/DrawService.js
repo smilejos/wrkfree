@@ -104,9 +104,9 @@ exports.cleanBoardAsync = function(channelId, boardId) {
  * @param {Array}           tempRecord, a array of draw chunks
  * @param {Object}          drawOptions, the draw options of current record
  */
-exports.saveRecordAsync = function(channelId, boardId, tempRecord, drawOptions) {
+exports.saveRecordAsync = function(channelId, _bid, boardId, tempRecord, drawOptions) {
     LogUtils.info(LogCategory, null, 'start save new record on channel [' + channelId + '] [' + boardId + ']');
-    return _saveRecord(channelId, boardId, tempRecord, drawOptions)
+    return _saveRecord(channelId, _bid, boardId, tempRecord, drawOptions)
         .catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
@@ -298,10 +298,10 @@ exports.updateBoardImgAsync = function(channelId, boardId, _bid, imgType, img) {
  * @param {Number}          boardId, the draw board id
  * @param {Array}           record, a array of record data
  */
-function _saveRecord(channelId, boardId, record, drawOptions) {
+function _saveRecord(channelId, _bid, boardId, record, drawOptions) {
     return PgDrawRecord.removeUndosAsync(channelId, boardId)
         .then(function() {
-            return PgDrawRecord.saveAsync(channelId, boardId, record, drawOptions);
+            return PgDrawRecord.saveAsync(channelId, _bid, boardId, record, drawOptions);
         });
 }
 

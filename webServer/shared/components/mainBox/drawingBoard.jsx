@@ -46,6 +46,11 @@ var DEFAULT_TEMP_DRAWS_LENGTH = 200;
 var LocalDraws = new Deque(DEFAULT_TEMP_DRAWS_LENGTH);
 
 /**
+ * current used board uuid
+ */
+var _Bid = null;
+
+/**
  * the drawingBoard.jsx is the drawing board
  */
 module.exports = React.createClass({
@@ -148,6 +153,7 @@ module.exports = React.createClass({
                 self._updateBaseImage(drawInfo.baseImg, archives);
             });
         }
+        _Bid = drawInfo._bid;
         DrawUtils.loadCanvasAsync(canvas, this.state.image, drawInfo.baseImg, drawInfo.records);
     },    
 
@@ -244,6 +250,7 @@ module.exports = React.createClass({
         var board = React.findDOMNode(this.refs.mainCanvas);
         var ctx = this._getBoardContext();
         var data = {
+            _bid: _Bid,
             channelId: this.props.channelId,
             boardId: this.props.boardId,
             record: LocalDraws.toArray(),

@@ -14,18 +14,19 @@ var Agent = require('../pgAgent');
  * @param {Array}           record, an array of drawing raw data
  * @param {Object}          drawOptions, current draw record options
  */
-exports.saveAsync = function(channelId, boardId, record, drawOptions) {
+exports.saveAsync = function(channelId, _bid, boardId, record, drawOptions) {
     return Promise.all([
         SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(_bid, 'string'),
         SharedUtils.argsCheckAsync(boardId, 'boardId'),
         DrawUtils.checkDrawRecordAsync(record),
         SharedUtils.argsCheckAsync(drawOptions, 'drawOptions')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'INSERT INTO drawRecords("channelId", "boardId", record, "drawOptions") VALUES($1, $2, $3, $4)',
+            text: 'INSERT INTO drawRecords("channelId", "_bid", "boardId", record, "drawOptions") VALUES($1, $2, $3, $4, $5)',
             values: queryParams
         };
-        queryParams[2] = JSON.stringify(queryParams[2]);
+        queryParams[3] = JSON.stringify(queryParams[3]);
         return Agent.execSqlAsync(sqlQuery);
     }).catch(function(err) {
         throw err;

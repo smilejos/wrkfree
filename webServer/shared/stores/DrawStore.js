@@ -27,10 +27,11 @@ module.exports = CreateStore({
 
     initialize: function() {
         this.baseImgs = {};
+        this._bid = null;
         this.dbName = 'DrawsDB';
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
-        collection.ensureIndex('boardId');
+        // collection.ensureIndex('boardId');
     },
 
     /**
@@ -56,14 +57,13 @@ module.exports = CreateStore({
      *
      * @param {Object}      record, drawRecord document
      */
-    _onRecordSave: function(record) {
+    _onRecordSave: function(record) {      
         var collection = this.db.getCollection(this.dbName);
         var self = this;
         // remove all undo records on current board
         collection.removeWhere(function(obj) {
-            var isTargetChannel = (record.channelId === obj.channelId);
-            var isTargetBoard = (record.boardId === obj.boardId);
-            return (isTargetChannel && isTargetBoard && obj.isUndo);
+            var isTargetBoard = (record._bid === obj._bid);
+            return (isTargetBoard && obj.isUndo);
         });
         return _saveRecord(collection, record)
             .then(function() {
@@ -132,6 +132,7 @@ module.exports = CreateStore({
     _onPolyfill: function(data) {
         var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
+        this._bid = data.boardInfo.bid;
         this.baseImgs[drawViewId] = _getImgDataURL(data.boardInfo.baseImg);
         // prepare to indicate that this board is polyfilled
         collection.addDynamicView(drawViewId);
@@ -195,6 +196,7 @@ module.exports = CreateStore({
     getDrawInfo: function(channelId, boardId) {
         var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
         return {
+            _bid: this._bid,
             baseImg: this.baseImgs[drawViewId],
             records: this._getBoardResultSet(channelId, boardId).data()
         };
@@ -275,6 +277,7 @@ module.exports = CreateStore({
  */
 function _saveRecord(collection, doc) {
     return Promise.props({
+        _bid: doc._bid,
         channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(doc.boardId, 'boardId'),
         record: DrawUtils.checkDrawRecordAsync(doc.record),

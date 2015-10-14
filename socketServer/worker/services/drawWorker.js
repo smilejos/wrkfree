@@ -99,6 +99,7 @@ exports.drawBaseImgAsync = function(board, records) {
             chunks: (newImg ? newImg : board.content)
         };
         return {
+            bid: board.bid,
             baseImg: imgInfo,
             records: activeRecords,
             isUpdated: !!newImg

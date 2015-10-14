@@ -61,11 +61,12 @@ exports.saveRecordAsync = function(socket, data) {
     }, '[' + socket.id + '] save draw record... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
         SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         DrawUtils.checkDrawRecordAsync(data.record),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
-        function(cid, bid, record, drawOptions) {
-            return DrawStorage.saveRecordAsync(cid, bid, record, drawOptions);
+        function(cid, _bid, bid, record, drawOptions) {
+            return DrawStorage.saveRecordAsync(cid, _bid, bid, record, drawOptions);
         }).then(function(result) {
             if (result === null) {
                 throw new Error('save draw record fail on storage service');

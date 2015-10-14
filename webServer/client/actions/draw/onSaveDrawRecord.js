@@ -28,6 +28,7 @@ var TipsShowing = null;
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
+        _bid: SharedUtils.argsCheckAsync(data._bid, 'string'),
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
         record: DrawUtils.checkDrawRecordAsync(data.record),
