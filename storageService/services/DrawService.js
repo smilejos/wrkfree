@@ -172,16 +172,16 @@ exports.restoreUndoAsync = function(channelId, _bid, member) {
  *
  * @param {String}          member, the member uid
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
+ * @param {Number}          boardIdx, the draw board index
  */
-exports.getPreviewImgAsync = function(member, channelId, boardId) {
+exports.getPreviewImgAsync = function(member, channelId, boardIdx) {
     return _ensureAuth(member, channelId)
         .then(function() {
             var logMsg = 'channel [' + channelId + '] get preview';
-            if (SharedUtils.isDrawBoardId(boardId)) {
-                logMsg += 'on board [' + boardId + ']';
+            if (SharedUtils.isNumber(boardIdx)) {
+                logMsg += 'on board [' + boardIdx + ']';
                 LogUtils.info(LogCategory, null, logMsg);
-                return PgDrawBoard.legacyFindImgAsync(channelId, boardId, 'preview');
+                return PgDrawBoard.findImgByIndexAsync(channelId, boardIdx, 'preview');
             }
             LogUtils.info(LogCategory, null, logMsg);
             return PgDrawBoard.findImgByLatestUpdatedAsync(channelId, 'preview');

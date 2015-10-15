@@ -109,16 +109,16 @@ exports.findImgByIdAsync = function(channelId, _bid, imgType) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: find board image by the leagacy method (channelId + boardId)
+ * @Description: find board image by the board index (channelId + boardIdx)
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
+ * @param {Number}          boardIdx, the draw board id
  * @param {String}          imgType, the type of querying image
  */
-exports.legacyFindImgAsync = function(channelId, boardId, imgType) {
+exports.findImgByIndexAsync = function(channelId, boardIdx, imgType) {
     return Promise.all([
         SharedUtils.argsCheckAsync(channelId, 'md5'),
-        SharedUtils.argsCheckAsync(boardId, 'boardId')
+        SharedUtils.argsCheckAsync(boardIdx, 'number')
     ]).then(function(queryParams) {
         var sqlQuery = {
             text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 ORDER BY "createdTime" LIMIT 1 OFFSET $2',
@@ -140,7 +140,7 @@ exports.legacyFindImgAsync = function(channelId, boardId, imgType) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
             error: err.toString()
-        }, 'error in PgDrawBoard.legacyFindImgAsync()');
+        }, 'error in PgDrawBoard.findImgByIndexAsync()');
         throw err;
     });
 };
