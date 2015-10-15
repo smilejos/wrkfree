@@ -125,20 +125,18 @@ exports.cleanDrawBoardAsync = function(socket, data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {Number}          data.boardIdx, the new board index
  */
 exports.addBoardAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
     LogUtils.info(LogCategory, {
-        uid: socket.getAuthToken(),
+        uid: uid,
         channelId: data.channelId,
-        boardId: data.newBoardId
-    }, '[' + socket.id + '] add new drawing board... ');
-    return Promise.join(
-        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.newBoardId, 'boardId'),
-        function(cid, bid) {
-            var uid = socket.getAuthToken();
-            return DrawStorage.addBoardAsync(cid, bid, uid);
+        boardIdx: data.newBoardIdx
+    }, '[' + socket.id + '] add new drawing board ');
+    return SharedUtils.argsCheckAsync(data.channelId, 'md5')
+        .then(function(cid) {
+            return DrawStorage.addBoardAsync(cid, uid);
         }).then(function(result) {
             var errMsg = 'add new draw board fail';
             return SharedUtils.checkExecuteResult(result, errMsg);

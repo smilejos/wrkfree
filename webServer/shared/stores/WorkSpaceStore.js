@@ -118,12 +118,12 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: handler for new board added event
      *
-     * @param {Number}      boardId, the new board id
+     * @param {Number}      newBoardIdx, the new board index
      * @param {Boolean}     toNewBoard, to indicate currentBoard id should
      *                                 be set or not
      */
     onBoardAdd: function(data) {
-        this.draw.boardNums = data.boardId + 1;
+        this.draw.boardNums = data.newBoardIdx + 1;
         this.emitChange();
     },
 

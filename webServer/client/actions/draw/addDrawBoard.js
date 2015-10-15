@@ -12,30 +12,30 @@ var ActionUtils = require('../actionUtils');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.newBoardId, new added board id
+ * @param {Number}      data.newBoardIdx, the new added board index
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        newBoardId: SharedUtils.argsCheckAsync(data.newBoardId, 'boardId')
-    }).then(function(validData) {
-        return DrawService.addBoardAsync(validData);
+        newBoardIdx: SharedUtils.argsCheckAsync(data.newBoardIdx, 'number')
+    }).then(function(reqData) {
+        return DrawService.addBoardAsync(reqData);
     }).then(function(result) {
         if (!result) {
             throw new Error('add draw board fail');
         }
         actionContext.dispatch('ON_BOARD_ADD', {
             channelId: data.channelId,
-            boardId: data.newBoardId
+            newBoardIdx: data.newBoardIdx
         });
     }).then(function() {
         actionContext.executeAction(NavToBoard, {
             urlNavigator: data.urlNavigator,
             channelId: data.channelId,
-            boardId: data.newBoardId
+            boardIdx: data.newBoardIdx
         });
-        ActionUtils.showSuccessEvent('Drawing', 'add new board successfully');
+        ActionUtils.showSuccessEvent('Drawing', 'add board successfully');
     }).catch(function(err) {
         SharedUtils.printError('addDrawBoard.js', 'core', err);
         ActionUtils.showWarningEvent('Drawing', 'add draw board fail');

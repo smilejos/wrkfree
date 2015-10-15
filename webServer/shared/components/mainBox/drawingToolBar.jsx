@@ -117,7 +117,7 @@ module.exports = React.createClass({
         return window.context.executeAction(AddDrawBoard, {
             urlNavigator: this.transitionTo,
             channelId: this.props.channelId,
-            newBoardId: this.props.drawInfo.boardNums
+            newBoardIdx: this.props.drawInfo.boardNums
         }).bind(this).delay(100).then(function(){
             this.setState({
                 enableToAddBoard: true

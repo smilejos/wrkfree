@@ -18,7 +18,6 @@ module.exports = CreateStore({
     handlers: {
         'ON_RECORD_SAVE': '_onRecordSave',
         'ON_BOARD_POLYFILL': '_onPolyfill',
-        'ON_BOARD_ADD': '_onBoardAdd',
         'ON_BOARD_CLEAN': '_onBoardClean',
         'ON_DRAW_UNDO': '_onRecordUndo',
         'ON_DRAW_REDO': '_onRecordRedo',
@@ -32,22 +31,6 @@ module.exports = CreateStore({
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
         collection.ensureIndex('_bid');
-    },
-
-    /**
-     * Public API
-     * @Author: George_Chen
-     * @Description: for handling new draw board added event
-     *
-     * @param {String}          data.channelId, the channel id
-     * @param {Number}          data.boardId, the draw board id
-     */
-    _onBoardAdd: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        var collection = this.db.getCollection(this.dbName);
-        this.baseImgs[drawViewId] = null;
-        // prepare to indicate that this board is polyfilled
-        collection.addDynamicView(drawViewId);
     },
 
     /**

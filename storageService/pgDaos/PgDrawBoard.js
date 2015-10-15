@@ -14,12 +14,10 @@ Promise.promisifyAll(Fs);
  * @Description: create draw board docuemnt of the current channel
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
  */
-exports.saveAsync = function(channelId, boardId) {
+exports.saveAsync = function(channelId) {
     return Promise.all([
-        SharedUtils.argsCheckAsync(channelId, 'md5'),
-        SharedUtils.argsCheckAsync(boardId, 'boardId')
+        SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
         var channelPath = '/data/files/' + channelId + '/';
         return Promise.try(function() {
@@ -28,7 +26,7 @@ exports.saveAsync = function(channelId, boardId) {
             }
         }).then(function() {
             var sqlQuery = {
-                text: 'INSERT INTO drawBoards("channelId", "boardId") VALUES($1, $2)',
+                text: 'INSERT INTO drawBoards("channelId") VALUES($1)',
                 values: queryParams
             };
             return Agent.execSqlAsync(sqlQuery);

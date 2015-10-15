@@ -29,14 +29,13 @@ if (!SharedUtils.isNumber(ACTIVED_RECORD_LIMIT)) {
  * @Description: add draw board on current channel
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
  * @param {String}          member, the member uid
  */
-exports.addBoardAsync = function(channelId, boardId, member) {
-    var logMsg = 'channel [' + channelId + '] add board [' + boardId + ']';
+exports.addBoardAsync = function(channelId, member) {
+    var logMsg = 'channel [' + channelId + '] add new board';
     LogUtils.info(LogCategory, null, logMsg);
     return _ensureAuth(member, channelId).then(function(){
-        return PgDrawBoard.saveAsync(channelId, boardId);
+        return PgDrawBoard.saveAsync(channelId);
     }).catch(function(err) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
