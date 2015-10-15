@@ -68,8 +68,8 @@ module.exports = React.createClass({
     _getPreviewUrl: function() {
         var time = this.state.remoteUpdatedTime;
         var url = '/app/workspace/'+this.props.channelId+'/preview';
-        if (this.props.boardId) {
-            url = url + '?board=' + this.props.boardId + '&' + time;
+        if (this.props.boardIdx) {
+            url = url + '?board=' + this.props.boardIdx + '&' + time;
         } else {
             url = url + '?' + time;
         }

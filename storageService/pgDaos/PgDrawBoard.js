@@ -132,7 +132,6 @@ exports.findImgByIndexAsync = function(channelId, boardIdx, imgType) {
             return Promise.props({
                 bid: data.id,
                 channelId: data.channelId,
-                boardId: data.boardId,
                 content: (data[imgType] ? Fs.readFileAsync(data[imgType]) : new Buffer(''))
             });
         });
@@ -191,7 +190,6 @@ exports.findImgByLatestUpdatedAsync = function(channelId, imgType) {
             return Promise.props({
                 bid: data.id,
                 channelId: data.channelId,
-                boardId: data.idx,
                 content: (data[imgType] ? Fs.readFileAsync(data[imgType]) : new Buffer(''))
             });
         }).catch(function(err) {

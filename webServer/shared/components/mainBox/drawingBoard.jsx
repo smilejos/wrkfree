@@ -76,9 +76,9 @@ module.exports = React.createClass({
      */
     componentWillReceiveProps: function(nextProps) {
         var prevCid = this.props.channelId;
-        var prevBid = this.props.boardId;
+        var prevBid = this.props.boardIdx;
         var isChannelChange = (prevCid !== nextProps.channelId);
-        var isBoardChange = (prevBid !== nextProps.boardId);
+        var isBoardChange = (prevBid !== nextProps.boardIdx);
         var context = window.context;
         if (isChannelChange) {
             this._cleanBoard();
@@ -89,7 +89,7 @@ module.exports = React.createClass({
         if (isChannelChange || isBoardChange) {
             context.executeAction(GetDrawBoard, {
                 channelId: nextProps.channelId,
-                boardIdx: nextProps.boardId
+                boardIdx: nextProps.boardIdx
             });
         }
         this._changeCursor();
@@ -102,7 +102,7 @@ module.exports = React.createClass({
             this._changeCursor();
             this.executeAction(GetDrawBoard, {
                 channelId: this.props.channelId,
-                boardIdx: this.props.boardId
+                boardIdx: this.props.boardIdx
             });
         }
     },
@@ -247,7 +247,7 @@ module.exports = React.createClass({
         var data = {
             _bid: _Bid,
             channelId: this.props.channelId,
-            boardIdx: this.props.boardId,
+            boardIdx: this.props.boardIdx,
             record: LocalDraws.toArray(),
             drawOptions: this.props.drawInfo.drawOptions
         };
@@ -400,7 +400,7 @@ module.exports = React.createClass({
                     onMouseUp={this._onMouseUp} />
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
-                    boardId={this.props.boardId}
+                    boardIdx={this.props.boardIdx}
                     drawInfo={this.props.drawInfo} />
                 <div style={{position: 'relative', height: 70}} >
                     <DrawingPalette isActive={this.props.drawInfo.drawOptions.palette}/>

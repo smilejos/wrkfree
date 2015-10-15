@@ -82,10 +82,10 @@ module.exports = CreateStore({
      * @Description: to check the same drwing board is currently used or not
      *
      * @param {String}      cid, the channel id
-     * @param {Number}      bid, the board id
+     * @param {Number}      idx, the board index
      */
-    isCurrentUsedBoard: function(cid, bid) {
-        return (cid === this.channel.channelId && bid === this.draw.currentBoardId);
+    isCurrentUsedBoard: function(cid, idx) {
+        return (cid === this.channel.channelId && idx === this.draw.currentBoardIdx);
     },
 
     /**
@@ -93,10 +93,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: set current board id to target board id
      *
-     * @param {Number}      boardId, the target board id
+     * @param {Number}      boardIdx, the target board index
      */
-    setCurrentBoard: function(boardId) {
-        this.draw.currentBoardId = boardId; 
+    setCurrentBoard: function(boardIdx) {
+        this.draw.currentBoardIdx = boardIdx; 
     },
 
     /**
@@ -160,7 +160,7 @@ module.exports = CreateStore({
             self.channel = state.channel.basicInfo;
             self.members = state.members;
             self.draw.boardNums = state.channel.drawBoardNums;
-            self.draw.currentBoardId = state.params.boardId;
+            self.draw.currentBoardIdx = state.params.boardIdx;
             self.status = state.status;
         }).then(function() {
             var membersInfo = self.members.info;

@@ -710,13 +710,6 @@ exports.isChannelName = function(name) {
     return regx.test(name);
 };
 
-exports.isDrawBoardId = function(boardId) {
-    if (!this.isNumber(boardId)) {
-        return false;
-    }
-    return (boardId >= 0 && boardId < GLOBAL_MAXIMUM_DRAW_BOARD_NUM);
-};
-
 /**
  * TODO: implement check functions for each mode
  * @Author: George_Chen
@@ -877,11 +870,6 @@ exports.argsCheckAsync = function(arg, chkType, option) {
                     return arg;
                 }
                 throw new Error('boolean value check error');
-            case 'boardId':
-                if (exports.isDrawBoardId(arg)) {
-                    return arg;
-                }
-                throw new Error('draw boardId check error');
             case 'buffer':
                 if (exports.isBuffer(arg)) {
                     return arg;

@@ -65,7 +65,7 @@ exports.onCleanDrawBoard = function(data) {
  * @Description: publish the realtime drawing to current channel
  *       
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  * @param {Array}           data.chunks, the raw chunks of current drawing
  */
 exports.drawAsync = function(data) {
@@ -83,7 +83,7 @@ exports.drawAsync = function(data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  * @param {Number}          data.chunksNum, how many chunks that drawer sent
  * @param {Object}          data.drawOptions, the draw options for this record
  */
@@ -101,7 +101,7 @@ exports.saveRecordAsync = function(data) {
  * 
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  */
 exports.cleanDrawBoardAsync = function(data) {
     var channel = SocketUtils.setChannelReq(data.channelId);
@@ -116,7 +116,7 @@ exports.cleanDrawBoardAsync = function(data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {Number}          data.boardIdx, the new board index
  */
 exports.addBoardAsync = function(data) {
     var channel = SocketUtils.setChannelReq(data.channelId);
@@ -131,7 +131,7 @@ exports.addBoardAsync = function(data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  */
 exports.drawUndoAsync = function(data) {
     var channel = SocketUtils.setChannelReq(data.channelId);
@@ -146,7 +146,7 @@ exports.drawUndoAsync = function(data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  */
 exports.drawRedoAsync = function(data) {
     var channel = SocketUtils.setChannelReq(data.channelId);

@@ -14,7 +14,6 @@ var ActionUtils = require('./actionUtils');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, the channel id
- * @param {Number}      data.boardId, target board id
  * @param {Function}    data.urlNavigator, the transitionTo reference of react-router
  */
 module.exports = function(actionContext, data) {

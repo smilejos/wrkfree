@@ -51,24 +51,13 @@ exports.addBoardAsync = function(channelId, member) {
  * @Description: delete draw board on current channel
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
- * @param {String}          member, the member uid
+ * @param {String}          _bid, the board uuid
+ * @param {String}          host, the host uid
  */
-exports.delBoardAsync = function(channelId, boardId, member) {
-    var logMsg = 'channel [' + channelId + '] delete board [' + boardId + ']';
+exports.delBoardAsync = function(channelId, _bid, host) {
+    var logMsg = 'channel [' + channelId + '] delete board [' + _bid + ']';
     LogUtils.info(LogCategory, null, logMsg);
     // TODO: only host can delete board
-    // 
-    // return _ensureAuth(member, channelId)
-    //     .then(function() {
-    //         return _delBoard(channelId, boardId);
-    //     }).catch(function(err) {
-    //         LogUtils.error(LogCategory, {
-    //             args: SharedUtils.getArgs(arguments),
-    //             error: err.toString()
-    //         }, 'error in DrawService.delBoardAsync()');
-    //         return null;
-    //     });
 };
 
 /**

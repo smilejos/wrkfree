@@ -119,7 +119,7 @@ exports.drawBaseImgAsync = function(board, records) {
  * @Author: George_Chen
  * @Description: to enqueue a preview image update job
  *         NOTE: a valid job info here should include, 
- *             [channelId, boardId, uid, sentTime]
+ *             [channelId, _bid, uid, sentTime]
  *         
  * @param {Object}          jobInfo, a json data describe job's info
  */

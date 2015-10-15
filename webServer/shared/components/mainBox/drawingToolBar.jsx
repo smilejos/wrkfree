@@ -59,7 +59,7 @@ module.exports = React.createClass({
 
     getInitialState: function() {
         return {
-            boardPage: this.props.boardId + 1,
+            boardPage: this.props.boardIdx + 1,
             isDrawing: false,
             enableToAddBoard: true,
             enableToClearBoard: true,
@@ -70,7 +70,7 @@ module.exports = React.createClass({
 
     componentWillReceiveProps: function(nextProps) {
         this.setState({
-            boardPage: nextProps.boardId + 1
+            boardPage: nextProps.boardIdx + 1
         });
     },
 
@@ -250,7 +250,7 @@ module.exports = React.createClass({
      */
     _setDefaultIndex: function() {
         this.setState({
-            boardPage: this.props.boardId + 1
+            boardPage: this.props.boardIdx + 1
         });
     },
 

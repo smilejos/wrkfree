@@ -147,18 +147,6 @@ exports.draw = function(ctx, raw, options) {
     ctx.globalCompositeOperation = 'source-over';
 };
 
-/**
- * Public API
- * @Author: George_Chen
- * @Description: to generate a unique draw view id
- *
- * @param {String}          channelId, the channel id
- * @param {Number}          boardIdx, the draw board id
- */
-exports.getDrawViewId = function(channelId, boardIdx) {
-    return channelId + boardIdx;
-};
-
 /************************************************
  *
  *           internal functions
