@@ -37,7 +37,7 @@ module.exports = function(actionContext, data) {
         }).then(function() {
             return actionContext.executeAction(NavToBoard, {
                 channelId: info.channelId,
-                boardId: 0,
+                boardIdx: 0,
                 urlNavigator: data.urlNavigator
             });
         }).then(function() {

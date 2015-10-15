@@ -39,9 +39,9 @@ module.exports = React.createClass({
      */
     _getPreviewState: function() {
         var cid = this.props.channelId;
-        var bid = this.props.boardId;
+        var _bid = this.props._bid;
         var store = this.getStore(PreviewStore);
-        return (bid ? store.getByBoard(cid, bid) : store.getByChannel(cid));
+        return (_bid ? store.getByBoard(_bid) : store.getByChannel(cid));
     },
 
     _onStoreChange: function() {

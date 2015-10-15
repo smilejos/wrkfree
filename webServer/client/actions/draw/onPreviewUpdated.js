@@ -10,12 +10,12 @@ var ActionUtils = require('../actionUtils');
  *
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, the channel id
- * @param {String}      data.boardId, the board id
+ * @param {String}      data._bid, the board uuid
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
+        _bid: SharedUtils.argsCheckAsync(data._bid, 'string')
     }).then(function(recvData) {
         actionContext.dispatch('ON_PREVIEW_UPDATED', recvData);
     }).catch(function(err) {

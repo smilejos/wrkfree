@@ -16,7 +16,7 @@ var LastSaveTime = 0;
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.boardId, target board id
+ * @param {Number}      data.boardIdx, target board index
  * @param {Number}      data.record, an array of draw chunks
  * @param {Object}      data.drawOptions, the draw related options
  */
@@ -29,7 +29,7 @@ module.exports = function(actionContext, data) {
     return Promise.props({
         _bid: SharedUtils.argsCheckAsync(data._bid, 'string'),
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        boardIdx: SharedUtils.argsCheckAsync(data.boardIdx, 'number'),
         record: DrawUtils.checkDrawRecordAsync(data.record),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         isUpdated: true

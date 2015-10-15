@@ -81,10 +81,10 @@ exports.loadCanvasAsync = function(canvas, imageElement, imgSrc, records) {
  *
  * @param {Object}          canvas, html5 canvas object
  */
-exports.generateCleanRecord = function(cid, bid) {
+exports.generateCleanRecord = function(cid, _bid) {
     return {
         channelId: cid,
-        boardId: bid,
+        _bid: _bid,
         record: [{
             fromX: 0,
             fromY: 0,
@@ -153,10 +153,10 @@ exports.draw = function(ctx, raw, options) {
  * @Description: to generate a unique draw view id
  *
  * @param {String}          channelId, the channel id
- * @param {Number}          boardId, the draw board id
+ * @param {Number}          boardIdx, the draw board id
  */
-exports.getDrawViewId = function(channelId, boardId) {
-    return channelId + boardId;
+exports.getDrawViewId = function(channelId, boardIdx) {
+    return channelId + boardIdx;
 };
 
 /************************************************

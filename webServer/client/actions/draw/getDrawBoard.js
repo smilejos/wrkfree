@@ -11,7 +11,7 @@ var DrawStore = require('../../../shared/stores/DrawStore');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.boardId, target board id
+ * @param {Number}      data.boardIdx, target board index
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data) {
@@ -25,7 +25,7 @@ module.exports = function(actionContext, data) {
         if (!drawStore.isPolyFilled(_bid)) {
             return DrawService.getDrawBoardAsync({
                 channelId: data.channelId,
-                bid: _bid
+                _bid: _bid
             });
         }
         drawStore.setCurrentBoard(_bid);

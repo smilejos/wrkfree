@@ -143,7 +143,7 @@ module.exports = React.createClass({
         });
         return window.context.executeAction(CleanDrawBoard, {
             channelId: this.props.channelId,
-            boardId: this.props.boardId
+            _bid: this.props._bid
         }).bind(this).delay(100).then(function(){
             this.setState({
                 enableToClearBoard: true
@@ -161,7 +161,7 @@ module.exports = React.createClass({
         });
         return window.context.executeAction(UndoDrawRecord, {
             channelId: this.props.channelId,
-            boardId: this.props.boardId
+            _bid: this.props._bid
         }).bind(this).delay(100).then(function(){
             this.setState({
                 enableToUndoBoard: true
@@ -179,7 +179,7 @@ module.exports = React.createClass({
         });
         return window.context.executeAction(RedoDrawRecord, {
             channelId: this.props.channelId,
-            boardId: this.props.boardId
+            _bid: this.props._bid
         }).bind(this).delay(100).then(function(){
             this.setState({
                 enableToRedoBoard: true
@@ -235,12 +235,12 @@ module.exports = React.createClass({
      * @Description: switch to specifc drawing baord by target board index
      */
     _goToBoard: function(){
-        var newBoardId = this.state.boardPage -1;
-        if (newBoardId >= 0 && newBoardId < this.props.drawInfo.boardNums) {
+        var index = this.state.boardPage -1;
+        if (index >= 0 && index < this.props.drawInfo.boardNums) {
             this.executeAction(NavToBoard, {
                 urlNavigator: this.transitionTo,
                 channelId: this.props.channelId,
-                boardId: newBoardId
+                boardIdx: index
             });
         }
         this._setDefaultIndex();

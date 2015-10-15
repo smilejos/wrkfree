@@ -22,12 +22,12 @@ module.exports = CreateStore({
      */
     _onPreviewUpdated: function(data) {
         var cid = data.channelId;
-        var bid = data.boardId;
+        var _bid = data._bid;
         var updatedData = {
             remoteUpdatedTime: Date.now()
         };
         this.previewImgs[cid] = updatedData;
-        this.previewImgs[cid + bid] = updatedData;
+        this.previewImgs[_bid] = updatedData;
         this.emitChange();
     },
 
@@ -42,8 +42,10 @@ module.exports = CreateStore({
     /**
      * @Author: George_Chen
      * @Description: get preview latest udpatedTime on board
+     *
+     * @param {String}      _bid, target board uuid
      */
-    getByBoard: function(channelId, boardId) {
-        return this.previewImgs[channelId + boardId];
+    getByBoard: function(_bid) {
+        return this.previewImgs[_bid];
     }
 });

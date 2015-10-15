@@ -22,14 +22,14 @@ module.exports = function(actionContext, data) {
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5')
     }).then(function(reqData) {
         return DrawService.getLatestBoardIdAsync(reqData);
-    }).then(function(latestBoardId) {
+    }).then(function(latestBoardIdx) {
         if (!SharedUtils.isFunction(data.urlNavigator)) {
             throw new Error('arguments incorrect');
         }
         actionContext.executeAction(NavToBoard, {
             urlNavigator: data.urlNavigator,
             channelId: data.channelId,
-            boardId: latestBoardId
+            boardIdx: latestBoardIdx
         });
     }).catch(function(err) {
         SharedUtils.printError('enterWorkspace.js', 'core', err);

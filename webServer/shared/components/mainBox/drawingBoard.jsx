@@ -247,7 +247,7 @@ module.exports = React.createClass({
         var data = {
             _bid: _Bid,
             channelId: this.props.channelId,
-            boardId: this.props.boardId,
+            boardIdx: this.props.boardId,
             record: LocalDraws.toArray(),
             drawOptions: this.props.drawInfo.drawOptions
         };
@@ -301,13 +301,12 @@ module.exports = React.createClass({
         if (LocalDraws && LocalDraws.length >= ACTIVED_DRAWS_LIMIT) {
             return this._stopToDraw();
         }
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;        
+        var cid = this.props.channelId;     
         var position = this._getCanvasMouse(e);
         var ctx = this._getBoardContext();
         var data = {
             channelId: cid,
-            boardId: bid,
+            _bid: _Bid,
             chunks: {
                 fromX: prev.x,
                 fromY: prev.y,
@@ -400,6 +399,7 @@ module.exports = React.createClass({
                     onMouseLeave={this._stopToDraw.bind(this, true)}
                     onMouseUp={this._onMouseUp} />
                 <DrawingToolBar 
+                    _bid={_Bid}
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
                     drawInfo={this.props.drawInfo} />

@@ -57,7 +57,7 @@ module.exports = CreateStore({
      *
      * @param {Object}      record, drawRecord document
      */
-    _onRecordSave: function(record) {      
+    _onRecordSave: function(record) {
         var collection = this.db.getCollection(this.dbName);
         var self = this;
         // remove all undo records on current board
@@ -83,13 +83,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: for handling draw record undo event
      *
-     * @param {String}          data.channelId, the channel id
-     * @param {Number}          data.boardId, the draw board id
+     * @param {String}          _bid, the board uuid
      */
-    _onRecordUndo: function(data) {
-        var cid = data.channelId;
-        var bid = data.boardId;
-        var boardSet = this._getBoardResultSet(cid, bid);
+    _onRecordUndo: function(_bid) {
+        var boardSet = this._getBoardResultSet(_bid);
         boardSet.where(function(obj) {
             return !obj.isUndo;
         }).limit(1).update(function(obj) {
@@ -103,13 +100,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: for handling draw record redo event
      *
-     * @param {String}          data.channelId, the channel id
-     * @param {Number}          data.boardId, the draw board id
+     * @param {String}          _bid, the board uuid
      */
-    _onRecordRedo: function(data) {
-        var cid = data.channelId;
-        var bid = data.boardId;
-        var boardSet = this._getBoardResultSet(cid, bid);
+    _onRecordRedo: function(_bid) {
+        var boardSet = this._getBoardResultSet(_bid);
         boardSet.simplesort('drawTime', -1)
             .where(function(obj) {
                 return obj.isUndo;
@@ -123,9 +117,8 @@ module.exports = CreateStore({
      * @Public API
      * @Author: George_Chen
      * @Description: polyfill the draw board information
-     * 
-     * @param {String}      data.channelId, target channel id
-     * @param {Number}      data.boardId, target board id
+     *
+     * @param {String}      data.bid, target board uuid
      * @param {Object}      data.boardInfo.baseImg, draw board base image
      * @param {Array}       data.boardInfo.records, draw board records
      */
@@ -147,7 +140,7 @@ module.exports = CreateStore({
     /**
      * @Public API
      * @Author: George_Chen
-     * @Description: set current board by boaard uuid
+     * @Description: set current worksapce board by the board uuid
      * 
      * @param {String}      _bid, board uuid
      */
@@ -179,18 +172,17 @@ module.exports = CreateStore({
      * @Description: for handling board storage clean event
      * 
      * @param {String}      data.channelId, target channel id
-     * @param {Number}      data.boardId, target board id
+     * @param {String}      data._bid, the board uuid
      */
     _onBoardClean: function(data) {
         var collection = this.db.getCollection(this.dbName);
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        var boardSet = this._getBoardResultSet(data.channelId, data.boardId);
+        var boardSet = this._getBoardResultSet(data._bid);
         var removeTargets = boardSet.data();
-        this.baseImgs[drawViewId] = null;
+        this.baseImgs[data._bid] = null;
         SharedUtils.fastArrayMap(removeTargets, function(doc) {
             collection.remove(doc);
         });
-        collection.removeDynamicView(drawViewId);
+        collection.removeDynamicView(data._bid);
     },
 
     /**
@@ -276,7 +268,6 @@ function _saveRecord(collection, doc) {
     return Promise.props({
         _bid: doc._bid,
         channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(doc.boardId, 'boardId'),
         record: DrawUtils.checkDrawRecordAsync(doc.record),
         isUndo: doc.isUndo || false,
         isArchived: doc.isArchived || false,

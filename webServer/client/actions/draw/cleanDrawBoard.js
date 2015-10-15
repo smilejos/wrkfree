@@ -12,19 +12,19 @@ var ActionUtils = require('../actionUtils');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.boardId, target board id
+ * @param {String}      data._bid, target board uuid
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'number')
+        _bid: SharedUtils.argsCheckAsync(data._bid, 'string')
     }).then(function(reqData) {
         return DrawService.cleanDrawBoardAsync(reqData);
     }).then(function(result) {
         if (!result) {
             throw new Error('clean draw board fail from server side');
         }
-        var cleanDoc = DrawUtils.generateCleanRecord(data.channelId, data.boardId);
+        var cleanDoc = DrawUtils.generateCleanRecord(data.channelId, data._bid);
         cleanDoc.isUpdated = false;
         return actionContext.dispatch('ON_RECORD_SAVE', cleanDoc);
     }).catch(function(err) {
