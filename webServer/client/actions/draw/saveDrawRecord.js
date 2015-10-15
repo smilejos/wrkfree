@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var DrawService = require('../../services/drawService');
+var DrawStore = require('../../../shared/stores/DrawStore');
 var ActionUtils = require('../actionUtils');
 var GetDrawBoard = require('./getDrawBoard');
 
@@ -27,7 +28,7 @@ module.exports = function(actionContext, data) {
     }
     LastSaveTime = currentTime;
     return Promise.props({
-        _bid: SharedUtils.argsCheckAsync(data._bid, 'string'),
+        _bid: actionContext.getStore(DrawStore)._bid,
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
         boardIdx: SharedUtils.argsCheckAsync(data.boardIdx, 'number'),
         record: DrawUtils.checkDrawRecordAsync(data.record),

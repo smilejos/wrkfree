@@ -45,8 +45,7 @@ module.exports = CreateStore({
         var self = this;
         // remove all undo records on current board
         collection.removeWhere(function(obj) {
-            var isTargetBoard = (record._bid === obj._bid);
-            return (isTargetBoard && obj.isUndo);
+            return (record._bid === obj._bid && obj.isUndo);
         });
         return _saveRecord(collection, record)
             .then(function() {
