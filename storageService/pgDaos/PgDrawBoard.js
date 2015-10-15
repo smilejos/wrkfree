@@ -14,12 +14,10 @@ Promise.promisifyAll(Fs);
  * @Description: create draw board docuemnt of the current channel
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
  */
-exports.saveAsync = function(channelId, boardId) {
+exports.saveAsync = function(channelId) {
     return Promise.all([
-        SharedUtils.argsCheckAsync(channelId, 'md5'),
-        SharedUtils.argsCheckAsync(boardId, 'boardId')
+        SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
         var channelPath = '/data/files/' + channelId + '/';
         return Promise.try(function() {
@@ -28,7 +26,7 @@ exports.saveAsync = function(channelId, boardId) {
             }
         }).then(function() {
             var sqlQuery = {
-                text: 'INSERT INTO drawBoards("channelId", "boardId") VALUES($1, $2)',
+                text: 'INSERT INTO drawBoards("channelId") VALUES($1)',
                 values: queryParams
             };
             return Agent.execSqlAsync(sqlQuery);
@@ -45,20 +43,50 @@ exports.saveAsync = function(channelId, boardId) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: find board uuid by its index
+ *
+ * @param {String}          channelId, the channel id
+ * @param {Number}          boardIdx, the board index
+ */
+exports.findIdByIdxAsync = function(channelId, boardIdx) {
+    return Promise.all([
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(boardIdx, 'number')
+    ]).then(function(queryParams) {
+        var sqlQuery = {
+            text: 'SELECT id FROM drawBoards WHERE "channelId"=$1 ORDER BY "createdTime" LIMIT 1 OFFSET $2',
+            values: queryParams
+        };
+        return Agent.proxySqlAsync(sqlQuery).then(function(result) {
+            return result[0].id;
+        });
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            args: SharedUtils.getArgs(arguments),
+            error: err.toString()
+        }, 'error in PgDrawBoard.findIdAsync()');
+        throw err;
+    });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: find board image by the board uuid
  *
  * @param {String}          _bid, board uuid
  * @param {String}          imgType, the type of querying image
  */
-exports.findImgByIdAsync = function(_bid, imgType) {
+exports.findImgByIdAsync = function(channelId, _bid, imgType) {
     return Promise.all([
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
         SharedUtils.argsCheckAsync(_bid, 'string')
     ]).then(function(queryParams) {
         if (!_isImgTypeValid(imgType)) {
             throw new Error('query on not supported img type');
         }
         var sqlQuery = {
-            text: 'SELECT * FROM drawBoards WHERE id=$1',
+            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 AND id=$2',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery).then(function(result) {
@@ -81,19 +109,19 @@ exports.findImgByIdAsync = function(_bid, imgType) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: find board image by the leagacy method (channelId + boardId)
+ * @Description: find board image by the board index (channelId + boardIdx)
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
+ * @param {Number}          boardIdx, the draw board id
  * @param {String}          imgType, the type of querying image
  */
-exports.legacyFindImgAsync = function(channelId, boardId, imgType) {
+exports.findImgByIndexAsync = function(channelId, boardIdx, imgType) {
     return Promise.all([
         SharedUtils.argsCheckAsync(channelId, 'md5'),
-        SharedUtils.argsCheckAsync(boardId, 'boardId')
+        SharedUtils.argsCheckAsync(boardIdx, 'number')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 AND "boardId"=$2',
+            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 ORDER BY "createdTime" LIMIT 1 OFFSET $2',
             values: queryParams
         };
         if (!_isImgTypeValid(imgType)) {
@@ -104,7 +132,6 @@ exports.legacyFindImgAsync = function(channelId, boardId, imgType) {
             return Promise.props({
                 bid: data.id,
                 channelId: data.channelId,
-                boardId: data.boardId,
                 content: (data[imgType] ? Fs.readFileAsync(data[imgType]) : new Buffer(''))
             });
         });
@@ -112,7 +139,7 @@ exports.legacyFindImgAsync = function(channelId, boardId, imgType) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
             error: err.toString()
-        }, 'error in PgDrawBoard.legacyFindImgAsync()');
+        }, 'error in PgDrawBoard.findImgByIndexAsync()');
         throw err;
     });
 };
@@ -129,7 +156,8 @@ exports.findByLatestUpdatedAsync = function(channelId) {
         SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM drawBoards WHERE "channelId"=$1 ' +
+            text: 'SELECT *, CAST(RANK() OVER (ORDER BY "createdTime") -1 AS integer) idx ' +
+                'FROM drawBoards WHERE "channelId"=$1 ' +
                 'ORDER BY "updatedTime" DESC LIMIT 1',
             values: queryParams
         };
@@ -162,7 +190,6 @@ exports.findImgByLatestUpdatedAsync = function(channelId, imgType) {
             return Promise.props({
                 bid: data.id,
                 channelId: data.channelId,
-                boardId: data.boardId,
                 content: (data[imgType] ? Fs.readFileAsync(data[imgType]) : new Buffer(''))
             });
         }).catch(function(err) {

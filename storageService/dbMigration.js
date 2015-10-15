@@ -37,6 +37,33 @@ exports.drawRecordsMigration = function() {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to binding new board uuid to related draw records
+ */
+exports.bidOnDrawRecord = function() {
+    return PgClient.queryAsync('SELECT * FROM drawBoards')
+        .then(function(result) {
+            return result.rows;
+        }).map(function(board) {
+            var sqlQuery = {
+                text: 'UPDATE drawRecords SET "_bid"=$3' +
+                    'WHERE "channelId"=$1 AND "boardId"=$2',
+                values: [board.channelId, board.boardId, board.id]
+            };
+            return PgClient.queryAsync(sqlQuery);
+        }).then(function(){
+            // remove legacy board cloumn
+            return PgClient.queryAsync('ALTER TABLE drawBoards DROP COLUMN "boardId"')
+                .then(function(){
+                    return PgClient.queryAsync('ALTER TABLE drawRecords DROP COLUMN "boardId"')
+                });
+        }).catch(function(err) {
+            console.log('[ERROR] fail to bind _bid on draw record ', err);
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: migrating drawboards and drawpreviews collection to postgresSQL table 
  */
 exports.drawBoardsMigration = function() {

@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
 var DrawStore = require('../../../shared/stores/DrawStore');
+var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 
 /**
  * @Public API
@@ -11,33 +12,36 @@ var DrawStore = require('../../../shared/stores/DrawStore');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.boardId, target board id
+ * @param {Number}      data.boardIdx, target board index
  * @param {Function}    callback, callback function
  */
-module.exports = function(actionContext, data, callback) {
+module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
+        boardIdx: SharedUtils.argsCheckAsync(data.boardIdx, 'number')
     }).then(function(reqData) {
+        return DrawService.getBoardIdAsync(reqData);
+    }).then(function(_bid) {
         var drawStore = actionContext.getStore(DrawStore);
-        if (!drawStore.isPolyFilled(reqData.channelId, reqData.boardId)) {
-            return DrawService.getDrawBoardAsync(reqData);
+        var wkStore = actionContext.getStore(WorkSpaceStore);
+        if (wkStore.isCurrentUsedBoard(data.channelId, data.boardIdx)) {
+            drawStore.setCurrentBoard(_bid);
         }
-        // don't need to polyfill, just trigger store change for update component
+        if (!drawStore.isPolyFilled(_bid)) {
+            return DrawService.getDrawBoardAsync({
+                channelId: data.channelId,
+                _bid: _bid
+            }).then(function(result){
+                if (result === null) {
+                    throw new Error('get board data fail');
+                }
+                return actionContext.dispatch('ON_BOARD_POLYFILL', result);
+            });
+        }
         drawStore.emitChange();
-        return {};
-    }).then(function(boardData) {
-        if (!boardData.baseImg && !boardData.records) {
-            return null;
-        }
-        return actionContext.dispatch('ON_BOARD_POLYFILL', {
-            channelId: data.channelId,
-            boardId: data.boardId,
-            boardInfo: boardData
-        });
     }).catch(function(err) {
         SharedUtils.printError('getDrawBoard.js', 'core', err);
         return null;
         // show alert message ?
-    }).nodeify(callback);
+    });
 };

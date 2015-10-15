@@ -4,7 +4,6 @@ var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
 var ActionUtils = require('../actionUtils');
 var DrawTempStore = require('../../../shared/stores/DrawTempStore');
-var WorkSpaceStore = require('../../../shared/stores/WorkSpaceStore');
 var DrawStore = require('../../../shared/stores/DrawStore');
 var ChannelService = require('../../services/channelService');
 var GetDrawBoard = require('./getDrawBoard');
@@ -22,29 +21,29 @@ var TipsShowing = null;
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.boardId, target board id
+ * @param {Number}      data.boardIdx, target board index
  * @param {Number}      data.chunksNum, number of chunks in current record
  * @param {Object}      data.drawOptions, the draw related options
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
+        _bid: SharedUtils.argsCheckAsync(data._bid, 'string'),
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        boardIdx: SharedUtils.argsCheckAsync(data.boardIdx, 'number'),
         record: DrawUtils.checkDrawRecordAsync(data.record),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
         isUpdated: SharedUtils.argsCheckAsync(data.isUpdated, 'boolean')
     }).then(function(recvData) {
         var drawTempStore = actionContext.getStore(DrawTempStore);
         var drawStore = actionContext.getStore(DrawStore);
-        var wkStore = actionContext.getStore(WorkSpaceStore);
         // check to show tips or not
-        if (!wkStore.isCurrentUsedBoard(data.channelId, data.boardId)) {
-            _showNavigationTips(actionContext, data.channelId, data.boardId);
+        if (drawStore._bid !== recvData._bid) {
+            _showNavigationTips(actionContext, data.channelId, data.boardIdx);
         } else {
             drawTempStore.saveRemoteRecord(recvData);
         }
         // check target board is polyfilled or not
-        if (!drawStore.isPolyFilled(data.channelId, data.boardId)) {
+        if (!drawStore.isPolyFilled(recvData._bid)) {
             return actionContext.executeAction(GetDrawBoard, data);
         }
         return actionContext.dispatch('ON_RECORD_SAVE', recvData);
@@ -64,10 +63,10 @@ module.exports = function(actionContext, data) {
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      cid, target channel id
- * @param {Number}      bid, target board id
+ * @param {Number}      idx, target board index
  */
-function _showNavigationTips(actionContext, cid, bid) {
-    var boardIndex = bid + 1;
+function _showNavigationTips(actionContext, cid, idx) {
+    var boardPage = idx + 1;
     var reqData = {
         channelId: cid
     };
@@ -79,14 +78,14 @@ function _showNavigationTips(actionContext, cid, bid) {
         .getInfoAsync(reqData)
         .delay(2000).then(function(info) {
             var title = 'Channel: #' + info.basicInfo.name;
-            var msg = 'someone is drawing on board [' + boardIndex + ']';
+            var msg = 'someone is drawing on board [' + boardPage + ']';
             TipsShowing = null;
             if (!info.basicInfo.is1on1) {
                 ActionUtils.showInfoEvent(title, msg, 'quick open', function(urlNavigator) {
                     actionContext.executeAction(NavToBoard, {
                         urlNavigator: urlNavigator,
                         channelId: cid,
-                        boardId: bid
+                        boardIdx: idx
                     });
                 });
             }

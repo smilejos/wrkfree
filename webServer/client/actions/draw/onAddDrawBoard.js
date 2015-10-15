@@ -12,34 +12,34 @@ var NavToBoard = require('./navToBoard');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.newBoardId, new added board id
+ * @param {Number}      data.newBoardIdx, the index of new added board
  * @param {Function}    callback, callback function
  */
 module.exports = function(actionContext, data, callback) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        newBoardId: SharedUtils.argsCheckAsync(data.newBoardId, 'boardId')
-    }).then(function(validData) {
+        newBoardIdx: SharedUtils.argsCheckAsync(data.newBoardIdx, 'number')
+    }).then(function(recvData) {
         var workSpaceStore = actionContext.getStore(WorkSpaceStore);
         var state = workSpaceStore.getState();
-        if (state.draw.boardNums !== validData.newBoardId) {
+        if (state.draw.boardNums !== recvData.newBoardIdx) {
             throw new Error('unexpected draw board add event');
         }
         return actionContext.dispatch('ON_BOARD_ADD', {
-            channelId: validData.channelId,
-            boardId: validData.newBoardId
+            channelId: recvData.channelId,
+            newBoardIdx: recvData.newBoardIdx
         });
     }).then(function() {
-        var boardIndex = data.newBoardId + 1;
+        var boardPage = data.newBoardIdx + 1;
         return ActionUtils.showInfoEvent(
             'Drawing',
-            'new board [' + boardIndex + '] is has been created!',
+            'new board [' + boardPage + '] is has been created!',
             'switch to new board',
             function(navitator) {
                 actionContext.executeAction(NavToBoard, {
                     urlNavigator: navitator,
                     channelId: data.channelId,
-                    boardId: data.newBoardId
+                    boardIdx: data.newBoardIdx
                 });
             });
     }).catch(function(err) {
