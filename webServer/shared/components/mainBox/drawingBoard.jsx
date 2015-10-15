@@ -399,7 +399,6 @@ module.exports = React.createClass({
                     onMouseLeave={this._stopToDraw.bind(this, true)}
                     onMouseUp={this._onMouseUp} />
                 <DrawingToolBar 
-                    _bid={_Bid}
                     channelId={this.props.channelId} 
                     boardId={this.props.boardId}
                     drawInfo={this.props.drawInfo} />

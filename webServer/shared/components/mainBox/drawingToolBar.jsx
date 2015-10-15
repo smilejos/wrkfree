@@ -143,7 +143,6 @@ module.exports = React.createClass({
         });
         return window.context.executeAction(CleanDrawBoard, {
             channelId: this.props.channelId,
-            _bid: this.props._bid
         }).bind(this).delay(100).then(function(){
             this.setState({
                 enableToClearBoard: true
@@ -161,7 +160,6 @@ module.exports = React.createClass({
         });
         return window.context.executeAction(UndoDrawRecord, {
             channelId: this.props.channelId,
-            _bid: this.props._bid
         }).bind(this).delay(100).then(function(){
             this.setState({
                 enableToUndoBoard: true
@@ -179,7 +177,6 @@ module.exports = React.createClass({
         });
         return window.context.executeAction(RedoDrawRecord, {
             channelId: this.props.channelId,
-            _bid: this.props._bid
         }).bind(this).delay(100).then(function(){
             this.setState({
                 enableToRedoBoard: true

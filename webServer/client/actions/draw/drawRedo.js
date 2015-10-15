@@ -2,6 +2,7 @@
 var Promise = require('bluebird');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawService = require('../../services/drawService');
+var DrawStore = require('../../../shared/stores/DrawStore');
 
 /**
  * @Public API
@@ -13,16 +14,17 @@ var DrawService = require('../../services/drawService');
  * @param {String}      data._bid, the board uuid
  */
 module.exports = function(actionContext, data) {
+    var _bid = actionContext.getStore(DrawStore)._bid;
     return Promise.props({
-        channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        _bid: SharedUtils.argsCheckAsync(data._bid, 'string')
+        channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5')
     }).then(function(reqData) {
+        reqData._bid = _bid;
         return DrawService.drawRedoAsync(reqData);
     }).then(function(result) {
         if (!result) {
             throw new Error('draw redo error from server side');
         }
-        return actionContext.dispatch('ON_DRAW_REDO', data._bid);
+        return actionContext.dispatch('ON_DRAW_REDO', _bid);
     }).catch(function(err) {
         SharedUtils.printError('drawRedo.js', 'core', err);
         return null;

@@ -107,7 +107,6 @@ module.exports = CreateStore({
      */
     _onPolyfill: function(data) {
         var collection = this.db.getCollection(this.dbName);
-        this._bid = data.bid;
         this.baseImgs[data.bid] = _getImgDataURL(data.baseImg);
         // prepare to indicate that this board is polyfilled
         collection.addDynamicView(data.bid);
@@ -129,7 +128,6 @@ module.exports = CreateStore({
      */
     setCurrentBoard: function(_bid) {
         this._bid = _bid;
-        this.emitChange();
     },
 
     /**
