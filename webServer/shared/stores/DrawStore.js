@@ -19,6 +19,7 @@ module.exports = CreateStore({
         'ON_RECORD_SAVE': '_onRecordSave',
         'ON_BOARD_POLYFILL': '_onPolyfill',
         'ON_BOARD_CLEAN': '_onBoardClean',
+        'ON_BOARD_DEL': '_onBoardDel',
         'ON_DRAW_UNDO': '_onRecordUndo',
         'ON_DRAW_REDO': '_onRecordRedo',
         'ON_UPDATE_DRAWIMG': '_onUpdateBaseImg'
@@ -163,6 +164,19 @@ module.exports = CreateStore({
             collection.remove(doc);
         });
         collection.removeDynamicView(data._bid);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: for handling board delete event
+     * 
+     * @param {String}      data.channelId, target channel id
+     * @param {String}      data._bid, the board uuid
+     */
+    _onBoardDel: function(data) {
+        this._onBoardClean(data);
+        this._bid = null;
     },
 
     /**

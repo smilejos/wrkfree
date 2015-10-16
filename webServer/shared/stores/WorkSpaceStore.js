@@ -21,6 +21,7 @@ module.exports = CreateStore({
     storeName: 'WorkSpaceStore',
     handlers: {
         'ON_BOARD_ADD': 'onBoardAdd',
+        'ON_BOARD_DEL': '_onBoardDel',
         'ON_DRAW_MODE_CHANGE': 'onDrawModeChange',
         'ON_CONFERENCE': '_onConference',
         'CHANGE_ROUTE': '_onChangeRoute',
@@ -125,6 +126,10 @@ module.exports = CreateStore({
     onBoardAdd: function(data) {
         this.draw.boardNums = data.newBoardIdx + 1;
         this.emitChange();
+    },
+
+    _onBoardDel: function(data) {
+        --this.draw.boardNums;
     },
 
     /**

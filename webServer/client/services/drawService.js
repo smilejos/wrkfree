@@ -127,6 +127,20 @@ exports.addBoardAsync = function(data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for channel host to delete specific draw board
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {String}          data._bid, the board uuid
+ */
+exports.delBoardAsync = function(data) {
+    var packet = _setPacket('delBoardAsync', null, data);
+    return _request(packet, 'delBoardAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for user to undo the draw record on current board
  *       
  * @param {Object}          socket, the client socket instance
