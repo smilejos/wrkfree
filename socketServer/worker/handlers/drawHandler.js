@@ -177,7 +177,7 @@ exports.delBoardAsync = function(socket, data) {
             LogUtils.warn(LogCategory, {
                 reqData: data,
                 error: err.toString()
-            }, '[' + socket.id + '] fail on deleteBoardAsync');
+            }, '[' + socket.id + '] fail on delBoardAsync');
             throw err;
         });
 };
