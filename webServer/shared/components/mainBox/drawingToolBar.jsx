@@ -6,6 +6,7 @@ var Router = require('react-router');
  * actions
  */
 var AddDrawBoard = require('../../../client/actions/draw/addDrawBoard');
+var DelDrawBoard = require('../../../client/actions/draw/delDrawBoard');
 var CleanDrawBoard = require('../../../client/actions/draw/cleanDrawBoard');
 var UndoDrawRecord = require('../../../client/actions/draw/drawUndo');
 var RedoDrawRecord = require('../../../client/actions/draw/drawRedo');
@@ -65,6 +66,7 @@ module.exports = React.createClass({
             enableToClearBoard: true,
             enableToRedoBoard: true,
             enableToUndoBoard: true,
+            enableToDelBoard: true
         };
     },
 
@@ -130,7 +132,17 @@ module.exports = React.createClass({
      * @Description: handler for delete drawing board
      */
     _deleteBoard: function(){
-        // TODO:
+        this.setState({
+            enableToDelBoard: false
+        });
+        return window.context.executeAction(DelDrawBoard, {
+            urlNavigator: this.transitionTo,
+            channelId: this.props.channelId,
+        }).bind(this).delay(1000).then(function(){
+            this.setState({
+                enableToDelBoard: true
+            });
+        });
     },
 
     /**
@@ -353,8 +365,9 @@ module.exports = React.createClass({
                         iconClassName="material-icons"
                         tooltipPosition="top-left"
                         touch
-                        disabled
-                        tooltip={'delete current board'} >
+                        disabled={!this.state.enableToDelBoard || this.state.isDrawing}
+                        tooltip={'delete current board'} 
+                        onClick={this._deleteBoard}>
                         {'delete'}
                     </IconButton>
                 </div>
