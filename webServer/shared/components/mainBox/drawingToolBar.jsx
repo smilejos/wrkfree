@@ -23,6 +23,7 @@ var DrawTempStore = require('../../stores/DrawTempStore');
  */
 var Mui = require('material-ui');
 var IconButton = Mui.IconButton;
+var Dialog = Mui.Dialog;
 
 var DRAWING_TIMEOUT_IN_MSECOND = 1000;
 var DisableDraw = null;
@@ -66,7 +67,8 @@ module.exports = React.createClass({
             enableToClearBoard: true,
             enableToRedoBoard: true,
             enableToUndoBoard: true,
-            enableToDelBoard: true
+            enableToDelBoard: true,
+            dialogInfo: {}
         };
     },
 
@@ -132,17 +134,35 @@ module.exports = React.createClass({
      * @Description: handler for delete drawing board
      */
     _deleteBoard: function(){
+        var self  = this;
         this.setState({
-            enableToDelBoard: false
+            dialogInfo: {
+                title: 'Warning',
+                content: 'The board content will be destroyed after deletion, ' +
+                         'are you really want to do that ?',
+                actions: [{
+                    text: 'CANCEL',
+                    onClick: this.refs.dialog.dismiss
+                }, {
+                    text: 'CONTINUE',
+                    onClick: function() {
+                        self.refs.dialog.dismiss();
+                        self.setState({
+                            enableToDelBoard: false
+                        });
+                        return window.context.executeAction(DelDrawBoard, {
+                            urlNavigator: self.transitionTo,
+                            channelId: self.props.channelId,
+                        }).delay(1000).then(function() {
+                            self.setState({
+                                enableToDelBoard: true
+                            });
+                        });
+                    }
+                }]
+            }
         });
-        return window.context.executeAction(DelDrawBoard, {
-            urlNavigator: this.transitionTo,
-            channelId: this.props.channelId,
-        }).bind(this).delay(1000).then(function(){
-            this.setState({
-                enableToDelBoard: true
-            });
-        });
+        this.refs.dialog.show();
     },
 
     /**
@@ -268,109 +288,116 @@ module.exports = React.createClass({
 
     render: function() {
         return (
-            <div className="DrawingToolBar" >
-                <div style={{position: 'absolute', left: 5, bottom: 0, height: 50}}>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-right"
-                        touch 
-                        tooltip={'pick color'} 
-                        onClick={this._openPalette} >
-                        {'palette'}
-                    </IconButton>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-right"
-                        touch 
-                        tooltip={'pen mode'} 
-                        onClick={this._changeToPen} >
-                        {'brush'}
-                    </IconButton>
-                    <IconButton 
-                        iconClassName="fa fa-eraser"
-                        style={{top: -5}}
-                        iconStyle={{fontSize: 21}}
-                        tooltipPosition="top-right"
-                        touch 
-                        tooltip={'eraser mode'} 
-                        onClick={this._changeToEraser} />
-                </div>
-                <div style={{position: 'absolute', left: '50%', marginLeft: -75, bottom: 0}}>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-center" 
-                        touch
-                        tooltip={'go to previous board'}
-                        onClick={this._goToPreviousBoard} >
-                        {'keyboard_arrow_left'}
-                    </IconButton>
-                    <div style={{display: 'inline-block', height: '100%', verticalAlign: 'middle'}}>
-                        <input type="text"
-                            ref="boardPage" 
-                            className="Center" 
-                            value={this.state.boardPage}
-                            onKeyDown={this._onBoardIndexKeyDown}
-                            onBlur={this._setDefaultIndex}
-                            onChange={this._onBoardIndexChange}
-                            style={{width: 20, height:26, marginBottom: 10}}/>
-                            {" / " + this.props.drawInfo.boardNums}
+            <div>
+                <div className="DrawingToolBar" >
+                    <div style={{position: 'absolute', left: 5, bottom: 0, height: 50}}>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-right"
+                            touch 
+                            tooltip={'pick color'} 
+                            onClick={this._openPalette} >
+                            {'palette'}
+                        </IconButton>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-right"
+                            touch 
+                            tooltip={'pen mode'} 
+                            onClick={this._changeToPen} >
+                            {'brush'}
+                        </IconButton>
+                        <IconButton 
+                            iconClassName="fa fa-eraser"
+                            style={{top: -5}}
+                            iconStyle={{fontSize: 21}}
+                            tooltipPosition="top-right"
+                            touch 
+                            tooltip={'eraser mode'} 
+                            onClick={this._changeToEraser} />
                     </div>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-center" 
-                        touch
-                        tooltip={'go to next board'}
-                        onClick={this._goToNextBoard} >
-                        {'keyboard_arrow_right'}
-                    </IconButton>
+                    <div style={{position: 'absolute', left: '50%', marginLeft: -75, bottom: 0}}>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-center" 
+                            touch
+                            tooltip={'go to previous board'}
+                            onClick={this._goToPreviousBoard} >
+                            {'keyboard_arrow_left'}
+                        </IconButton>
+                        <div style={{display: 'inline-block', height: '100%', verticalAlign: 'middle'}}>
+                            <input type="text"
+                                ref="boardPage" 
+                                className="Center" 
+                                value={this.state.boardPage}
+                                onKeyDown={this._onBoardIndexKeyDown}
+                                onBlur={this._setDefaultIndex}
+                                onChange={this._onBoardIndexChange}
+                                style={{width: 20, height:26, marginBottom: 10}}/>
+                                {" / " + this.props.drawInfo.boardNums}
+                        </div>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-center" 
+                            touch
+                            tooltip={'go to next board'}
+                            onClick={this._goToNextBoard} >
+                            {'keyboard_arrow_right'}
+                        </IconButton>
+                    </div>
+                    <div style={{position: 'absolute', right: 10, bottom: 0}}>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-left"
+                            touch
+                            disabled={!this.state.enableToAddBoard}
+                            tooltip={'add new board'}
+                            onClick={this._addBoard} >
+                            {'add_box'}
+                        </IconButton>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-left"
+                            touch
+                            disabled={!this.state.enableToClearBoard || this.state.isDrawing}
+                            tooltip={'clear current board'} 
+                            onClick={this._cleanBoard} >
+                            {'crop_din'}
+                        </IconButton>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-left"
+                            touch
+                            disabled={!this.state.enableToUndoBoard || this.state.isDrawing}
+                            tooltip={'undo to previous draw'} 
+                            onClick={this._drawUndo} >
+                            {'undo'}
+                        </IconButton>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-left"
+                            touch
+                            disabled={!this.state.enableToRedoBoard || this.state.isDrawing}
+                            tooltip={'repeat to next draw'}
+                            onClick={this._drawRedo} >
+                            {'redo'}
+                        </IconButton>
+                        <IconButton 
+                            iconClassName="material-icons"
+                            tooltipPosition="top-left"
+                            touch
+                            disabled={!this.state.enableToDelBoard || this.state.isDrawing}
+                            tooltip={'delete current board'} 
+                            onClick={this._deleteBoard}>
+                            {'delete'}
+                        </IconButton>
+                    </div>
                 </div>
-                <div style={{position: 'absolute', right: 10, bottom: 0}}>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-left"
-                        touch
-                        disabled={!this.state.enableToAddBoard}
-                        tooltip={'add new board'}
-                        onClick={this._addBoard} >
-                        {'add_box'}
-                    </IconButton>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-left"
-                        touch
-                        disabled={!this.state.enableToClearBoard || this.state.isDrawing}
-                        tooltip={'clear current board'} 
-                        onClick={this._cleanBoard} >
-                        {'crop_din'}
-                    </IconButton>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-left"
-                        touch
-                        disabled={!this.state.enableToUndoBoard || this.state.isDrawing}
-                        tooltip={'undo to previous draw'} 
-                        onClick={this._drawUndo} >
-                        {'undo'}
-                    </IconButton>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-left"
-                        touch
-                        disabled={!this.state.enableToRedoBoard || this.state.isDrawing}
-                        tooltip={'repeat to next draw'}
-                        onClick={this._drawRedo} >
-                        {'redo'}
-                    </IconButton>
-                    <IconButton 
-                        iconClassName="material-icons"
-                        tooltipPosition="top-left"
-                        touch
-                        disabled={!this.state.enableToDelBoard || this.state.isDrawing}
-                        tooltip={'delete current board'} 
-                        onClick={this._deleteBoard}>
-                        {'delete'}
-                    </IconButton>
-                </div>
+                <Dialog ref="dialog" 
+                    actions={this.state.dialogInfo.actions}
+                    title={this.state.dialogInfo.title} >
+                    {this.state.dialogInfo.content}
+                </Dialog>
             </div>
         );
     }
