@@ -6,6 +6,8 @@ var SharedUtils = require('../../sharedUtils/utils');
 var LogUtils = require('../../sharedUtils/logUtils');
 var LogCategory = 'STORAGE';
 
+var ImageTypes = ['base', 'preview', 'background'];
+
 Promise.promisifyAll(Fs);
 
 /**
@@ -264,11 +266,49 @@ exports.countBoardsAsync = function(channelId) {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: delete specific draw board related data
+ *         TODO: we should also remove related images
+ *
+ * @param {String}          channelId, channel id
+ * @param {String}          bid, board uuid
+ */
+exports.deleteAsync = function(channelId, bid) {
+    return Promise.all([
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(bid, 'string')
+    ]).then(function(queryParams) {
+        return Agent.execTransactionAsync([{
+            text: 'DELETE FROM drawBoards WHERE "channelId"=$1 AND "id"=$2',
+            values: queryParams
+        }, {
+            text: 'DELETE FROM drawRecords WHERE "channelId"=$1 AND "_bid"=$2',
+            values: queryParams
+        }]);
+    }).then(function() {
+        var pathPrefix = '/data/files/' + channelId + '/' + bid;
+        return Promise.map(ImageTypes, function(type) {
+            var file = pathPrefix + '_' + type + '.png';
+            return Fs.unlinkAsync(file).catch(function() {
+                return null;
+            });
+        });
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            args: SharedUtils.getArgs(arguments),
+            error: err.toString()
+        }, 'error in PgDrawBoard.deleteAsync()');
+        throw err;
+    });
+};
+
+/**
  * @Author: George_Chen
  * @Description: to check image type is supported or not
  *
  * @param {String}          type, the type of supported image
  */
 function _isImgTypeValid(type) {
-    return (['base', 'preview', 'background'].indexOf(type) !== -1);
+    return (ImageTypes.indexOf(type) !== -1);
 }

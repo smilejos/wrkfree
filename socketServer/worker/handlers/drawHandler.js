@@ -152,6 +152,39 @@ exports.addBoardAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for host to delete target draw board
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {String}          data._bid, the board uuid
+ */
+exports.delBoardAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    LogUtils.info(LogCategory, {
+        uid: uid,
+        channelId: data.channelId,
+        bid: data._bid
+    }, '[' + socket.id + '] start to delete draw board ');
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
+        function(cid, bid) {
+            return DrawStorage.delBoardAsync(cid, bid, uid);
+        }).then(function(result) {
+            var errMsg = 'delete draw board fail';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on deleteBoardAsync');
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for user to undo the draw record on current board
  *       
  * @param {Object}          socket, the client socket instance

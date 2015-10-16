@@ -5,6 +5,8 @@ var LogUtils = require('../../sharedUtils/logUtils');
 var LogCategory = 'STORAGE';
 var Promise = require('bluebird');
 var ChannelStoreage = require('./ChannelService');
+var ChannelTemp = require('../tempStores/ChannelTemp');
+var MemberDao = require('../daos/ChannelMemberDao');
 var PgDrawRecord = require('../pgDaos/PgDrawRecord');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 
@@ -34,7 +36,7 @@ if (!SharedUtils.isNumber(ACTIVED_RECORD_LIMIT)) {
 exports.addBoardAsync = function(channelId, member) {
     var logMsg = 'channel [' + channelId + '] add new board';
     LogUtils.info(LogCategory, null, logMsg);
-    return _ensureAuth(member, channelId).then(function(){
+    return _ensureAuth(member, channelId).then(function() {
         return PgDrawBoard.saveAsync(channelId);
     }).catch(function(err) {
         LogUtils.error(LogCategory, {
@@ -52,12 +54,26 @@ exports.addBoardAsync = function(channelId, member) {
  *
  * @param {String}          channelId, channel id
  * @param {String}          _bid, the board uuid
- * @param {String}          host, the host uid
+ * @param {String}          user, the user uid
  */
-exports.delBoardAsync = function(channelId, _bid, host) {
+exports.delBoardAsync = function(channelId, _bid, user) {
     var logMsg = 'channel [' + channelId + '] delete board [' + _bid + ']';
     LogUtils.info(LogCategory, null, logMsg);
-    // TODO: only host can delete board
+    return Promise.join(
+        MemberDao.isHostAsync(user, channelId),
+        ChannelTemp.getVisitorsAsync(channelId),
+        function(isHost, visitors) {
+            if (!isHost || visitors.length !== 1) {
+                throw new Error('not auth to delete board');
+            }
+            return PgDrawBoard.deleteAsync(channelId, _bid);
+        }).catch(function(err) {
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err.toString()
+            }, 'error in DrawService.delBoardAsync()');
+            return null;
+        });
 };
 
 /**
@@ -119,7 +135,7 @@ exports.undoRecordAsync = function(channelId, _bid, member) {
     return Promise.join(
         _ensureArchived(channelId, _bid),
         _ensureAuth(member, channelId),
-        function(){
+        function() {
             return PgDrawRecord.setNewUndoAsync(channelId, _bid);
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
@@ -222,7 +238,7 @@ exports.getBoardInfoAsync = function(channelId, _bid, member) {
  */
 exports.getBoardIdAsync = function(channelId, boardIdx, member) {
     return _ensureAuth(member, channelId)
-        .then(function(){
+        .then(function() {
             return PgDrawBoard.findIdByIdxAsync(channelId, boardIdx);
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
