@@ -65,14 +65,14 @@ exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     var hangoutStore = actionContext.getStore(HangoutStore);
     var isChannelKept = hangoutStore.isHangoutExist(WorkSpaceChannel);
     var channelId = routeInfo.channelId;
-    var boardId = routeInfo.query.board -1;
+    var boardIdx = routeInfo.query.board -1;
     return _isAuthToEnterChannel(channelId, isChannelKept)
         .then(function(isAuth) {
             if (!isAuth) {
                 throw new Error('enter channel fail');
             }
             return Promise.props({
-                WorkSpaceStore: _getWorkSpaceResource(actionContext, channelId, boardId)
+                WorkSpaceStore: _getWorkSpaceResource(actionContext, channelId, boardIdx)
             });
         }).then(function(resource) {
             return _storesPolyfill(actionContext, resource);
@@ -199,12 +199,12 @@ function _getDashboardResource(actionContext) {
  * @param {Object}      actionContext, fluxible actionContext
  * @param {String}      channelId, the channel's id
  */
-function _getWorkSpaceResource(actionContext, channelId, boardId) {
+function _getWorkSpaceResource(actionContext, channelId, boardIdx) {
     var wkStore = actionContext.getStore(WorkSpaceStore);
     var params = {};
     if (!wkStore.isPolyFilled(channelId)) {
         params.channelId = channelId;
-        params.boardId = boardId;
+        params.boardIdx = boardIdx;
         return Promise.props({
             channel: ChannelService.getInfoAsync(params),
             members: ChannelService.getMemberListAsync(params),
@@ -213,7 +213,7 @@ function _getWorkSpaceResource(actionContext, channelId, boardId) {
         });
     }
     if (wkStore.isOpenedChannel(channelId)) {
-        return wkStore.setCurrentBoard(boardId);
+        return wkStore.setCurrentBoard(boardIdx);
     }
     return false;
 }

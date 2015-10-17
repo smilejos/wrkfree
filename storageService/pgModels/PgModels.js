@@ -24,7 +24,6 @@ exports.createDrawRecordsAsync = function() {
                 'id uuid PRIMARY KEY DEFAULT gen_random_uuid(), ' +
                 '_bid uuid, ' +
                 '"channelId" VARCHAR(32), ' +
-                '"boardId" integer, ' +
                 '"isUndo" boolean DEFAULT false, ' +
                 '"isArchived" boolean DEFAULT false, ' +
                 '"record" jsonb, ' +
@@ -51,7 +50,6 @@ exports.createDrawBoardsAsync = function() {
         return client.queryAsync('CREATE TABLE drawBoards( ' +
                 'id uuid PRIMARY KEY DEFAULT gen_random_uuid(), ' +
                 '"channelId" VARCHAR(32), ' +
-                '"boardId" integer, ' +
                 '"base" TEXT , ' +
                 '"preview" TEXT , ' +
                 '"background" TEXT , ' +

@@ -21,6 +21,7 @@ module.exports = CreateStore({
     storeName: 'WorkSpaceStore',
     handlers: {
         'ON_BOARD_ADD': 'onBoardAdd',
+        'ON_BOARD_DEL': '_onBoardDel',
         'ON_DRAW_MODE_CHANGE': 'onDrawModeChange',
         'ON_CONFERENCE': '_onConference',
         'CHANGE_ROUTE': '_onChangeRoute',
@@ -82,10 +83,10 @@ module.exports = CreateStore({
      * @Description: to check the same drwing board is currently used or not
      *
      * @param {String}      cid, the channel id
-     * @param {Number}      bid, the board id
+     * @param {Number}      idx, the board index
      */
-    isCurrentUsedBoard: function(cid, bid) {
-        return (cid === this.channel.channelId && bid === this.draw.currentBoardId);
+    isCurrentUsedBoard: function(cid, idx) {
+        return (cid === this.channel.channelId && idx === this.draw.currentBoardIdx);
     },
 
     /**
@@ -93,10 +94,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: set current board id to target board id
      *
-     * @param {Number}      boardId, the target board id
+     * @param {Number}      boardIdx, the target board index
      */
-    setCurrentBoard: function(boardId) {
-        this.draw.currentBoardId = boardId; 
+    setCurrentBoard: function(boardIdx) {
+        this.draw.currentBoardIdx = boardIdx; 
     },
 
     /**
@@ -118,13 +119,17 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: handler for new board added event
      *
-     * @param {Number}      boardId, the new board id
+     * @param {Number}      newBoardIdx, the new board index
      * @param {Boolean}     toNewBoard, to indicate currentBoard id should
      *                                 be set or not
      */
     onBoardAdd: function(data) {
-        this.draw.boardNums = data.boardId + 1;
+        this.draw.boardNums = data.newBoardIdx + 1;
         this.emitChange();
+    },
+
+    _onBoardDel: function(data) {
+        --this.draw.boardNums;
     },
 
     /**
@@ -160,7 +165,7 @@ module.exports = CreateStore({
             self.channel = state.channel.basicInfo;
             self.members = state.members;
             self.draw.boardNums = state.channel.drawBoardNums;
-            self.draw.currentBoardId = state.params.boardId;
+            self.draw.currentBoardIdx = state.params.boardIdx;
             self.status = state.status;
         }).then(function() {
             var membersInfo = self.members.info;

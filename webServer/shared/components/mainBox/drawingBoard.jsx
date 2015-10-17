@@ -71,9 +71,9 @@ module.exports = React.createClass({
      */
     componentWillReceiveProps: function(nextProps) {
         var prevCid = this.props.channelId;
-        var prevBid = this.props.boardId;
+        var prevBid = this.props.boardIdx;
         var isChannelChange = (prevCid !== nextProps.channelId);
-        var isBoardChange = (prevBid !== nextProps.boardId);
+        var isBoardChange = (prevBid !== nextProps.boardIdx);
         var context = window.context;
         if (isChannelChange) {
             this._cleanBoard();
@@ -84,7 +84,7 @@ module.exports = React.createClass({
         if (isChannelChange || isBoardChange) {
             context.executeAction(GetDrawBoard, {
                 channelId: nextProps.channelId,
-                boardId: nextProps.boardId
+                boardIdx: nextProps.boardIdx
             });
         }
         this._changeCursor();
@@ -97,7 +97,7 @@ module.exports = React.createClass({
             this._changeCursor();
             this.executeAction(GetDrawBoard, {
                 channelId: this.props.channelId,
-                boardId: this.props.boardId
+                boardIdx: this.props.boardIdx
             });
         }
     },
@@ -136,10 +136,8 @@ module.exports = React.createClass({
      */
     _onDrawBoardChange: function(){
         var canvas = React.findDOMNode(this.refs.mainCanvas);
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;
         var self = this;
-        var drawInfo = this.getStore(DrawStore).getDrawInfo(cid, bid);
+        var drawInfo = this.getStore(DrawStore).getDrawInfo();
         var archives = drawInfo.records.filter(function(doc){
             return doc.isArchived;
         });
@@ -185,8 +183,6 @@ module.exports = React.createClass({
      * @param {Array}       archiveRecords, an array archived draw records
      */
     _updateBaseImage: function(img, archiveRecords) {
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;
         var canvas = this.state.canvas;
         DrawUtils.loadCanvasAsync(canvas, this.state.image, img, archiveRecords)
             .bind(this)
@@ -195,8 +191,6 @@ module.exports = React.createClass({
                     console.error('update base image fail');
                 }
                 this.executeAction(UpdateBaseImage, {
-                    channelId: cid,
-                    boardId: bid,
                     imgDataUrl: loadedCanvas.toDataURL(),
                     outdatedDocs: archiveRecords
                 });
@@ -245,7 +239,7 @@ module.exports = React.createClass({
         var ctx = this._getBoardContext();
         var data = {
             channelId: this.props.channelId,
-            boardId: this.props.boardId,
+            boardIdx: this.props.boardIdx,
             record: LocalDraws.toArray(),
             drawOptions: this.props.drawInfo.drawOptions
         };
@@ -299,13 +293,11 @@ module.exports = React.createClass({
         if (LocalDraws && LocalDraws.length >= ACTIVED_DRAWS_LIMIT) {
             return this._stopToDraw();
         }
-        var cid = this.props.channelId;
-        var bid = this.props.boardId;        
+        var cid = this.props.channelId;     
         var position = this._getCanvasMouse(e);
         var ctx = this._getBoardContext();
         var data = {
             channelId: cid,
-            boardId: bid,
             chunks: {
                 fromX: prev.x,
                 fromY: prev.y,
@@ -399,7 +391,7 @@ module.exports = React.createClass({
                     onMouseUp={this._onMouseUp} />
                 <DrawingToolBar 
                     channelId={this.props.channelId} 
-                    boardId={this.props.boardId}
+                    boardIdx={this.props.boardIdx}
                     drawInfo={this.props.drawInfo} />
                 <div style={{position: 'relative', height: 70}} >
                     <DrawingPalette isActive={this.props.drawInfo.drawOptions.palette}/>

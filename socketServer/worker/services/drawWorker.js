@@ -56,22 +56,21 @@ exports.setSocketWorker = function(worker) {
  * @Description: to schedule a preview image update job to queue
  *
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
+ * @param {String}          _bid, the board uuid
  * @param {String}          user, user id
  */
-exports.setUpdateSchedule = function(channelId, boardId, user) {
-    var scheduleId = _getScheduleId(channelId, boardId);
-    if (!Scheduler[scheduleId]) {
+exports.setUpdateSchedule = function(channelId, _bid, user) {
+    if (!Scheduler[_bid]) {
         setTimeout(function() {
             _enqueueJob({
                 cid: channelId,
-                bid: boardId,
+                _bid: _bid,
                 uid: user,
-                sentTime: Scheduler[scheduleId]
+                sentTime: Scheduler[_bid]
             });
         }, SCHEDULE_DELAYED_TIME_IN_MILISECONDS);
     }
-    Scheduler[scheduleId] = Date.now();
+    Scheduler[_bid] = Date.now();
 };
 
 /**
@@ -99,6 +98,7 @@ exports.drawBaseImgAsync = function(board, records) {
             chunks: (newImg ? newImg : board.content)
         };
         return {
+            bid: board.bid,
             baseImg: imgInfo,
             records: activeRecords,
             isUpdated: !!newImg
@@ -117,28 +117,16 @@ exports.drawBaseImgAsync = function(board, records) {
 
 /**
  * @Author: George_Chen
- * @Description: get the schedule id for update job
- *         NOTE: each board can only create a job during the period of scheduling
- *         
- * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
- */
-function _getScheduleId(channelId, boardId) {
-    return channelId + boardId;
-}
-
-/**
- * @Author: George_Chen
  * @Description: to enqueue a preview image update job
  *         NOTE: a valid job info here should include, 
- *             [channelId, boardId, uid, sentTime]
+ *             [channelId, _bid, uid, sentTime]
  *         
  * @param {Object}          jobInfo, a json data describe job's info
  */
 function _enqueueJob(jobInfo) {
     Queue.create(QUEUE_TYPE, jobInfo)
         .save(function(err) {
-            _removeSchedule(jobInfo.cid, jobInfo.bid);
+            Scheduler[jobInfo._bid] = null;
             if (err) {
                 SharedUtils.printError('drawWorker.js', '_enqueueJob', err);
             }
@@ -147,31 +135,19 @@ function _enqueueJob(jobInfo) {
 
 /**
  * @Author: George_Chen
- * @Description: to remove a update job from schedule on current board
- *         
- * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
- */
-function _removeSchedule(channelId, boardId) {
-    var sid = _getScheduleId(channelId, boardId);
-    Scheduler[sid] = null;
-}
-
-/**
- * @Author: George_Chen
  * @Description: to process job dispatched from work queue
  *         NOTE: done() must be called when job is completed
  */
 Queue.process(QUEUE_TYPE, function(job, done) {
-    var channelId = job.data.cid;
-    var boardId = job.data.bid;
+    var cid = job.data.cid;
+    var _bid = job.data._bid;
     var user = job.data.uid;
-    return DrawStorage.getBoardInfoAsync(channelId, boardId, user)
+    return DrawStorage.getBoardInfoAsync(cid, _bid, user)
         .then(function(data) {
             return (data ? _drawAndUpdate(data.board, data.reocrds, true) : null);
         }).then(function(result) {
             if (result) {
-                _notifyMembers(channelId, boardId);
+                _notifyMembers(cid, _bid);
             }
             return done();
         }).catch(function(err) {
@@ -185,9 +161,9 @@ Queue.process(QUEUE_TYPE, function(job, done) {
  * @Description: notify channel online members that draw preview has been updated
  *
  * @param {String}          cid, the channel id
- * @param {String}          bid, the board id
+ * @param {String}          _bid, the board uuid
  */
-function _notifyMembers(cid, bid) {
+function _notifyMembers(cid, _bid) {
     return ChannelStorage.getOnlineMembersAsync(cid)
         .map(function(member) {
             var userChannel = 'user:' + member;
@@ -196,7 +172,7 @@ function _notifyMembers(cid, bid) {
                 clientHandler: 'onPreviewUpdated',
                 params: {
                     channelId: cid,
-                    boardId: bid
+                    _bid: _bid
                 }
             });
         }).catch(function(err) {
@@ -215,7 +191,7 @@ function _notifyMembers(cid, bid) {
  */
 function _drawAndUpdate(board, records, isPreview) {
     return _draw(board, records).then(function(newImg) {
-        return _update(board.channelId, board.boardId, newImg, isPreview, board.bid)
+        return _update(board.channelId, board.bid, newImg, isPreview)
             .then(function(result) {
                 return (result ? newImg : null);
             });
@@ -244,16 +220,16 @@ function _draw(board, records) {
  * @Description: a low-level function to update the new generated image
  *
  * @param {String}          cid, channel id
- * @param {Number}          bid, the draw board id
+ * @param {String}          _bid, the board uuid
  * @param {Buffer}          img, the img chunks
  * @param {Boolean}         isPreview, to inform is preview image or not
  */
-function _update(cid, bid, img, isPreview, _bid) {
+function _update(cid, _bid, img, isPreview) {
     return Promise.try(function() {
         var imgType = (isPreview ? 'preview' : 'base');
         if (!img) {
             return null;
         }
-        return DrawStorage.updateBoardImgAsync(cid, bid, _bid, imgType, img);
+        return DrawStorage.updateBoardImgAsync(cid, _bid, imgType, img);
     });
 }

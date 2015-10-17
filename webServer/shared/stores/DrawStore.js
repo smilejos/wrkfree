@@ -18,8 +18,8 @@ module.exports = CreateStore({
     handlers: {
         'ON_RECORD_SAVE': '_onRecordSave',
         'ON_BOARD_POLYFILL': '_onPolyfill',
-        'ON_BOARD_ADD': '_onBoardAdd',
         'ON_BOARD_CLEAN': '_onBoardClean',
+        'ON_BOARD_DEL': '_onBoardDel',
         'ON_DRAW_UNDO': '_onRecordUndo',
         'ON_DRAW_REDO': '_onRecordRedo',
         'ON_UPDATE_DRAWIMG': '_onUpdateBaseImg'
@@ -27,26 +27,11 @@ module.exports = CreateStore({
 
     initialize: function() {
         this.baseImgs = {};
+        this._bid = null;
         this.dbName = 'DrawsDB';
         this.db = this.getContext().getLokiDb(this.dbName);
         var collection = this.db.addCollection(this.dbName);
-        collection.ensureIndex('boardId');
-    },
-
-    /**
-     * Public API
-     * @Author: George_Chen
-     * @Description: for handling new draw board added event
-     *
-     * @param {String}          data.channelId, the channel id
-     * @param {Number}          data.boardId, the draw board id
-     */
-    _onBoardAdd: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        var collection = this.db.getCollection(this.dbName);
-        this.baseImgs[drawViewId] = null;
-        // prepare to indicate that this board is polyfilled
-        collection.addDynamicView(drawViewId);
+        collection.ensureIndex('_bid');
     },
 
     /**
@@ -61,13 +46,11 @@ module.exports = CreateStore({
         var self = this;
         // remove all undo records on current board
         collection.removeWhere(function(obj) {
-            var isTargetChannel = (record.channelId === obj.channelId);
-            var isTargetBoard = (record.boardId === obj.boardId);
-            return (isTargetChannel && isTargetBoard && obj.isUndo);
+            return (record._bid === obj._bid && obj.isUndo);
         });
         return _saveRecord(collection, record)
             .then(function() {
-                self._ensureArchived(record.channelId, record.boardId);
+                self._ensureArchived(record._bid);
                 // is record has not updated on canvas, then trigger emitChange
                 if (!record.isUpdated) {
                     self.emitChange();
@@ -83,13 +66,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: for handling draw record undo event
      *
-     * @param {String}          data.channelId, the channel id
-     * @param {Number}          data.boardId, the draw board id
+     * @param {String}          _bid, the board uuid
      */
-    _onRecordUndo: function(data) {
-        var cid = data.channelId;
-        var bid = data.boardId;
-        var boardSet = this._getBoardResultSet(cid, bid);
+    _onRecordUndo: function(_bid) {
+        var boardSet = this._getBoardResultSet(_bid);
         boardSet.where(function(obj) {
             return !obj.isUndo;
         }).limit(1).update(function(obj) {
@@ -103,13 +83,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: for handling draw record redo event
      *
-     * @param {String}          data.channelId, the channel id
-     * @param {Number}          data.boardId, the draw board id
+     * @param {String}          _bid, the board uuid
      */
-    _onRecordRedo: function(data) {
-        var cid = data.channelId;
-        var bid = data.boardId;
-        var boardSet = this._getBoardResultSet(cid, bid);
+    _onRecordRedo: function(_bid) {
+        var boardSet = this._getBoardResultSet(_bid);
         boardSet.simplesort('drawTime', -1)
             .where(function(obj) {
                 return obj.isUndo;
@@ -123,19 +100,17 @@ module.exports = CreateStore({
      * @Public API
      * @Author: George_Chen
      * @Description: polyfill the draw board information
-     * 
-     * @param {String}      data.channelId, target channel id
-     * @param {Number}      data.boardId, target board id
+     *
+     * @param {String}      data.bid, target board uuid
      * @param {Object}      data.boardInfo.baseImg, draw board base image
      * @param {Array}       data.boardInfo.records, draw board records
      */
     _onPolyfill: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
-        this.baseImgs[drawViewId] = _getImgDataURL(data.boardInfo.baseImg);
+        this.baseImgs[data.bid] = _getImgDataURL(data.baseImg);
         // prepare to indicate that this board is polyfilled
-        collection.addDynamicView(drawViewId);
-        return Promise.map(data.boardInfo.records, function(doc) {
+        collection.addDynamicView(data.bid);
+        return Promise.map(data.records, function(doc) {
             return _saveRecord(collection, doc);
         }).bind(this).then(function() {
             this.emitChange();
@@ -147,17 +122,26 @@ module.exports = CreateStore({
     /**
      * @Public API
      * @Author: George_Chen
+     * @Description: set current worksapce board by the board uuid
+     * 
+     * @param {String}      _bid, board uuid
+     */
+    setCurrentBoard: function(_bid) {
+        this._bid = _bid;
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
      * @Description: for handling internal update base image event
      * 
-     * @param {String}      data.channelId, target channel id
-     * @param {Number}      data.boardId, target board id
+     * @param {String}      data._bid, target board uuid
      * @param {String}      data.imgDataUrl, the image data url
      * @param {Array}       data.outdatedDocs, outdated drawRecord docs
      */
     _onUpdateBaseImg: function(data) {
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
         var collection = this.db.getCollection(this.dbName);
-        this.baseImgs[drawViewId] = data.imgDataUrl;
+        this.baseImgs[data._bid] = data.imgDataUrl;
         return SharedUtils.fastArrayMap(data.outdatedDocs, function(doc) {
             collection.remove(doc);
         });
@@ -169,18 +153,30 @@ module.exports = CreateStore({
      * @Description: for handling board storage clean event
      * 
      * @param {String}      data.channelId, target channel id
-     * @param {Number}      data.boardId, target board id
+     * @param {String}      data._bid, the board uuid
      */
     _onBoardClean: function(data) {
         var collection = this.db.getCollection(this.dbName);
-        var drawViewId = DrawUtils.getDrawViewId(data.channelId, data.boardId);
-        var boardSet = this._getBoardResultSet(data.channelId, data.boardId);
+        var boardSet = this._getBoardResultSet(data._bid);
         var removeTargets = boardSet.data();
-        this.baseImgs[drawViewId] = null;
+        this.baseImgs[data._bid] = null;
         SharedUtils.fastArrayMap(removeTargets, function(doc) {
             collection.remove(doc);
         });
-        collection.removeDynamicView(drawViewId);
+        collection.removeDynamicView(data._bid);
+    },
+
+    /**
+     * @Public API
+     * @Author: George_Chen
+     * @Description: for handling board delete event
+     * 
+     * @param {String}      data.channelId, target channel id
+     * @param {String}      data._bid, the board uuid
+     */
+    _onBoardDel: function(data) {
+        this._onBoardClean(data);
+        this._bid = null;
     },
 
     /**
@@ -188,15 +184,12 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: for components to get draw board information stored
      *               on client side
-     * 
-     * @param {String}      channelId, target channel id
-     * @param {Number}      boardId, target board id
      */
-    getDrawInfo: function(channelId, boardId) {
-        var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
+    getDrawInfo: function() {
         return {
-            baseImg: this.baseImgs[drawViewId],
-            records: this._getBoardResultSet(channelId, boardId).data()
+            _bid: this._bid,
+            baseImg: this.baseImgs[this._bid],
+            records: this._getBoardResultSet(this._bid).data()
         };
     },
 
@@ -217,31 +210,24 @@ module.exports = CreateStore({
      * @Public API
      * @Author: George_Chen
      * @Description: to check specific draw board is polyfilled or not
-     *         NOTE: use drawView existence to check current board 
-     *                 is polyfilled or not
-     * @param {String}      channelId, target channel id
-     * @param {Number}      boardId, target board id
+     * 
+     * @param {String}      _bid, board uuid
      */
-    isPolyFilled: function(channelId, boardId) {
+    isPolyFilled: function(_bid) {
         var collection = this.db.getCollection(this.dbName);
-        var drawViewId = DrawUtils.getDrawViewId(channelId, boardId);
-        var drawView = collection.getDynamicView(drawViewId);
-        return !!drawView;
+        return !!collection.getDynamicView(_bid);
     },
 
     /**
      * @Author: George_Chen
      * @Description: to get board query result set
      *
-     * @param {String}          cid, the channel id
-     * @param {Number}          bid, the draw board id
+     * @param {String}      _bid, board uuid
      */
-    _getBoardResultSet: function(cid, bid) {
+    _getBoardResultSet: function(_bid) {
         var collection = this.db.getCollection(this.dbName);
         return collection.chain().find({
-            channelId: cid
-        }).where(function(obj) {
-            return (obj.boardId === bid);
+            _bid: _bid
         }).simplesort('drawTime');
     },
 
@@ -249,11 +235,10 @@ module.exports = CreateStore({
      * @Author: George_Chen
      * @Description: to ensure inactive records will be archived
      *
-     * @param {String}          cid, the channel id
-     * @param {Number}          bid, the draw board id
+     * @param {String}      _bid, board uuid
      */
-    _ensureArchived: function(cid, bid) {
-        var boardSet = this._getBoardResultSet(cid, bid);
+    _ensureArchived: function(_bid) {
+        var boardSet = this._getBoardResultSet(_bid);
         var archiveNum = (boardSet.data().length - ACTIVED_RECORD_LIMIT);
         if (archiveNum > 0) {
             boardSet.limit(archiveNum)
@@ -275,8 +260,8 @@ module.exports = CreateStore({
  */
 function _saveRecord(collection, doc) {
     return Promise.props({
+        _bid: doc._bid,
         channelId: SharedUtils.argsCheckAsync(doc.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(doc.boardId, 'boardId'),
         record: DrawUtils.checkDrawRecordAsync(doc.record),
         isUndo: doc.isUndo || false,
         isArchived: doc.isArchived || false,

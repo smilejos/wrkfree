@@ -11,20 +11,20 @@ var CloseHangout = require('../closeHangout');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, the channel id
- * @param {Number}      data.boardId, target board id
+ * @param {Number}      data.boardIdx, target board index
  * @param {Function}    data.urlNavigator, the transitionTo reference of react-router
  */
 module.exports = function(actionContext, data) {
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
-        function(cid, bid) {
+        SharedUtils.argsCheckAsync(data.boardIdx, 'number'),
+        function(cid, idx) {
             var urlNavigator = data.urlNavigator;
-            var boardIndex = bid + 1;
+            var boardPage = idx + 1;
             if (!SharedUtils.isFunction(urlNavigator)) {
                 throw new Error('get url navigator fail');
             }
-            urlNavigator('/app/workspace/' + cid + '?board=' + boardIndex);
+            urlNavigator('/app/workspace/' + cid + '?board=' + boardPage);
         }).then(function() {
             var hangoutStore = actionContext.getStore(HangoutStore);
             if (hangoutStore.isHangoutExist(data.channelId)) {

@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var DrawService = require('../../services/drawService');
 var SharedUtils = require('../../../../sharedUtils/utils');
 var DrawUtils = require('../../../../sharedUtils/drawUtils');
+var DrawStore = require('../../../shared/stores/DrawStore');
 var ActionUtils = require('../actionUtils');
 
 /**
@@ -12,14 +13,13 @@ var ActionUtils = require('../actionUtils');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.boardId, target board id
  * @param {Array}       data.chunks, the rawData of draw record
  * @param {Object}      data.drawOptions, the draw related options
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        _bid: actionContext.getStore(DrawStore)._bid,
         chunks: DrawUtils.checkDrawChunksAsync(data.chunks),
         drawOptions: SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
     }).then(function(reqData) {

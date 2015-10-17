@@ -15,18 +15,15 @@ var LogCategory = 'HANDLER';
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  * @param {Array}           data.chunks, the raw chunks of current drawing
  */
 exports.drawAsync = function(socket, data) {
-    LogUtils.debug(LogCategory, {
-        uid: socket.getAuthToken()
-    }, '[' + socket.id + '] drawing ... ');
-    return Promise.try(function(){
+    return Promise.try(function() {
         var isCid = SharedUtils.isMd5Hex(data.channelId);
-        var isBid = SharedUtils.isDrawBoardId(data.boardId);
-        var validChunks = DrawUtils.checkDrawChunksAsync(data.chunks);
-        if (!isCid || !isBid || !validChunks) {
+        var isBid = SharedUtils.isString(data._bid);
+        var chunks = DrawUtils.checkDrawChunksAsync(data.chunks);
+        if (!isCid || !isBid || !chunks) {
             throw new Error('abnormal draws');
         }
     }).catch(function(err) {
@@ -43,12 +40,10 @@ exports.drawAsync = function(socket, data) {
  * @Author: George_Chen
  * @Description: drawer should send this event to inform server that
  *               he already findish his current draw.
- *         NOTE: user need to inform all clients that how many draw chunks
- *               that he has sent.
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  * @param {Number}          data.chunksNum, how many chunks that drawer sent
  * @param {Object}          data.drawOptions, the draw options for this record
  */
@@ -57,21 +52,21 @@ exports.saveRecordAsync = function(socket, data) {
     LogUtils.info(LogCategory, {
         uid: uid,
         channelId: data.channelId,
-        boardId: data.boardId
+        bid: data._bid
     }, '[' + socket.id + '] save draw record... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
         DrawUtils.checkDrawRecordAsync(data.record),
         SharedUtils.argsCheckAsync(data.drawOptions, 'drawOptions'),
-        function(cid, bid, record, drawOptions) {
-            return DrawStorage.saveRecordAsync(cid, bid, record, drawOptions);
+        function(cid, _bid, record, drawOptions) {
+            return DrawStorage.saveRecordAsync(cid, _bid, record, drawOptions);
         }).then(function(result) {
             if (result === null) {
                 throw new Error('save draw record fail on storage service');
             }
             // enqueue a preview image update job
-            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            DrawWorker.setUpdateSchedule(data.channelId, data._bid, uid);
             return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
@@ -79,8 +74,8 @@ exports.saveRecordAsync = function(socket, data) {
                 error: err.toString()
             }, '[' + socket.id + '] fail on saveRecordAsync');
             // inform other members the latest draw saving failure
-            if (SharedUtils.isMd5Hex(data.channelId) && SharedUtils.isDrawBoardId(data.boardId)) {
-                _publishDrawFail(socket, data.channelId, data.boardId, 'save draw fail');
+            if (SharedUtils.isMd5Hex(data.channelId) && SharedUtils.isString(data._bid)) {
+                _publishDrawFail(socket, data.channelId, data._bid, 'save draw fail');
             }
             throw err;
         });
@@ -89,30 +84,30 @@ exports.saveRecordAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: user can use this function to generate a clean board draw record
- *               on current board, then board will be cleaned at same time
+ * @Description: user can use this function to trigger clean on current board
+ * 
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  */
 exports.cleanDrawBoardAsync = function(socket, data) {
     var uid = socket.getAuthToken();
     LogUtils.info(LogCategory, {
         uid: uid,
         channelId: data.channelId,
-        boardId: data.boardId
+        bid: data._bid
     }, '[' + socket.id + '] clean current board... ');
 
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
         function(cid, bid) {
             return DrawStorage.cleanBoardAsync(cid, bid);
         }).then(function(result) {
             if (result === null) {
                 throw new Error('fail to clean drawboard');
             }
-            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            DrawWorker.setUpdateSchedule(data.channelId, data._bid, uid);
             return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
@@ -130,20 +125,18 @@ exports.cleanDrawBoardAsync = function(socket, data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {Number}          data.boardIdx, the new board index
  */
 exports.addBoardAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
     LogUtils.info(LogCategory, {
-        uid: socket.getAuthToken(),
+        uid: uid,
         channelId: data.channelId,
-        boardId: data.newBoardId
-    }, '[' + socket.id + '] add new drawing board... ');
-    return Promise.join(
-        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.newBoardId, 'boardId'),
-        function(cid, bid) {
-            var uid = socket.getAuthToken();
-            return DrawStorage.addBoardAsync(cid, bid, uid);
+        boardIdx: data.newBoardIdx
+    }, '[' + socket.id + '] add new drawing board ');
+    return SharedUtils.argsCheckAsync(data.channelId, 'md5')
+        .then(function(cid) {
+            return DrawStorage.addBoardAsync(cid, uid);
         }).then(function(result) {
             var errMsg = 'add new draw board fail';
             return SharedUtils.checkExecuteResult(result, errMsg);
@@ -159,29 +152,62 @@ exports.addBoardAsync = function(socket, data) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: for host to delete target draw board
+ *       
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {String}          data._bid, the board uuid
+ */
+exports.delBoardAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    LogUtils.info(LogCategory, {
+        uid: uid,
+        channelId: data.channelId,
+        bid: data._bid
+    }, '[' + socket.id + '] start to delete draw board ');
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
+        function(cid, bid) {
+            return DrawStorage.delBoardAsync(cid, bid, uid);
+        }).then(function(result) {
+            var errMsg = 'delete draw board fail';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on delBoardAsync');
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: for user to undo the draw record on current board
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  */
 exports.drawUndoAsync = function(socket, data) {
     var uid = socket.getAuthToken();
     LogUtils.info(LogCategory, {
         uid: uid,
         channelId: data.channelId,
-        boardId: data.newBoardId
+        bid: data._bid
     }, '[' + socket.id + '] try to undo last draw... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
         function(cid, bid) {
             return DrawStorage.undoRecordAsync(cid, bid, uid);
         }).then(function(result) {
             if (result === null) {
                 throw new Error('fail to undo last draw on storage service');
             }
-            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            DrawWorker.setUpdateSchedule(data.channelId, data._bid, uid);
             return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
@@ -199,25 +225,25 @@ exports.drawUndoAsync = function(socket, data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data._bid, the board uuid
  */
 exports.drawRedoAsync = function(socket, data) {
     var uid = socket.getAuthToken();
     LogUtils.info(LogCategory, {
         uid: uid,
         channelId: data.channelId,
-        boardId: data.newBoardId
+        bid: data._bid
     }, '[' + socket.id + '] try to restore last undo draw... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
         function(cid, bid) {
             return DrawStorage.restoreUndoAsync(cid, bid, uid);
         }).then(function(result) {
             if (result === null) {
                 throw new Error('fail to restore last undo draw on storage service');
             }
-            DrawWorker.setUpdateSchedule(data.channelId, data.boardId, uid);
+            DrawWorker.setUpdateSchedule(data.channelId, data._bid, uid);
             return result;
         }).catch(function(err) {
             LogUtils.warn(LogCategory, {
@@ -237,18 +263,18 @@ exports.drawRedoAsync = function(socket, data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          data.channelId, the channel id
- * @param {Number}          data.boardId, the draw board id
+ * @param {String}          data.bid, the board uuid
  */
 exports.getDrawBoardAsync = function(socket, data) {
     var uid = socket.getAuthToken();
     LogUtils.info(LogCategory, {
         uid: uid,
         channelId: data.channelId,
-        boardId: data.newBoardId
+        bid: data._bid
     }, '[' + socket.id + '] get draw board info... ');
     return Promise.join(
         SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        SharedUtils.argsCheckAsync(data.boardId, 'boardId'),
+        SharedUtils.argsCheckAsync(data._bid, 'string'),
         function(cid, bid) {
             return DrawStorage.getBoardInfoAsync(cid, bid, uid);
         }).then(function(resource) {
@@ -264,6 +290,34 @@ exports.getDrawBoardAsync = function(socket, data) {
                 reqData: data,
                 error: err.toString()
             }, '[' + socket.id + '] fail on getDrawBoardAsync');
+            throw err;
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to get specific board's uuid
+ *
+ * @param {Object}          socket, the client socket instance
+ * @param {String}          data.channelId, the channel id
+ * @param {Number}          data.boardIdx, the draw board id
+ */
+exports.getBoardIdAsync = function(socket, data) {
+    var uid = socket.getAuthToken();
+    return Promise.join(
+        SharedUtils.argsCheckAsync(data.channelId, 'md5'),
+        SharedUtils.argsCheckAsync(data.boardIdx, 'number'),
+        function(cid, idx) {
+            return DrawStorage.getBoardIdAsync(cid, idx, uid);
+        }).then(function(result) {
+            var errMsg = 'fail to get board id';
+            return SharedUtils.checkExecuteResult(result, errMsg);
+        }).catch(function(err) {
+            LogUtils.warn(LogCategory, {
+                reqData: data,
+                error: err.toString()
+            }, '[' + socket.id + '] fail on getBoardIdAsync');
             throw err;
         });
 };
@@ -303,17 +357,17 @@ exports.getLatestBoardIdAsync = function(socket, data) {
  *       
  * @param {Object}          socket, the client socket instance
  * @param {String}          cid, the channel id
- * @param {String}          cid, the board id
+ * @param {String}          _bid, the board uuid
  * @param {String}          failReason, the reason for current fail
  */
-function _publishDrawFail(socket, cid, bid, failReason) {
+function _publishDrawFail(socket, cid, _bid, failReason) {
     socket.global.publish('channel:' + cid, {
         service: 'draw',
         clientHandler: 'onSaveDrawRecord',
         socketId: socket.id,
         params: {
             channelId: cid,
-            boardId: bid,
+            _bid: _bid,
             reason: failReason
         }
     });

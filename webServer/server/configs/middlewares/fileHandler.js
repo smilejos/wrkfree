@@ -10,8 +10,8 @@ var DrawStorage = StorageManager.getService('Draw');
 exports.getPreview = function(req, res, next) {
     var uid = req.user.uid;
     var cid = req.params.channelId;
-    var bid = req.query.board;
-    return DrawStorage.getPreviewImgAsync(uid, cid, bid)
+    var idx = req.query.board;
+    return DrawStorage.getPreviewImgAsync(uid, cid, idx)
         .then(function(rawData) {
             req.img = rawData.content;
             next();

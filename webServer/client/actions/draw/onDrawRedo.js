@@ -10,14 +10,14 @@ var ActionUtils = require('../actionUtils');
  * 
  * @param {Object}      actionContext, the fluxible's action context
  * @param {String}      data.channelId, target channel id
- * @param {Number}      data.boardId, target board id
+ * @param {String}      data._bid, target board uuid
  */
 module.exports = function(actionContext, data) {
     return Promise.props({
         channelId: SharedUtils.argsCheckAsync(data.channelId, 'md5'),
-        boardId: SharedUtils.argsCheckAsync(data.boardId, 'boardId')
-    }).then(function(reqData) {
-        return actionContext.dispatch('ON_DRAW_REDO', reqData);
+        _bid: SharedUtils.argsCheckAsync(data._bid, 'string')
+    }).then(function(recvData) {
+        return actionContext.dispatch('ON_DRAW_REDO', recvData._bid);
     }).catch(function(err) {
         SharedUtils.printError('onDrawRedo.js', 'core', err);
         ActionUtils.showErrorEvent('WARN', 'unexpectedly draw redo');
