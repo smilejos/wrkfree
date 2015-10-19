@@ -69,3 +69,21 @@ exports.getQueryExpression = function(collection, text) {
     var handler = Expression[collection];
     return (!handler ? null : handler(text));
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: used for indexing db item into es search
+ *
+ * @param {String}      table, the db table name
+ * @param {String}      indexId, the item index id
+ * @param {Object}      source, the item source object
+ */
+exports.getIndexExpression = function(table, indexId, source) {
+    return {
+        index: 'wrkfree',
+        type: table,
+        id: indexId,
+        body: source
+    };
+};
