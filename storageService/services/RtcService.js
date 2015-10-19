@@ -3,7 +3,7 @@ var Promise = require('bluebird');
 var SessionTemp = require('../tempStores/RtcSessionTemp');
 var ClientTemp = require('../tempStores/RtcClientTemp');
 var SharedUtils = require('../../sharedUtils/utils');
-var ChannelDao = require('../daos/ChannelDao');
+var PgChannel = require('../pgDaos/PgChannel');
 
 /**
  * Public API
@@ -54,7 +54,7 @@ exports.setSdpAsync = function(channelId, uid, socketId, sdp) {
  */
 exports.leaveSessionAsync = function(channelId, uid, socketId) {
     return Promise.join(
-        ChannelDao.is1on1Async(channelId),
+        PgChannel.is1on1Async(channelId),
         ClientTemp.deleteClientAsync(channelId, uid, socketId),
         function(is1on1) {
             if (is1on1) {

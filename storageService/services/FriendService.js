@@ -2,12 +2,12 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
-var ChannelDao = require('../daos/ChannelDao');
 var MemberDao = require('../daos/ChannelMemberDao');
 var UserTemp = require('../tempStores/UserTemp');
 var UserTemp = require('../tempStores/UserTemp');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 var PgFriend = require('../pgDaos/PgFriend');
+var PgChannel = require('../pgDaos/PgChannel');
 
 /************************************************
  *
@@ -145,7 +145,7 @@ exports.hasFriendshipAsync = function(user1, user2) {
  * @param {String}      user2, the user2's uid
  */
 function _create1on1Channel(user1, user2) {
-    return ChannelDao.create1on1Async(user1, user2)
+    return PgChannel.create1on1Async(user1, user2)
         .then(function(doc) {
             if (!doc) {
                 throw new Error('create 1on1 channel fail');

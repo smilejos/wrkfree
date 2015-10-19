@@ -2,9 +2,9 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
-var ChannelDao = require('../daos/ChannelDao');
 var NotificationDao = require('../daos/NotificationDao');
 var UserTemp = require('../tempStores/UserTemp');
+var PgChannel = require('../pgDaos/PgChannel');
 
 /************************************************
  *
@@ -194,7 +194,7 @@ exports.getNotificationsAsync = function(uid) {
     return NotificationDao.findByTargetAsync(uid)
         .map(function(notificationInfo) {
             if (notificationInfo.type === 'channel') {
-                return ChannelDao.findByChannelAsync(notificationInfo.extraInfo, false)
+                return PgChannel.findByIdAsync(notificationInfo.extraInfo)
                     .then(function(info) {
                         notificationInfo.extraInfo = {
                             channelId: info.channelId,
