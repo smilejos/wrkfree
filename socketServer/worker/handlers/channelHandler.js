@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var ChannelStorage = StorageManager.getService('Channel');
+var SearchService = StorageManager.getService('Search');
 
 /**
  * Public API
@@ -17,10 +18,16 @@ exports.createAsync = function(socket, data) {
         .then(function(validName) {
             var host = socket.getAuthToken();
             var isPublic = true;
-            return ChannelStorage.createChannelAsync(host, validName, isPublic);
-        }).then(function(result) {
-            var errMsg = 'channel storage internal error';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            return ChannelStorage.createChannelAsync(host, validName, isPublic)
+                .then(function(data){
+                    if (data === null) {
+                        throw new Error('channel storage internal error');
+                    }
+                    return SearchService.indexChannelAsync(data)
+                        .then(function(){
+                            return data;
+                        });
+                });
         }).catch(function(err) {
             SharedUtils.printError('channelHandler.js', 'createAsync', err);
             throw new Error('create channel fail');

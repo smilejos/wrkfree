@@ -1,13 +1,12 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
-var CryptoUtils = require('../../sharedUtils/cryptoUtils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
-var ChannelDao = require('../daos/ChannelDao');
 var MemberDao = require('../daos/ChannelMemberDao');
 var NotificationDao = require('../daos/NotificationDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 var UserTemp = require('../tempStores/UserTemp');
+var PgChannel = require('../pgDaos/PgChannel');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 
 /************************************************
@@ -23,20 +22,14 @@ var PgDrawBoard = require('../pgDaos/PgDrawBoard');
  *
  * @param {String}          creator, creator for this channel
  * @param {String}          name, full channel name
- * @param {Boolean}         isPublic, indicate channel should public or not
  */
-exports.createChannelAsync = function(creator, name, isPublic) {
-    var time = Date.now().toString();
-    var cid = CryptoUtils.getMd5Hex(creator + time);
-    return ChannelDao.isCreatedAsync(creator, name)
-        .then(function(hasChannel) {
-            if (hasChannel) {
-                throw new Error('channel already exist');
+exports.createChannelAsync = function(creator, name) {
+    return PgChannel.isExistAsync(creator, name)
+        .then(function(isExist) {
+            if (isExist) {
+                throw new Error('channel is exist !');
             }
-            // clean all related docs
-            return _removeChannel(cid, creator);
-        }).then(function() {
-            return _createChannel(creator, cid, name, isPublic);
+            return _createChannel(creator, name);
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'createChannelAsync', err);
             return null;
@@ -52,13 +45,7 @@ exports.createChannelAsync = function(creator, name, isPublic) {
  * @param {String}          channelId, channel id
  */
 exports.removeChannelAsync = function(creator, channelId) {
-    return MemberDao.isHostAsync(creator, channelId)
-        .then(function(isHost) {
-            return (isHost ? _removeChannel(channelId, creator) : null);
-        }).catch(function(err) {
-            SharedUtils.printError('ChannelService.js', 'removeChannelAsync', err);
-            return null;
-        });
+    // TODO: 
 };
 
 /**
@@ -176,7 +163,7 @@ exports.addNewMemberAsync = function(host, member, channelId) {
 exports.addMembersAsync = function(host, members, channelId) {
     return Promise.join(
         MemberDao.isHostAsync(host, channelId),
-        ChannelDao.findByChannelAsync(channelId, false),
+        PgChannel.findByIdAsync(channelId),
         function(isHost, channelInfo) {
             if (!isHost) {
                 throw new Error('unauthorized operation');
@@ -211,9 +198,8 @@ exports.getAuthChannelsAsync = function(member, visitPeriod) {
     return MemberDao.findByUidAsync(member, false, visitPeriod)
         .bind(this)
         .map(function(memberDoc) {
-            var cid = memberDoc.channelId;
             return Promise.props({
-                channel: ChannelDao.findByChannelAsync(cid, false),
+                channel: PgChannel.findByIdAsync(memberDoc.channelId),
                 isStarred: memberDoc.isStarred,
                 visitTime: memberDoc.lastVisitTime
             });
@@ -235,7 +221,7 @@ exports.getStarredChannelsAsync = function(member) {
         .map(function(memberDoc) {
             return memberDoc.channelId;
         }).then(function(channels) {
-            return ChannelDao.findByChanelsAsync(channels);
+            return PgChannel.findInIdsAsync(channels);
         }).map(function(channelDoc) {
             return {
                 channelId: channelDoc.channelId,
@@ -257,7 +243,7 @@ exports.getStarredChannelsAsync = function(member) {
  */
 exports.getChannelInfoAsync = function(channelId) {
     return Promise.props({
-        basicInfo: ChannelDao.findByChannelAsync(channelId),
+        basicInfo: PgChannel.findByIdAsync(channelId),
         drawBoardNums: PgDrawBoard.countBoardsAsync(channelId)
     }).catch(function(err) {
         SharedUtils.printError('ChannelService.js', 'getChannelInfoAsync', err);
@@ -413,40 +399,20 @@ function _isMemberAuthAsync(asker, channelId) {
  * @param {String}          creator, creator for this channel
  * @param {String}          channelId, channel id
  * @param {String}          name, full channel name
- * @param {Boolean}         isPublic, indicate channel should public or not
  */
-function _createChannel(creator, channelId, name, isPublic) {
-    return Promise.join(
-        ChannelDao.createAsync(channelId, creator, name, isPublic),
-        MemberDao.addAsync(creator, channelId, true),
-        PgDrawBoard.saveAsync(channelId, 0),
-        function(channelDoc, memberDoc) {
-            if (!channelDoc || !memberDoc) {
-                throw new Error('at least one channel document create fail');
-            }
-            return channelDoc;
+function _createChannel(creator, name) {
+    return PgChannel.createAsync(creator, name)
+        .then(function(doc) {
+            return Promise.join(
+                MemberDao.addAsync(creator, doc.channelId, true),
+                PgDrawBoard.saveAsync(doc.channelId, 0),
+                function() {
+                    return doc;
+                });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', '_createChannel', err);
-            // clean previous related docs
-            return _removeChannel(channelId, creator).then(function() {
-                return null;
-            });
-    });
-}
-
-/**
- * TODO: channel temp store and cache should also be cleared
- * @Author: George_Chen
- * @Description: clean channel related documents
- *
- * @param {String}          channelId, channel id
- * @param {String}          host, host's uid
- */
-function _removeChannel(channelId, host) {
-    return Promise.props({
-        remMembers: MemberDao.deleteByChannelAsync(channelId),
-        remChannel: ChannelDao.deleteAsync(channelId, host)
-    });
+            return null;
+        });
 }
 
 /**
@@ -476,4 +442,3 @@ function _setChannelNotification(sender, target, noticeMessage, cid, channelName
                 });
         });
 }
-

@@ -166,6 +166,45 @@ exports.friendsMigration = function() {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: migrating channel collection to postgresSQL table 
+ * 
+ * NOTE: we set the default channel "isPublic" flag to false
+ */
+exports.channelMigration = function() {
+    function _getChannelQuery(doc) {
+        if (!doc.is1on1) {
+            doc.isPublic = false;
+        }
+        return {
+            text: 'INSERT INTO channels(id, host, name, "is1on1", "isPublic", "isAnonymousLogin", "anonymousPassword") ' +
+                'VALUES($1, $2, $3, $4, $5, $6, $7)',
+            values: [doc._id, doc.host, doc.name, doc.is1on1, doc.isPublic, doc.isAnonymousLogin, doc.anonymousPassword]                        
+        };
+    }
+    return PgClient.queryAsync({
+        text: 'SELECT EXISTS (' +
+            'SELECT 1 ' +
+            'FROM   information_schema.tables ' +
+            'WHERE  table_schema = $1' +
+            'AND    table_name = $2 )',
+        values: ['public', 'channels']
+    }).then(function(tableResult) {
+        var tableExist = tableResult.rows[0].exists;
+        if (!tableExist) {
+            return PgModel.createChannelsAsync();
+        }
+    }).then(function() {
+        return _MongoConnect().then(function() {
+            require('./models/ChannelModel');
+            var model = Mongoose.model('Channel');
+            return _tableMigration(model, _getChannelQuery);
+        });
+    });
+};
+
+/**
  * @Author: George_Chen
  * @Description: migrdate mongodb collection to postgresSQL table
  *

@@ -88,3 +88,29 @@ exports.createFriendsAsync = function() {
         console.log('[ERROR] on createFriendsAsync ', err);
     });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for creating channels table
+ */
+exports.createChannelsAsync = function() {
+    return Pg.connectAsync().spread(function(client, done) {
+        return client.queryAsync('CREATE TABLE channels( ' +
+                'id VARCHAR(32) PRIMARY KEY NOT NULL, ' +
+                'host TEXT, ' +
+                'name TEXT, ' +
+                '"is1on1" boolean DEFAULT false, ' +
+                '"isPublic" boolean DEFAULT false, ' +
+                '"isAnonymousLogin" boolean DEFAULT false, ' +                
+                '"anonymousPassword" TEXT )')
+            .then(function(result) {
+                console.log('[INFO] createChannelsAsync result ', result);
+                done();
+            }).catch(function(err) {
+                console.log('[ERROR] on query createChannelsAsync ', err);
+            });
+    }).catch(function(err) {
+        console.log('[ERROR] on createChannelsAsync ', err);
+    });
+};

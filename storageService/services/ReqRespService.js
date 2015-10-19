@@ -3,9 +3,9 @@ var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var ReqRespDao = require('../daos/ReqRespDao');
 var MemberDao = require('../daos/ChannelMemberDao');
-var ChannelDao = require('../daos/ChannelDao');
 var UserDao = require('../daos/UserDao');
 var PgFriend = require('../pgDaos/PgFriend');
+var PgChannel = require('../pgDaos/PgChannel');
 
 /************************************************
  *
@@ -135,7 +135,7 @@ exports.getReqRespAsync = function(sender, isReaded) {
             if (reqRespItem.type !== 'channel') {
                 return reqRespItem;
             }
-            return ChannelDao.findByChannelAsync(reqRespItem.extraInfo, false)
+            return PgChannel.findByIdAsync(reqRespItem.extraInfo)
                 .then(function(info) {
                     reqRespItem.extraInfo = {
                         channelId: info.channelId,
