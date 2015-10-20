@@ -27,7 +27,6 @@ var BoardPreview = require('../common/boardPreview.jsx');
  * @param {String}      this.props.memberList, channel's member list
  * @param {String}      this.props.time, the timestamp that user last visited
  * @param {Boolean}     this.props.isStarred, to inform channel has been subscribed or not
- * @param {Boolean}     this.props.isRtcOn, an status to inform channel currently has conference
  */
 module.exports = React.createClass({
     mixins: [FluxibleMixin, NavigationMixin],
