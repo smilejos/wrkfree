@@ -117,9 +117,7 @@ module.exports = React.createClass({
                 isLoading: true
             });
             this.executeAction(GetDashboardStream, {
-                period: {
-                    end: channels[channels.length-1].visitTime
-                }
+                visitTime: channels[channels.length-1].visitTime
             });
         }
     },

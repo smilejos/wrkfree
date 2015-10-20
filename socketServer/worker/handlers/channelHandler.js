@@ -71,11 +71,11 @@ exports.addMembersAsync = function(socket, data) {
  * @param {Object}          socket, the client socket instance
  */
 exports.getAuthChannelsAsync = function(socket, data) {
-    return Promise.props({
-        period: SharedUtils.setQueryPeriod(data.period)
-    }).then(function(reqData) {
+    return Promise.try(function(){
         var uid = socket.getAuthToken();
-        return ChannelStorage.getAuthChannelsAsync(uid, reqData.period);
+        return data.visitTime > new Date(0).getTime() ?
+            ChannelStorage.getAuthChannelsAsync(uid, data.visitTime) :
+            ChannelStorage.getAuthChannelsAsync(uid) ;
     }).then(function(channels) {
         var errMsg = 'get authorized channels fail on storage service';
         return SharedUtils.checkExecuteResult(channels, errMsg);
