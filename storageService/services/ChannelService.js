@@ -2,11 +2,11 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
-var MemberDao = require('../daos/ChannelMemberDao');
 var NotificationDao = require('../daos/NotificationDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 var UserTemp = require('../tempStores/UserTemp');
 var PgChannel = require('../pgDaos/PgChannel');
+var PgMember = require('../pgDaos/PgMember');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 
 /************************************************
@@ -29,7 +29,7 @@ exports.createChannelAsync = function(creator, name) {
             if (isExist) {
                 throw new Error('channel is exist !');
             }
-            return _createChannel(creator, name);
+            return PgChannel.createAsync(creator, name);
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'createChannelAsync', err);
             return null;
@@ -57,15 +57,9 @@ exports.removeChannelAsync = function(creator, channelId) {
  * @param {String}          channelId, channel id
  */
 exports.visitChannelAsync = function(member, channelId) {
-    return MemberDao.isExistAsync(member, channelId)
-        .then(function(isMember) {
-            if (!isMember) {
-                return null;
-            }
-            return Promise.all([
-                MemberDao.updateVisitAsync(member, channelId),
-                ChannelTemp.visitAsync(member, channelId)
-            ]);
+    return PgMember.updateVisitAsync(member, channelId)
+        .then(function() {
+            return ChannelTemp.visitAsync(member, channelId);
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'visitChannelAsync', err);
             return null;
@@ -81,7 +75,7 @@ exports.visitChannelAsync = function(member, channelId) {
  * @param {String}          channelId, channel id
  */
 exports.keepVisistedAsync = function(member, channelId) {
-    return MemberDao.isExistAsync(member, channelId)
+    return PgMember.isExistAsync(member, channelId)
         .then(function(isMember) {
             return (isMember ? ChannelTemp.visitAsync(member, channelId) : null);
         }).catch(function(err) {
@@ -132,13 +126,13 @@ exports.removeVisitorAsync = function(member, channelId) {
  */
 exports.addNewMemberAsync = function(host, member, channelId) {
     return Promise.join(
-        MemberDao.isHostAsync(host, channelId),
-        MemberDao.isExistAsync(member, channelId),
+        PgMember.isHostAsync(host, channelId),
+        PgMember.isExistAsync(member, channelId),
         function(isHost, hasMember) {
             if (!isHost || hasMember) {
                 throw new Error('authorize not allowed');
             }
-            return MemberDao.addAsync(member, channelId, false);
+            return PgMember.addAsync(member, channelId, false);
         }).then(function(result) {
             // make channel list cache outdated
             if (result) {
@@ -162,7 +156,7 @@ exports.addNewMemberAsync = function(host, member, channelId) {
  */
 exports.addMembersAsync = function(host, members, channelId) {
     return Promise.join(
-        MemberDao.isHostAsync(host, channelId),
+        PgMember.isHostAsync(host, channelId),
         PgChannel.findByIdAsync(channelId),
         function(isHost, channelInfo) {
             if (!isHost) {
@@ -170,9 +164,9 @@ exports.addMembersAsync = function(host, members, channelId) {
             }
             ChannelTemp.deleteListAsync(channelId);
             return Promise.map(members, function(memberUid) {
-                return MemberDao.isExistAsync(memberUid, channelId)
+                return PgMember.isExistAsync(memberUid, channelId)
                     .then(function(isExist) {
-                        return (isExist ? null : MemberDao.addAsync(memberUid, channelId, false));
+                        return (isExist ? null : PgMember.addAsync(memberUid, channelId));
                     });
             }).map(function(result) {
                 var msg = 'inivite you to work on his channel';
@@ -188,15 +182,14 @@ exports.addMembersAsync = function(host, members, channelId) {
  * Public API
  * @Author: George_Chen
  * @Description: get all authorized channels that user can login
+ *         NOTE: "visitTime" is used to specify that the "lastVisitTime" on queried channels
+ *               must prior to "visitTime" args
  *
  * @param {String}          member, member's uid
- * @param {Object}          visitPeriod, the query time period
- *                          visitPeriod.start, the start time of this period
- *                          visitPeriod.end, the end time of this period
+ * @param {Object}          visitTime, the visit timestamp (optional)
  */
-exports.getAuthChannelsAsync = function(member, visitPeriod) {
-    return MemberDao.findByUidAsync(member, false, visitPeriod)
-        .bind(this)
+exports.getAuthChannelsAsync = function(member, visitTime) {
+    return PgMember.findByUidAsync(member, false, visitTime)
         .map(function(memberDoc) {
             return Promise.props({
                 channel: PgChannel.findByIdAsync(memberDoc.channelId),
@@ -217,7 +210,7 @@ exports.getAuthChannelsAsync = function(member, visitPeriod) {
  * @param {String}          member, member's uid
  */
 exports.getStarredChannelsAsync = function(member) {
-    return MemberDao.findByStarredAsync(member)
+    return PgMember.findStarsAsync(member)
         .map(function(memberDoc) {
             return memberDoc.channelId;
         }).then(function(channels) {
@@ -278,7 +271,7 @@ exports.getMembersAsync = function(channelId) {
     return ChannelTemp.getMemberListAsync(channelId)
         .then(function(members) {
             if (SharedUtils.isEmptyArray(members)) {
-                return MemberDao.findByChannelAsync(channelId)
+                return PgMember.findInChannelAsync(channelId)
                     .map(function(memberInfo) {
                         return memberInfo.member;
                     });
@@ -327,7 +320,7 @@ exports.getOnlineMembersAsync = function(channelId) {
  * @param {String}          channelId, channel id
  */
 exports.getMemberStatusAsync = function(asker, channelId) {
-    return MemberDao.findMemberAsync(asker, channelId)
+    return PgMember.findMemberAsync(asker, channelId)
         .catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getMemberStatusAsync', err);
             return null;
@@ -343,7 +336,7 @@ exports.getMemberStatusAsync = function(asker, channelId) {
  * @param {String}          channelId, channel id
  */
 exports.hasStarredAsync = function(asker, channelId) {
-    return MemberDao.isStarredAsync(asker, channelId)
+    return PgMember.isStarredAsync(asker, channelId)
         .catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'hasStarredAsync', err);
             return null;
@@ -360,7 +353,7 @@ exports.hasStarredAsync = function(asker, channelId) {
  * @param {Boolean}         toStar, indicate to star or not
  */
 exports.starControlAsync = function(asker, channelId, toStar) {
-    return MemberDao.updateStarredAsync(asker, channelId, toStar)
+    return PgMember.updateStarredAsync(asker, channelId, toStar)
         .catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'starControlAsync', err);
             return null;
@@ -385,33 +378,9 @@ function _isMemberAuthAsync(asker, channelId) {
         .then(function(result) {
             if (!result || !result.listExist) {
                 exports.getMembersAsync(channelId); // re-cache memberList to tempStore
-                return MemberDao.isExistAsync(asker, channelId);
+                return PgMember.isExistAsync(asker, channelId);
             }
             return !!result.memberExist;
-        });
-}
-
-/**
- * @Author: George_Chen
- * @Description: create channel related docs, any failure will cause the
- *               _removeChannel() to clean created docs
- *
- * @param {String}          creator, creator for this channel
- * @param {String}          channelId, channel id
- * @param {String}          name, full channel name
- */
-function _createChannel(creator, name) {
-    return PgChannel.createAsync(creator, name)
-        .then(function(doc) {
-            return Promise.join(
-                MemberDao.addAsync(creator, doc.channelId, true),
-                PgDrawBoard.saveAsync(doc.channelId, 0),
-                function() {
-                    return doc;
-                });
-        }).catch(function(err) {
-            SharedUtils.printError('ChannelService.js', '_createChannel', err);
-            return null;
         });
 }
 
@@ -442,3 +411,5 @@ function _setChannelNotification(sender, target, noticeMessage, cid, channelName
                 });
         });
 }
+
+// TODO: deleteChannel (should also remove es saerch index)

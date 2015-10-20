@@ -2,10 +2,10 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var ReqRespDao = require('../daos/ReqRespDao');
-var MemberDao = require('../daos/ChannelMemberDao');
 var UserDao = require('../daos/UserDao');
 var PgFriend = require('../pgDaos/PgFriend');
 var PgChannel = require('../pgDaos/PgChannel');
+var PgMember = require('../pgDaos/PgMember');
 
 /************************************************
  *
@@ -177,7 +177,7 @@ exports.readReqRespAsync = function(reqId, sender) {
 function _isReqCompleted(sender, target, type, info) {
     return Promise.try(function() {
         if (type === 'channel') {
-            return MemberDao.isExistAsync(sender, info);
+            return PgMember.isExistAsync(sender, info);
         }
         if (type === 'friend') {
             return PgFriend.hasFriendAsync(sender, target);

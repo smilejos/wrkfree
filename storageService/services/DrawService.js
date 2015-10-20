@@ -7,6 +7,7 @@ var Promise = require('bluebird');
 var ChannelStoreage = require('./ChannelService');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 var MemberDao = require('../daos/ChannelMemberDao');
+var PgMember = require('../pgDaos/PgMember');
 var PgDrawRecord = require('../pgDaos/PgDrawRecord');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 
@@ -60,7 +61,7 @@ exports.delBoardAsync = function(channelId, _bid, user) {
     var logMsg = 'channel [' + channelId + '] delete board [' + _bid + ']';
     LogUtils.info(LogCategory, null, logMsg);
     return Promise.join(
-        MemberDao.isHostAsync(user, channelId),
+        PgMember.isHostAsync(user, channelId),
         ChannelTemp.getVisitorsAsync(channelId),
         function(isHost, visitors) {
             if (!isHost || visitors.length !== 1) {
