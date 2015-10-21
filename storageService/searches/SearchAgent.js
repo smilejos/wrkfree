@@ -66,3 +66,18 @@ exports.multiSearchAsync = function(queryExpressions) {
             throw err;
         });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: to peform data index on elasticsearch server
+ * 
+ * @param {Object}      expression, the index expression
+ */
+exports.indexAsync = function(expression) {
+    return Client.index(expression)
+        .catch(function(err) {
+            SharedUtils.printError('agent.js', 'indexAsync', err);
+            throw err;
+        });
+};

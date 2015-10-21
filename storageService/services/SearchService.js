@@ -30,6 +30,18 @@ exports.searchChannelAsync = function(queryText) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to index current channel data into es search
+ *
+ * @param {Object}      channel, the channel data stored in db
+ */
+exports.indexChannelAsync = function(channel) {
+    var table = 'channels';
+    return _indexData(table, channel.id, channel, 'indexChannelAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: used to peform universal search service
  *
  * @param {String}      queryText, the string used to find user
@@ -82,6 +94,24 @@ function _singleSearch(collection, queryText, caller) {
                 return parser(info);
             });
         }).catch(function(err) {
+            SharedUtils.printError('SearchService', caller, err);
+            return null;
+        });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: a low-level implementation of peforming indexing on es search
+ *
+ * @param {String}      table, the db table name
+ * @param {String}      indexId, the index id for current data
+ * @param {Object}      source, the candidate data for indexing
+ * @param {String}      caller, the caller of this API
+ */
+function _indexData(table, indexId, source, caller) {
+    var expression = SearchHelper.getIndexExpression(table, indexId, source);
+    return SearchAgent.indexAsync(expression)
+        .catch(function(err){
             SharedUtils.printError('SearchService', caller, err);
             return null;
         });

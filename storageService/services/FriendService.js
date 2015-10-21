@@ -2,12 +2,12 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserDao = require('../daos/UserDao');
-var ChannelDao = require('../daos/ChannelDao');
-var MemberDao = require('../daos/ChannelMemberDao');
 var UserTemp = require('../tempStores/UserTemp');
 var UserTemp = require('../tempStores/UserTemp');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 var PgFriend = require('../pgDaos/PgFriend');
+var PgChannel = require('../pgDaos/PgChannel');
+var PgMember = require('../pgDaos/PgMember');
 
 /************************************************
  *
@@ -69,8 +69,6 @@ exports.addFriendshipAsync = function(user1, user2) {
                     }
                     return PgFriend.addFriendshipAsync(user1, user2)
                         .then(function() {
-                            return _create1on1Channel(user1, user2);
-                        }).then(function() {
                             return users;
                         }).map(function(info) {
                             return Promise.props({
@@ -100,8 +98,8 @@ exports.addFriendshipAsync = function(user1, user2) {
 exports.delFriendshipAsync = function(user1, user2) {
     return PgFriend.hasFriendAsync(user1, user2)
         .then(function(result) {
-            if (result) {
-                throw new Error('friend is exist');
+            if (!result) {
+                throw new Error('friendship not exist');
             }
             return PgFriend.deleteFriendshipAsync(user1, user2)
                 .then(function(result) {
@@ -136,32 +134,3 @@ exports.hasFriendshipAsync = function(user1, user2) {
  *           internal functions
  *
  ************************************************/
-
-/**
- * @Author: George_Chen
- * @Description: create 1on1 channel between two users
- *
- * @param {String}      user1, the user1's uid
- * @param {String}      user2, the user2's uid
- */
-function _create1on1Channel(user1, user2) {
-    return ChannelDao.create1on1Async(user1, user2)
-        .then(function(doc) {
-            if (!doc) {
-                throw new Error('create 1on1 channel fail');
-            }
-            return Promise.map([user1, user2], function(member) {
-                return MemberDao.add1on1Async(member, doc.channelId);
-            }).map(function(result) {
-                if (!result) {
-                    throw new Error('1on1 member doc create fail');
-                }
-                return result;
-            }).then(function(info) {
-                var cid = info[0].channelId;
-                return PgDrawBoard.saveAsync(cid, 0).then(function() {
-                    return info;
-                });
-            });
-        });
-}

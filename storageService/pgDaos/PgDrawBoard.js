@@ -21,18 +21,11 @@ exports.saveAsync = function(channelId) {
     return Promise.all([
         SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
-        var channelPath = '/data/files/' + channelId + '/';
-        return Promise.try(function() {
-            if (!Fs.existsSync(channelPath)) {
-                return Fs.mkdirAsync(channelPath);
-            }
-        }).then(function() {
-            var sqlQuery = {
-                text: 'INSERT INTO drawBoards("channelId") VALUES($1)',
-                values: queryParams
-            };
-            return Agent.execSqlAsync(sqlQuery);
-        });
+        var sqlQuery = {
+            text: 'INSERT INTO drawBoards("channelId") VALUES($1)',
+            values: queryParams
+        };
+        return Agent.execSqlAsync(sqlQuery);
     }).catch(function(err) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
@@ -221,11 +214,18 @@ exports.updateImgAsync = function(channelId, bid, imgType, content) {
             if (!_isImgTypeValid(imgType)) {
                 throw new Error('query on not supported img type');
             }
-            var path = '/data/files/' + cid + '/' + _bid + '_' + imgType + '.png';
-            return Fs.writeFileAsync(path, content).then(function() {
+            var channelPath = '/data/files/' + cid + '/';
+            var filePath = channelPath + _bid + '_' + imgType + '.png';
+            return Promise.try(function() {
+                if (!Fs.existsSync(channelPath)) {
+                    return Fs.mkdirAsync(channelPath);
+                }
+            }).then(function(){
+                return Fs.writeFileAsync(filePath, content);
+            }).then(function(){
                 var sqlQuery = {
                     text: 'UPDATE drawBoards set "' + imgType + '"=$1, "updatedTime"=$2 WHERE id=$3',
-                    values: [path, new Date(), _bid]
+                    values: [filePath, new Date(), _bid]
                 };
                 return Agent.execSqlAsync(sqlQuery);
             });

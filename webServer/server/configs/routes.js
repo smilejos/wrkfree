@@ -131,7 +131,7 @@ module.exports = function(server) {
     });
 
     ExpressRouter.get('/app/workspace/:channelId', auth.ensureMember, function(req, res) {
-        if (!req.query.board) {
+        if (isNaN(req.query.board -1)) {
             return res.redirect('/app/workspace/' + req.params.channelId + '?board=1');
         }
         LogUtils.info(LogCategory, {
@@ -142,6 +142,7 @@ module.exports = function(server) {
         req.routeInfo = {
             user: req.user,
             channelId: req.params.channelId,
+            boardIdx: req.query.board -1,
             storageManager: StorageManager
         };
         return reactRoute(req, res);

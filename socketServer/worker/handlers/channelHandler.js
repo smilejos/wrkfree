@@ -3,6 +3,7 @@ var Promise = require('bluebird');
 var SharedUtils = require('../../../sharedUtils/utils');
 var StorageManager = require('../../../storageService/storageManager');
 var ChannelStorage = StorageManager.getService('Channel');
+var SearchService = StorageManager.getService('Search');
 
 /**
  * Public API
@@ -17,10 +18,16 @@ exports.createAsync = function(socket, data) {
         .then(function(validName) {
             var host = socket.getAuthToken();
             var isPublic = true;
-            return ChannelStorage.createChannelAsync(host, validName, isPublic);
-        }).then(function(result) {
-            var errMsg = 'channel storage internal error';
-            return SharedUtils.checkExecuteResult(result, errMsg);
+            return ChannelStorage.createChannelAsync(host, validName, isPublic)
+                .then(function(data){
+                    if (data === null) {
+                        throw new Error('channel storage internal error');
+                    }
+                    return SearchService.indexChannelAsync(data)
+                        .then(function(){
+                            return data;
+                        });
+                });
         }).catch(function(err) {
             SharedUtils.printError('channelHandler.js', 'createAsync', err);
             throw new Error('create channel fail');
@@ -64,11 +71,11 @@ exports.addMembersAsync = function(socket, data) {
  * @param {Object}          socket, the client socket instance
  */
 exports.getAuthChannelsAsync = function(socket, data) {
-    return Promise.props({
-        period: SharedUtils.setQueryPeriod(data.period)
-    }).then(function(reqData) {
+    return Promise.try(function(){
         var uid = socket.getAuthToken();
-        return ChannelStorage.getAuthChannelsAsync(uid, reqData.period);
+        return data.visitTime > new Date(0).getTime() ?
+            ChannelStorage.getAuthChannelsAsync(uid, data.visitTime) :
+            ChannelStorage.getAuthChannelsAsync(uid) ;
     }).then(function(channels) {
         var errMsg = 'get authorized channels fail on storage service';
         return SharedUtils.checkExecuteResult(channels, errMsg);
