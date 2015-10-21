@@ -6,7 +6,6 @@ var LogCategory = 'STORAGE';
 var Promise = require('bluebird');
 var ChannelStoreage = require('./ChannelService');
 var ChannelTemp = require('../tempStores/ChannelTemp');
-var MemberDao = require('../daos/ChannelMemberDao');
 var PgMember = require('../pgDaos/PgMember');
 var PgDrawRecord = require('../pgDaos/PgDrawRecord');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');

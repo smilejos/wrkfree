@@ -275,5 +275,3 @@ function _MongoConnect() {
         }
     });
 }
-
-exports.memberMigration();

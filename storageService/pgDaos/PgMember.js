@@ -10,7 +10,7 @@ var AUTH_CHANNEL_QUERY_NUMBER = 30;
 /**
  * Public API
  * @Author: George_Chen
- * @Description: add member to current channel
+ * @Description: add member to the current channel
  *
  * @param {String}          member, the member uid
  * @param {String}          channelId, channel id
@@ -40,7 +40,7 @@ exports.addAsync = function(member, channelId) {
 /**
  * Public API: TBD
  * @Author: George_Chen
- * @Description: to remove member from current channel
+ * @Description: to remove member from the current channel
  *
  * @param {String}  member, the member's id
  * @param {String}  channelId, the channel identifier
@@ -54,7 +54,7 @@ exports.removeAsync = function(member, channelId) {
             text: 'DELETE FROM members WHERE "member"=$1 AND "channelId"=$2',
             values: queryParams
         };
-        return Agent.proxySqlAsync(sqlQuery);
+        return Agent.execSqlAsync(sqlQuery);
     }).catch(function(err) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
@@ -104,7 +104,8 @@ exports.findMemberAsync = function(member, channelId) {
  */
 exports.findByUidAsync = function(member, is1on1, visitTime) {
     return Promise.all([
-        SharedUtils.argsCheckAsync(member, 'md5'), !!is1on1, // indicate is1on1 is false
+        SharedUtils.argsCheckAsync(member, 'md5'), 
+        !!is1on1, // indicate is1on1 is false
         AUTH_CHANNEL_QUERY_NUMBER,
         SharedUtils.isNumber(visitTime) ? new Date(visitTime) : new Date()
     ]).then(function(queryParams) {
@@ -142,7 +143,7 @@ exports.findIn1on1Async = function(member) {
 /**
  * Public API: TBD
  * @Author: George_Chen
- * @Description: for user to find all channels that he has ever created
+ * @Description: find user's member status all channels that he has ever created
  *
  * @param {String}      host, host's id
  */
@@ -162,7 +163,7 @@ exports.findHostsAsync = function(host) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: for user to find all channels that he starred
+ * @Description: find user's member status on all channels that he starred
  *
  * @param {String}      member, member's uid
  */
@@ -202,7 +203,7 @@ exports.findInChannelAsync = function(channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: check channel member is exist or not
+ * @Description: check the channel member is exist or not
  *
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
@@ -286,12 +287,12 @@ exports.updateMsgAsync = function(member, channelId) {
             };
             return Agent.execSqlAsync(sqlQuery);
         }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in PgDrawBoard.updateMsgAsync()');
-        throw err;
-    });
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err.toString()
+            }, 'error in PgMember.updateMsgAsync()');
+            throw err;
+        });
 };
 
 /**
@@ -313,12 +314,12 @@ exports.updateVisitAsync = function(member, channelId) {
             };
             return Agent.execSqlAsync(sqlQuery);
         }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in PgDrawBoard.updateVisitAsync()');
-        throw err;
-    });
+            LogUtils.error(LogCategory, {
+                args: SharedUtils.getArgs(arguments),
+                error: err.toString()
+            }, 'error in PgMember.updateVisitAsync()');
+            throw err;
+        });
 };
 
 /**
@@ -345,7 +346,7 @@ exports.updateStarredAsync = function(member, channelId, state) {
         LogUtils.error(LogCategory, {
             args: SharedUtils.getArgs(arguments),
             error: err.toString()
-        }, 'error in PgDrawBoard.updateStarredAsync()');
+        }, 'error in PgMember.updateStarredAsync()');
         throw err;
     });
 };

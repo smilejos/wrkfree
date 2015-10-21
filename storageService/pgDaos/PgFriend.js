@@ -54,7 +54,7 @@ exports.addFriendshipAsync = function(user1, user2) {
                 values: [uid2, uid1]
             }, {
                 text: 'INSERT INTO channels(id, host, name, "is1on1") ' +
-                    'VALUES($1, $2, $3, $4) RETURNING * ',
+                    'VALUES($1, $2, $3, $4)',
                 values: [cid, hosts, '', true]
             }, {
                 text: 'INSERT INTO drawBoards("channelId") VALUES($1)',
