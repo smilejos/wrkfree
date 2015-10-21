@@ -79,13 +79,16 @@ exports.proxySqlAsync = Promise.promisify(function(queryObject, callback) {
 exports.execTransactionAsync = function(sqlQueries) {
     return Pg.connectAsync().spread(function(client, done) {
         return client.queryAsync('BEGIN').then(function() {
-            return Promise.each(sqlQueries, function(sql) {
-                return client.queryAsync(sql);
+            return Promise.map(sqlQueries, function(sql) {
+                return client.queryAsync(sql).then(function(result) {
+                    return result.rows[0];
+                });
+            }).then(function(data) {
+                return client.queryAsync('COMMIT').then(function() {
+                    done();
+                    return data;
+                });
             });
-        }).then(function() {
-            return client.queryAsync('COMMIT');
-        }).then(function() {
-            return done();
         }).catch(function(err) {
             _rollback(client, done);
             throw err;

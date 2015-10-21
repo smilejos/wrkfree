@@ -114,3 +114,30 @@ exports.createChannelsAsync = function() {
         console.log('[ERROR] on createChannelsAsync ', err);
     });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for creating members table
+ */
+exports.createMembersAsync = function() {
+    return Pg.connectAsync().spread(function(client, done) {
+        return client.queryAsync('CREATE TABLE members( ' +
+                'id uuid PRIMARY KEY DEFAULT gen_random_uuid(), ' +
+                'member VARCHAR(32), ' +
+                '"channelId" VARCHAR(32), ' +
+                '"is1on1" boolean DEFAULT false, ' +
+                '"isStarred" boolean DEFAULT false, ' +
+                '"isHost" boolean DEFAULT false, ' +
+                '"msgSeenTime" timestamp DEFAULT CURRENT_TIMESTAMP, ' +
+                '"lastVisitTime" timestamp DEFAULT CURRENT_TIMESTAMP)')
+            .then(function(result) {
+                console.log('[INFO] createMembersAsync result ', result);
+                done();
+            }).catch(function(err) {
+                console.log('[ERROR] on query createMembersAsync ', err);
+            });
+    }).catch(function(err) {
+        console.log('[ERROR] on createMembersAsync ', err);
+    });
+};

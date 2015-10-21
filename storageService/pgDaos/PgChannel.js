@@ -11,8 +11,6 @@ var Agent = require('../pgAgent');
  * Public API
  * @Author: George_Chen
  * @Description: create normal channel document
- * 
- * TODO: impl transaction on pgDrawboard, pgMember, ...
  *
  * @param {String}          creator, the creator uid
  * @param {String}          name, the channel name
@@ -23,53 +21,27 @@ exports.createAsync = function(creator, channelName) {
         SharedUtils.argsCheckAsync(channelName, 'string'),
         function(uid, name) {
             var cid = CryptoUtils.getMd5Hex(creator + Date.now().toString());
-            var sqlQuery = {
+            return Agent.execTransactionAsync([{
                 text: 'INSERT INTO channels(id, host, name) ' +
                     'VALUES($1, $2, $3) RETURNING * ',
                 values: [cid, uid, name]
-            };
-            return Agent.execSqlAsync(sqlQuery).then(function(result) {
-                result[0].channelId = result[0].id;
-                return result[0];
-            });
+            }, {
+                text: 'INSERT INTO drawBoards("channelId") VALUES($1)',
+                values: [cid]
+            }, {
+                text: 'INSERT INTO members(member, "channelId", "isStarred", "isHost", "msgSeenTime", "lastVisitTime") ' +
+                    'VALUES($1, $2, $3, $3, $4, $4)',
+                values: [uid, cid, true, new Date()]
+            }]);
+        }).then(function(transaction) {
+            var info = transaction[0];
+            info.channelId = info.id;
+            return info;
         }).catch(function(err) {
             LogUtils.error(LogCategory, {
                 args: SharedUtils.getArgs(arguments),
                 error: err.toString()
             }, 'error in PgChannel.createAsync()');
-            throw err;
-        });
-};
-
-/**
- * Public API
- * @Author: George_Chen
- * @Description: create 1on1 channel document
- *
- * @param {String}          user1, the user1's uid
- * @param {String}          user2, the user2's uid
- */
-exports.create1on1Async = function(user1, user2) {
-    return Promise.join(
-        SharedUtils.argsCheckAsync(user1, 'md5'),
-        SharedUtils.argsCheckAsync(user2, 'md5'),
-        function(uid1, uid2) {
-            var hosts = SharedUtils.get1on1ChannelHost(uid1, uid2);
-            var cid = CryptoUtils.getMd5Hex(hosts);
-            var sqlQuery = {
-                text: 'INSERT INTO channels(id, host, name, "is1on1") ' +
-                    'VALUES($1, $2, $3, $4) RETURNING * ',
-                values: [cid, hosts, '', true]
-            };
-            return Agent.execSqlAsync(sqlQuery).then(function(result) {
-                result[0].channelId = result[0].id;
-                return result[0];
-            });
-        }).catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in PgChannel.create1on1Async()');
             throw err;
         });
 };

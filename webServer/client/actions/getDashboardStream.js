@@ -22,7 +22,7 @@ module.exports = function(actionContext, data) {
     }
     hasQuery = true;
     return Promise.props({
-        period: SharedUtils.setQueryPeriod(data.period)
+        visitTime: SharedUtils.argsCheckAsync(data.visitTime, 'number')
     }).delay(DELAY_QUERY_TIME_IN_MSECOND).then(function(reqData) {
         return ChannelService.getAuthChannelsAsync(reqData);
     }).timeout(3000).map(function(doc) {

@@ -15,8 +15,7 @@ var ChannelListItem = require('./channelListItem.jsx');
  *      item.hostAvatar,
  *      item.snapshotUrl,
  *      item.memberList,
- *      item.time,
- *      item.isRtcOn 
+ *      item.time, 
  */
 module.exports = React.createClass({
     render: function(){

@@ -19,7 +19,6 @@ var ChannelGridItem = require('./channelGridItem.jsx');
  *      item.snapshotUrl,
  *      item.memberList,
  *      item.time,
- *      item.isRtcOn 
  */
 module.exports = React.createClass({
     render: function(){

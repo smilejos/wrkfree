@@ -2,9 +2,8 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var MsgDao = require('../daos/MsgDao');
-var ChannelMemberDao = require('../daos/ChannelMemberDao');
 var ChannelStoreage = require('./ChannelService');
-
+var PgMember = require('../pgDaos/PgMember');
 /************************************************
  *
  *           Public APIs
@@ -27,7 +26,7 @@ exports.saveAsync = function(sender, channelId, msg) {
         if (!result) {
             throw new Error('db save fail');
         }
-        return ChannelMemberDao.updateMsgAsync(sender, channelId)
+        return PgMember.updateMsgAsync(sender, channelId)
             .then(function() {
                 return result;
             });
@@ -53,7 +52,7 @@ exports.pullAsync = function(user, channelId, timePeriod) {
         messages: MsgDao.findByChannelAsync(channelId, timePeriod),
         isAuth: _ensureAuth(user, channelId)
     }).then(function(data) {
-        ChannelMemberDao.updateMsgAsync(user, channelId);
+        PgMember.updateMsgAsync(user, channelId);
         return data.messages;
     }).catch(function(err) {
         SharedUtils.printError('MsgService.js', 'pullAsync', err);
@@ -71,7 +70,7 @@ exports.pullAsync = function(user, channelId, timePeriod) {
  */
 exports.getLatestAsync = function(user, channels) {
     return Promise.join(
-        ChannelMemberDao.findByUidAsync(user, true),
+        PgMember.findIn1on1Async(user),
         MsgDao.findChannelsLatestAsync(channels),
         function(memberDoc, lastMsgs) {
             var result = {};
@@ -102,7 +101,7 @@ exports.getLatestAsync = function(user, channels) {
  * @param {String}          user, user uid
  */
 exports.getUnreadSubscribedMsgCountsAsync = function(user) {
-    return ChannelMemberDao.findByStarredAsync(user, false)
+    return PgMember.findStarsAsync(user)
         .then(function(memberDocs) {
             var userMsgSeenTime = {};
             SharedUtils.fastArrayMap(memberDocs, function(doc) {
@@ -127,7 +126,7 @@ exports.getUnreadSubscribedMsgCountsAsync = function(user) {
  */
 exports.readAckAsync = function(user, channelId) {
     return Promise.props({
-        ackResult: ChannelMemberDao.updateMsgAsync(user, channelId),
+        ackResult: PgMember.updateMsgAsync(user, channelId),
         isAuth: _ensureAuth(user, channelId)
     }).then(function(data) {
         return data.ackResult;
@@ -141,8 +140,8 @@ exports.readAckAsync = function(user, channelId) {
  * @Author: George_Chen
  * @Description: used to ensure the channel related request is authed
  *
+ * @param {Number}          member, the member uid
  * @param {String}          channelId, channel id
- * @param {Number}          boardId, the draw board id
  */
 function _ensureAuth(member, channelId) {
     return ChannelStoreage.getAuthAsync(member, channelId)
