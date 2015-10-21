@@ -42,7 +42,7 @@ exports.getWorkSpaceAsync = function(actionContext, routeInfo) {
     return Promise.props({
         FriendStore: friendStorage.getFriendListAsync(routeInfo.user.uid, routeInfo.user.uid),
         HeaderStore: routeInfo.user,
-        WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager),
+        WorkSpaceStore: _getWorkSpace(routeInfo.user.uid, routeInfo.channelId, storageManager, routeInfo.boardIdx),
         SubscriptionStore: _getStarredChannels(routeInfo.user.uid, routeInfo.storageManager)
     }).then(function(resource) {
         return _storesPolyfill(actionContext, resource);
@@ -166,7 +166,7 @@ function _getChannelStreams(uid, storageManager) {
  * @param {String}      channelId, channel's id
  * @param {Object}      storageManager, storageManager instance
  */
-function _getWorkSpace(uid, channelId, storageManager) {
+function _getWorkSpace(uid, channelId, storageManager, boardIdx) {
     var channelStorage = storageManager.getService('Channel');
     return channelStorage.getAuthAsync(uid, channelId)
         .then(function(isAuth) {
@@ -176,7 +176,11 @@ function _getWorkSpace(uid, channelId, storageManager) {
             return Promise.props({
                 channel: channelStorage.getChannelInfoAsync(channelId),
                 members: channelStorage.getMembersAsync(channelId),
-                status: channelStorage.getMemberStatusAsync(uid, channelId)
+                status: channelStorage.getMemberStatusAsync(uid, channelId),
+                params: {
+                    channelId: channelId,
+                    boardIdx: boardIdx
+                }
             }).then(function(resource) {
                 var props = Object.keys(resource);
                 SharedUtils.fastArrayMap(props, function(prop) {
