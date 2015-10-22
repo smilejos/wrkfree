@@ -5,6 +5,7 @@ var NotificationDao = require('../daos/NotificationDao');
 var UserTemp = require('../tempStores/UserTemp');
 var PgUser = require('../pgDaos/PgUser');
 var PgChannel = require('../pgDaos/PgChannel');
+var SearchService = require('./SearchService');
 
 /************************************************
  *
@@ -27,6 +28,14 @@ exports.addUserAsync = function(userInfo) {
             throw new Error('user already exist');
         }
         return PgUser.createAsync(userInfo);
+    }).then(function(result) {
+        if (!result) {
+            return result;
+        }
+        return SearchService.indexUserAsync(result)
+            .then(function(){
+                return result;
+            });
     }).catch(function(err) {
         SharedUtils.printError('UserService', 'addUserAsync', err);
         return null;
