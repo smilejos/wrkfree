@@ -141,3 +141,39 @@ exports.createMembersAsync = function() {
         console.log('[ERROR] on createMembersAsync ', err);
     });
 };
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: for creating users table
+ */
+exports.createUsersAsync = function() {
+    return Pg.connectAsync().spread(function(client, done) {
+        return client.queryAsync('CREATE TABLE users( ' +
+                'uid VARCHAR(32) PRIMARY KEY NOT NULL, ' +
+                'email CITEXT UNIQUE, ' +
+                '"givenName" TEXT, ' +
+                '"familyName" TEXT, ' +
+                'gender TEXT, ' +
+                'avatar TEXT, ' +
+                'password VARCHAR(40), ' +
+                'facebook TEXT, ' +
+                'google TEXT, ' +
+                'locale TEXT, ' +
+                '"isDefaultTourHidden" boolean DEFAULT false, ' +
+                '"isDashboardGrid" boolean DEFAULT true, ' +
+                '"unreadNoticeCounts" INTEGER DEFAULT 0, ' +
+                '"expiredDate" timestamp, ' +
+                '"createdTime" timestamp DEFAULT CURRENT_TIMESTAMP, ' +
+                '"updatedTime" timestamp DEFAULT CURRENT_TIMESTAMP)')
+            .then(function(result) {
+                console.log('[INFO] createUsersAsync result ', result);
+                done();
+            }).catch(function(err) {
+                console.log('[ERROR] on query createUsersAsync ', err);
+            });
+    }).catch(function(err) {
+        console.log('[ERROR] on createUsersAsync ', err);
+    });
+};
+
