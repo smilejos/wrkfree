@@ -1,9 +1,9 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
-var UserDao = require('../daos/UserDao');
 var NotificationDao = require('../daos/NotificationDao');
 var UserTemp = require('../tempStores/UserTemp');
+var PgUser = require('../pgDaos/PgUser');
 var PgChannel = require('../pgDaos/PgChannel');
 
 /************************************************
@@ -21,12 +21,12 @@ var PgChannel = require('../pgDaos/PgChannel');
  */
 exports.addUserAsync = function(userInfo) {
     return Promise.try(function() {
-        return UserDao.isEmailUsedAsync(userInfo.email);
+        return PgUser.isEmailUsedAsync(userInfo.email);
     }).then(function(exist) {
         if (exist) {
             throw new Error('user already exist');
         }
-        return UserDao.addNewUserAsync(userInfo);
+        return PgUser.createAsync(userInfo);
     }).catch(function(err) {
         SharedUtils.printError('UserService', 'addUserAsync', err);
         return null;
@@ -42,7 +42,7 @@ exports.addUserAsync = function(userInfo) {
  * @param {String} provider, oAuth provider
  */
 exports.oAuthLoginAsync = function(clientId, provider) {
-    return UserDao.findByOAuthAsync(clientId, provider)
+    return PgUser.findByOAuthAsync(clientId, provider)
         .then(function(userInfo) {
             return (!userInfo ? false : userInfo);
         }).catch(function(err) {
@@ -59,7 +59,7 @@ exports.oAuthLoginAsync = function(clientId, provider) {
  * @param {String}      uid, user id
  */
 exports.isEmailUsedAsync = function(uid) {
-    return UserDao.isEmailUsedAsync(uid)
+    return PgUser.isEmailUsedAsync(uid)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'isEmailUsedAsync', err);
             return null;
@@ -74,7 +74,7 @@ exports.isEmailUsedAsync = function(uid) {
  * @param {Object}          socket, the client socket instance
  */
 exports.resetUnreadNoticeAsync = function(user) {
-    return UserDao.setUnreadNoticeCountAsync(user, true)
+    return PgUser.setUnreadNoticeCountAsync(user, true)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'resetUnreadNoticeAsync', err);
             return null;
@@ -90,7 +90,7 @@ exports.resetUnreadNoticeAsync = function(user) {
  * @param {Boolean}         data.isGrid, to indicate layout is grid or not
  */
 exports.setDashboardLayoutAsync = function(user, isGrid) {
-    return UserDao.setLayoutAsync(user, isGrid)
+    return PgUser.setLayoutAsync(user, isGrid)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'setDashboardLayoutAsync', err);
             return null;
@@ -106,8 +106,10 @@ exports.setDashboardLayoutAsync = function(user, isGrid) {
  * @param {Boolean}         data.isHidden, to indicate tour is default hidden or not
  */
 exports.setDefaultTourAsync = function(user, isHidden) {
-    return UserDao.setDefaultTourAsync(user, isHidden)
-        .catch(function(err) {
+    return PgUser.setDefaultTourAsync(user, isHidden)
+        .then(function() {
+            return true;
+        }).catch(function(err) {
             SharedUtils.printError('UserService', 'disableTourHelperAsync', err);
             return null;
         });
@@ -121,7 +123,7 @@ exports.setDefaultTourAsync = function(user, isHidden) {
  * @param {String}          user, the current user id
  */
 exports.isDefaultTourHiddenAsync = function(user) {
-    return UserDao.isDefaultTourHiddenAsync(user)
+    return PgUser.isDefaultTourHiddenAsync(user)
         .catch(function(err) {
             SharedUtils.printError('UserService', 'isDefaultTourHiddenAsync', err);
             return null;
@@ -138,9 +140,9 @@ exports.isDefaultTourHiddenAsync = function(user) {
 exports.getUserAsync = function(user, isLogin) {
     return Promise.try(function() {
         if (SharedUtils.isArray(user)) {
-            return UserDao.findByGroupAsync(user);
+            return PgUser.findInIdsAsync(user);
         }
-        return UserDao.findByIdAsync(user, isLogin);
+        return PgUser.findByIdAsync(user, isLogin);
     }).catch(function(err) {
         SharedUtils.printError('UserService', 'getUserAsync', err);
         return null;

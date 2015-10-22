@@ -2,7 +2,7 @@
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var ReqRespDao = require('../daos/ReqRespDao');
-var UserDao = require('../daos/UserDao');
+var PgUser = require('../pgDaos/PgUser');
 var PgFriend = require('../pgDaos/PgFriend');
 var PgChannel = require('../pgDaos/PgChannel');
 var PgMember = require('../pgDaos/PgMember');
@@ -33,10 +33,11 @@ exports.saveReqAsync = function(sender, target, type, info) {
             }
             return ReqRespDao.saveReqAsync(sender, target, type, info);
         }).then(function(reqResult) {
-            if (!reqResult) {
-                throw new Error('save request fail');
-            }
-            return _incrNoticeCounts(target, 'saveReqAsync').then(function() {
+        if (!reqResult) {
+            throw new Error('save request fail');
+        }
+        return PgUser.setUnreadNoticeCountAsync(target, false)
+            .then(function(){
                 return reqResult;
             });
         }).catch(function(err) {
@@ -61,9 +62,10 @@ exports.saveRespAsync = function(reqId, replier, originalSender, isPermitted) {
             if (!respResult) {
                 throw new Error('save response fail');
             }
-            return _incrNoticeCounts(originalSender, 'saveRespAsync').then(function() {
-                return respResult;
-            });
+            return PgUser.setUnreadNoticeCountAsync(originalSender, false)
+                .then(function(){
+                    return respResult;
+                });
         }).catch(function(err) {
             SharedUtils.printError('ReqRespService.js', 'saveRespAsync', err);
             return null;
@@ -114,7 +116,7 @@ exports.isReqSentAsync = function(reqSender, targetUser, reqType, info) {
  */
 exports.getFriendReqInfoAsync = function(reqSender, targetUser) {
     return ReqRespDao.findFriendReqAsync(reqSender, targetUser)
-        .catch(function(err){
+        .catch(function(err) {
             SharedUtils.printError('ReqRespService.js', 'getFriendReqInfoAsync', err);
             return null;
         });
@@ -184,21 +186,4 @@ function _isReqCompleted(sender, target, type, info) {
         }
         throw new Error('unsupported request type');
     });
-}
-
-/**
- * @Author: George_Chen
- * @Description: to increment current user's unread notice counts
- *
- * @param {String}          user, user's id
- * @param {String}          caller, the caller of this API
- */
-function _incrNoticeCounts(user, caller) {
-    var err = new Error('incrNoticeCounts fail');
-    return UserDao.setUnreadNoticeCountAsync(user, false)
-        .then(function(incrResult) {
-            if (!incrResult) {
-                SharedUtils.printError('ReqRespService.js', caller, err);
-            }
-        });
 }

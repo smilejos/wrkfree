@@ -1,10 +1,10 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
-var UserDao = require('../daos/UserDao');
 var NotificationDao = require('../daos/NotificationDao');
 var ChannelTemp = require('../tempStores/ChannelTemp');
 var UserTemp = require('../tempStores/UserTemp');
+var PgUser = require('../pgDaos/PgUser');
 var PgChannel = require('../pgDaos/PgChannel');
 var PgMember = require('../pgDaos/PgMember');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
@@ -280,7 +280,7 @@ exports.getMembersAsync = function(channelId) {
         }).then(function(memberList) {
             ChannelTemp.importMemberListAsync(memberList, channelId);
             return Promise.props({
-                info: UserDao.findByGroupAsync(memberList)
+                info: PgUser.findInIdsAsync(memberList)
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getMembersAsync', err);
@@ -397,7 +397,7 @@ function _isMemberAuthAsync(asker, channelId) {
 function _setChannelNotification(sender, target, noticeMessage, cid, channelName) {
     return NotificationDao.createByChannelAsync(sender, target, noticeMessage, cid)
         .then(function(notificationDoc) {
-            return UserDao.setUnreadNoticeCountAsync(target, false)
+            return PgUser.setUnreadNoticeCountAsync(target, false)
                 .then(function(incrResult) {
                     var err = new Error('increment notification counts fail');
                     if (!incrResult) {
