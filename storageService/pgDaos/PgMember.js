@@ -397,7 +397,11 @@ function _find(sqlQuery, caller) {
  * @param {Object}          item, the member record info
  */
 function _transformTime(item) {
-    item.msgSeenTime = item.msgSeenTime.getTime();
-    item.lastVisitTime = item.lastVisitTime.getTime();
+    item.msgSeenTime = item.msgSeenTime instanceof Date ? 
+        item.msgSeenTime.getTime() : 
+        item.msgSeenTime;
+    item.lastVisitTime = item.lastVisitTime instanceof Date ? 
+        item.lastVisitTime.getTime() : 
+        item.lastVisitTime;
     return item;
 }
