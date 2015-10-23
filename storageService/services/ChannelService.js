@@ -8,6 +8,7 @@ var PgUser = require('../pgDaos/PgUser');
 var PgChannel = require('../pgDaos/PgChannel');
 var PgMember = require('../pgDaos/PgMember');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
+var SearchService = require('./SearchService');
 
 /************************************************
  *
@@ -30,6 +31,14 @@ exports.createChannelAsync = function(creator, name) {
                 throw new Error('channel is exist !');
             }
             return PgChannel.createAsync(creator, name);
+        }).then(function(result) {
+            if (!result) {
+                return result;
+            }
+            return SearchService.indexChannelAsync(result)
+                .then(function(){
+                    return result;
+                });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'createChannelAsync', err);
             return null;
