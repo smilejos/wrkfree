@@ -1,10 +1,10 @@
 'use strict';
 var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
-var UserDao = require('../daos/UserDao');
 var UserTemp = require('../tempStores/UserTemp');
 var UserTemp = require('../tempStores/UserTemp');
 var PgDrawBoard = require('../pgDaos/PgDrawBoard');
+var PgUser = require('../pgDaos/PgUser');
 var PgFriend = require('../pgDaos/PgFriend');
 var PgChannel = require('../pgDaos/PgChannel');
 var PgMember = require('../pgDaos/PgMember');
@@ -32,7 +32,7 @@ exports.getFriendListAsync = function(candidate) {
                 return doc.uid;
             }).then(function(uids) {
                 return Promise.join(
-                    UserDao.findByGroupAsync(uids),
+                    PgUser.findInIdsAsync(uids),
                     UserTemp.getOnlineUsersAsync(uids),
                     function(usersInfo, onlineUids) {
                         return Promise.map(usersInfo, function(info) {
@@ -62,7 +62,7 @@ exports.addFriendshipAsync = function(user1, user2) {
             if (result) {
                 throw new Error('friend is exist');
             }
-            return UserDao.findByGroupAsync([user1, user2])
+            return PgUser.findInIdsAsync([user1, user2])
                 .then(function(users) {
                     if (users.length !== 2) {
                         throw new Error('abnormal users info');
