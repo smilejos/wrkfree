@@ -45,6 +45,9 @@ exports.proxySqlAsync = Promise.promisify(function(queryObject, callback) {
     if (!pgQuery) {
         RuningQueries[queryHash] = new EventEmitter();
         pgQuery = RuningQueries[queryHash];
+        // enhance the power of proxy request, 
+        // but we should take care of memory leak
+        pgQuery.setMaxListeners(0);
     }
     pgQuery.once('result', function(result) {
         callback(null, result);

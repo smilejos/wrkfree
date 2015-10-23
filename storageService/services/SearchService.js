@@ -42,6 +42,18 @@ exports.indexChannelAsync = function(channel) {
 /**
  * Public API
  * @Author: George_Chen
+ * @Description: used to index current user data into es search
+ *
+ * @param {Object}      user, the user data stored in db
+ */
+exports.indexUserAsync = function(user) {
+    var table = 'users';
+    return _indexData(table, user.uid, user, 'indexUserAsync');
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
  * @Description: used to peform universal search service
  *
  * @param {String}      queryText, the string used to find user

@@ -239,6 +239,42 @@ exports.memberMigration = function() {
 };
 
 /**
+ * Public API
+ * @Author: George_Chen
+ * @Description: migrating user collection to postgresSQL table 
+ */
+exports.userMigration = function() {
+    function _getUserQuery(doc) {
+        return {
+            text: 'INSERT INTO users(uid, email, "givenName", "familyName", gender, avatar, facebook, ' +
+                'google, locale, "isDefaultTourHidden", "isDashboardGrid", "unreadNoticeCounts", "createdTime", "updatedTime") ' +
+                'VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $13)',
+            values: [doc._id, doc.email, doc.givenName, doc.familyName, doc.gender, doc.avatar, doc.facebook, 
+                doc.google, doc.locale, doc.isDefaultTourHidden, doc.isDashboardGrid, doc.unreadNoticeCounts, doc.createdTime]
+        };
+    }
+    return PgClient.queryAsync({
+        text: 'SELECT EXISTS (' +
+            'SELECT 1 ' +
+            'FROM   information_schema.tables ' +
+            'WHERE  table_schema = $1' +
+            'AND    table_name = $2 )',
+        values: ['public', 'users']
+    }).then(function(tableResult) {
+        var tableExist = tableResult.rows[0].exists;
+        if (!tableExist) {
+            return PgModel.createUsersAsync();
+        }
+    }).then(function() {
+        return _MongoConnect().then(function() {
+            require('./models/UserModel');
+            var model = Mongoose.model('User');
+            return _tableMigration(model, _getUserQuery);
+        });
+    });
+};
+
+/**
  * @Author: George_Chen
  * @Description: migrdate mongodb collection to postgresSQL table
  *
