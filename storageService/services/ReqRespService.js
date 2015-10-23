@@ -33,13 +33,13 @@ exports.saveReqAsync = function(sender, target, type, info) {
             }
             return ReqRespDao.saveReqAsync(sender, target, type, info);
         }).then(function(reqResult) {
-        if (!reqResult) {
-            throw new Error('save request fail');
-        }
-        return PgUser.setUnreadNoticeCountAsync(target, false)
-            .then(function(){
-                return reqResult;
-            });
+            if (!reqResult) {
+                throw new Error('save request fail');
+            }
+            return PgUser.setUnreadNoticeCountAsync(target, false)
+                .then(function(){
+                    return reqResult;
+                });
         }).catch(function(err) {
             SharedUtils.printError('ReqRespService.js', 'saveReqAsync', err);
             return null;

@@ -197,7 +197,7 @@ exports.setUnreadNoticeCountAsync = function(uid, isReset) {
  * @Description: to update the user's isDashboardLayout field
  *
  * @param {String}          uid, the current user id
- * @param {Boolean}         data.isGridLayout, to indicate layout is grid or not
+ * @param {Boolean}         isGridLayout, to indicate layout is grid or not
  */
 exports.setLayoutAsync = function(uid, isGridLayout) {
     return Promise.all([
@@ -218,7 +218,7 @@ exports.setLayoutAsync = function(uid, isGridLayout) {
  * @Description: used to update user's defaut tour state
  *
  * @param {String}          uid, the current user id
- * @param {Boolean}         data.isHidden, to indicate tour is default hidden or not
+ * @param {Boolean}         isHidden, to indicate tour is default hidden or not
  */
 exports.setDefaultTourAsync = function(uid, isHidden) {
     return Promise.all([
