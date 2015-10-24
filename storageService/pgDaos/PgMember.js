@@ -25,15 +25,7 @@ exports.addAsync = function(member, channelId) {
                     'VALUES($1, $2, $3, $3) RETURNING * ',
                 values: [uid, cid, new Date(0)]
             };
-            return Agent.execSqlAsync(sqlQuery).then(function(result) {
-                return result[0];
-            });
-        }).catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in PgMember.addAsync()');
-            throw err;
+            return _set(sqlQuery, 'addAsync');
         });
 };
 
@@ -54,13 +46,7 @@ exports.removeAsync = function(member, channelId) {
             text: 'DELETE FROM members WHERE "member"=$1 AND "channelId"=$2',
             values: queryParams
         };
-        return Agent.execSqlAsync(sqlQuery);
-    }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in PgMember.removeAsync()');
-        throw err;
+        return _set(sqlQuery, 'removeAsync');
     });
 };
 
@@ -271,28 +257,52 @@ exports.isHostAsync = function(member, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: update member's msg seen status
+ * @Description: update message status on channel members 
+ *               which has starred current channel when sender has sent the message
+ *
+ * @param {String}      sender, message sender uid
+ * @param {String}      channelId, channel's id
+ */
+exports.newMsgStateAsync = function(sender, channelId) {
+    return Promise.join(
+        SharedUtils.argsCheckAsync(sender, 'md5'),
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        function(uid, cid) {
+            return Agent.execTransactionAsync([{
+                text: 'UPDATE members SET "unreadMsgCounts"="unreadMsgCounts"+1 ' +
+                    'WHERE "channelId"=$1 AND "isStarred"=$2 AND "msgSeenTime" < CURRENT_TIMESTAMP',
+                values: [cid, true]
+            }, {
+                text: 'UPDATE members SET "unreadMsgCounts"=$1, "msgSeenTime"=CURRENT_TIMESTAMP ' +
+                    'WHERE "member"=$2 AND "channelId"=$3 AND "isStarred"=$4',
+                values: [0, uid, cid, true]
+            }]);
+        });
+};
+
+/**
+ * Public API
+ * @Author: George_Chen
+ * @Description: reset message status on channel members 
+ *               which has starred current channel
  *
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
  */
-exports.updateMsgAsync = function(member, channelId) {
-    return Promise.join(
+exports.resetMsgStateAsync = function(member, channelId) {
+    return Promise.all([
         SharedUtils.argsCheckAsync(member, 'md5'),
         SharedUtils.argsCheckAsync(channelId, 'md5'),
-        function(uid, cid) {
-            var sqlQuery = {
-                text: 'UPDATE members set "msgSeenTime"=$1 WHERE "member"=$2 AND "channelId"=$3',
-                values: [new Date(), uid, cid]
-            };
-            return Agent.execSqlAsync(sqlQuery);
-        }).catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in PgMember.updateMsgAsync()');
-            throw err;
-        });
+        true, // indicate "isStarred" is true,
+        0 // update "unreadMsgCounts" to 0
+    ]).then(function(queryParams) {
+        var sqlQuery = {
+            text: 'UPDATE members SET "unreadMsgCounts"=$4, "msgSeenTime"=CURRENT_TIMESTAMP ' +
+                'WHERE member=$1 AND "channelId"=$2 AND "isStarred"=$3',
+            values: queryParams
+        };
+        return _set(sqlQuery, 'resetMsgStateAsync');
+    });
 };
 
 /**
@@ -312,13 +322,7 @@ exports.updateVisitAsync = function(member, channelId) {
                 text: 'UPDATE members set "lastVisitTime"=$1 WHERE "member"=$2 AND "channelId"=$3',
                 values: [new Date(), uid, cid]
             };
-            return Agent.execSqlAsync(sqlQuery);
-        }).catch(function(err) {
-            LogUtils.error(LogCategory, {
-                args: SharedUtils.getArgs(arguments),
-                error: err.toString()
-            }, 'error in PgMember.updateVisitAsync()');
-            throw err;
+            return _set(sqlQuery, 'updateVisitAsync');
         });
 };
 
@@ -333,21 +337,17 @@ exports.updateVisitAsync = function(member, channelId) {
  */
 exports.updateStarredAsync = function(member, channelId, state) {
     return Promise.all([
-        SharedUtils.argsCheckAsync(state, 'boolean'),
         SharedUtils.argsCheckAsync(member, 'md5'),
-        SharedUtils.argsCheckAsync(channelId, 'md5')
+        SharedUtils.argsCheckAsync(channelId, 'md5'),
+        SharedUtils.argsCheckAsync(state, 'boolean'),
+        0 // update "unreadMsgCounts" to 0
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'UPDATE members set "isStarred"=$1 WHERE "member"=$2 AND "channelId"=$3',
+            text: 'UPDATE members set "isStarred"=$3, "unreadMsgCounts"=$4, "msgSeenTime"=CURRENT_TIMESTAMP ' +
+                'WHERE "member"=$1 AND "channelId"=$2',
             values: queryParams
         };
-        return Agent.execSqlAsync(sqlQuery);
-    }).catch(function(err) {
-        LogUtils.error(LogCategory, {
-            args: SharedUtils.getArgs(arguments),
-            error: err.toString()
-        }, 'error in PgMember.updateStarredAsync()');
-        throw err;
+        return _set(sqlQuery, 'updateStarredAsync');
     });
 };
 
@@ -392,16 +392,35 @@ function _find(sqlQuery, caller) {
 
 /**
  * @Author: George_Chen
+ * @Description: to execute update or create operation
+ *
+ * @param {Object}          sqlQuery, the pg sql query object
+ * @param {String}          caller, the caller function name
+ */
+function _set(sqlQuery, caller) {
+    return Agent.execSqlAsync(sqlQuery).then(function(result) {
+        return result[0];
+    }).catch(function(err) {
+        LogUtils.error(LogCategory, {
+            args: SharedUtils.getArgs(arguments),
+            error: err.toString()
+        }, 'error in PgMember.' + caller + '()');
+        throw err;
+    });
+}
+
+/**
+ * @Author: George_Chen
  * @Description: to transform date field on member docurment into timestamp
  *
  * @param {Object}          item, the member record info
  */
 function _transformTime(item) {
-    item.msgSeenTime = item.msgSeenTime instanceof Date ? 
-        item.msgSeenTime.getTime() : 
+    item.msgSeenTime = item.msgSeenTime instanceof Date ?
+        item.msgSeenTime.getTime() :
         item.msgSeenTime;
-    item.lastVisitTime = item.lastVisitTime instanceof Date ? 
-        item.lastVisitTime.getTime() : 
+    item.lastVisitTime = item.lastVisitTime instanceof Date ?
+        item.lastVisitTime.getTime() :
         item.lastVisitTime;
     return item;
 }
