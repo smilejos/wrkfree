@@ -363,7 +363,9 @@ exports.hasStarredAsync = function(asker, channelId) {
  */
 exports.starControlAsync = function(asker, channelId, toStar) {
     return PgMember.updateStarredAsync(asker, channelId, toStar)
-        .catch(function(err) {
+        .then(function() {
+            return true;
+        }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'starControlAsync', err);
             return null;
         });
