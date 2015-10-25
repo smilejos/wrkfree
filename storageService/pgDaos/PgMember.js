@@ -257,8 +257,9 @@ exports.isHostAsync = function(member, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: update message status on channel members 
- *               which has starred current channel when sender has sent the message
+ * @Description: update message status on current channel members 
+ *               who have starred current channel.
+ *         NOTE: should only triggered when new message has been saved to db
  *
  * @param {String}      sender, message sender uid
  * @param {String}      channelId, channel's id
@@ -283,8 +284,8 @@ exports.newMsgStateAsync = function(sender, channelId) {
 /**
  * Public API
  * @Author: George_Chen
- * @Description: reset message status on channel members 
- *               which has starred current channel
+ * @Description: reset message status on specific channel member
+ *               who has starred the current channel
  *
  * @param {String}      member, member's id
  * @param {String}      channelId, channel's id
