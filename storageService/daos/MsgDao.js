@@ -124,59 +124,6 @@ exports.findChannelsLatestAsync = function(channels) {
 };
 
 /**
- * Public API
- * @Author: George_Chen
- * @Description: to count unread messages by a object "userMsgSeenTime"
- *         NOTE: "userMsgSeenTime" is a json data, each key stored as 'channelId', 
- *               and the matched value is the last time that user readed message.
- *         e.g. {
- *             '1a10decfb54422b8bbaf80e87bb60c81': 'ISODate("2015-06-27T02:59:11.723Z")'
- *         }
- *
- * @param {Object}          userMsgSeenTime, a object store channels message seen time
- */
-exports.countUnreadByChannelsAsync = function(userMsgSeenTime) {
-    var channels = Object.keys(userMsgSeenTime);
-    if (channels.length === 0) {
-        return [];
-    }
-    return Promise.map(channels, function(cid) {
-        return SharedUtils.argsCheckAsync(cid, 'md5');
-    }).then(function(cids) {
-        return Model.mapReduceAsync({
-            // pass the "seenTime" as parameter into map functions
-            scope: {
-                seentime: userMsgSeenTime
-            },
-            query: {
-                channelId: {
-                    $in: cids
-                }
-            },
-            map: function() {
-                if (seentime[this.channelId] < this.sentTime) {
-                    emit(this.channelId, 1);
-                }
-            },
-            // the total length of valus should be the unread message counts
-            reduce: function(k, values) {
-                return values.length;
-            }
-        });
-    }).spread(function(reduceResult) {
-        return Promise.map(reduceResult, function(result) {
-            return {
-                channelId: result._id,
-                counts: result.value
-            };
-        });
-    }).catch(function(err) {
-        SharedUtils.printError('MsgDao.js', 'countUnreadByChannelsAsync', err);
-        throw err;
-    });
-};
-
-/**
  * @Author: George_Chen
  * @Description: an basic mongoose find operation
  *

@@ -128,7 +128,8 @@ exports.createMembersAsync = function() {
                 '"channelId" VARCHAR(32), ' +
                 '"is1on1" boolean DEFAULT false, ' +
                 '"isStarred" boolean DEFAULT false, ' +
-                '"isHost" boolean DEFAULT false, ' +
+                '"isHost" boolean DEFAULT false, ' +,
+                '"unreadMsgCounts" INTEGER DEFAULT 0, ' +
                 '"msgSeenTime" timestamp DEFAULT CURRENT_TIMESTAMP, ' +
                 '"lastVisitTime" timestamp DEFAULT CURRENT_TIMESTAMP)')
             .then(function(result) {
