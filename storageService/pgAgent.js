@@ -7,6 +7,9 @@ var CryptoUtils = require('../sharedUtils/cryptoUtils');
 // for recording running queries
 var RuningQueries = {};
 
+// configure the maximum pool size of pg client
+Pg.defaults.poolSize = 30;
+
 /**
  * Public API
  * @Author: George_Chen
