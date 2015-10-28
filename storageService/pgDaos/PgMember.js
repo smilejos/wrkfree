@@ -85,19 +85,23 @@ exports.findMemberAsync = function(member, channelId) {
  * @Description: for member to get his status on all channels that he has ever been authed
  *
  * @param {String}          member, member's id
- * @param {Boolean}         is1on1, to find 1on1 channels or not
  * @param {Object}          visitTime, the visit timestamp (optional)
  */
-exports.findByUidAsync = function(member, is1on1, visitTime) {
+exports.findByUidAsync = function(member, visitTime) {
     return Promise.all([
-        SharedUtils.argsCheckAsync(member, 'md5'), 
-        !!is1on1, // indicate is1on1 is false
+        SharedUtils.argsCheckAsync(member, 'md5'),
+        false, // indicate is1on1 is false
         AUTH_CHANNEL_QUERY_NUMBER,
         SharedUtils.isNumber(visitTime) ? new Date(visitTime) : new Date()
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM members WHERE "member"=$1 AND "is1on1"=$2 ' +
-                'AND "lastVisitTime" <$4 ' +
+            text: 'SELECT ' +
+                'm."channelId", c.name as "channelName", c.host as "hostUid",u.avatar as "hostAvatar", ' +
+                ' u."givenName" || u."familyName" as "hostName", m."isStarred", m."lastVisitTime" ' +
+                'FROM members m, channels c ' +
+                'LEFT JOIN users u on c.host = u.uid ' +
+                'WHERE ' +
+                'm."member"=$1 AND m."is1on1"=$2 AND m."lastVisitTime"<$4 AND m."channelId" = c.id ' +
                 'ORDER BY "lastVisitTime" DESC ' +
                 'LIMIT $3',
             values: queryParams

@@ -56,12 +56,16 @@ module.exports = CreateStore({
         var collection = this.db.getCollection(this.dbName);
         return Promise.map(data.channels, function(item) {
             return _saveDashboardChannel(collection, {
-                channelId: item.channel.channelId,
-                channelName: item.channel.name,
-                hostInfo: item.hostInfo,
-                snapshotUrl: _getSnapshotUrl(item.channel.channelId),
+                channelId: item.channelId,
+                channelName: item.channelName,
+                snapshotUrl: _getSnapshotUrl(item.channelId),
                 isStarred: item.isStarred,
-                visitTime: item.visitTime
+                visitTime: item.visitTime,
+                hostInfo: {
+                    uid: item.hostUid,
+                    nickName: item.hostName,
+                    avatar: item.hostAvatar
+                }
             });
         }).bind(this).then(function() {
             this.emitChange();

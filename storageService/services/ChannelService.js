@@ -198,13 +198,12 @@ exports.addMembersAsync = function(host, members, channelId) {
  * @param {Object}          visitTime, the visit timestamp (optional)
  */
 exports.getAuthChannelsAsync = function(member, visitTime) {
-    return PgMember.findByUidAsync(member, false, visitTime)
+    return PgMember.findByUidAsync(member, visitTime)
         .map(function(memberDoc) {
-            return Promise.props({
-                channel: PgChannel.findByIdAsync(memberDoc.channelId),
-                isStarred: memberDoc.isStarred,
-                visitTime: memberDoc.lastVisitTime
-            });
+            memberDoc.visitTime = memberDoc.lastVisitTime;
+            delete memberDoc.lastVisitTime;
+            delete memberDoc.msgSeenTime;
+            return memberDoc;
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getAuthChannelsAsync', err);
             return null;
