@@ -3,11 +3,8 @@ var SharedUtils = require('../../sharedUtils/utils');
 var Promise = require('bluebird');
 var UserTemp = require('../tempStores/UserTemp');
 var UserTemp = require('../tempStores/UserTemp');
-var PgDrawBoard = require('../pgDaos/PgDrawBoard');
 var PgUser = require('../pgDaos/PgUser');
 var PgFriend = require('../pgDaos/PgFriend');
-var PgChannel = require('../pgDaos/PgChannel');
-var PgMember = require('../pgDaos/PgMember');
 
 /************************************************
  *
@@ -24,23 +21,12 @@ var PgMember = require('../pgDaos/PgMember');
  */
 exports.getFriendListAsync = function(candidate) {
     return PgFriend.getFriendsAsync(candidate)
-        .then(function(friends) {
-            if (friends.length === 0) {
-                return friends;
-            }
-            return Promise.map(friends, function(doc) {
-                return doc.uid;
-            }).then(function(uids) {
-                return Promise.join(
-                    PgUser.findInIdsAsync(uids),
-                    UserTemp.getOnlineUsersAsync(uids),
-                    function(usersInfo, onlineUids) {
-                        return Promise.map(usersInfo, function(info) {
-                            info.isOnline = (onlineUids.indexOf(info.uid) > -1);
-                            return info;
-                        });
-                    });
-            });
+        .map(function(friend) {
+            return UserTemp.isUserOnlineAsync(friend.uid)
+                .then(function(isOnline) {
+                    friend.isOnline = !!isOnline;
+                    return friend;
+                });
         }).catch(function(err) {
             SharedUtils.printError('FriendService', 'getFriendListAsync', err);
             return null;
