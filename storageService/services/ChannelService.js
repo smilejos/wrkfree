@@ -36,7 +36,7 @@ exports.createChannelAsync = function(creator, name) {
                 return result;
             }
             return SearchService.indexChannelAsync(result)
-                .then(function(){
+                .then(function() {
                     return result;
                 });
         }).catch(function(err) {
@@ -198,13 +198,10 @@ exports.addMembersAsync = function(host, members, channelId) {
  * @param {Object}          visitTime, the visit timestamp (optional)
  */
 exports.getAuthChannelsAsync = function(member, visitTime) {
-    return PgMember.findByUidAsync(member, false, visitTime)
+    return PgMember.findByUidAsync(member, visitTime)
         .map(function(memberDoc) {
-            return Promise.props({
-                channel: PgChannel.findByIdAsync(memberDoc.channelId),
-                isStarred: memberDoc.isStarred,
-                visitTime: memberDoc.lastVisitTime
-            });
+            memberDoc.visitTime = memberDoc.lastVisitTime;
+            return memberDoc;
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getAuthChannelsAsync', err);
             return null;
@@ -220,17 +217,7 @@ exports.getAuthChannelsAsync = function(member, visitTime) {
  */
 exports.getStarredChannelsAsync = function(member) {
     return PgMember.findStarsAsync(member)
-        .map(function(memberDoc) {
-            return memberDoc.channelId;
-        }).then(function(channels) {
-            return PgChannel.findInIdsAsync(channels);
-        }).map(function(channelDoc) {
-            return {
-                channelId: channelDoc.channelId,
-                host: channelDoc.host,
-                name: channelDoc.name
-            };
-        }).catch(function(err) {
+        .catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getStarredChannelsAsync', err);
             return null;
         });
@@ -277,19 +264,15 @@ exports.getAuthAsync = function(asker, channelId) {
  * @param {String}          channelId, channel id
  */
 exports.getMembersAsync = function(channelId) {
-    return ChannelTemp.getMemberListAsync(channelId)
+    return PgMember.findInChannelAsync(channelId)
         .then(function(members) {
-            if (SharedUtils.isEmptyArray(members)) {
-                return PgMember.findInChannelAsync(channelId)
-                    .map(function(memberInfo) {
-                        return memberInfo.member;
-                    });
-            }
-            return members;
-        }).then(function(memberList) {
-            ChannelTemp.importMemberListAsync(memberList, channelId);
-            return Promise.props({
-                info: PgUser.findInIdsAsync(memberList)
+            return Promise.map(members, function(info) {
+                return info.uid;
+            }).then(function(uids) {
+                ChannelTemp.importMemberListAsync(uids, channelId);
+                return {
+                    info: members
+                };
             });
         }).catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getMembersAsync', err);

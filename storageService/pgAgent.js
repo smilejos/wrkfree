@@ -7,6 +7,9 @@ var CryptoUtils = require('../sharedUtils/cryptoUtils');
 // for recording running queries
 var RuningQueries = {};
 
+// configure the maximum pool size of pg client
+Pg.defaults.poolSize = 30;
+
 /**
  * Public API
  * @Author: George_Chen
@@ -16,6 +19,7 @@ var RuningQueries = {};
  * @param {Object}      queryObject, the formatted pg query object
  */
 exports.execSqlAsync = function(queryObject) {
+    _showPoolInfo();    // print the current pool info
     return Pg.connectAsync().spread(function(client, done) {
         return client.queryAsync(queryObject)
             .then(function(result) {
@@ -56,6 +60,7 @@ exports.proxySqlAsync = Promise.promisify(function(queryObject, callback) {
         callback(err);
     });
     if (!hasRunningQuery) {
+        _showPoolInfo();    // print the current pool info
         return Pg.connectAsync().spread(function(client, done) {
             return client.queryAsync(queryObject)
                 .then(function(result) {
@@ -127,3 +132,13 @@ function _rollback(client, done) {
             return done(err);
         });
 }
+
+/**
+ * @Author: George_Chen
+ * @Description: dynamically monitor and show the pg pool info
+ */
+function _showPoolInfo() {
+    var pool = Pg.pools.getOrCreate();
+    console.log('poolSize: %d, availableObjects: %d', pool.getPoolSize(), pool.availableObjectsCount());
+}
+

@@ -177,13 +177,7 @@ function _getDashboardResource(actionContext) {
     var dashboardStore = actionContext.getStore(DashboardStore);
     if (dashboardStore.isStoreOutdated()) {
         return ChannelService.getAuthChannelsAsync({})
-            .map(function(doc) {
-                return UserService.getInfoAsync(doc.channel.host)
-                    .then(function(hostInfo) {
-                        doc.hostInfo = hostInfo;
-                        return doc;
-                    });
-            }).then(function(result) {
+            .then(function(result) {
                 return {
                     channels: result
                 };

@@ -141,16 +141,7 @@ function _getChannelStreams(uid, storageManager) {
     var channelStorage = storageManager.getService('Channel');
     var userStorage = storageManager.getService('User');
     return channelStorage.getAuthChannelsAsync(uid)
-        .map(function(doc) {
-            return userStorage.getUserAsync(doc.channel.host)
-                .then(function(hostInfo) {
-                    if (hostInfo === null) {
-                        throw new Error('fail to get host info on storage service');
-                    }
-                    doc.hostInfo = hostInfo;
-                    return doc;
-                });
-        }).then(function(result) {
+        .then(function(result) {
             return {
                 channels: result
             };
