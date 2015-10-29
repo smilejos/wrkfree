@@ -217,17 +217,7 @@ exports.getAuthChannelsAsync = function(member, visitTime) {
  */
 exports.getStarredChannelsAsync = function(member) {
     return PgMember.findStarsAsync(member)
-        .map(function(memberDoc) {
-            return memberDoc.channelId;
-        }).then(function(channels) {
-            return PgChannel.findInIdsAsync(channels);
-        }).map(function(channelDoc) {
-            return {
-                channelId: channelDoc.channelId,
-                host: channelDoc.host,
-                name: channelDoc.name
-            };
-        }).catch(function(err) {
+        .catch(function(err) {
             SharedUtils.printError('ChannelService.js', 'getStarredChannelsAsync', err);
             return null;
         });

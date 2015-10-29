@@ -164,7 +164,10 @@ exports.findStarsAsync = function(member) {
         true // indicate isStarred is true
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM members WHERE "member"=$1 AND "is1on1"=$2 AND "isStarred"=$3',
+            text: 'SELECT m."channelId", c.name, c.host ' +
+                'FROM members m ' +
+                'LEFT JOIN channels c on m."channelId" = c.id ' +
+                'WHERE m."member"=$1 AND m."is1on1"=$2 AND m."isStarred"=$3',
             values: queryParams
         };
         return _find(sqlQuery, 'findStarsAsync');

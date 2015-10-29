@@ -61,7 +61,7 @@ exports.findByIdAsync = function(uid, isLogin) {
     ]).then(function(queryParams) {
         var fields = (isLogin ? '*' : 'uid, "givenName", "familyName", avatar ');
         var sqlQuery = {
-            text: 'SELECT ' + fields + 'FROM users WHERE uid=$1',
+            text: 'SELECT ' + fields + ' FROM users WHERE uid=$1',
             values: queryParams
         };
         return _findOne(sqlQuery, 'findByIdAsync');
