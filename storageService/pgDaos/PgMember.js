@@ -183,7 +183,10 @@ exports.findInChannelAsync = function(channelId) {
         SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM members WHERE "channelId"=$1',
+            text: 'SELECT u.uid, u."givenName" || u."familyName" as "nickName", u.avatar ' +
+                'FROM members m ' +
+                'LEFT JOIN users u on m.member = u.uid ' +
+                'WHERE m."channelId"=$1 ',
             values: queryParams
         };
         return _find(sqlQuery, 'findInChannelAsync');
@@ -421,11 +424,11 @@ function _set(sqlQuery, caller) {
  * @param {Object}          item, the member record info
  */
 function _transformTime(item) {
-    item.msgSeenTime = item.msgSeenTime instanceof Date ?
-        item.msgSeenTime.getTime() :
-        item.msgSeenTime;
-    item.lastVisitTime = item.lastVisitTime instanceof Date ?
-        item.lastVisitTime.getTime() :
-        item.lastVisitTime;
+    if (item.msgSeenTime instanceof Date) {
+        item.msgSeenTime = item.msgSeenTime.getTime();
+    }
+    if (item.lastVisitTime instanceof Date) {
+        item.lastVisitTime = item.lastVisitTime.getTime();
+    }
     return item;
 }
