@@ -427,11 +427,21 @@ function _set(sqlQuery, caller) {
  * @param {Object}          item, the member record info
  */
 function _transformTime(item) {
-    if (item.msgSeenTime instanceof Date) {
-        item.msgSeenTime = item.msgSeenTime.getTime();
+    if (item.msgSeenTime) {
+        item.msgSeenTime = _getTimestamp(item.msgSeenTime);
     }
-    if (item.lastVisitTime instanceof Date) {
-        item.lastVisitTime = item.lastVisitTime.getTime();
+    if (item.lastVisitTime) {
+        item.lastVisitTime = _getTimestamp(item.lastVisitTime);
     }
     return item;
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: for getting timestamp by current time related object
+ *
+ * @param {Object}          time, date object or time string
+ */
+function _getTimestamp(time) {
+    return (time instanceof Date ? time.getTime() : new Date(time).getTime());
 }
