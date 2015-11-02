@@ -18,7 +18,9 @@ exports.getFriendsAsync = function(owner) {
         SharedUtils.argsCheckAsync(owner, 'md5')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM friends WHERE "owner"=$1',
+            text: 'SELECT u.uid, u."givenName" || u."familyName" as "nickName", u.avatar ' +
+                'FROM friends f LEFT JOIN users u on f.uid = u.uid ' +
+                'WHERE "owner"=$1 ',
             values: queryParams
         };
         return Agent.proxySqlAsync(sqlQuery);

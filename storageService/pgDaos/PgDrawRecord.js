@@ -50,10 +50,11 @@ exports.findByBoardAsync = function(channelId, _bid) {
                 'ORDER BY "drawTime" ASC',
             values: queryParams
         };
-        return Agent.proxySqlAsync(sqlQuery).map(function(doc) {
-            doc.drawTime = doc.drawTime.getTime();
-            return doc;
-        });
+        return Agent.proxySqlAsync(sqlQuery);
+    }).map(function(doc) {
+        var time = doc.drawTime;
+        doc.drawTime = (time instanceof Date ? time.getTime() : new Date(time).getTime());
+        return doc;
     }).catch(function(err) {
         SharedUtils.printError('PgDrawRecord.js', 'findByBoardAsync', err);
         throw err;

@@ -7,6 +7,12 @@ set -e
 # deployment container need to build first to make configs in /workspace/...
 if [ -d /workspace/wrkfree2.0/nginxConfigs/production/ ] ; then
     cp -rf /workspace/wrkfree2.0/nginxConfigs/production/* /etc/nginx
+    mkdir -p /etc/nginx/ssl/
+    if [ -e /workspace/wrkfree.crt ] ; then
+        cp /workspace/wrkfree.crt /etc/nginx/ssl/
+    else
+        echo "not install public key"
+    fi    
     if [ -e /workspace/wrkfree.key ] ; then
         cp /workspace/wrkfree.key /etc/nginx/ssl/
     else

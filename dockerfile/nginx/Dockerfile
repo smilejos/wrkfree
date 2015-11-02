@@ -1,4 +1,4 @@
-FROM nginx:1.7.7
+FROM nginx:1.9.5
 MAINTAINER george_chen (bamoo456@gmail.com)
 
 COPY ./run.sh /

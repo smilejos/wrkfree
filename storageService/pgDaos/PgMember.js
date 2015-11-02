@@ -85,19 +85,23 @@ exports.findMemberAsync = function(member, channelId) {
  * @Description: for member to get his status on all channels that he has ever been authed
  *
  * @param {String}          member, member's id
- * @param {Boolean}         is1on1, to find 1on1 channels or not
  * @param {Object}          visitTime, the visit timestamp (optional)
  */
-exports.findByUidAsync = function(member, is1on1, visitTime) {
+exports.findByUidAsync = function(member, visitTime) {
     return Promise.all([
-        SharedUtils.argsCheckAsync(member, 'md5'), 
-        !!is1on1, // indicate is1on1 is false
+        SharedUtils.argsCheckAsync(member, 'md5'),
+        false, // indicate is1on1 is false
         AUTH_CHANNEL_QUERY_NUMBER,
         SharedUtils.isNumber(visitTime) ? new Date(visitTime) : new Date()
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM members WHERE "member"=$1 AND "is1on1"=$2 ' +
-                'AND "lastVisitTime" <$4 ' +
+            text: 'SELECT ' +
+                'm."channelId", c.name as "channelName", c.host as "hostUid",u.avatar as "hostAvatar", ' +
+                ' u."givenName" || u."familyName" as "hostName", m."isStarred", m."lastVisitTime" ' +
+                'FROM members m, channels c ' +
+                'LEFT JOIN users u on c.host = u.uid ' +
+                'WHERE ' +
+                'm."member"=$1 AND m."is1on1"=$2 AND m."lastVisitTime"<$4 AND m."channelId" = c.id ' +
                 'ORDER BY "lastVisitTime" DESC ' +
                 'LIMIT $3',
             values: queryParams
@@ -160,7 +164,10 @@ exports.findStarsAsync = function(member) {
         true // indicate isStarred is true
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM members WHERE "member"=$1 AND "is1on1"=$2 AND "isStarred"=$3',
+            text: 'SELECT m."channelId", c.name, c.host ' +
+                'FROM members m ' +
+                'LEFT JOIN channels c on m."channelId" = c.id ' +
+                'WHERE m."member"=$1 AND m."is1on1"=$2 AND m."isStarred"=$3',
             values: queryParams
         };
         return _find(sqlQuery, 'findStarsAsync');
@@ -179,7 +186,10 @@ exports.findInChannelAsync = function(channelId) {
         SharedUtils.argsCheckAsync(channelId, 'md5')
     ]).then(function(queryParams) {
         var sqlQuery = {
-            text: 'SELECT * FROM members WHERE "channelId"=$1',
+            text: 'SELECT u.uid, u."givenName" || u."familyName" as "nickName", u.avatar ' +
+                'FROM members m ' +
+                'LEFT JOIN users u on m.member = u.uid ' +
+                'WHERE m."channelId"=$1 ',
             values: queryParams
         };
         return _find(sqlQuery, 'findInChannelAsync');
@@ -417,11 +427,21 @@ function _set(sqlQuery, caller) {
  * @param {Object}          item, the member record info
  */
 function _transformTime(item) {
-    item.msgSeenTime = item.msgSeenTime instanceof Date ?
-        item.msgSeenTime.getTime() :
-        item.msgSeenTime;
-    item.lastVisitTime = item.lastVisitTime instanceof Date ?
-        item.lastVisitTime.getTime() :
-        item.lastVisitTime;
+    if (item.msgSeenTime) {
+        item.msgSeenTime = _getTimestamp(item.msgSeenTime);
+    }
+    if (item.lastVisitTime) {
+        item.lastVisitTime = _getTimestamp(item.lastVisitTime);
+    }
     return item;
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: for getting timestamp by current time related object
+ *
+ * @param {Object}          time, date object or time string
+ */
+function _getTimestamp(time) {
+    return (time instanceof Date ? time.getTime() : new Date(time).getTime());
 }

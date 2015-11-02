@@ -25,13 +25,7 @@ module.exports = function(actionContext, data) {
         visitTime: SharedUtils.argsCheckAsync(data.visitTime, 'number')
     }).delay(DELAY_QUERY_TIME_IN_MSECOND).then(function(reqData) {
         return ChannelService.getAuthChannelsAsync(reqData);
-    }).timeout(3000).map(function(doc) {
-        return UserService.getInfoAsync(doc.channel.host)
-            .then(function(hostInfo) {
-                doc.hostInfo = hostInfo;
-                return doc;
-            });
-    }).then(function(result) {
+    }).timeout(3000).then(function(result) {
         actionContext.dispatch('ON_CHANNELS_APPENDED', {
             channels: result
         });

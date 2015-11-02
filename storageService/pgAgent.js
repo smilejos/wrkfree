@@ -1,11 +1,15 @@
 'use strict';
 var Pg = require('pg');
 var Promise = require('bluebird');
+var PgCacher = require('./pgCacher');
 var EventEmitter = require('events').EventEmitter;
 var CryptoUtils = require('../sharedUtils/cryptoUtils');
 
 // for recording running queries
 var RuningQueries = {};
+
+// configure the maximum pool size of pg client
+Pg.defaults.poolSize = 30;
 
 /**
  * Public API
@@ -16,6 +20,7 @@ var RuningQueries = {};
  * @param {Object}      queryObject, the formatted pg query object
  */
 exports.execSqlAsync = function(queryObject) {
+    _showPoolInfo(); // print the current pool info
     return Pg.connectAsync().spread(function(client, done) {
         return client.queryAsync(queryObject)
             .then(function(result) {
@@ -56,16 +61,26 @@ exports.proxySqlAsync = Promise.promisify(function(queryObject, callback) {
         callback(err);
     });
     if (!hasRunningQuery) {
-        return Pg.connectAsync().spread(function(client, done) {
-            return client.queryAsync(queryObject)
-                .then(function(result) {
-                    pgQuery.emit('result', result.rows);
+        return PgCacher.getAsync(queryHash).then(function(data) {
+            if (data) {
+                pgQuery.emit('result', data);
+                return _clearQuery(queryHash);
+            }
+            _showPoolInfo(); // print the current pool info
+            return Pg.connectAsync().spread(function(pgClient, done) {
+                return pgClient.queryAsync(queryObject).then(function(result) {
+                    var data = result.rows;
+                    if (data) {
+                        PgCacher.setAsync(queryHash, data);
+                    }
+                    return pgQuery.emit('result', data);
                 }).catch(function(err) {
                     pgQuery.emit('error', err);
                 }).finally(function() {
                     done();
                     _clearQuery(queryHash);
                 });
+            });
         }).catch(function(err) {
             pgQuery.emit('error', err);
         });
@@ -126,4 +141,13 @@ function _rollback(client, done) {
         }).catch(function(err) {
             return done(err);
         });
+}
+
+/**
+ * @Author: George_Chen
+ * @Description: dynamically monitor and show the pg pool info
+ */
+function _showPoolInfo() {
+    var pool = Pg.pools.getOrCreate();
+    console.log('poolSize: %d, availableObjects: %d', pool.getPoolSize(), pool.availableObjectsCount());
 }
