@@ -34,7 +34,7 @@
     "react-linkify": "0.0.4",
     "react-router": "^0.13.3",
     "react-tap-event-plugin": "^0.1.7",
-    "serialize-javascript": "^1.0.0",
+    "serialize-javascript": "^4.0.0",
     "socketcluster-client": "2.3.13",
     "superagent": "^0.21.0",
     "webrtc": "^1.14.1",
